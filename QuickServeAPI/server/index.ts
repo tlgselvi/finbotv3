@@ -5,7 +5,7 @@ import compression from 'compression';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
-import { db } from './db.ts';
+import { db, dbInterface } from './db.ts';
 import { logger } from './utils/logger.ts';
 import { validateEnvironment, logEnvironmentConfig, type ValidatedEnv } from './utils/env-validation.ts';
 import { registerRoutes } from './routes.ts';
@@ -42,81 +42,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Simple login endpoint - defined BEFORE registerRoutes
-import bcrypt from 'bcryptjs';
-import { JWTAuthService } from './jwt-auth.ts';
-
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    logger.info('🔐 Login attempt started', { email: req.body.email });
-    
-    const { email, password } = req.body;
-    
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email ve şifre gerekli' });
-    }
-
-    // Get user from database
-    const user = db.getUserByEmail(email);
-    
-    if (!user) {
-      logger.warn('❌ Login failed: user not found', { email });
-      return res.status(401).json({ error: 'Geçersiz email veya şifre' });
-    }
-
-    logger.info('✅ User found', { userId: user.id, email: user.email });
-
-    // Check password
-    const passwordHash = (user as any).password_hash;
-    
-    if (!passwordHash) {
-      logger.error('❌ No password hash', { userId: user.id });
-      return res.status(500).json({ error: 'Sistem hatası' });
-    }
-
-    logger.info('🔑 Checking password...');
-    const isValid = await bcrypt.compare(password, passwordHash);
-    logger.info('Password check result:', { isValid });
-    
-    if (!isValid) {
-      logger.warn('❌ Login failed: invalid password', { email });
-      return res.status(401).json({ error: 'Geçersiz email veya şifre' });
-    }
-
-    // Generate token
-    let token = 'temp-token-123';
-    try {
-      token = JWTAuthService.generateToken({
-        id: user.id,
-        email: user.email,
-        username: (user as any).username,
-        role: (user as any).role || 'admin',
-      });
-      logger.info('✅ Token generated successfully');
-    } catch (tokenError) {
-      logger.error('❌ Token generation failed:', tokenError);
-      // Continue anyway with temp token for testing
-    }
-
-    logger.info('✅✅✅ Login SUCCESSFUL', { userId: user.id, email });
-
-    res.json({
-      message: 'Giriş başarılı',
-      user: {
-        id: user.id,
-        email: user.email,
-        username: (user as any).username,
-        role: (user as any).role,
-      },
-      token,
-    });
-  } catch (error) {
-    logger.error('❌❌❌ Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Register all other routes from routes.ts (includes /api/auth/me with proper middleware)
+// Register all routes from routes.ts (includes login endpoint)
 await registerRoutes(app);
 
 // Serve React app (SPA fallback) - must be after API routes
