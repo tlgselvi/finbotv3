@@ -112,14 +112,18 @@ CREATE TABLE IF NOT EXISTS recurring_transactions (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
   account_id TEXT NOT NULL,
+  name TEXT NOT NULL,
   amount TEXT NOT NULL,
   type TEXT NOT NULL,
-  category TEXT,
+  category TEXT NOT NULL,
   description TEXT,
   frequency TEXT NOT NULL,
-  interval_count INTEGER DEFAULT 1,
-  next_due_date TEXT NOT NULL,
+  start_date TEXT NOT NULL,
+  end_date TEXT,
+  last_processed TEXT,
+  next_due TEXT NOT NULL,
   is_active INTEGER DEFAULT 1,
+  currency TEXT DEFAULT 'TRY',
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -131,11 +135,11 @@ CREATE TABLE IF NOT EXISTS budget_lines (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
   category TEXT NOT NULL,
-  amount TEXT NOT NULL,
-  period TEXT DEFAULT 'monthly',
-  start_date TEXT,
-  end_date TEXT,
-  is_active INTEGER DEFAULT 1,
+  budgeted_amount TEXT NOT NULL,
+  actual_amount TEXT DEFAULT '0',
+  month TEXT NOT NULL,
+  currency TEXT DEFAULT 'TRY',
+  notes TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -161,12 +165,17 @@ CREATE TABLE IF NOT EXISTS aging (
 CREATE TABLE IF NOT EXISTS bank_integrations (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
-  provider_name TEXT NOT NULL,
   bank_name TEXT NOT NULL,
-  credentials TEXT,
+  account_number TEXT,
+  account_type TEXT,
+  status TEXT DEFAULT 'pending',
+  last_sync TEXT,
+  api_key TEXT,
+  access_token TEXT,
+  refresh_token TEXT,
+  expires_at TEXT,
+  metadata TEXT,
   is_active INTEGER DEFAULT 1,
-  sync_status TEXT DEFAULT 'idle',
-  last_sync_at TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -175,47 +184,53 @@ CREATE TABLE IF NOT EXISTS bank_integrations (
 -- Bank Transactions table
 CREATE TABLE IF NOT EXISTS bank_transactions (
   id TEXT PRIMARY KEY,
-  integration_id TEXT NOT NULL,
+  bank_integration_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
   external_id TEXT,
   amount TEXT NOT NULL,
   currency TEXT DEFAULT 'TRY',
   description TEXT,
-  date TEXT NOT NULL,
-  balance TEXT,
-  type TEXT,
+  transaction_date TEXT NOT NULL,
+  status TEXT DEFAULT 'completed',
+  metadata TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (integration_id) REFERENCES bank_integrations(id) ON DELETE CASCADE
+  FOREIGN KEY (bank_integration_id) REFERENCES bank_integrations(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Import Batches table
 CREATE TABLE IF NOT EXISTS import_batches (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
-  file_name TEXT NOT NULL,
-  file_type TEXT NOT NULL,
-  status TEXT DEFAULT 'pending',
+  bank_integration_id TEXT,
+  filename TEXT NOT NULL,
   total_records INTEGER DEFAULT 0,
-  processed_records INTEGER DEFAULT 0,
+  successful_records INTEGER DEFAULT 0,
   failed_records INTEGER DEFAULT 0,
+  status TEXT DEFAULT 'processing',
   error_log TEXT,
+  metadata TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   completed_at TEXT,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (bank_integration_id) REFERENCES bank_integrations(id) ON DELETE SET NULL
 );
 
 -- Reconciliation Logs table
 CREATE TABLE IF NOT EXISTS reconciliation_logs (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
-  integration_id TEXT,
-  status TEXT DEFAULT 'pending',
-  matched_count INTEGER DEFAULT 0,
-  unmatched_count INTEGER DEFAULT 0,
-  discrepancy_amount TEXT DEFAULT '0',
-  notes TEXT,
+  bank_integration_id TEXT,
+  bank_transaction_id TEXT,
+  transaction_id TEXT,
+  action TEXT NOT NULL,
+  confidence TEXT,
+  details TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (integration_id) REFERENCES bank_integrations(id) ON DELETE SET NULL
+  FOREIGN KEY (bank_integration_id) REFERENCES bank_integrations(id) ON DELETE SET NULL,
+  FOREIGN KEY (bank_transaction_id) REFERENCES bank_transactions(id) ON DELETE SET NULL,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
 );
 `;
 
