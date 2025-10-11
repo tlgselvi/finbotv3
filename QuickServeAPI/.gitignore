@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+.pnpm-debug.log
+
+# Build outputs
+dist
+build
+.vite
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+
+# Testing
+coverage
+.nyc_output
+
+# Database
+*.db
+*.sqlite
+drizzle
+

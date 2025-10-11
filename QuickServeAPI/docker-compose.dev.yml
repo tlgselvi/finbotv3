@@ -1,0 +1,144 @@
+# FinBot v3 - Development Docker Compose
+# Hot-reload enabled development environment
+# Usage: docker-compose -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: finbot-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: finbot_dev
+      POSTGRES_USER: finbot_user
+      POSTGRES_PASSWORD: finbot_dev_pass
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finbot_user -d finbot_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - finbot-dev-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: finbot-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - finbot-dev-network
+
+  # FinBot Development App (Hot Reload)
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: finbot-app-dev
+    restart: unless-stopped
+    ports:
+      - "5000:5000"    # Backend API
+      - "5173:5173"    # Vite dev server
+    environment:
+      # Database
+      DATABASE_URL: postgresql://finbot_user:finbot_dev_pass@postgres:5432/finbot_dev
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: finbot_dev
+      DB_USER: finbot_user
+      DB_PASSWORD: finbot_dev_pass
+      
+      # Redis
+      REDIS_URL: redis://redis:6379
+      
+      # Development
+      NODE_ENV: development
+      PORT: 5000
+      VITE_PORT: 5173
+      
+      # JWT
+      JWT_SECRET: dev-secret-key-not-for-production
+      
+      # Features (all enabled in dev)
+      ENABLE_ALERTS: "true"
+      ENABLE_NOTIFICATIONS: "true"
+      ENABLE_MONTE_CARLO: "true"
+      ENABLE_SCENARIOS: "true"
+      ENABLE_REPORTS: "true"
+      
+      # Logging (verbose in dev)
+      LOG_LEVEL: debug
+      
+      # Development helpers
+      DEBUG: "finbot:*"
+      FORCE_COLOR: "1"
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount source code for hot reload
+      - ./server:/app/server:ro
+      - ./client:/app/client:ro
+      - ./shared:/app/shared:ro
+      - ./migrations:/app/migrations:ro
+      
+      # Mount config files
+      - ./package.json:/app/package.json:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./tsconfig.server.json:/app/tsconfig.server.json:ro
+      - ./client/vite.config.ts:/app/client/vite.config.ts:ro
+      
+      # Persist node_modules
+      - node_modules:/app/node_modules
+      
+      # Logs
+      - ./logs:/app/logs
+      
+    networks:
+      - finbot-dev-network
+    command: pnpm dev
+
+  # PgAdmin (Database Management UI)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: finbot-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@finbot.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - finbot-dev-network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  node_modules:
+    driver: local
+
+networks:
+  finbot-dev-network:
+    driver: bridge
+
