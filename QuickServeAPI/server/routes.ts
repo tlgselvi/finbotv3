@@ -4,7 +4,7 @@ import { createServer, type Server } from 'http';
 import { storage } from './storage.ts';
 import { logger } from './utils/logger.ts';
 import { insertAccountSchema, insertTransactionSchema, insertCreditSchema, updateAccountSchema, deleteAccountSchema, updateTransactionSchema, deleteTransactionSchema, updateCreditSchema, deleteCreditSchema, loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, insertTeamSchema, updateTeamSchema, insertTeamMemberSchema, inviteUserSchema, acceptInviteSchema, insertSystemAlertSchema, insertFixedExpenseSchema, insertInvestmentSchema, insertForecastSchema, insertAISettingsSchema, importTransactionJsonSchema, exportTransactionsByDateSchema, transactionJsonFileSchema, Permission, UserRole, TeamPermission, hasTeamPermission, TeamRole } from '../shared/schema.ts';
-import { db as dbInterface } from './db.ts';
+import { db, dbInterface } from './db.ts';
 import bcrypt from 'bcryptjs';
 import { randomBytes, randomUUID } from 'crypto';
 import type { AuthenticatedRequest } from './middleware/auth.ts';
@@ -943,7 +943,14 @@ export async function registerRoutes (app: Express): Promise<Server> {
       logger.info('🔐 Login attempt started');
       logger.debug('Request body:', req.body);
       
-      const validatedData = loginSchema.parse(req.body);
+      const { email, password } = req.body;
+      
+      // Validate input
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Email ve şifre gerekli' });
+      }
+      
+      const validatedData = { email, password };
       logger.debug('✓ Validation passed');
 
       // Find user by email - use db interface
@@ -983,12 +990,7 @@ export async function registerRoutes (app: Express): Promise<Server> {
       }
 
       // Generate JWT token
-      const token = JWTAuthService.generateToken({
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        role: user.role as any,
-      });
+      const token = JWTAuthService.generateToken(user);
 
       // Remove sensitive fields
       const userResponse = {
@@ -1007,8 +1009,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
         token,
       });
     } catch (error) {
+      console.error('❌ LOGIN ERROR CAUGHT:', error);
       logger.error('❌ Login error:', error);
-      res.status(500).json({ error: 'Giriş sırasında hata oluştu' });
+      res.status(500).json({ error: 'Giriş sırasında hata oluştu', details: error instanceof Error ? error.message : String(error) });
     }
   });
 
