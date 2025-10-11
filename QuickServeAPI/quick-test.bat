@@ -1,6 +1,6 @@
 @echo off
-REM FinBot Quick Test Runner v2.0 (Windows)
-REM Tum aktif testleri otomatik calistirir
+REM FinBot Quick Test Runner v2.1 (Windows)
+REM Tum aktif testleri otomatik calistirir ve README'yi gunceller
 
 echo.
 echo ============================================
@@ -38,7 +38,10 @@ echo ============================================
 echo    Tum Aktif Testler Tamamlandi!
 echo ============================================
 echo.
+echo README guncelleniyor...
+call node scripts/quick-update-readme.js
+
+echo.
 echo Ayrintili rapor icin: pnpm test:coverage
 echo.
 pause
-

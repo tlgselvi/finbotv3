@@ -1,7 +1,24 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import { securityMiddleware } from '../../server/middleware/security-v2';
-import { PermissionV2, UserRoleV2 } from '../../shared/schema';
+
+// Define enums locally to avoid mock conflicts
+export enum UserRoleV2 {
+  ADMIN = 'ADMIN',
+  FINANCE = 'FINANCE',
+  VIEWER = 'VIEWER',
+  AUDITOR = 'AUDITOR'
+}
+
+export enum PermissionV2 {
+  ADMIN_ALL = 'ADMIN_ALL',
+  FINANCE_READ = 'FINANCE_READ',
+  FINANCE_WRITE = 'FINANCE_WRITE',
+  FINANCE_DELETE = 'FINANCE_DELETE',
+  VIEW_ONLY = 'VIEW_ONLY',
+  AUDIT_READ = 'AUDIT_READ',
+  AUDIT_EXPORT = 'AUDIT_EXPORT'
+}
 
 // Mock dependencies
 vi.mock('../../server/db', () => ({

@@ -135,7 +135,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
       const defaultCurrency = 'TRY';
       
       const result = invalidCurrency.length === 3 ? invalidCurrency : defaultCurrency;
-      expect(result).toBe(invalidCurrency);
+      expect(result).toBe(defaultCurrency);
       
       // In real app, would fallback to TRY
     });

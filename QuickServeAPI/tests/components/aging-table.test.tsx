@@ -1,15 +1,16 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 import { AgingTable } from '../../client/src/components/aging-table';
 
 // Mock the currency context
-jest.mock('../../client/src/contexts/CurrencyContext', () => ({
+vi.mock('../../client/src/contexts/CurrencyContext', () => ({
   useFormatCurrency: () => (amount: number) => `₺${amount.toLocaleString('tr-TR')}`,
 }));
 
 // Mock fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn() as any;
 
 describe('AgingTable Component', () => {
   const mockProps = {
@@ -48,11 +49,11 @@ describe('AgingTable Component', () => {
   ];
 
   beforeEach(() => {
-    (fetch as jest.Mock).mockClear();
+    vi.mocked(fetch).mockClear();
   });
 
   test('renders loading state initially', () => {
-    (fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    vi.mocked(fetch).mockImplementation(() => new Promise(() => {}));
     
     render(<AgingTable {...mockProps} />);
     
@@ -60,7 +61,7 @@ describe('AgingTable Component', () => {
   });
 
   test('renders error state when fetch fails', async () => {
-    (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
     
     render(<AgingTable {...mockProps} />);
     
@@ -70,7 +71,7 @@ describe('AgingTable Component', () => {
   });
 
   test('renders aging reports data correctly', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         success: true,
@@ -89,7 +90,7 @@ describe('AgingTable Component', () => {
   });
 
   test('displays summary statistics', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         success: true,
@@ -106,7 +107,7 @@ describe('AgingTable Component', () => {
   });
 
   test('filters work correctly', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         success: true,
@@ -120,13 +121,14 @@ describe('AgingTable Component', () => {
       expect(screen.getByText('Test Müşteri A')).toBeInTheDocument();
     });
     
-    // Test status filter
-    const statusFilter = screen.getByDisplayValue('Tüm Durumlar');
+    // Test status filter button exists
+    const statusFilter = screen.getByText('Tüm Durumlar');
+    expect(statusFilter).toBeInTheDocument();
     // Note: This would need actual user interaction testing with fireEvent
   });
 
   test('shows correct aging bucket colors', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         success: true,

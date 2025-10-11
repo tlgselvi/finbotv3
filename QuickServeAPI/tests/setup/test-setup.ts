@@ -116,23 +116,45 @@ vi.mock('nodemailer', () => {
 
 vi.mock('crypto', () => {
   const mockCrypto = {
-    randomUUID: vi.fn(() => 'test-uuid'),
+    randomUUID: vi.fn(() => 'test-uuid-' + Date.now()),
     randomBytes: vi.fn((size: number) => {
-      const buffer = Buffer.alloc(size, 'test');
-      // Add toString method to buffer
-      buffer.toString = vi.fn((encoding?: string) => {
-        if (encoding === 'hex') {
-          return 'a'.repeat(size * 2); // Hex string (2 chars per byte)
-        }
-        return buffer.toString('utf-8');
-      }) as any;
-      return buffer;
+      // Create a proper hex string
+      const hexString = 'a'.repeat(size * 2);
+      // Return an object that behaves like a Buffer
+      const mockBuffer = {
+        toString: (encoding?: string) => {
+          if (encoding === 'hex') {
+            return hexString;
+          }
+          return 'test-buffer';
+        },
+        length: size,
+        // Add other Buffer methods if needed
+        slice: () => mockBuffer,
+        copy: () => size
+      };
+      return mockBuffer as any;
     }),
     createHmac: vi.fn(() => ({
       update: vi.fn().mockReturnThis(),
-      digest: vi.fn(() => 'test-hash')
+      digest: vi.fn((encoding?: string) => {
+        if (encoding === 'hex') {
+          return 'test-hmac-hash-hex';
+        }
+        return Buffer.from('test-hash');
+      })
     })),
-    timingSafeEqual: vi.fn(() => true)
+    createHash: vi.fn(() => ({
+      update: vi.fn().mockReturnThis(),
+      digest: vi.fn((encoding?: string) => {
+        if (encoding === 'hex') {
+          return 'test-hash-hex';
+        }
+        return Buffer.from('test-hash');
+      })
+    })),
+    timingSafeEqual: vi.fn(() => true),
+    pbkdf2Sync: vi.fn(() => Buffer.from('test-derived-key'))
   };
   return {
     default: mockCrypto,

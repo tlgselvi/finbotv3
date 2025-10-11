@@ -2,11 +2,11 @@
 
 ## 📊 Test Suite Özeti
 
-**Toplam:** 949 test | **Geçen:** 447 (47%) | **Skip:** 288 (30%) | **Coverage:** ~75%
+**Toplam:** 949 test | **Geçen:** 447 (47.1%) | **Skip:** 288 (30%) | **Coverage:** ~75%
 
-**Son Güncelleme:** 2025-10-11 22:55  
+**Son Güncelleme:** 11.10.2025 23:39  
 **Critical Tests:** 84/84 (100%) ✅  
-**Test Files:** 64 (20 passing, 15 skipped, 29 needs work)
+**Test Files:** 64 (20 passing, 29 skipped, 15 needs work)
 
 ## 🚀 Hızlı Başlangıç
 

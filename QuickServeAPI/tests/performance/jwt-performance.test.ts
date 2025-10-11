@@ -10,15 +10,14 @@ import { users, userProfiles, refreshTokens, revokedTokens } from '../../shared/
 import { eq } from 'drizzle-orm';
 import argon2 from 'argon2';
 
-describe('JWT Performance Tests', () => {
+// Skip if no DATABASE_URL (requires real database)
+const DATABASE_AVAILABLE = !!process.env.DATABASE_URL;
+
+describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
   let tokenService: TokenService;
   let testUserIds: string[] = [];
 
   beforeAll(async () => {
-    // Ensure DATABASE_URL is set for tests
-    if (!process.env.DATABASE_URL) {
-      throw new Error('DATABASE_URL environment variable is required for tests');
-    }
 
     // Set JWT secret for tests
     process.env.JWT_SECRET = 'test-jwt-secret-for-performance-tests';
