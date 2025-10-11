@@ -1,21 +1,30 @@
 import { Router } from 'express';
-import { requireAuth, requirePermission, AuthenticatedRequest } from '../middleware/auth';
+import {
+  requireAuth,
+  requirePermission,
+  AuthenticatedRequest,
+} from '../middleware/auth';
 import { Permission } from '@shared/schema';
 import { storage } from '../storage';
 import { logger } from '../utils/logger';
-import { 
-  analyzePortfolio, 
+import {
+  analyzePortfolio,
   validatePortfolioInput,
   PortfolioInput,
-  RiskProfile 
+  RiskProfile,
 } from '../src/modules/advisor/rules';
 
 const advisorRouter = (router: Router) => {
   /**
    * POST /api/advisor/portfolio - Portföy analizi ve öneriler
    */
-  router.post('/portfolio',
-    requirePermission(Permission.VIEW_ALL_REPORTS, Permission.VIEW_COMPANY_REPORTS, Permission.VIEW_PERSONAL_REPORTS),
+  router.post(
+    '/portfolio',
+    requirePermission(
+      Permission.VIEW_ALL_REPORTS,
+      Permission.VIEW_COMPANY_REPORTS,
+      Permission.VIEW_PERSONAL_REPORTS
+    ),
     async (req: AuthenticatedRequest, res) => {
       try {
         const { portfolio, riskProfile, age, investmentHorizon } = req.body;
@@ -25,13 +34,13 @@ const advisorRouter = (router: Router) => {
           portfolio,
           riskProfile,
           age,
-          investmentHorizon
+          investmentHorizon,
         });
 
         if (!validation.valid) {
           return res.status(400).json({
             error: 'Geçersiz giriş verileri',
-            details: validation.errors
+            details: validation.errors,
           });
         }
 
@@ -46,41 +55,47 @@ const advisorRouter = (router: Router) => {
           riskLevel: result.recommendations.riskLevel,
           tips: result.tips.map(tip => ({
             ...tip,
-            formattedDescription: `${tip.title}: ${tip.description}`
+            formattedDescription: `${tip.title}: ${tip.description}`,
           })),
           currentAllocation: {
             ...(result.currentAllocation ?? {}),
-            formatted: (this as any).formatAllocation?.(result.currentAllocation ?? {}) ?? 'N/A'
+            formatted:
+              (this as any).formatAllocation?.(
+                result.currentAllocation ?? {}
+              ) ?? 'N/A',
           },
           targetAllocation: {
             ...(result.targetAllocation ?? {}),
-            formatted: (this as any).formatAllocation?.(result.targetAllocation ?? {}) ?? 'N/A'
+            formatted:
+              (this as any).formatAllocation?.(result.targetAllocation ?? {}) ??
+              'N/A',
           },
           recommendations: {
             ...result.recommendations,
             expectedReturnFormatted: `%${result.recommendations.expectedReturn}/yıl`,
-            actionItemsCount: result.recommendations.actionItems.length
+            actionItemsCount: result.recommendations.actionItems.length,
           },
           chartData: result.chartData,
           summary: {
-            riskScoreText: (this as any).getRiskScoreText?.(result.riskScore ?? 0) ?? 'N/A',
+            riskScoreText:
+              (this as any).getRiskScoreText?.(result.riskScore ?? 0) ?? 'N/A',
             rebalanceNeeded: result.recommendations?.rebalance ?? false,
-            topRecommendation: result.tips[0]?.title || 'Portföy dengeli görünüyor'
+            topRecommendation:
+              result.tips[0]?.title || 'Portföy dengeli görünüyor',
           },
           metadata: {
             analyzedAt: new Date().toISOString(),
             userId: req.user!.id,
-            riskProfile: input.riskProfile
-          }
+            riskProfile: input.riskProfile,
+          },
         };
 
         res.json(response);
-
       } catch (error) {
         logger.error('Portfolio analysis error:', error);
         res.status(500).json({
           error: 'Portföy analizi yapılırken hata oluştu',
-          details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+          details: error instanceof Error ? error.message : 'Bilinmeyen hata',
         });
       }
     }
@@ -89,8 +104,13 @@ const advisorRouter = (router: Router) => {
   /**
    * GET /api/advisor/risk-profiles - Risk profilleri bilgileri
    */
-  router.get('/risk-profiles',
-    requirePermission(Permission.VIEW_ALL_REPORTS, Permission.VIEW_COMPANY_REPORTS, Permission.VIEW_PERSONAL_REPORTS),
+  router.get(
+    '/risk-profiles',
+    requirePermission(
+      Permission.VIEW_ALL_REPORTS,
+      Permission.VIEW_COMPANY_REPORTS,
+      Permission.VIEW_PERSONAL_REPORTS
+    ),
     async (req: AuthenticatedRequest, res) => {
       try {
         const profiles = {
@@ -101,7 +121,7 @@ const advisorRouter = (router: Router) => {
               'Ana hedef: Sermaye korunması',
               'Volatilite toleransı: Düşük',
               'Zaman ufku: Kısa-orta vadeli',
-              'Beklenen getiri: %4-6/yıl'
+              'Beklenen getiri: %4-6/yıl',
             ],
             targetAllocation: {
               cash: 20,
@@ -111,13 +131,13 @@ const advisorRouter = (router: Router) => {
               bonds: 10,
               crypto: 0,
               commodities: 0,
-              realEstate: 0
+              realEstate: 0,
             },
             suitableFor: [
               'Emeklilik yaklaşanlar',
               'Kısa vadeli hedefler',
-              'Risk toleransı düşük yatırımcılar'
-            ]
+              'Risk toleransı düşük yatırımcılar',
+            ],
           },
           medium: {
             name: 'Orta Risk',
@@ -126,7 +146,7 @@ const advisorRouter = (router: Router) => {
               'Ana hedef: Dengeli büyüme',
               'Volatilite toleransı: Orta',
               'Zaman ufku: Orta-uzun vadeli',
-              'Beklenen getiri: %6-9/yıl'
+              'Beklenen getiri: %6-9/yıl',
             ],
             targetAllocation: {
               cash: 15,
@@ -136,13 +156,13 @@ const advisorRouter = (router: Router) => {
               bonds: 10,
               crypto: 3,
               commodities: 2,
-              realEstate: 0
+              realEstate: 0,
             },
             suitableFor: [
               'Orta yaş yatırımcılar',
               'Uzun vadeli birikim',
-              'Risk-ödül dengesi arayanlar'
-            ]
+              'Risk-ödül dengesi arayanlar',
+            ],
           },
           high: {
             name: 'Yüksek Risk',
@@ -151,7 +171,7 @@ const advisorRouter = (router: Router) => {
               'Ana hedef: Maksimum büyüme',
               'Volatilite toleransı: Yüksek',
               'Zaman ufku: Uzun vadeli',
-              'Beklenen getiri: %9-12/yıl'
+              'Beklenen getiri: %9-12/yıl',
             ],
             targetAllocation: {
               cash: 10,
@@ -161,23 +181,22 @@ const advisorRouter = (router: Router) => {
               bonds: 5,
               crypto: 10,
               commodities: 3,
-              realEstate: 2
+              realEstate: 2,
             },
             suitableFor: [
               'Genç yatırımcılar',
               'Uzun vadeli emeklilik',
-              'Yüksek getiri arayanlar'
-            ]
-          }
+              'Yüksek getiri arayanlar',
+            ],
+          },
         };
 
         res.json({ profiles });
-
       } catch (error) {
         logger.error('Risk profiles error:', error);
         res.status(500).json({
           error: 'Risk profilleri alınırken hata oluştu',
-          details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+          details: error instanceof Error ? error.message : 'Bilinmeyen hata',
         });
       }
     }
@@ -186,8 +205,13 @@ const advisorRouter = (router: Router) => {
   /**
    * GET /api/advisor/asset-classes - Varlık sınıfları bilgileri
    */
-  router.get('/asset-classes',
-    requirePermission(Permission.VIEW_ALL_REPORTS, Permission.VIEW_COMPANY_REPORTS, Permission.VIEW_PERSONAL_REPORTS),
+  router.get(
+    '/asset-classes',
+    requirePermission(
+      Permission.VIEW_ALL_REPORTS,
+      Permission.VIEW_COMPANY_REPORTS,
+      Permission.VIEW_PERSONAL_REPORTS
+    ),
     async (req: AuthenticatedRequest, res) => {
       try {
         const assetClasses = {
@@ -197,7 +221,7 @@ const advisorRouter = (router: Router) => {
             expectedReturn: '%2-3/yıl',
             description: 'Anlık likidite, enflasyon riski',
             pros: ['Yüksek likidite', 'Sermaye korunması', 'Düşük volatilite'],
-            cons: ['Düşük getiri', 'Enflasyon riski', 'Fırsat maliyeti']
+            cons: ['Düşük getiri', 'Enflasyon riski', 'Fırsat maliyeti'],
           },
           deposits: {
             name: 'Mevduat',
@@ -205,7 +229,7 @@ const advisorRouter = (router: Router) => {
             expectedReturn: '%4-6/yıl',
             description: 'Bankacılık ürünleri, garantili getiri',
             pros: ['Garantili getiri', 'Düşük risk', 'Kolay erişim'],
-            cons: ['Sınırlı getiri', 'Enflasyon riski', 'Düşük likidite']
+            cons: ['Sınırlı getiri', 'Enflasyon riski', 'Düşük likidite'],
           },
           forex: {
             name: 'Döviz',
@@ -213,7 +237,7 @@ const advisorRouter = (router: Router) => {
             expectedReturn: '%5-8/yıl',
             description: 'Döviz kuru hareketlerinden getiri',
             pros: ['Çeşitlendirme', 'Enflasyon koruması', 'Global erişim'],
-            cons: ['Kur riski', 'Volatilite', 'Politik risk']
+            cons: ['Kur riski', 'Volatilite', 'Politik risk'],
           },
           stocks: {
             name: 'Hisse Senetleri',
@@ -221,7 +245,7 @@ const advisorRouter = (router: Router) => {
             expectedReturn: '%8-12/yıl',
             description: 'Şirket hisseleri, büyüme potansiyeli',
             pros: ['Yüksek getiri potansiyeli', 'Likidite', 'Şeffaflık'],
-            cons: ['Yüksek volatilite', 'Piyasa riski', 'Düşük getiri riski']
+            cons: ['Yüksek volatilite', 'Piyasa riski', 'Düşük getiri riski'],
           },
           bonds: {
             name: 'Tahvil',
@@ -229,15 +253,23 @@ const advisorRouter = (router: Router) => {
             expectedReturn: '%4-7/yıl',
             description: 'Sabit getirili menkul kıymetler',
             pros: ['Sabit getiri', 'Düşük volatilite', 'Çeşitlendirme'],
-            cons: ['Faiz riski', 'Düşük getiri', 'Kredi riski']
+            cons: ['Faiz riski', 'Düşük getiri', 'Kredi riski'],
           },
           crypto: {
             name: 'Kripto Para',
             risk: 'Çok Yüksek',
             expectedReturn: '%10-20/yıl',
             description: 'Dijital varlıklar, yüksek volatilite',
-            pros: ['Yüksek getiri potansiyeli', '24/7 işlem', 'Dezentralizasyon'],
-            cons: ['Çok yüksek volatilite', 'Regülasyon riski', 'Teknoloji riski']
+            pros: [
+              'Yüksek getiri potansiyeli',
+              '24/7 işlem',
+              'Dezentralizasyon',
+            ],
+            cons: [
+              'Çok yüksek volatilite',
+              'Regülasyon riski',
+              'Teknoloji riski',
+            ],
           },
           commodities: {
             name: 'Emtia',
@@ -245,7 +277,11 @@ const advisorRouter = (router: Router) => {
             expectedReturn: '%6-10/yıl',
             description: 'Altın, gümüş, petrol gibi emtialar',
             pros: ['Enflasyon koruması', 'Çeşitlendirme', 'Gerçek varlık'],
-            cons: ['Yüksek volatilite', 'Depolama maliyeti', 'Spekülasyon riski']
+            cons: [
+              'Yüksek volatilite',
+              'Depolama maliyeti',
+              'Spekülasyon riski',
+            ],
           },
           realEstate: {
             name: 'Gayrimenkul',
@@ -253,17 +289,16 @@ const advisorRouter = (router: Router) => {
             expectedReturn: '%6-9/yıl',
             description: 'Gayrimenkul yatırımları',
             pros: ['Enflasyon koruması', 'Kira geliri', 'Gerçek varlık'],
-            cons: ['Düşük likidite', 'Yüksek giriş maliyeti', 'Piyasa riski']
-          }
+            cons: ['Düşük likidite', 'Yüksek giriş maliyeti', 'Piyasa riski'],
+          },
         };
 
         res.json({ assetClasses });
-
       } catch (error) {
         logger.error('Asset classes error:', error);
         res.status(500).json({
           error: 'Varlık sınıfları alınırken hata oluştu',
-          details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+          details: error instanceof Error ? error.message : 'Bilinmeyen hata',
         });
       }
     }

@@ -5,7 +5,7 @@ import { X, Download, Smartphone } from 'lucide-react';
 import { pwaInstallManager } from '@/lib/pwa-utils';
 import { logger } from '@/lib/logger';
 
-export function PWAInstallPrompt () {
+export function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
 
@@ -15,7 +15,11 @@ export function PWAInstallPrompt () {
       const isInstalled = pwaInstallManager.getIsInstalled();
 
       // Show prompt if can install and not already shown
-      if (canInstall && !isInstalled && !localStorage.getItem('pwa-prompt-dismissed')) {
+      if (
+        canInstall &&
+        !isInstalled &&
+        !localStorage.getItem('pwa-prompt-dismissed')
+      ) {
         setShowPrompt(true);
       }
     };
@@ -54,7 +58,10 @@ export function PWAInstallPrompt () {
   }
 
   return (
-    <Alert className="mb-4 border-primary bg-primary/5" data-testid="pwa-install-prompt">
+    <Alert
+      className="mb-4 border-primary bg-primary/5"
+      data-testid="pwa-install-prompt"
+    >
       <Smartphone className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between gap-4">
         <div className="flex-1">

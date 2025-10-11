@@ -246,7 +246,7 @@ export function resetDatabase() {
     'transactions',
     'accounts',
     'user_profiles',
-    'users'
+    'users',
   ];
 
   for (const table of tables) {
@@ -263,27 +263,31 @@ export function resetDatabase() {
  */
 export function seedTestData() {
   // Add a test user
-  sqlite.prepare(`
+  sqlite
+    .prepare(
+      `
     INSERT INTO users (id, email, name, password, role, is_active)
     VALUES (?, ?, ?, ?, ?, ?)
-  `).run(
-    'test-user-id',
-    'test@example.com',
-    'Test User',
-    'hashed-password',
-    'USER',
-    1
-  );
+  `
+    )
+    .run(
+      'test-user-id',
+      'test@example.com',
+      'Test User',
+      'hashed-password',
+      'USER',
+      1
+    );
 
   // Add test user profile
-  sqlite.prepare(`
+  sqlite
+    .prepare(
+      `
     INSERT INTO user_profiles (user_id, role, permissions)
     VALUES (?, ?, ?)
-  `).run(
-    'test-user-id',
-    'USER',
-    JSON.stringify(['READ', 'WRITE'])
-  );
+  `
+    )
+    .run('test-user-id', 'USER', JSON.stringify(['READ', 'WRITE']));
 }
 
 /**
@@ -292,4 +296,3 @@ export function seedTestData() {
 export function closeDatabase() {
   sqlite.close();
 }
-

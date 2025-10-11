@@ -85,17 +85,24 @@ describe('Aging Module', () => {
     });
 
     it('should calculate aging buckets for receivables', async () => {
-      const summary = await calculateAgingBuckets(testUserId, 'receivable', testDate);
+      const summary = await calculateAgingBuckets(
+        testUserId,
+        'receivable',
+        testDate
+      );
 
       expect(summary.totalOutstanding).toBe(8000);
       expect(summary.totalCount).toBe(3);
       expect(summary.buckets).toHaveLength(3);
 
       // Check bucket distribution
-      const buckets = summary.buckets.reduce((acc, bucket) => {
-        acc[bucket.bucket] = bucket.amount;
-        return acc;
-      }, {} as Record<string, number>);
+      const buckets = summary.buckets.reduce(
+        (acc, bucket) => {
+          acc[bucket.bucket] = bucket.amount;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
       expect(buckets['0-30']).toBe(1000); // Customer A
       expect(buckets['31-60']).toBe(2000); // Customer B
@@ -103,7 +110,11 @@ describe('Aging Module', () => {
     });
 
     it('should calculate aging buckets for payables', async () => {
-      const summary = await calculateAgingBuckets(testUserId, 'payable', testDate);
+      const summary = await calculateAgingBuckets(
+        testUserId,
+        'payable',
+        testDate
+      );
 
       expect(summary.totalOutstanding).toBe(1500);
       expect(summary.totalCount).toBe(1);
@@ -115,7 +126,11 @@ describe('Aging Module', () => {
     });
 
     it('should calculate percentage distribution', async () => {
-      const summary = await calculateAgingBuckets(testUserId, 'receivable', testDate);
+      const summary = await calculateAgingBuckets(
+        testUserId,
+        'receivable',
+        testDate
+      );
 
       const totalAmount = summary.totalOutstanding;
       summary.buckets.forEach(bucket => {
@@ -124,7 +139,10 @@ describe('Aging Module', () => {
       });
 
       // Total percentage should be 100%
-      const totalPercentage = summary.buckets.reduce((sum, bucket) => sum + bucket.percentage, 0);
+      const totalPercentage = summary.buckets.reduce(
+        (sum, bucket) => sum + bucket.percentage,
+        0
+      );
       expect(totalPercentage).toBeCloseTo(100, 2);
     });
   });
@@ -201,7 +219,10 @@ describe('Aging Module', () => {
     });
 
     it('should prioritize collection items correctly', async () => {
-      const priorities = await getCollectionPriorities(testUserId, 'receivable');
+      const priorities = await getCollectionPriorities(
+        testUserId,
+        'receivable'
+      );
 
       expect(priorities).toHaveLength(3);
       expect(priorities[0].priority).toBe('high'); // Highest amount and very overdue
@@ -209,7 +230,10 @@ describe('Aging Module', () => {
     });
 
     it('should provide recommended actions', async () => {
-      const priorities = await getCollectionPriorities(testUserId, 'receivable');
+      const priorities = await getCollectionPriorities(
+        testUserId,
+        'receivable'
+      );
 
       priorities.forEach(priority => {
         expect(priority.recommendedAction).toBeDefined();
@@ -218,7 +242,10 @@ describe('Aging Module', () => {
     });
 
     it('should sort by priority and amount', async () => {
-      const priorities = await getCollectionPriorities(testUserId, 'receivable');
+      const priorities = await getCollectionPriorities(
+        testUserId,
+        'receivable'
+      );
 
       // First item should be highest priority
       expect(priorities[0].priority).toBe('high');
@@ -228,7 +255,7 @@ describe('Aging Module', () => {
       for (let i = 1; i < priorities.length; i++) {
         const prev = priorities[i - 1];
         const curr = priorities[i];
-        
+
         if (prev.priority === curr.priority) {
           expect(curr.amount).toBeLessThanOrEqual(prev.amount);
         }
@@ -258,7 +285,7 @@ describe('Aging Module', () => {
         .where(eq(agingTable.userId, testUserId));
 
       expect(updatedItems).toHaveLength(1);
-      
+
       const item = updatedItems[0];
       expect(item.daysOutstanding).toBeDefined();
       expect(item.agingBucket).toBeDefined();
@@ -302,4 +329,3 @@ describe('Aging Module', () => {
     });
   });
 });
-

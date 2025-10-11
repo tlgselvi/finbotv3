@@ -1,7 +1,10 @@
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import { db } from '../../db';
 import { recurringTransactions, transactions, accounts } from '../../db/schema';
-import type { RecurringTransaction, InsertRecurringTransaction } from '@shared/schema';
+import type {
+  RecurringTransaction,
+  InsertRecurringTransaction,
+} from '@shared/schema';
 
 export interface RecurringTransactionWithAccount extends RecurringTransaction {
   accountName?: string;
@@ -22,7 +25,11 @@ export async function createRecurringTransaction(
   data: InsertRecurringTransaction
 ): Promise<RecurringTransaction> {
   // Calculate next due date
-  const nextDueDate = calculateNextDueDate(data.startDate, data.interval, data.intervalCount);
+  const nextDueDate = calculateNextDueDate(
+    data.startDate,
+    data.interval,
+    data.intervalCount
+  );
 
   const recurringData = {
     userId,
@@ -31,7 +38,10 @@ export async function createRecurringTransaction(
     nextDueDate,
   };
 
-  const [created] = await db.insert(recurringTransactions).values(recurringData).returning();
+  const [created] = await db
+    .insert(recurringTransactions)
+    .values(recurringData)
+    .returning();
   return created;
 }
 
@@ -53,10 +63,12 @@ export async function getUserRecurringTransactions(
     .where(eq(recurringTransactions.userId, userId));
 
   if (isActive !== undefined) {
-    query = query.where(and(
-      eq(recurringTransactions.userId, userId),
-      eq(recurringTransactions.isActive, isActive)
-    ));
+    query = query.where(
+      and(
+        eq(recurringTransactions.userId, userId),
+        eq(recurringTransactions.isActive, isActive)
+      )
+    );
   }
 
   return await query.orderBy(recurringTransactions.nextDueDate);
@@ -77,10 +89,12 @@ export async function getRecurringTransaction(
     })
     .from(recurringTransactions)
     .leftJoin(accounts, eq(recurringTransactions.accountId, accounts.id))
-    .where(and(
-      eq(recurringTransactions.id, id),
-      eq(recurringTransactions.userId, userId)
-    ))
+    .where(
+      and(
+        eq(recurringTransactions.id, id),
+        eq(recurringTransactions.userId, userId)
+      )
+    )
     .limit(1);
 
   return result[0] || null;
@@ -99,8 +113,10 @@ export async function updateRecurringTransaction(
   };
 
   // Update basic fields
-  if (updates.amount !== undefined) updateData.amount = updates.amount.toString();
-  if (updates.description !== undefined) updateData.description = updates.description;
+  if (updates.amount !== undefined)
+    updateData.amount = updates.amount.toString();
+  if (updates.description !== undefined)
+    updateData.description = updates.description;
   if (updates.category !== undefined) updateData.category = updates.category;
   if (updates.currency !== undefined) updateData.currency = updates.currency;
   if (updates.metadata !== undefined) updateData.metadata = updates.metadata;
@@ -124,10 +140,12 @@ export async function updateRecurringTransaction(
   const [updated] = await db
     .update(recurringTransactions)
     .set(updateData)
-    .where(and(
-      eq(recurringTransactions.id, id),
-      eq(recurringTransactions.userId, userId)
-    ))
+    .where(
+      and(
+        eq(recurringTransactions.id, id),
+        eq(recurringTransactions.userId, userId)
+      )
+    )
     .returning();
 
   return updated || null;
@@ -142,10 +160,12 @@ export async function deleteRecurringTransaction(
 ): Promise<boolean> {
   const [deleted] = await db
     .delete(recurringTransactions)
-    .where(and(
-      eq(recurringTransactions.id, id),
-      eq(recurringTransactions.userId, userId)
-    ))
+    .where(
+      and(
+        eq(recurringTransactions.id, id),
+        eq(recurringTransactions.userId, userId)
+      )
+    )
     .returning();
 
   return !!deleted;
@@ -167,10 +187,12 @@ export async function toggleRecurringTransaction(
       isActive: !current.isActive,
       updatedAt: new Date(),
     })
-    .where(and(
-      eq(recurringTransactions.id, id),
-      eq(recurringTransactions.userId, userId)
-    ))
+    .where(
+      and(
+        eq(recurringTransactions.id, id),
+        eq(recurringTransactions.userId, userId)
+      )
+    )
     .returning();
 
   return updated || null;
@@ -192,10 +214,12 @@ export async function processRecurringTransactions(): Promise<ProcessRecurringRe
     const dueRecurring = await db
       .select()
       .from(recurringTransactions)
-      .where(and(
-        eq(recurringTransactions.isActive, true),
-        lte(recurringTransactions.nextDueDate, now)
-      ));
+      .where(
+        and(
+          eq(recurringTransactions.isActive, true),
+          lte(recurringTransactions.nextDueDate, now)
+        )
+      );
 
     result.processed = dueRecurring.length;
 
@@ -205,14 +229,19 @@ export async function processRecurringTransactions(): Promise<ProcessRecurringRe
         const existingTransaction = await db
           .select()
           .from(transactions)
-          .where(and(
-            eq(transactions.userId, recurring.userId),
-            eq(transactions.accountId, recurring.accountId),
-            eq(transactions.amount, recurring.amount),
-            eq(transactions.description, recurring.description),
-            gte(transactions.createdAt, recurring.nextDueDate),
-            lte(transactions.createdAt, new Date(recurring.nextDueDate.getTime() + 24 * 60 * 60 * 1000))
-          ))
+          .where(
+            and(
+              eq(transactions.userId, recurring.userId),
+              eq(transactions.accountId, recurring.accountId),
+              eq(transactions.amount, recurring.amount),
+              eq(transactions.description, recurring.description),
+              gte(transactions.createdAt, recurring.nextDueDate),
+              lte(
+                transactions.createdAt,
+                new Date(recurring.nextDueDate.getTime() + 24 * 60 * 60 * 1000)
+              )
+            )
+          )
           .limit(1);
 
         if (existingTransaction.length > 0) {
@@ -227,7 +256,8 @@ export async function processRecurringTransactions(): Promise<ProcessRecurringRe
           accountId: recurring.accountId,
           type: parseFloat(recurring.amount) >= 0 ? 'income' : 'expense',
           amount: recurring.amount,
-          description: recurring.description || `Recurring: ${recurring.interval}`,
+          description:
+            recurring.description || `Recurring: ${recurring.interval}`,
           category: recurring.category,
           createdAt: new Date(),
         });
@@ -236,7 +266,10 @@ export async function processRecurringTransactions(): Promise<ProcessRecurringRe
         await updateNextDueDate(recurring.id);
 
         // Check if recurring transaction should end
-        if (recurring.endDate && new Date(recurring.nextDueDate) > recurring.endDate) {
+        if (
+          recurring.endDate &&
+          new Date(recurring.nextDueDate) > recurring.endDate
+        ) {
           await db
             .update(recurringTransactions)
             .set({ isActive: false, updatedAt: new Date() })
@@ -245,7 +278,9 @@ export async function processRecurringTransactions(): Promise<ProcessRecurringRe
 
         result.created++;
       } catch (error) {
-        result.errors.push(`Failed to process recurring transaction ${recurring.id}: ${error}`);
+        result.errors.push(
+          `Failed to process recurring transaction ${recurring.id}: ${error}`
+        );
       }
     }
   } catch (error) {
@@ -298,13 +333,13 @@ export function calculateNextDueDate(
       nextDate.setDate(nextDate.getDate() + intervalCount);
       break;
     case 'weekly':
-      nextDate.setDate(nextDate.getDate() + (7 * intervalCount));
+      nextDate.setDate(nextDate.getDate() + 7 * intervalCount);
       break;
     case 'monthly':
       nextDate.setMonth(nextDate.getMonth() + intervalCount);
       break;
     case 'quarterly':
-      nextDate.setMonth(nextDate.getMonth() + (3 * intervalCount));
+      nextDate.setMonth(nextDate.getMonth() + 3 * intervalCount);
       break;
     case 'yearly':
       nextDate.setFullYear(nextDate.getFullYear() + intervalCount);
@@ -334,12 +369,14 @@ export async function getUpcomingRecurringTransactions(
     })
     .from(recurringTransactions)
     .leftJoin(accounts, eq(recurringTransactions.accountId, accounts.id))
-    .where(and(
-      eq(recurringTransactions.userId, userId),
-      eq(recurringTransactions.isActive, true),
-      lte(recurringTransactions.nextDueDate, futureDate),
-      gte(recurringTransactions.nextDueDate, new Date())
-    ))
+    .where(
+      and(
+        eq(recurringTransactions.userId, userId),
+        eq(recurringTransactions.isActive, true),
+        lte(recurringTransactions.nextDueDate, futureDate),
+        gte(recurringTransactions.nextDueDate, new Date())
+      )
+    )
     .orderBy(recurringTransactions.nextDueDate);
 }
 
@@ -368,7 +405,8 @@ export async function getRecurringTransactionStats(userId: string): Promise<{
 
   // Calculate by interval
   allRecurring.forEach(transaction => {
-    stats.byInterval[transaction.interval] = (stats.byInterval[transaction.interval] || 0) + 1;
+    stats.byInterval[transaction.interval] =
+      (stats.byInterval[transaction.interval] || 0) + 1;
     stats.totalAmount += parseFloat(transaction.amount);
   });
 

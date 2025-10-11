@@ -10,14 +10,14 @@ const createMockRequest = (overrides = {}) => ({
   body: {},
   query: {},
   params: {},
-  ...overrides
+  ...overrides,
 });
 
 const createMockResponse = () => {
   const res = {
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
-    end: vi.fn().mockReturnThis()
+    end: vi.fn().mockReturnThis(),
   };
   return res;
 };
@@ -129,4 +129,3 @@ describe('Sprint 1 - Security Audit', () => {
     });
   });
 });
-

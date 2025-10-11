@@ -112,7 +112,13 @@ export class ScenarioAnalysisService {
   /**
    * Create a new scenario definition
    */
-  async createScenario(userId: string, scenario: Omit<ScenarioDefinition, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<ScenarioDefinition> {
+  async createScenario(
+    userId: string,
+    scenario: Omit<
+      ScenarioDefinition,
+      'id' | 'userId' | 'createdAt' | 'updatedAt'
+    >
+  ): Promise<ScenarioDefinition> {
     const newScenario: ScenarioDefinition = {
       ...scenario,
       id: `scenario_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -129,7 +135,10 @@ export class ScenarioAnalysisService {
   /**
    * Run scenario analysis
    */
-  async runScenarioAnalysis(scenarioId: string, userId: string): Promise<ScenarioResult> {
+  async runScenarioAnalysis(
+    scenarioId: string,
+    userId: string
+  ): Promise<ScenarioResult> {
     try {
       // Get scenario definition
       const scenario = await this.getScenario(scenarioId, userId);
@@ -145,7 +154,10 @@ export class ScenarioAnalysisService {
 
       // Generate AI insights
       const insights = await this.generateScenarioInsights(results, scenario);
-      const recommendations = await this.generateScenarioRecommendations(results, scenario);
+      const recommendations = await this.generateScenarioRecommendations(
+        results,
+        scenario
+      );
 
       // Calculate confidence score
       const confidence = this.calculateConfidence(results, scenario);
@@ -163,7 +175,6 @@ export class ScenarioAnalysisService {
 
       logger.info(`Completed scenario analysis for ${scenarioId}`);
       return scenarioResult;
-
     } catch (error) {
       logger.error('Scenario analysis error:', error);
       throw error;
@@ -173,7 +184,11 @@ export class ScenarioAnalysisService {
   /**
    * Run Monte Carlo simulation
    */
-  async runMonteCarloSimulation(scenarioId: string, userId: string, iterations: number = 1000): Promise<MonteCarloSimulation> {
+  async runMonteCarloSimulation(
+    scenarioId: string,
+    userId: string,
+    iterations: number = 1000
+  ): Promise<MonteCarloSimulation> {
     try {
       const scenario = await this.getScenario(scenarioId, userId);
       if (!scenario) {
@@ -186,20 +201,30 @@ export class ScenarioAnalysisService {
       // Run multiple iterations with randomized parameters
       for (let i = 0; i < iterations; i++) {
         const randomizedScenario = this.randomizeScenarioParameters(scenario);
-        const result = await this.simulateScenario(randomizedScenario, currentData);
+        const result = await this.simulateScenario(
+          randomizedScenario,
+          currentData
+        );
         const finalNetWorth = result[result.length - 1]?.netWorth || 0;
         simulationResults.push(finalNetWorth);
       }
 
       // Calculate statistics
       const sortedResults = simulationResults.sort((a, b) => a - b);
-      const mean = simulationResults.reduce((sum, val) => sum + val, 0) / iterations;
-      const variance = simulationResults.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / iterations;
+      const mean =
+        simulationResults.reduce((sum, val) => sum + val, 0) / iterations;
+      const variance =
+        simulationResults.reduce(
+          (sum, val) => sum + Math.pow(val - mean, 2),
+          0
+        ) / iterations;
       const standardDeviation = Math.sqrt(variance);
 
       const distribution = this.calculateDistribution(sortedResults);
-      const probabilityOfPositiveOutcome = simulationResults.filter(val => val > 0).length / iterations;
-      const probabilityOfNegativeOutcome = simulationResults.filter(val => val < 0).length / iterations;
+      const probabilityOfPositiveOutcome =
+        simulationResults.filter(val => val > 0).length / iterations;
+      const probabilityOfNegativeOutcome =
+        simulationResults.filter(val => val < 0).length / iterations;
 
       return {
         scenarioId,
@@ -217,7 +242,6 @@ export class ScenarioAnalysisService {
         },
         distribution,
       };
-
     } catch (error) {
       logger.error('Monte Carlo simulation error:', error);
       throw error;
@@ -227,7 +251,11 @@ export class ScenarioAnalysisService {
   /**
    * Run stress test
    */
-  async runStressTest(scenarioId: string, userId: string, stressFactors: any[]): Promise<StressTestResult> {
+  async runStressTest(
+    scenarioId: string,
+    userId: string,
+    stressFactors: any[]
+  ): Promise<StressTestResult> {
     try {
       const scenario = await this.getScenario(scenarioId, userId);
       if (!scenario) {
@@ -243,7 +271,8 @@ export class ScenarioAnalysisService {
         const result = await this.simulateScenario(stressScenario, currentData);
         const finalNetWorth = result[result.length - 1]?.netWorth || 0;
         const baselineNetWorth = currentData.netWorth;
-        const impact = ((finalNetWorth - baselineNetWorth) / baselineNetWorth) * 100;
+        const impact =
+          ((finalNetWorth - baselineNetWorth) / baselineNetWorth) * 100;
 
         stressResults.push({
           factor: factor.name,
@@ -254,10 +283,17 @@ export class ScenarioAnalysisService {
       }
 
       // Find worst case combination
-      const worstCase = await this.findWorstCaseCombination(scenario, stressFactors, currentData);
+      const worstCase = await this.findWorstCaseCombination(
+        scenario,
+        stressFactors,
+        currentData
+      );
 
       // Generate recommendations
-      const recommendations = await this.generateStressTestRecommendations(stressResults, worstCase);
+      const recommendations = await this.generateStressTestRecommendations(
+        stressResults,
+        worstCase
+      );
 
       return {
         scenarioId,
@@ -266,7 +302,6 @@ export class ScenarioAnalysisService {
         worstCase,
         recommendations,
       };
-
     } catch (error) {
       logger.error('Stress test error:', error);
       throw error;
@@ -283,7 +318,10 @@ export class ScenarioAnalysisService {
   /**
    * Simulate scenario over time
    */
-  private async simulateScenario(scenario: ScenarioDefinition, currentData: any): Promise<any[]> {
+  private async simulateScenario(
+    scenario: ScenarioDefinition,
+    currentData: any
+  ): Promise<any[]> {
     const results: any[] = [];
     let currentMonth = 0;
 
@@ -292,7 +330,11 @@ export class ScenarioAnalysisService {
 
     while (currentMonth < scenario.timeframe) {
       // Apply scenario parameters
-      const modifiedData = this.applyScenarioParameters(runningData, scenario, currentMonth);
+      const modifiedData = this.applyScenarioParameters(
+        runningData,
+        scenario,
+        currentMonth
+      );
 
       // Calculate monthly metrics
       const monthlyResult = {
@@ -325,7 +367,11 @@ export class ScenarioAnalysisService {
   /**
    * Apply scenario parameters to financial data
    */
-  private applyScenarioParameters(data: any, scenario: ScenarioDefinition, month: number): any {
+  private applyScenarioParameters(
+    data: any,
+    scenario: ScenarioDefinition,
+    month: number
+  ): any {
     let modifiedData = { ...data };
 
     for (const parameter of scenario.parameters) {
@@ -353,17 +399,31 @@ export class ScenarioAnalysisService {
           break;
         case 'market':
           // Apply market conditions
-          modifiedData = this.applyMarketConditions(modifiedData, parameter, month);
+          modifiedData = this.applyMarketConditions(
+            modifiedData,
+            parameter,
+            month
+          );
           break;
       }
     }
 
     // Recalculate derived metrics
-    modifiedData.netCashFlow = modifiedData.totalIncome - modifiedData.totalExpenses;
-    modifiedData.netWorth = modifiedData.totalAssets + modifiedData.investmentValue - modifiedData.totalLiabilities;
-    modifiedData.savingsRate = modifiedData.totalIncome > 0 ? (modifiedData.netCashFlow / modifiedData.totalIncome) * 100 : 0;
-    modifiedData.liquidityRatio = modifiedData.totalAssets / Math.max(modifiedData.totalExpenses, 1);
-    modifiedData.debtToIncomeRatio = modifiedData.totalLiabilities / Math.max(modifiedData.totalIncome, 1) * 100;
+    modifiedData.netCashFlow =
+      modifiedData.totalIncome - modifiedData.totalExpenses;
+    modifiedData.netWorth =
+      modifiedData.totalAssets +
+      modifiedData.investmentValue -
+      modifiedData.totalLiabilities;
+    modifiedData.savingsRate =
+      modifiedData.totalIncome > 0
+        ? (modifiedData.netCashFlow / modifiedData.totalIncome) * 100
+        : 0;
+    modifiedData.liquidityRatio =
+      modifiedData.totalAssets / Math.max(modifiedData.totalExpenses, 1);
+    modifiedData.debtToIncomeRatio =
+      (modifiedData.totalLiabilities / Math.max(modifiedData.totalIncome, 1)) *
+      100;
 
     return modifiedData;
   }
@@ -371,7 +431,11 @@ export class ScenarioAnalysisService {
   /**
    * Apply parameter change based on unit type
    */
-  private applyParameterChange(currentValue: number, parameterValue: number, unit: string): number {
+  private applyParameterChange(
+    currentValue: number,
+    parameterValue: number,
+    unit: string
+  ): number {
     switch (unit) {
       case 'percentage':
         return currentValue * (1 + parameterValue / 100);
@@ -387,11 +451,15 @@ export class ScenarioAnalysisService {
   /**
    * Apply market conditions
    */
-  private applyMarketConditions(data: any, parameter: ScenarioParameter, month: number): any {
+  private applyMarketConditions(
+    data: any,
+    parameter: ScenarioParameter,
+    month: number
+  ): any {
     // Simulate market volatility and trends
     const volatility = parameter.value;
     const marketReturn = (Math.random() - 0.5) * volatility;
-    
+
     return {
       ...data,
       investmentValue: data.investmentValue * (1 + marketReturn / 100),
@@ -401,12 +469,15 @@ export class ScenarioAnalysisService {
   /**
    * Randomize scenario parameters for Monte Carlo
    */
-  private randomizeScenarioParameters(scenario: ScenarioDefinition): ScenarioDefinition {
+  private randomizeScenarioParameters(
+    scenario: ScenarioDefinition
+  ): ScenarioDefinition {
     const randomizedScenario = { ...scenario };
-    
+
     randomizedScenario.parameters = scenario.parameters.map(param => ({
       ...param,
-      value: param.value + (Math.random() - 0.5) * (param.max - param.min) * 0.2, // 20% variation
+      value:
+        param.value + (Math.random() - 0.5) * (param.max - param.min) * 0.2, // 20% variation
     }));
 
     return randomizedScenario;
@@ -415,9 +486,12 @@ export class ScenarioAnalysisService {
   /**
    * Apply stress factor to scenario
    */
-  private applyStressFactor(scenario: ScenarioDefinition, stressFactor: any): ScenarioDefinition {
+  private applyStressFactor(
+    scenario: ScenarioDefinition,
+    stressFactor: any
+  ): ScenarioDefinition {
     const stressScenario = { ...scenario };
-    
+
     stressScenario.parameters = scenario.parameters.map(param => {
       if (param.type === stressFactor.type) {
         return {
@@ -436,21 +510,37 @@ export class ScenarioAnalysisService {
    */
   private calculateScenarioSummary(results: any[]): any {
     const finalResult = results[results.length - 1];
-    const totalCashFlow = results.reduce((sum, result) => sum + result.netCashFlow, 0);
-    const averageSavingsRate = results.reduce((sum, result) => sum + result.savingsRate, 0) / results.length;
+    const totalCashFlow = results.reduce(
+      (sum, result) => sum + result.netCashFlow,
+      0
+    );
+    const averageSavingsRate =
+      results.reduce((sum, result) => sum + result.savingsRate, 0) /
+      results.length;
     const peakCashFlow = Math.max(...results.map(r => r.netCashFlow));
     const lowestCashFlow = Math.min(...results.map(r => r.netCashFlow));
-    
+
     const breakEvenMonth = results.findIndex(r => r.netWorth >= 0) + 1;
-    
+
     // Calculate risk metrics
     const cashFlowValues = results.map(r => r.netCashFlow);
-    const mean = cashFlowValues.reduce((sum, val) => sum + val, 0) / cashFlowValues.length;
-    const variance = cashFlowValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / cashFlowValues.length;
+    const mean =
+      cashFlowValues.reduce((sum, val) => sum + val, 0) / cashFlowValues.length;
+    const variance =
+      cashFlowValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      cashFlowValues.length;
     const volatility = Math.sqrt(variance);
-    
-    const downsideRisk = cashFlowValues.filter(val => val < mean).reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / cashFlowValues.length;
-    const upsidePotential = cashFlowValues.filter(val => val > mean).reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / cashFlowValues.length;
+
+    const downsideRisk =
+      cashFlowValues
+        .filter(val => val < mean)
+        .reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      cashFlowValues.length;
+    const upsidePotential =
+      cashFlowValues
+        .filter(val => val > mean)
+        .reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+      cashFlowValues.length;
 
     return {
       finalNetWorth: finalResult?.netWorth || 0,
@@ -470,9 +560,12 @@ export class ScenarioAnalysisService {
   /**
    * Generate AI insights for scenario
    */
-  private async generateScenarioInsights(results: any[], scenario: ScenarioDefinition): Promise<string[]> {
+  private async generateScenarioInsights(
+    results: any[],
+    scenario: ScenarioDefinition
+  ): Promise<string[]> {
     const summary = this.calculateScenarioSummary(results);
-    
+
     const prompt = `
       Analyze this financial scenario and provide key insights:
 
@@ -512,9 +605,12 @@ export class ScenarioAnalysisService {
   /**
    * Generate AI recommendations for scenario
    */
-  private async generateScenarioRecommendations(results: any[], scenario: ScenarioDefinition): Promise<string[]> {
+  private async generateScenarioRecommendations(
+    results: any[],
+    scenario: ScenarioDefinition
+  ): Promise<string[]> {
     const summary = this.calculateScenarioSummary(results);
-    
+
     const prompt = `
       Based on this financial scenario analysis, provide actionable recommendations:
 
@@ -538,7 +634,9 @@ export class ScenarioAnalysisService {
       try {
         return JSON.parse(response.response);
       } catch {
-        return ['Consider reviewing your financial strategy based on this analysis.'];
+        return [
+          'Consider reviewing your financial strategy based on this analysis.',
+        ];
       }
     }
 
@@ -548,7 +646,10 @@ export class ScenarioAnalysisService {
   /**
    * Generate stress test recommendations
    */
-  private async generateStressTestRecommendations(stressResults: any[], worstCase: any): Promise<string[]> {
+  private async generateStressTestRecommendations(
+    stressResults: any[],
+    worstCase: any
+  ): Promise<string[]> {
     const prompt = `
       Based on this stress test analysis, provide recommendations:
 
@@ -583,7 +684,10 @@ export class ScenarioAnalysisService {
   /**
    * Calculate confidence score
    */
-  private calculateConfidence(results: any[], scenario: ScenarioDefinition): number {
+  private calculateConfidence(
+    results: any[],
+    scenario: ScenarioDefinition
+  ): number {
     // Base confidence on data quality and scenario complexity
     let confidence = 80;
 
@@ -604,7 +708,9 @@ export class ScenarioAnalysisService {
   /**
    * Calculate severity level
    */
-  private calculateSeverity(impact: number): 'low' | 'medium' | 'high' | 'critical' {
+  private calculateSeverity(
+    impact: number
+  ): 'low' | 'medium' | 'high' | 'critical' {
     if (impact > -50) return 'critical';
     if (impact > -25) return 'high';
     if (impact > -10) return 'medium';
@@ -614,7 +720,11 @@ export class ScenarioAnalysisService {
   /**
    * Find worst case combination
    */
-  private async findWorstCaseCombination(scenario: ScenarioDefinition, stressFactors: any[], currentData: any): Promise<any> {
+  private async findWorstCaseCombination(
+    scenario: ScenarioDefinition,
+    stressFactors: any[],
+    currentData: any
+  ): Promise<any> {
     // This would implement combinatorial stress testing
     // For now, return a mock worst case
     return {
@@ -638,8 +748,10 @@ export class ScenarioAnalysisService {
     for (let i = 0; i < buckets; i++) {
       const bucketStart = min + i * bucketSize;
       const bucketEnd = min + (i + 1) * bucketSize;
-      const count = sortedResults.filter(val => val >= bucketStart && val < bucketEnd).length;
-      
+      const count = sortedResults.filter(
+        val => val >= bucketStart && val < bucketEnd
+      ).length;
+
       distribution.push({
         value: bucketStart + bucketSize / 2,
         probability: count / sortedResults.length,
@@ -672,7 +784,10 @@ export class ScenarioAnalysisService {
   /**
    * Get scenario by ID
    */
-  private async getScenario(scenarioId: string, userId: string): Promise<ScenarioDefinition | null> {
+  private async getScenario(
+    scenarioId: string,
+    userId: string
+  ): Promise<ScenarioDefinition | null> {
     // This would query the database
     // For now, return a mock scenario
     return {
@@ -704,7 +819,8 @@ export class ScenarioAnalysisService {
         id: 'default_optimistic',
         userId: 'system',
         name: 'Optimistic Growth',
-        description: 'Scenario with positive income growth and controlled expenses',
+        description:
+          'Scenario with positive income growth and controlled expenses',
         parameters: [
           {
             name: 'Income Growth',

@@ -47,7 +47,11 @@ export class TokenService {
     const { userId, ipAddress, userAgent } = metadata;
 
     // Verify user exists
-    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
     if (user.length === 0) {
       throw new Error('User not found');
     }
@@ -57,16 +61,16 @@ export class TokenService {
 
     // Generate access token
     const accessToken = jwt.sign(
-      { 
-        userId, 
+      {
+        userId,
         type: 'access',
-        familyId 
+        familyId,
       },
       process.env.JWT_SECRET!,
-      { 
+      {
         expiresIn: this.ACCESS_TOKEN_EXPIRY,
         issuer: 'finbot-v3',
-        audience: 'finbot-users'
+        audience: 'finbot-users',
       }
     );
 
@@ -84,7 +88,7 @@ export class TokenService {
       userAgent,
       createdAt: new Date(),
       lastUsedAt: new Date(),
-      isRevoked: false
+      isRevoked: false,
     });
 
     // Clean up old refresh tokens for this user
@@ -93,18 +97,22 @@ export class TokenService {
     return {
       accessToken,
       refreshToken,
-      expiresIn: 15 * 60 // 15 minutes in seconds
+      expiresIn: 15 * 60, // 15 minutes in seconds
     };
   }
 
   /**
    * Refresh access token using refresh token
    */
-  async refreshAccessToken(refreshToken: string, metadata: TokenMetadata): Promise<TokenPair> {
+  async refreshAccessToken(
+    refreshToken: string,
+    metadata: TokenMetadata
+  ): Promise<TokenPair> {
     const { ipAddress, userAgent } = metadata;
 
     // Find the refresh token
-    const tokenRecord = await db.select()
+    const tokenRecord = await db
+      .select()
       .from(refreshTokens)
       .where(
         and(
@@ -122,44 +130,49 @@ export class TokenService {
     const token = tokenRecord[0];
 
     // Update last used timestamp
-    await db.update(refreshTokens)
-      .set({ 
+    await db
+      .update(refreshTokens)
+      .set({
         lastUsedAt: new Date(),
         ipAddress: ipAddress || token.ipAddress,
-        userAgent: userAgent || token.userAgent
+        userAgent: userAgent || token.userAgent,
       })
       .where(eq(refreshTokens.id, token.id));
 
     // Generate new access token
     const newAccessToken = jwt.sign(
-      { 
-        userId: token.userId, 
+      {
+        userId: token.userId,
         type: 'access',
-        familyId: token.familyId 
+        familyId: token.familyId,
       },
       process.env.JWT_SECRET!,
-      { 
+      {
         expiresIn: this.ACCESS_TOKEN_EXPIRY,
         issuer: 'finbot-v3',
-        audience: 'finbot-users'
+        audience: 'finbot-users',
       }
     );
 
     return {
       accessToken: newAccessToken,
       refreshToken, // Return the same refresh token
-      expiresIn: 15 * 60 // 15 minutes in seconds
+      expiresIn: 15 * 60, // 15 minutes in seconds
     };
   }
 
   /**
    * Rotate refresh token (generate new refresh token and revoke old one)
    */
-  async rotateRefreshToken(refreshToken: string, metadata: TokenMetadata): Promise<TokenPair> {
+  async rotateRefreshToken(
+    refreshToken: string,
+    metadata: TokenMetadata
+  ): Promise<TokenPair> {
     const { ipAddress, userAgent } = metadata;
 
     // Find the refresh token
-    const tokenRecord = await db.select()
+    const tokenRecord = await db
+      .select()
       .from(refreshTokens)
       .where(
         and(
@@ -183,16 +196,21 @@ export class TokenService {
     return this.generateTokenPair({
       userId: oldToken.userId,
       ipAddress,
-      userAgent
+      userAgent,
     });
   }
 
   /**
    * Revoke a refresh token
    */
-  async revokeRefreshToken(token: string, userId: string, reason: string = 'logout'): Promise<void> {
+  async revokeRefreshToken(
+    token: string,
+    userId: string,
+    reason: string = 'logout'
+  ): Promise<void> {
     // Find and revoke the refresh token
-    const tokenRecord = await db.select()
+    const tokenRecord = await db
+      .select()
       .from(refreshTokens)
       .where(eq(refreshTokens.token, token))
       .limit(1);
@@ -201,12 +219,13 @@ export class TokenService {
       const tokenData = tokenRecord[0];
 
       // Mark as revoked
-      await db.update(refreshTokens)
+      await db
+        .update(refreshTokens)
         .set({
           isRevoked: true,
           revokedAt: new Date(),
           revokedBy: userId,
-          reason
+          reason,
         })
         .where(eq(refreshTokens.id, tokenData.id));
 
@@ -219,7 +238,7 @@ export class TokenService {
         revokedBy: userId,
         reason,
         ipAddress: tokenData.ipAddress,
-        userAgent: tokenData.userAgent
+        userAgent: tokenData.userAgent,
       });
     }
   }
@@ -227,9 +246,13 @@ export class TokenService {
   /**
    * Revoke all refresh tokens for a user (security logout)
    */
-  async revokeAllUserTokens(userId: string, reason: string = 'security'): Promise<void> {
+  async revokeAllUserTokens(
+    userId: string,
+    reason: string = 'security'
+  ): Promise<void> {
     // Get all active refresh tokens for user
-    const userTokens = await db.select()
+    const userTokens = await db
+      .select()
       .from(refreshTokens)
       .where(
         and(
@@ -247,9 +270,14 @@ export class TokenService {
   /**
    * Revoke all tokens in a family (security measure)
    */
-  async revokeTokenFamily(familyId: string, userId: string, reason: string = 'security'): Promise<void> {
+  async revokeTokenFamily(
+    familyId: string,
+    userId: string,
+    reason: string = 'security'
+  ): Promise<void> {
     // Get all tokens in the family
-    const familyTokens = await db.select()
+    const familyTokens = await db
+      .select()
       .from(refreshTokens)
       .where(
         and(
@@ -267,10 +295,14 @@ export class TokenService {
   /**
    * Check if a token is revoked
    */
-  async isTokenRevoked(token: string, tokenType: 'access' | 'refresh'): Promise<boolean> {
+  async isTokenRevoked(
+    token: string,
+    tokenType: 'access' | 'refresh'
+  ): Promise<boolean> {
     if (tokenType === 'access') {
       // Access tokens are stateless, check against revoked tokens table
-      const revoked = await db.select()
+      const revoked = await db
+        .select()
         .from(revokedTokens)
         .where(
           and(
@@ -283,7 +315,8 @@ export class TokenService {
       return revoked.length > 0;
     } else {
       // Refresh tokens are stored in database
-      const tokenRecord = await db.select()
+      const tokenRecord = await db
+        .select()
         .from(refreshTokens)
         .where(eq(refreshTokens.token, token))
         .limit(1);
@@ -300,7 +333,8 @@ export class TokenService {
     lastUsedAt: Date | null;
     oldestTokenAge: number | null;
   }> {
-    const activeTokens = await db.select()
+    const activeTokens = await db
+      .select()
       .from(refreshTokens)
       .where(
         and(
@@ -310,18 +344,20 @@ export class TokenService {
         )
       );
 
-    const lastUsedAt = activeTokens.length > 0 
-      ? new Date(Math.max(...activeTokens.map(t => t.lastUsedAt.getTime())))
-      : null;
+    const lastUsedAt =
+      activeTokens.length > 0
+        ? new Date(Math.max(...activeTokens.map(t => t.lastUsedAt.getTime())))
+        : null;
 
-    const oldestTokenAge = activeTokens.length > 0
-      ? Math.max(...activeTokens.map(t => Date.now() - t.createdAt.getTime()))
-      : null;
+    const oldestTokenAge =
+      activeTokens.length > 0
+        ? Math.max(...activeTokens.map(t => Date.now() - t.createdAt.getTime()))
+        : null;
 
     return {
       activeRefreshTokens: activeTokens.length,
       lastUsedAt,
-      oldestTokenAge
+      oldestTokenAge,
     };
   }
 
@@ -330,15 +366,17 @@ export class TokenService {
    */
   async cleanupExpiredTokens(): Promise<{ deleted: number }> {
     // Delete expired refresh tokens
-    const expiredResult = await db.delete(refreshTokens)
+    const expiredResult = await db
+      .delete(refreshTokens)
       .where(sql`${refreshTokens.expiresAt} < NOW()`);
 
     // Delete old revoked tokens (older than 30 days)
-    const oldRevokedResult = await db.delete(revokedTokens)
+    const oldRevokedResult = await db
+      .delete(revokedTokens)
       .where(sql`${revokedTokens.revokedAt} < NOW() - INTERVAL '30 days'`);
 
     return {
-      deleted: expiredResult.rowCount || 0 + (oldRevokedResult.rowCount || 0)
+      deleted: expiredResult.rowCount || 0 + (oldRevokedResult.rowCount || 0),
     };
   }
 
@@ -347,7 +385,8 @@ export class TokenService {
    */
   private async cleanupOldRefreshTokens(userId: string): Promise<void> {
     // Get all active tokens for user, ordered by creation date
-    const userTokens = await db.select()
+    const userTokens = await db
+      .select()
       .from(refreshTokens)
       .where(
         and(
@@ -359,8 +398,11 @@ export class TokenService {
 
     // If user has more than the limit, revoke the oldest ones
     if (userTokens.length > this.MAX_REFRESH_TOKENS_PER_USER) {
-      const tokensToRevoke = userTokens.slice(0, userTokens.length - this.MAX_REFRESH_TOKENS_PER_USER);
-      
+      const tokensToRevoke = userTokens.slice(
+        0,
+        userTokens.length - this.MAX_REFRESH_TOKENS_PER_USER
+      );
+
       for (const token of tokensToRevoke) {
         await this.revokeRefreshToken(token.token, userId, 'limit_exceeded');
       }
@@ -370,11 +412,13 @@ export class TokenService {
   /**
    * Verify and decode access token
    */
-  verifyAccessToken(token: string): { userId: string; familyId: string } | null {
+  verifyAccessToken(
+    token: string
+  ): { userId: string; familyId: string } | null {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!, {
         issuer: 'finbot-v3',
-        audience: 'finbot-users'
+        audience: 'finbot-users',
       }) as any;
 
       if (decoded.type !== 'access') {
@@ -383,7 +427,7 @@ export class TokenService {
 
       return {
         userId: decoded.userId,
-        familyId: decoded.familyId
+        familyId: decoded.familyId,
       };
     } catch (error) {
       return null;

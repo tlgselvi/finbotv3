@@ -3,7 +3,11 @@ import { queryClient } from './lib/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { Separator } from '@/components/ui/separator';
 import { ThemeProvider } from '@/lib/theme-context';
@@ -14,7 +18,10 @@ import { JWTAuthProvider, useJWTAuth } from '@/hooks/useJWTAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut, User } from 'lucide-react';
 import { ErrorBoundary } from '@/components/error-boundary';
-import { LoadingProvider, GlobalLoadingIndicator } from '@/components/loading-states';
+import {
+  LoadingProvider,
+  GlobalLoadingIndicator,
+} from '@/components/loading-states';
 
 import Dashboard from '@/pages/dashboard';
 import { DashboardExtended } from '@/pages/dashboard-extended';
@@ -37,7 +44,7 @@ import Register from '@/pages/register';
 import JWTLogin from '@/pages/jwt-login';
 import NotFound from '@/pages/not-found';
 
-function AuthLayout ({ children }: { children: React.ReactNode }) {
+function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-full">
       <div className="absolute top-4 right-4">
@@ -48,7 +55,7 @@ function AuthLayout ({ children }: { children: React.ReactNode }) {
   );
 }
 
-function UserMenu () {
+function UserMenu() {
   const { user, logout } = useAuth();
 
   return (
@@ -71,7 +78,7 @@ function UserMenu () {
   );
 }
 
-function AppLayout ({ children }: { children: React.ReactNode }) {
+function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard>
       <SidebarProvider>
@@ -85,16 +92,14 @@ function AppLayout ({ children }: { children: React.ReactNode }) {
               <ThemeToggle />
             </div>
           </header>
-          <main className="flex-1 space-y-4 p-6">
-            {children}
-          </main>
+          <main className="flex-1 space-y-4 p-6">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </AuthGuard>
   );
 }
 
-function Router () {
+function Router() {
   return (
     <Switch>
       {/* Auth routes - no sidebar */}
@@ -206,7 +211,7 @@ function Router () {
   );
 }
 
-function App () {
+function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="system" storageKey="finbot-ui-theme">

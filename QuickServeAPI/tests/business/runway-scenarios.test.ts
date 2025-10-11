@@ -20,23 +20,52 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
               if (callCount === 1) {
                 // First call: accounts
                 return Promise.resolve([
-                  { balance: 50000, user_id: 'startup-user-1', currency: 'TRY', type: 'company' }
+                  {
+                    balance: 50000,
+                    user_id: 'startup-user-1',
+                    currency: 'TRY',
+                    type: 'company',
+                  },
                 ]);
               } else {
                 // Second call: transactions
                 return Promise.resolve([
                   // Son 6 ayda toplam 90K harcama (15K/ay ortalama)
-                  { amount: -15000, user_id: 'startup-user-1', created_at: new Date('2024-09-01').toISOString() },
-                  { amount: -14500, user_id: 'startup-user-1', created_at: new Date('2024-08-01').toISOString() },
-                  { amount: -15200, user_id: 'startup-user-1', created_at: new Date('2024-07-01').toISOString() },
-                  { amount: -15800, user_id: 'startup-user-1', created_at: new Date('2024-06-01').toISOString() },
-                  { amount: -14200, user_id: 'startup-user-1', created_at: new Date('2024-05-01').toISOString() },
-                  { amount: -15300, user_id: 'startup-user-1', created_at: new Date('2024-04-01').toISOString() }
+                  {
+                    amount: -15000,
+                    user_id: 'startup-user-1',
+                    created_at: new Date('2024-09-01').toISOString(),
+                  },
+                  {
+                    amount: -14500,
+                    user_id: 'startup-user-1',
+                    created_at: new Date('2024-08-01').toISOString(),
+                  },
+                  {
+                    amount: -15200,
+                    user_id: 'startup-user-1',
+                    created_at: new Date('2024-07-01').toISOString(),
+                  },
+                  {
+                    amount: -15800,
+                    user_id: 'startup-user-1',
+                    created_at: new Date('2024-06-01').toISOString(),
+                  },
+                  {
+                    amount: -14200,
+                    user_id: 'startup-user-1',
+                    created_at: new Date('2024-05-01').toISOString(),
+                  },
+                  {
+                    amount: -15300,
+                    user_id: 'startup-user-1',
+                    created_at: new Date('2024-04-01').toISOString(),
+                  },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
       const result = await calculateRunway('startup-user-1', 12, mockDb as any);
@@ -58,29 +87,68 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
               callCount++;
               if (callCount === 1) {
                 return Promise.resolve([
-                  { balance: 30000, user_id: 'critical-user-1', currency: 'TRY', type: 'company' }
+                  {
+                    balance: 30000,
+                    user_id: 'critical-user-1',
+                    currency: 'TRY',
+                    type: 'company',
+                  },
                 ]);
               } else {
                 return Promise.resolve([
-                  { amount: -12000, user_id: 'critical-user-1', created_at: new Date('2024-09-01').toISOString() },
-                  { amount: -12000, user_id: 'critical-user-1', created_at: new Date('2024-08-01').toISOString() },
-                  { amount: -12000, user_id: 'critical-user-1', created_at: new Date('2024-07-01').toISOString() },
-                  { amount: -12000, user_id: 'critical-user-1', created_at: new Date('2024-06-01').toISOString() },
-                  { amount: -12000, user_id: 'critical-user-1', created_at: new Date('2024-05-01').toISOString() },
-                  { amount: -12000, user_id: 'critical-user-1', created_at: new Date('2024-04-01').toISOString() }
+                  {
+                    amount: -12000,
+                    user_id: 'critical-user-1',
+                    created_at: new Date('2024-09-01').toISOString(),
+                  },
+                  {
+                    amount: -12000,
+                    user_id: 'critical-user-1',
+                    created_at: new Date('2024-08-01').toISOString(),
+                  },
+                  {
+                    amount: -12000,
+                    user_id: 'critical-user-1',
+                    created_at: new Date('2024-07-01').toISOString(),
+                  },
+                  {
+                    amount: -12000,
+                    user_id: 'critical-user-1',
+                    created_at: new Date('2024-06-01').toISOString(),
+                  },
+                  {
+                    amount: -12000,
+                    user_id: 'critical-user-1',
+                    created_at: new Date('2024-05-01').toISOString(),
+                  },
+                  {
+                    amount: -12000,
+                    user_id: 'critical-user-1',
+                    created_at: new Date('2024-04-01').toISOString(),
+                  },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
-      const result = await calculateRunway('critical-user-1', 12, mockDb as any);
+      const result = await calculateRunway(
+        'critical-user-1',
+        12,
+        mockDb as any
+      );
 
       expect(result.runwayMonths).toBeLessThan(3);
       expect(result.status).toBe('critical');
       expect(result.recommendations.length).toBeGreaterThan(1);
-      expect(result.recommendations.some(r => r.toLowerCase().includes('nakit') || r.toLowerCase().includes('acil'))).toBe(true);
+      expect(
+        result.recommendations.some(
+          r =>
+            r.toLowerCase().includes('nakit') ||
+            r.toLowerCase().includes('acil')
+        )
+      ).toBe(true);
     });
   });
 
@@ -93,7 +161,7 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
                   { balance: '200000', currency: 'TRY', type: 'company' },
-                  { balance: '100000', currency: 'TRY', type: 'company' }
+                  { balance: '100000', currency: 'TRY', type: 'company' },
                 ]);
               } else {
                 return Promise.resolve([
@@ -102,12 +170,12 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
                   { amount: '-35800', created_at: new Date('2024-07-01') },
                   { amount: '-35200', created_at: new Date('2024-06-01') },
                   { amount: '-34800', created_at: new Date('2024-05-01') },
-                  { amount: '-35700', created_at: new Date('2024-04-01') }
+                  { amount: '-35700', created_at: new Date('2024-04-01') },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
       const result = await calculateRunway('growth-user-1', 12, mockDb as any);
@@ -117,9 +185,12 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
       expect(result.runwayMonths).toBeCloseTo(8.5, 0.5);
       expect(result.status).toBe('healthy');
       expect(result.monthlyBreakdown).toHaveLength(12);
-      
+
       // İlk ay projeksiyon kontrolü
-      expect(result.monthlyBreakdown[0].projectedCash).toBeCloseTo(265000, 5000); // 300K - 35K
+      expect(result.monthlyBreakdown[0].projectedCash).toBeCloseTo(
+        265000,
+        5000
+      ); // 300K - 35K
     });
 
     it('Mevsimsel harcama değişkenliği ile runway hesaplama', async () => {
@@ -129,7 +200,7 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
             where: () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
-                  { balance: '180000', currency: 'TRY', type: 'company' }
+                  { balance: '180000', currency: 'TRY', type: 'company' },
                 ]);
               } else {
                 // Mevsimsel değişkenlik: kış ayları daha yüksek harcama
@@ -139,15 +210,19 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
                   { amount: '-52000', created_at: new Date('2024-07-01') }, // Yaz peak
                   { amount: '-40000', created_at: new Date('2024-06-01') }, // Yaz başı
                   { amount: '-38000', created_at: new Date('2024-05-01') }, // İlkbahar
-                  { amount: '-37000', created_at: new Date('2024-04-01') }  // İlkbahar
+                  { amount: '-37000', created_at: new Date('2024-04-01') }, // İlkbahar
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
-      const result = await calculateRunway('seasonal-user-1', 12, mockDb as any);
+      const result = await calculateRunway(
+        'seasonal-user-1',
+        12,
+        mockDb as any
+      );
 
       // Ortalama harcama: 43.3K/ay
       expect(result.monthlyExpenses).toBeCloseTo(43333, 2000);
@@ -166,7 +241,7 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
                 return Promise.resolve([
                   { balance: '300000', currency: 'TRY', type: 'company' },
                   { balance: '150000', currency: 'USD', type: 'company' },
-                  { balance: '50000', currency: 'EUR', type: 'company' }
+                  { balance: '50000', currency: 'EUR', type: 'company' },
                 ]);
               } else {
                 return Promise.resolve([
@@ -175,15 +250,19 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
                   { amount: '-25500', created_at: new Date('2024-07-01') },
                   { amount: '-25200', created_at: new Date('2024-06-01') },
                   { amount: '-24800', created_at: new Date('2024-05-01') },
-                  { amount: '-25000', created_at: new Date('2024-04-01') }
+                  { amount: '-25000', created_at: new Date('2024-04-01') },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
-      const result = await calculateRunway('profitable-user-1', 12, mockDb as any);
+      const result = await calculateRunway(
+        'profitable-user-1',
+        12,
+        mockDb as any
+      );
 
       expect(result.runwayMonths).toBeGreaterThan(12);
       expect(result.status).toBe('healthy');
@@ -199,7 +278,7 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
             where: () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
-                  { balance: '10000', currency: 'TRY', type: 'company' }
+                  { balance: '10000', currency: 'TRY', type: 'company' },
                 ]);
               } else {
                 return Promise.resolve([
@@ -208,12 +287,12 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
                   { amount: '-20500', created_at: new Date('2024-07-01') },
                   { amount: '-20200', created_at: new Date('2024-06-01') },
                   { amount: '-19800', created_at: new Date('2024-05-01') },
-                  { amount: '-20000', created_at: new Date('2024-04-01') }
+                  { amount: '-20000', created_at: new Date('2024-04-01') },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
       const result = await calculateRunway('crisis-user-1', 12, mockDb as any);
@@ -232,19 +311,23 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
             where: () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
-                  { balance: '-15000', currency: 'TRY', type: 'company' }
+                  { balance: '-15000', currency: 'TRY', type: 'company' },
                 ]);
               } else {
                 return Promise.resolve([
-                  { amount: '-10000', created_at: new Date('2024-09-01') }
+                  { amount: '-10000', created_at: new Date('2024-09-01') },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
-      const result = await calculateRunway('negative-user-1', 12, mockDb as any);
+      const result = await calculateRunway(
+        'negative-user-1',
+        12,
+        mockDb as any
+      );
 
       expect(result.currentCash).toBeLessThanOrEqual(0);
       expect(result.runwayMonths).toBe(0);
@@ -264,19 +347,23 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
                 return Promise.resolve([
                   { balance: '100000', currency: 'TRY', type: 'company' },
                   { balance: '5000', currency: 'USD', type: 'company' }, // ~165K TRY
-                  { balance: '3000', currency: 'EUR', type: 'company' }  // ~105K TRY
+                  { balance: '3000', currency: 'EUR', type: 'company' }, // ~105K TRY
                 ]);
               } else {
                 return Promise.resolve([
-                  { amount: '-30000', created_at: new Date('2024-09-01') } // TRY bazlı
+                  { amount: '-30000', created_at: new Date('2024-09-01') }, // TRY bazlı
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
-      const result = await calculateRunway('multicurrency-user-1', 12, mockDb as any);
+      const result = await calculateRunway(
+        'multicurrency-user-1',
+        12,
+        mockDb as any
+      );
 
       // Toplam nakit (döviz kuru varsayımı ile)
       expect(result.currentCash).toBeGreaterThan(100000); // En az TRY kısmı
@@ -293,16 +380,16 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
                   { balance: '200000', currency: 'TRY', type: 'company' },
-                  { balance: '50000', currency: 'TRY', type: 'personal' } // Kişisel hesap
+                  { balance: '50000', currency: 'TRY', type: 'personal' }, // Kişisel hesap
                 ]);
               } else {
                 return Promise.resolve([
-                  { amount: '-40000', created_at: new Date('2024-09-01') } // Şirket harcaması
+                  { amount: '-40000', created_at: new Date('2024-09-01') }, // Şirket harcaması
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
       const result = await calculateRunway('mixed-user-1', 12, mockDb as any);
@@ -321,7 +408,7 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
             where: () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
-                  { balance: '400000', currency: 'TRY', type: 'company' }
+                  { balance: '400000', currency: 'TRY', type: 'company' },
                 ]);
               } else {
                 // Her ay %10 artan harcamalar
@@ -331,20 +418,24 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
                   { amount: '-41000', created_at: new Date('2024-07-01') },
                   { amount: '-37000', created_at: new Date('2024-06-01') },
                   { amount: '-34000', created_at: new Date('2024-05-01') },
-                  { amount: '-31000', created_at: new Date('2024-04-01') }
+                  { amount: '-31000', created_at: new Date('2024-04-01') },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
-      const result = await calculateRunway('growth-trend-user-1', 12, mockDb as any);
+      const result = await calculateRunway(
+        'growth-trend-user-1',
+        12,
+        mockDb as any
+      );
 
       // Ortalama ~40K/ay harcama
       expect(result.monthlyExpenses).toBeCloseTo(39666, 2000);
       expect(result.runwayMonths).toBeCloseTo(10, 1);
-      
+
       // Son aylarda runway azalmalı (harcama artışı nedeniyle)
       const lastMonth = result.monthlyBreakdown[11];
       expect(lastMonth.netCash).toBeLessThan(result.currentCash);
@@ -359,14 +450,14 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
             where: () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
-                  { balance: '100000', currency: 'TRY', type: 'company' }
+                  { balance: '100000', currency: 'TRY', type: 'company' },
                 ]);
               } else {
                 return Promise.resolve([]); // Hiç harcama yok
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
       const result = await calculateRunway('passive-user-1', 12, mockDb as any);
@@ -387,7 +478,7 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
                   { balance: '80000', currency: 'TRY', type: 'company' }, // İşletme hesabı
-                  { balance: '40000', currency: 'TRY', type: 'company' }  // Vadeli mevduat
+                  { balance: '40000', currency: 'TRY', type: 'company' }, // Vadeli mevduat
                 ]);
               } else {
                 // Düzenli aylık harcamalar
@@ -397,12 +488,12 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
                   { amount: '-18200', created_at: new Date('2024-07-01') },
                   { amount: '-18100', created_at: new Date('2024-06-01') },
                   { amount: '-17900', created_at: new Date('2024-05-01') },
-                  { amount: '-18000', created_at: new Date('2024-04-01') }
+                  { amount: '-18000', created_at: new Date('2024-04-01') },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
       const result = await calculateRunway('sme-user-1', 12, mockDb as any);
@@ -411,10 +502,10 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
       expect(result.monthlyExpenses).toBeCloseTo(18000, 200);
       expect(result.runwayMonths).toBeCloseTo(6.6, 0.5);
       expect(result.status).toBe('healthy');
-      
+
       // 6. ay nakit pozisyonu pozitif olmalı
       expect(result.monthlyBreakdown[5].projectedCash).toBeGreaterThan(0);
-      
+
       // 7. ay kritik seviyeye yaklaşmalı
       if (result.monthlyBreakdown[6]) {
         expect(result.monthlyBreakdown[6].projectedCash).toBeLessThan(20000);
@@ -430,29 +521,72 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
             where: () => {
               if (table.name === 'accounts') {
                 return Promise.resolve([
-                  { balance: '150000', currency: 'TRY', type: 'company', name: 'Şube 1 Vadesiz' },
-                  { balance: '120000', currency: 'TRY', type: 'company', name: 'Şube 2 Vadesiz' },
-                  { balance: '80000', currency: 'TRY', type: 'company', name: 'Merkez Hesap' }
+                  {
+                    balance: '150000',
+                    currency: 'TRY',
+                    type: 'company',
+                    name: 'Şube 1 Vadesiz',
+                  },
+                  {
+                    balance: '120000',
+                    currency: 'TRY',
+                    type: 'company',
+                    name: 'Şube 2 Vadesiz',
+                  },
+                  {
+                    balance: '80000',
+                    currency: 'TRY',
+                    type: 'company',
+                    name: 'Merkez Hesap',
+                  },
                 ]);
               } else {
                 return Promise.resolve([
                   // Şube 1 harcamaları
-                  { amount: '-22000', created_at: new Date('2024-09-01'), category: 'Şube 1' },
-                  { amount: '-21500', created_at: new Date('2024-08-01'), category: 'Şube 1' },
+                  {
+                    amount: '-22000',
+                    created_at: new Date('2024-09-01'),
+                    category: 'Şube 1',
+                  },
+                  {
+                    amount: '-21500',
+                    created_at: new Date('2024-08-01'),
+                    category: 'Şube 1',
+                  },
                   // Şube 2 harcamaları
-                  { amount: '-18000', created_at: new Date('2024-09-01'), category: 'Şube 2' },
-                  { amount: '-17800', created_at: new Date('2024-08-01'), category: 'Şube 2' },
+                  {
+                    amount: '-18000',
+                    created_at: new Date('2024-09-01'),
+                    category: 'Şube 2',
+                  },
+                  {
+                    amount: '-17800',
+                    created_at: new Date('2024-08-01'),
+                    category: 'Şube 2',
+                  },
                   // Merkez harcamalar
-                  { amount: '-15000', created_at: new Date('2024-09-01'), category: 'Genel' },
-                  { amount: '-14800', created_at: new Date('2024-08-01'), category: 'Genel' }
+                  {
+                    amount: '-15000',
+                    created_at: new Date('2024-09-01'),
+                    category: 'Genel',
+                  },
+                  {
+                    amount: '-14800',
+                    created_at: new Date('2024-08-01'),
+                    category: 'Genel',
+                  },
                 ]);
               }
-            }
-          })
-        })
+            },
+          }),
+        }),
       };
 
-      const result = await calculateRunway('franchise-user-1', 12, mockDb as any);
+      const result = await calculateRunway(
+        'franchise-user-1',
+        12,
+        mockDb as any
+      );
 
       expect(result.currentCash).toBe(350000);
       // Toplam harcama: ~109K/ay (22K + 18K + 15K) × 6 ay / 6
@@ -461,4 +595,3 @@ describe('Runway Analysis - Gerçek İş Senaryoları', () => {
     });
   });
 });
-

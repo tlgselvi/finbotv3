@@ -8,17 +8,21 @@ import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import * as schema from '../../shared/schema-sqlite';
 import { eq } from 'drizzle-orm';
-import { 
-  calculateRunway, 
+import {
+  calculateRunway,
   calculateCashGap,
   getDashboardRunwayCashGap,
-  getCashFlowForecast
+  getCashFlowForecast,
 } from '../../server/modules/dashboard/runway-cashgap';
-import { validateUserId, validateMonths, ValidationError } from '../../server/utils/validation';
+import {
+  validateUserId,
+  validateMonths,
+  ValidationError,
+} from '../../server/utils/validation';
 
 // Test without actual HTTP server - test functions directly
 
-// Create in-memory test database  
+// Create in-memory test database
 const sqlite = new Database(':memory:');
 const testDb = drizzle(sqlite, { schema });
 
@@ -83,7 +87,7 @@ describe('Dashboard API Logic Tests', () => {
       id: 'acc-api-1',
       user_id: testUserId,
       name: 'API Test Account',
-      balance: 100000.00,
+      balance: 100000.0,
       type: 'bank',
       currency: 'TRY',
       created_at: new Date().toISOString(),
@@ -94,12 +98,12 @@ describe('Dashboard API Logic Tests', () => {
     for (let i = 0; i < 6; i++) {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
-      
+
       await testDb.insert(schema.transactions).values({
         id: `trans-api-${i}`,
         user_id: testUserId,
         account_id: 'acc-api-1',
-        amount: -8000.00,
+        amount: -8000.0,
         type: 'expense',
         category: 'operating',
         date: date.toISOString(),
@@ -114,7 +118,7 @@ describe('Dashboard API Logic Tests', () => {
         user_id: testUserId,
         type: 'receivable',
         customer_supplier: 'API Test Customer',
-        amount: 20000.00,
+        amount: 20000.0,
         due_date: new Date().toISOString(),
         age_days: 10,
         status: 'pending',
@@ -126,7 +130,7 @@ describe('Dashboard API Logic Tests', () => {
         user_id: testUserId,
         type: 'payable',
         customer_supplier: 'API Test Supplier',
-        amount: 15000.00,
+        amount: 15000.0,
         due_date: new Date().toISOString(),
         age_days: 5,
         status: 'pending',
@@ -138,9 +142,15 @@ describe('Dashboard API Logic Tests', () => {
 
   afterEach(async () => {
     // Clean up test data
-    await testDb.delete(schema.transactions).where(eq(schema.transactions.user_id, testUserId));
-    await testDb.delete(schema.accounts).where(eq(schema.accounts.user_id, testUserId));
-    await testDb.delete(schema.arApItems).where(eq(schema.arApItems.user_id, testUserId));
+    await testDb
+      .delete(schema.transactions)
+      .where(eq(schema.transactions.user_id, testUserId));
+    await testDb
+      .delete(schema.accounts)
+      .where(eq(schema.accounts.user_id, testUserId));
+    await testDb
+      .delete(schema.arApItems)
+      .where(eq(schema.arApItems.user_id, testUserId));
   });
 
   /**
@@ -172,7 +182,9 @@ describe('Dashboard API Logic Tests', () => {
     });
 
     it('should reject SQL injection in user ID', () => {
-      expect(() => validateUserId("'; DROP TABLE accounts; --")).toThrow(ValidationError);
+      expect(() => validateUserId("'; DROP TABLE accounts; --")).toThrow(
+        ValidationError
+      );
     });
   });
 
@@ -198,7 +210,9 @@ describe('Dashboard API Logic Tests', () => {
       const result3 = await calculateCashGap(testUserId, 3, testDb);
       const result12 = await calculateCashGap(testUserId, 12, testDb);
 
-      expect(result3.timeline.length).toBeLessThanOrEqual(result12.timeline.length);
+      expect(result3.timeline.length).toBeLessThanOrEqual(
+        result12.timeline.length
+      );
     });
   });
 
@@ -225,7 +239,9 @@ describe('Dashboard API Logic Tests', () => {
     it('should calculate overall risk correctly', async () => {
       const result = await getDashboardRunwayCashGap(testUserId, testDb);
 
-      expect(['low', 'medium', 'high', 'critical']).toContain(result.overallRisk);
+      expect(['low', 'medium', 'high', 'critical']).toContain(
+        result.overallRisk
+      );
       expect(result.summary.runwayStatus).toBe(result.runway.status);
       expect(result.summary.cashGapStatus).toBe(result.cashGap.riskLevel);
     });
@@ -305,7 +321,7 @@ describe('Dashboard API Logic Tests', () => {
         "'; DROP TABLE users; --",
         "user' OR '1'='1",
         "admin' --",
-        "user; SELECT * FROM accounts",
+        'user; SELECT * FROM accounts',
       ];
 
       maliciousInputs.forEach(input => {
@@ -338,7 +354,7 @@ describe('Dashboard API Logic Tests', () => {
 
     it('should handle empty user gracefully in functions', async () => {
       const result = await calculateRunway('empty-user-no-data', 12, testDb);
-      
+
       expect(result).toBeDefined();
       expect(result.currentCash).toBe(0);
       expect(result.status).toBe('critical');
@@ -354,4 +370,3 @@ describe('Dashboard API Logic Tests', () => {
     });
   });
 });
-

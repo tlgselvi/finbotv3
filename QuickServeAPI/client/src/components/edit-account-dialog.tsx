@@ -1,13 +1,32 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { User, Building, CreditCard, Calendar, Edit, Save, X } from 'lucide-react';
+import {
+  User,
+  Building,
+  CreditCard,
+  Calendar,
+  Edit,
+  Save,
+  X,
+} from 'lucide-react';
 import { logger } from '@/lib/logger';
 
 interface Account {
@@ -37,12 +56,12 @@ interface EditAccountDialogProps {
   isLoading: boolean;
 }
 
-export default function EditAccountDialog({ 
-  open, 
-  onOpenChange, 
-  onUpdateAccount, 
-  account, 
-  isLoading 
+export default function EditAccountDialog({
+  open,
+  onOpenChange,
+  onUpdateAccount,
+  account,
+  isLoading,
 }: EditAccountDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
@@ -57,7 +76,7 @@ export default function EditAccountDialog({
     cutOffDate: '',
     gracePeriod: '',
     minimumPayment: '',
-    interestRate: ''
+    interestRate: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -78,7 +97,7 @@ export default function EditAccountDialog({
         cutOffDate: account.cutOffDate || '',
         gracePeriod: account.gracePeriod?.toString() || '',
         minimumPayment: account.minimumPayment?.toString() || '',
-        interestRate: account.interestRate?.toString() || ''
+        interestRate: account.interestRate?.toString() || '',
       });
       setErrors({});
     }
@@ -150,10 +169,16 @@ export default function EditAccountDialog({
         ...(formData.type === 'credit_card' && {
           paymentDueDate: formData.paymentDueDate || undefined,
           cutOffDate: formData.cutOffDate || undefined,
-          gracePeriod: formData.gracePeriod ? Number(formData.gracePeriod) : undefined,
-          minimumPayment: formData.minimumPayment ? Number(formData.minimumPayment) : undefined,
-          interestRate: formData.interestRate ? Number(formData.interestRate) : undefined
-        })
+          gracePeriod: formData.gracePeriod
+            ? Number(formData.gracePeriod)
+            : undefined,
+          minimumPayment: formData.minimumPayment
+            ? Number(formData.minimumPayment)
+            : undefined,
+          interestRate: formData.interestRate
+            ? Number(formData.interestRate)
+            : undefined,
+        }),
       };
 
       await onUpdateAccount(account.id, updateData);
@@ -221,24 +246,31 @@ export default function EditAccountDialog({
                 {getAccountTypeIcon(formData.type)}
                 Temel Bilgiler
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Hesap Adı *</Label>
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={e => handleInputChange('name', e.target.value)}
                     placeholder="Örn: Ana İşletme Hesabı"
                     className={errors.name ? 'border-red-500' : ''}
                   />
-                  {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                  {errors.name && (
+                    <p className="text-sm text-red-500">{errors.name}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="type">Hesap Türü *</Label>
-                  <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                    <SelectTrigger className={errors.type ? 'border-red-500' : ''}>
+                  <Select
+                    value={formData.type}
+                    onValueChange={value => handleInputChange('type', value)}
+                  >
+                    <SelectTrigger
+                      className={errors.type ? 'border-red-500' : ''}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -274,7 +306,9 @@ export default function EditAccountDialog({
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.type && <p className="text-sm text-red-500">{errors.type}</p>}
+                  {errors.type && (
+                    <p className="text-sm text-red-500">{errors.type}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -282,11 +316,15 @@ export default function EditAccountDialog({
                   <Input
                     id="bankName"
                     value={formData.bankName}
-                    onChange={(e) => handleInputChange('bankName', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('bankName', e.target.value)
+                    }
                     placeholder="Örn: Garanti BBVA"
                     className={errors.bankName ? 'border-red-500' : ''}
                   />
-                  {errors.bankName && <p className="text-sm text-red-500">{errors.bankName}</p>}
+                  {errors.bankName && (
+                    <p className="text-sm text-red-500">{errors.bankName}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -294,11 +332,17 @@ export default function EditAccountDialog({
                   <Input
                     id="accountNumber"
                     value={formData.accountNumber}
-                    onChange={(e) => handleInputChange('accountNumber', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('accountNumber', e.target.value)
+                    }
                     placeholder="Örn: 1234567890"
                     className={errors.accountNumber ? 'border-red-500' : ''}
                   />
-                  {errors.accountNumber && <p className="text-sm text-red-500">{errors.accountNumber}</p>}
+                  {errors.accountNumber && (
+                    <p className="text-sm text-red-500">
+                      {errors.accountNumber}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -308,16 +352,23 @@ export default function EditAccountDialog({
                     type="number"
                     step="0.01"
                     value={formData.balance}
-                    onChange={(e) => handleInputChange('balance', e.target.value)}
+                    onChange={e => handleInputChange('balance', e.target.value)}
                     placeholder="0.00"
                     className={errors.balance ? 'border-red-500' : ''}
                   />
-                  {errors.balance && <p className="text-sm text-red-500">{errors.balance}</p>}
+                  {errors.balance && (
+                    <p className="text-sm text-red-500">{errors.balance}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Para Birimi</Label>
-                  <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
+                  <Select
+                    value={formData.currency}
+                    onValueChange={value =>
+                      handleInputChange('currency', value)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -335,7 +386,9 @@ export default function EditAccountDialog({
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={e =>
+                    handleInputChange('description', e.target.value)
+                  }
                   placeholder="Hesap hakkında ek bilgiler..."
                   rows={3}
                 />
@@ -345,7 +398,9 @@ export default function EditAccountDialog({
                 <Switch
                   id="isActive"
                   checked={formData.isActive}
-                  onCheckedChange={(checked) => handleInputChange('isActive', checked)}
+                  onCheckedChange={checked =>
+                    handleInputChange('isActive', checked)
+                  }
                 />
                 <Label htmlFor="isActive">Hesap aktif</Label>
               </div>
@@ -360,7 +415,7 @@ export default function EditAccountDialog({
                   <CreditCard className="h-5 w-5 text-purple-600" />
                   Kredi Kartı Bilgileri
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="paymentDueDate">Ödeme Vade Tarihi</Label>
@@ -368,7 +423,9 @@ export default function EditAccountDialog({
                       id="paymentDueDate"
                       type="date"
                       value={formData.paymentDueDate}
-                      onChange={(e) => handleInputChange('paymentDueDate', e.target.value)}
+                      onChange={e =>
+                        handleInputChange('paymentDueDate', e.target.value)
+                      }
                     />
                   </div>
 
@@ -378,7 +435,9 @@ export default function EditAccountDialog({
                       id="cutOffDate"
                       type="date"
                       value={formData.cutOffDate}
-                      onChange={(e) => handleInputChange('cutOffDate', e.target.value)}
+                      onChange={e =>
+                        handleInputChange('cutOffDate', e.target.value)
+                      }
                     />
                   </div>
 
@@ -388,11 +447,17 @@ export default function EditAccountDialog({
                       id="gracePeriod"
                       type="number"
                       value={formData.gracePeriod}
-                      onChange={(e) => handleInputChange('gracePeriod', e.target.value)}
+                      onChange={e =>
+                        handleInputChange('gracePeriod', e.target.value)
+                      }
                       placeholder="30"
                       className={errors.gracePeriod ? 'border-red-500' : ''}
                     />
-                    {errors.gracePeriod && <p className="text-sm text-red-500">{errors.gracePeriod}</p>}
+                    {errors.gracePeriod && (
+                      <p className="text-sm text-red-500">
+                        {errors.gracePeriod}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -402,11 +467,17 @@ export default function EditAccountDialog({
                       type="number"
                       step="0.01"
                       value={formData.minimumPayment}
-                      onChange={(e) => handleInputChange('minimumPayment', e.target.value)}
+                      onChange={e =>
+                        handleInputChange('minimumPayment', e.target.value)
+                      }
                       placeholder="0.00"
                       className={errors.minimumPayment ? 'border-red-500' : ''}
                     />
-                    {errors.minimumPayment && <p className="text-sm text-red-500">{errors.minimumPayment}</p>}
+                    {errors.minimumPayment && (
+                      <p className="text-sm text-red-500">
+                        {errors.minimumPayment}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -416,11 +487,17 @@ export default function EditAccountDialog({
                       type="number"
                       step="0.01"
                       value={formData.interestRate}
-                      onChange={(e) => handleInputChange('interestRate', e.target.value)}
+                      onChange={e =>
+                        handleInputChange('interestRate', e.target.value)
+                      }
                       placeholder="0.00"
                       className={errors.interestRate ? 'border-red-500' : ''}
                     />
-                    {errors.interestRate && <p className="text-sm text-red-500">{errors.interestRate}</p>}
+                    {errors.interestRate && (
+                      <p className="text-sm text-red-500">
+                        {errors.interestRate}
+                      </p>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -430,7 +507,9 @@ export default function EditAccountDialog({
           {/* Error Message */}
           {errors.submit && (
             <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
-              <p className="text-red-700 dark:text-red-300 text-sm">{errors.submit}</p>
+              <p className="text-red-700 dark:text-red-300 text-sm">
+                {errors.submit}
+              </p>
             </div>
           )}
 

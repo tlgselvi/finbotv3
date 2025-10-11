@@ -8,13 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useCurrency, Currency } from '@/contexts/CurrencyContext';
-import { 
-  DollarSign, 
-  Euro, 
-  Coins, 
-  ChevronDown,
-  Globe
-} from 'lucide-react';
+import { DollarSign, Euro, Coins, ChevronDown, Globe } from 'lucide-react';
 
 const currencyOptions = [
   {
@@ -22,22 +16,22 @@ const currencyOptions = [
     label: 'Türk Lirası',
     symbol: '₺',
     icon: Coins,
-    flag: '🇹🇷'
+    flag: '🇹🇷',
   },
   {
     value: 'USD' as Currency,
     label: 'US Dollar',
     symbol: '$',
     icon: DollarSign,
-    flag: '🇺🇸'
+    flag: '🇺🇸',
   },
   {
     value: 'EUR' as Currency,
     label: 'Euro',
     symbol: '€',
     icon: Euro,
-    flag: '🇪🇺'
-  }
+    flag: '🇪🇺',
+  },
 ];
 
 export default function CurrencySwitcher() {
@@ -54,8 +48,8 @@ export default function CurrencySwitcher() {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
           className="flex items-center gap-2 h-8 px-3"
         >
@@ -66,10 +60,10 @@ export default function CurrencySwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        {currencyOptions.map((option) => {
+        {currencyOptions.map(option => {
           const IconComponent = option.icon;
           const isSelected = option.value === currency;
-          
+
           return (
             <DropdownMenuItem
               key={option.value}
@@ -94,14 +88,12 @@ export default function CurrencySwitcher() {
             </DropdownMenuItem>
           );
         })}
-        
+
         {/* Örnek format gösterimi */}
         <div className="border-t pt-2 mt-2">
           <div className="px-3 py-2">
             <p className="text-xs text-muted-foreground mb-1">Örnek format:</p>
-            <p className="text-sm font-mono">
-              {formatCurrency(1234.56)}
-            </p>
+            <p className="text-sm font-mono">{formatCurrency(1234.56)}</p>
           </div>
         </div>
       </DropdownMenuContent>
@@ -126,8 +118,8 @@ export function CurrencySwitcherCompact() {
   const IconComponent = currentCurrency.icon;
 
   return (
-    <Button 
-      variant="ghost" 
+    <Button
+      variant="ghost"
       size="sm"
       onClick={handleNext}
       className="flex items-center gap-1 h-8 px-2"

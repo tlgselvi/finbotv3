@@ -4,30 +4,36 @@
 
 **Toplam:** 949 test | **Geçen:** 447 (47.1%) | **Skip:** 288 (30%) | **Coverage:** ~75%
 
-**Son Güncelleme:** 11.10.2025 23:39  
+**Son Güncelleme:** 12.10.2025 00:03  
 **Critical Tests:** 84/84 (100%) ✅  
 **Test Files:** 64 (20 passing, 29 skipped, 15 needs work)
 
 ## 🚀 Hızlı Başlangıç
 
 ### ⚡ En İyi Testleri Çalıştır (Critical Tests)
+
 ```bash
 pnpm test:critical
 ```
+
 Bu komut **84 core business test**i çalıştırır - **%100 BAŞARILI!** ✅
 
 **Süre:** ~2 saniye | **Sonuç:** 84/84 passed | **Son Test:** 22:54:00
 
 ### Tüm Testleri Çalıştır
+
 ```bash
 pnpm test
 ```
 
 ### İnteraktif Test Runner
+
 ```powershell
 .\run-tests.ps1  # Windows PowerShell
 ```
+
 veya
+
 ```cmd
 quick-test.bat   # Windows CMD
 ```
@@ -39,18 +45,21 @@ quick-test.bat   # Windows CMD
 ### ✅ Core Business Logic (100% Pass Rate!)
 
 #### 1. **DSCR Scenarios** - 36/36 test ✅ NEW!
+
 📁 `business/dscr-scenarios.test.ts`
 
 **Komut:** `pnpm test tests/business/dscr-scenarios.test.ts`
 **Durum:** ✅ %100 başarı - Production ready!
 
 **Kapsam:**
+
 - 13 farklı iş sektörü senaryosu
 - Banka kredi değerlendirme kriterleri
 - Restructuring öncesi/sonrası
 - Tier 1-5 değerlendirme sistemi
 
 **İş Senaryoları:**
+
 - 🏢 Startup (erken aşama, burn rate)
 - 🏭 Üretim tesisi (kapasite kullanımı)
 - 🏗️ İnşaat (proje bazlı cash flow)
@@ -60,44 +69,52 @@ quick-test.bat   # Windows CMD
 - 🏖️ Mevsimsel işletme
 
 #### 2. **Consolidation** - 6 test ✅
+
 📁 `consolidation/breakdown.test.ts`
 
 **Komut:** `pnpm test tests/consolidation/breakdown.test.ts`
 
 **Kapsam:**
+
 - Şirket vs kişisel hesap ayrımı
 - Banka/nakit/kredi/yatırım kategorileri
 - Tablo ve grafik veri hazırlama
 - Negatif bakiye yönetimi
 
 #### 3. **Advisor Rules** - 15 test ✅
+
 📁 `advisor/rules.test.ts`
 
 **Komut:** `pnpm test tests/advisor/rules.test.ts`
 
 **Kapsam:**
+
 - Risk profili bazlı portföy önerileri (low/medium/high)
 - Çeşitlendirme önerileri
 - Konsantrasyon riski tespiti
 - Beklenen getiri hesaplamaları
 
 #### 4. **Simulation Engine** - 15 test ✅
+
 📁 `simulation/engine.test.ts`
 
 **Komut:** `pnpm test tests/simulation/engine.test.ts`
 
 **Kapsam:**
+
 - 3-parameter simülasyon (FX/Rate/Inflation)
 - 3-6-12 aylık projeksiyonlar
 - Nakit açığı tespiti
 - Parametre validasyonu
 
 #### 5. **Dashboard Analytics** - 30 test ✅
+
 📁 `dashboard/runway-cashgap.test.ts` + edge + errors
 
 **Komut:** `pnpm test tests/dashboard/`
 
 **Kapsam:**
+
 - Runway calculation
 - Cash gap analysis
 - Risk level determination
@@ -108,11 +125,13 @@ quick-test.bat   # Windows CMD
 ### 🛡️ Security Tests
 
 #### 6. **Dashboard Security** - 19 test (6 passed, 13 skip) ✅
+
 📁 `security/dashboard-security.test.ts`
 
 **Komut:** `pnpm test:security`
 
 **Kapsam:**
+
 - ✅ SQL Injection prevention
 - ✅ XSS prevention
 - ✅ Input validation
@@ -123,11 +142,13 @@ quick-test.bat   # Windows CMD
 ### ⚡ Performance Tests
 
 #### 7. **Dashboard Performance** - 11 test ✅
+
 📁 `performance/dashboard-performance.test.ts`
 
 **Komut:** `pnpm test:performance`
 
 **Kapsam:**
+
 - 10,000+ transaction load test
 - 50+ concurrent users
 - Memory leak detection
@@ -139,11 +160,13 @@ quick-test.bat   # Windows CMD
 ### 🎨 Frontend Tests
 
 #### 8. **Dashboard Widgets** - 19 test ✅
+
 📁 `components/dashboard-widgets.test.tsx`
 
 **Komut:** `pnpm test:frontend`
 
 **Kapsam:**
+
 - Runway widget rendering
 - Cash gap widget
 - Chart components
@@ -163,6 +186,7 @@ DATABASE_URL="your-db-url" pnpm test tests/integration/
 ```
 
 **Testler:**
+
 - Auth flow
 - Bank integration
 - Dashboard integration
@@ -185,6 +209,7 @@ E2E_TEST_ENABLED=1 pnpm test tests/e2e/
 ```
 
 **Testler:**
+
 - Complete user workflow
 - Dashboard extended features
 - Smoke tests
@@ -194,32 +219,40 @@ E2E_TEST_ENABLED=1 pnpm test tests/e2e/
 ## 🎯 Öncelikli Test Komutları
 
 ### 🔴 Deploy Öncesi (CRITICAL)
+
 ```bash
 pnpm test:critical
 ```
+
 **Çalışan Testler:** 84 test (DSCR + Consolidation + Advisor + Simulation + Dashboard)
 **Beklenen Sonuç:** 100% pass
 **Süre:** ~3 saniye
 
 ### 🟡 PR Öncesi (HIGH)
+
 ```bash
 pnpm test:unit
 ```
+
 **Çalışan Testler:** Core + Business + Utils
 **Beklenen Sonuç:** 95%+ pass
 **Süre:** ~5 saniye
 
 ### 🟢 Haftalık Check (MEDIUM)
+
 ```bash
 pnpm test
 ```
+
 **Çalışan Testler:** Tüm suite
 **Süre:** ~12 saniye
 
 ### 🔵 Full Suite + Coverage (LOW)
+
 ```bash
 pnpm test:coverage
 ```
+
 **Çalışan Testler:** Tüm testler + coverage raporu
 **Süre:** ~20 saniye
 
@@ -230,6 +263,7 @@ pnpm test:coverage
 ### Yeni Test Eklemek
 
 1. **Dosyayı oluştur:**
+
 ```bash
 # İş senaryosu testi
 tests/business/my-feature.test.ts
@@ -242,6 +276,7 @@ tests/api/my-endpoint.test.ts
 ```
 
 2. **Test suite'e ekle:**
+
 ```typescript
 // tests/test-suite.ts dosyasını aç
 // İlgili kategoriyi bul
@@ -249,6 +284,7 @@ tests/api/my-endpoint.test.ts
 ```
 
 3. **Çalıştır:**
+
 ```bash
 pnpm test tests/business/my-feature.test.ts
 ```
@@ -258,6 +294,7 @@ pnpm test tests/business/my-feature.test.ts
 1. **Test dosyasını aç**
 2. **İş logic'ini güncelle**
 3. **Çalıştır:**
+
 ```bash
 pnpm test:watch tests/path/to/test.ts
 ```
@@ -296,19 +333,21 @@ tests/
 ## 🔄 CI/CD Integration
 
 ### GitHub Actions
+
 ```yaml
 # .github/workflows/test.yml
 - name: Run Critical Tests
   run: pnpm test:critical
-  
+
 - name: Run Unit Tests
   run: pnpm test:unit
-  
+
 - name: Run Coverage
   run: pnpm test:coverage
 ```
 
 ### Pre-commit Hook
+
 ```bash
 # .husky/pre-commit
 pnpm test:critical
@@ -320,23 +359,23 @@ pnpm test:critical
 
 ### Kategori Bazında Pass Rate (GÜNCEL - 2025-10-11)
 
-| Kategori | Testler | Pass | Skip | Fail | Rate |
-|----------|---------|------|------|------|------|
-| **DSCR Scenarios** | 36 | 36 | 0 | 0 | 100% ✅ |
-| **User Permissions** | 17 | 17 | 0 | 0 | 100% ✅ |
-| **Consolidation** | 6 | 6 | 0 | 0 | 100% ✅ |
-| **Advisor** | 15 | 15 | 0 | 0 | 100% ✅ |
-| **Simulation** | 15 | 15 | 0 | 0 | 100% ✅ |
-| **Dashboard** | 30 | 30 | 0 | 0 | 100% ✅ |
-| **Performance** | 11 | 11 | 0 | 0 | 100% ✅ |
-| **Dashboard Widgets** | 19 | 19 | 0 | 0 | 100% ✅ |
-| **Password Service** | 28 | 28 | 0 | 0 | 100% ✅ |
-| **Components (Other)** | 17 | 14 | 2 | 1 | 97% ✅ |
-| **Security (Other)** | 50+ | 34 | 14 | 5 | 87% 🟡 |
-| **Integration** | 50+ | 0 | 50+ | 0 | Skip ⏭️ |
-| **E2E** | 30+ | 0 | 30+ | 0 | Skip ⏭️ |
+| Kategori               | Testler | Pass | Skip | Fail | Rate    |
+| ---------------------- | ------- | ---- | ---- | ---- | ------- |
+| **DSCR Scenarios**     | 36      | 36   | 0    | 0    | 100% ✅ |
+| **User Permissions**   | 17      | 17   | 0    | 0    | 100% ✅ |
+| **Consolidation**      | 6       | 6    | 0    | 0    | 100% ✅ |
+| **Advisor**            | 15      | 15   | 0    | 0    | 100% ✅ |
+| **Simulation**         | 15      | 15   | 0    | 0    | 100% ✅ |
+| **Dashboard**          | 30      | 30   | 0    | 0    | 100% ✅ |
+| **Performance**        | 11      | 11   | 0    | 0    | 100% ✅ |
+| **Dashboard Widgets**  | 19      | 19   | 0    | 0    | 100% ✅ |
+| **Password Service**   | 28      | 28   | 0    | 0    | 100% ✅ |
+| **Components (Other)** | 17      | 14   | 2    | 1    | 97% ✅  |
+| **Security (Other)**   | 50+     | 34   | 14   | 5    | 87% 🟡  |
+| **Integration**        | 50+     | 0    | 50+  | 0    | Skip ⏭️ |
+| **E2E**                | 30+     | 0    | 30+  | 0    | Skip ⏭️ |
 
-*Skip = Backend/DB bağımlılığı nedeniyle
+\*Skip = Backend/DB bağımlılığı nedeniyle
 
 ### Toplam İstatistikler (GÜNCEL - 2025-10-11 22:55)
 
@@ -366,41 +405,49 @@ Pass Rate (Active): 67.6% (447 / 661 non-skipped)
 ## 🎯 Test Senaryoları - Sektör Bazlı
 
 ### 1. **Startup & Technology** 💻
+
 - Runway: Burn rate yönetimi
 - DSCR: Erken aşama borçlanma
 - Cash Gap: Yatırım funding timing
 
 ### 2. **İnşaat & Mühendislik** 🏗️
+
 - Hakediş yönetimi
 - Proje bazlı cash flow
 - Timing gap (malzeme vs tahsilat)
 
 ### 3. **Üretim & İmalat** 🏭
+
 - Kapasite kullanım etkisi
 - Hammadde ödemeleri vs satış tahsilatları
 - İşletme sermayesi optimizasyonu
 
 ### 4. **Perakende & E-ticaret** 🛒
+
 - Hızlı döner sermaye
 - Günlük nakit girişleri
 - Stok finansmanı
 
 ### 5. **Hizmet Sektörü** 🏢
+
 - SaaS: Abonelik modeli
 - Danışmanlık: Proje bazlı gelir
 - Franchise: Multi-location yönetimi
 
 ### 6. **Turizm & Mevsimsel** 🏖️
+
 - Mevsimsel cash flow
 - Kış/yaz dengesi
 - Sezon sonu hazırlık
 
 ### 7. **İhracat & Dış Ticaret** 🌍
+
 - Döviz riski yönetimi
 - Uluslararası ödeme vaadeleri
 - Kur etkisi
 
 ### 8. **Holding & Konglomeralar** 🏢
+
 - Konsolide finansal analiz
 - Şirketler arası cash flow
 - Multi-entity yönetimi
@@ -412,6 +459,7 @@ Pass Rate (Active): 67.6% (447 / 661 non-skipped)
 ### Test Yazma Best Practices
 
 #### 1. **İş Senaryosu Odaklı**
+
 ```typescript
 // ❌ Kötü - Sadece teknik test
 it('should return a number', () => {
@@ -428,6 +476,7 @@ it('KOBİ kredisi: 140K CF, 100K debt → DSCR 1.4 (bank warning)', () => {
 ```
 
 #### 2. **Açıklayıcı Test İsimleri**
+
 ```typescript
 // ❌ Kötü
 it('test1', () => {});
@@ -437,24 +486,26 @@ it('İnşaat projesi: 500K hakediş alacağı (90 gün) vs 200K malzeme borcu (3
 ```
 
 #### 3. **Gerçek Değerler Kullan**
+
 ```typescript
 // ❌ Kötü - Mock değerler
 const cash = 123.45;
 
 // ✅ İyi - Gerçekçi iş değerleri
-const cash = 50000;  // 50K TRY - Tipik startup nakit
-const burn = 15000;  // 15K/ay - Gerçekçi harcama
+const cash = 50000; // 50K TRY - Tipik startup nakit
+const burn = 15000; // 15K/ay - Gerçekçi harcama
 ```
 
 #### 4. **Context ve Açıklama Ekle**
+
 ```typescript
 it('Mevsimsel turizm: Yaz sezonu bitişi → nakit sıkışıklığı', () => {
   // Sezon bitmiş, alacaklar azalmış, kış hazırlığı için borç yükü artmış
-  const ar = 35000;   // Kalan az alacak
-  const ap = 180000;  // Yüksek borç (stok, renovasyon)
-  
+  const ar = 35000; // Kalan az alacak
+  const ap = 180000; // Yüksek borç (stok, renovasyon)
+
   const gap = ar - ap;
-  expect(gap).toBe(-145000);  // Kritik negatif gap
+  expect(gap).toBe(-145000); // Kritik negatif gap
   expect(riskLevel).toBe('critical');
 });
 ```
@@ -462,19 +513,18 @@ it('Mevsimsel turizm: Yaz sezonu bitişi → nakit sıkışıklığı', () => {
 ### Yeni Test Kategorisi Eklemek
 
 1. **test-suite.ts'yi güncelle:**
+
 ```typescript
 export const TEST_REGISTRY = {
   // ...
-  myNewCategory: [
-    'my-category/test1.test.ts',
-    'my-category/test2.test.ts'
-  ]
+  myNewCategory: ['my-category/test1.test.ts', 'my-category/test2.test.ts'],
 };
 ```
 
 2. **README'yi güncelle** (bu dosya)
 
 3. **Package.json'a script ekle:**
+
 ```json
 "test:mycategory": "vitest run tests/my-category/"
 ```
@@ -484,6 +534,7 @@ export const TEST_REGISTRY = {
 ## 📈 Test Coverage Hedefleri
 
 ### Mevcut Coverage
+
 - **Business Logic:** %95+ ✅
 - **Security:** %80+ ✅
 - **Performance:** %85+ ✅
@@ -492,6 +543,7 @@ export const TEST_REGISTRY = {
 - **E2E:** %50+ (Backend ile)
 
 ### Hedef Coverage
+
 - **Overall:** %80+ (Şu an ~75%)
 - **Critical Paths:** %100
 - **Edge Cases:** %90+
@@ -501,6 +553,7 @@ export const TEST_REGISTRY = {
 ## 🐛 Troubleshooting
 
 ### "DATABASE_URL not set" Hatası
+
 ```bash
 # Integration testler DATABASE_URL gerektirir
 # İki seçenek:
@@ -513,6 +566,7 @@ DATABASE_URL="postgresql://test:test@localhost/finbot_test" pnpm test
 ```
 
 ### "Backend not available" Hatası
+
 ```bash
 # E2E testler backend gerektirir
 
@@ -524,6 +578,7 @@ E2E_TEST_ENABLED=1 pnpm test tests/e2e/
 ```
 
 ### Mock Hataları
+
 ```bash
 # Test setup dosyasını kontrol et:
 tests/setup/test-setup.ts
@@ -533,6 +588,7 @@ tests/setup/test-setup.ts
 ```
 
 ### Timeout Hataları
+
 ```bash
 # vitest.config.ts'de timeout artır:
 testTimeout: 30000,  // 30 saniye
@@ -596,4 +652,3 @@ pnpm test tests/simulation/engine.test.ts            # Simulation
 **Son Güncelleme:** 2025-10-11  
 **Test Suite Versiyonu:** 2.0  
 **Maintained by:** FinBot Development Team
-

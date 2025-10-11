@@ -60,12 +60,17 @@ export class PDFExporter {
     consolidationBreakdown?: ConsolidationBreakdown
   ): string {
     const currentDate = new Date().toLocaleDateString('tr-TR');
-    const riskLevelText = riskAnalysis ? 
-      (riskAnalysis.riskLevel === 'low' ? 'Düşük' : 
-       riskAnalysis.riskLevel === 'medium' ? 'Orta' : 'Yüksek') : 'Belirlenmemiş';
-    
+    const riskLevelText = riskAnalysis
+      ? riskAnalysis.riskLevel === 'low'
+        ? 'Düşük'
+        : riskAnalysis.riskLevel === 'medium'
+          ? 'Orta'
+          : 'Yüksek'
+      : 'Belirlenmemiş';
+
     // Özet cümle oluştur
-    const summarySentence = `Bu rapora göre net değer ${formatCurrency(summary.netWorth || summary.totalBalance, 'TRY')}, ` +
+    const summarySentence =
+      `Bu rapora göre net değer ${formatCurrency(summary.netWorth || summary.totalBalance, 'TRY')}, ` +
       `risk seviyesi ${riskLevelText} (${riskAnalysis?.riskScore || 'N/A'}/100).`;
 
     let html = `
@@ -462,14 +467,14 @@ export class PDFExporter {
                     <h4 style="margin-bottom: 12px; color: #1e293b;">Risk Yönetimi Önerileri:</h4>
                     <ul style="list-style: none; padding: 0;">
       `;
-      
+
       riskAnalysis.recommendations.forEach((rec, index) => {
         html += `<li style="margin-bottom: 8px; padding-left: 20px; position: relative;">
                    <span style="position: absolute; left: 0; color: #3b82f6;">${index + 1}.</span>
                    ${rec}
                  </li>`;
       });
-      
+
       html += `
                     </ul>
                   </div>
@@ -530,9 +535,11 @@ export class PDFExporter {
     `;
 
     transactions.slice(0, 20).forEach(transaction => {
-      const amountClass = transaction.type === 'income' || transaction.type === 'transfer_in' 
-        ? 'income' : 'expense';
-      
+      const amountClass =
+        transaction.type === 'income' || transaction.type === 'transfer_in'
+          ? 'income'
+          : 'expense';
+
       html += `
         <tr>
           <td>${new Date(transaction.date).toLocaleDateString('tr-TR')}</td>
@@ -571,7 +578,7 @@ export class PDFExporter {
   ): string {
     // Bu örnek HTML formatında PDF içeriği oluşturur
     // Gerçek uygulamada PDF kütüphanesi (pdfkit, puppeteer vb.) kullanılabilir
-    
+
     let html = `
       <!DOCTYPE html>
       <html>
@@ -670,9 +677,11 @@ export class PDFExporter {
     `;
 
     transactions.forEach(transaction => {
-      const amountClass = transaction.type === 'income' || transaction.type === 'transfer_in' 
-        ? 'income' : 'expense';
-      
+      const amountClass =
+        transaction.type === 'income' || transaction.type === 'transfer_in'
+          ? 'income'
+          : 'expense';
+
       html += `
         <tr>
           <td>${new Date(transaction.date).toLocaleDateString('tr-TR')}</td>
@@ -744,9 +753,11 @@ export class PDFExporter {
     `;
 
     transactions.forEach(transaction => {
-      const amountClass = transaction.type === 'income' || transaction.type === 'transfer_in' 
-        ? 'income' : 'expense';
-      
+      const amountClass =
+        transaction.type === 'income' || transaction.type === 'transfer_in'
+          ? 'income'
+          : 'expense';
+
       html += `
         <tr>
           <td>${new Date(transaction.date).toLocaleDateString('tr-TR')}</td>
@@ -843,9 +854,11 @@ export class PDFExporter {
     `;
 
     recentTransactions.slice(0, 10).forEach(transaction => {
-      const amountClass = transaction.type === 'income' || transaction.type === 'transfer_in' 
-        ? 'positive' : 'negative';
-      
+      const amountClass =
+        transaction.type === 'income' || transaction.type === 'transfer_in'
+          ? 'positive'
+          : 'negative';
+
       html += `
         <tr>
           <td>${new Date(transaction.date).toLocaleDateString('tr-TR')}</td>

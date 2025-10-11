@@ -1,16 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  CheckCircle,
   DollarSign,
   BarChart3,
   Info,
   Zap,
-  Droplets
+  Droplets,
 } from 'lucide-react';
 
 interface RiskScenario {
@@ -97,13 +102,33 @@ export default function RiskTable({ data, isLoading }: RiskTableProps) {
   };
 
   const calculateTotalImpact = (factors: any) => {
-    return factors.fxImpact + factors.rateImpact + factors.inflationImpact + factors.liquidityImpact;
+    return (
+      factors.fxImpact +
+      factors.rateImpact +
+      factors.inflationImpact +
+      factors.liquidityImpact
+    );
   };
 
   const scenarios = [
-    { key: 'best', label: 'En İyi Senaryo', icon: <TrendingUp className="w-4 h-4" />, color: 'text-green-600' },
-    { key: 'base', label: 'Temel Senaryo', icon: <BarChart3 className="w-4 h-4" />, color: 'text-blue-600' },
-    { key: 'worst', label: 'En Kötü Senaryo', icon: <TrendingDown className="w-4 h-4" />, color: 'text-red-600' }
+    {
+      key: 'best',
+      label: 'En İyi Senaryo',
+      icon: <TrendingUp className="w-4 h-4" />,
+      color: 'text-green-600',
+    },
+    {
+      key: 'base',
+      label: 'Temel Senaryo',
+      icon: <BarChart3 className="w-4 h-4" />,
+      color: 'text-blue-600',
+    },
+    {
+      key: 'worst',
+      label: 'En Kötü Senaryo',
+      icon: <TrendingDown className="w-4 h-4" />,
+      color: 'text-red-600',
+    },
   ];
 
   return (
@@ -118,7 +143,10 @@ export default function RiskTable({ data, isLoading }: RiskTableProps) {
                 <Info className="w-4 h-4 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Risk faktörlerinin her senaryodaki etkisini ve skora katkısını görüntüleyin</p>
+                <p>
+                  Risk faktörlerinin her senaryodaki etkisini ve skora katkısını
+                  görüntüleyin
+                </p>
               </TooltipContent>
             </Tooltip>
           </CardTitle>
@@ -215,47 +243,67 @@ export default function RiskTable({ data, isLoading }: RiskTableProps) {
                 </tr>
               </thead>
               <tbody>
-                {scenarios.map((scenario) => {
-                  const scenarioData = data?.[scenario.key as keyof RiskTableData] as RiskScenario;
-                  const totalImpact = scenarioData ? calculateTotalImpact(scenarioData.factors) : 0;
-                  
+                {scenarios.map(scenario => {
+                  const scenarioData = data?.[
+                    scenario.key as keyof RiskTableData
+                  ] as RiskScenario;
+                  const totalImpact = scenarioData
+                    ? calculateTotalImpact(scenarioData.factors)
+                    : 0;
+
                   return (
-                    <tr key={scenario.key} className="border-b hover:bg-muted/50 transition-colors">
+                    <tr
+                      key={scenario.key}
+                      className="border-b hover:bg-muted/50 transition-colors"
+                    >
                       <td className="p-3">
                         <div className="flex items-center gap-2">
-                          <span className={scenario.color}>{scenario.icon}</span>
+                          <span className={scenario.color}>
+                            {scenario.icon}
+                          </span>
                           <span className="font-medium">{scenario.label}</span>
                         </div>
                       </td>
-                      
+
                       <td className="p-3 text-center">
                         <div className="font-semibold text-lg">
                           {scenarioData?.formattedCash || '₺0,00'}
                         </div>
                       </td>
-                      
+
                       <td className="p-3 text-center">
                         <Tooltip>
                           <TooltipTrigger>
-                            <Badge className={`${getScoreColor(scenarioData?.score || 0)} border`}>
+                            <Badge
+                              className={`${getScoreColor(scenarioData?.score || 0)} border`}
+                            >
                               {getScoreIcon(scenarioData?.score || 0)}
-                              <span className="ml-1">{scenarioData?.score || 0}</span>
+                              <span className="ml-1">
+                                {scenarioData?.score || 0}
+                              </span>
                             </Badge>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="space-y-1">
                               <p className="font-semibold">Skor Hesaplama:</p>
-                              <p>100 - {totalImpact.toFixed(1)} = {(100 - totalImpact).toFixed(1)}</p>
-                              <p className="text-xs text-muted-foreground mt-2">Yüksek skor = Düşük risk</p>
+                              <p>
+                                100 - {totalImpact.toFixed(1)} ={' '}
+                                {(100 - totalImpact).toFixed(1)}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Yüksek skor = Düşük risk
+                              </p>
                             </div>
                           </TooltipContent>
                         </Tooltip>
                       </td>
-                      
+
                       <td className="p-3 text-center">
                         <Tooltip>
                           <TooltipTrigger>
-                            <Badge className={`${getImpactColor(scenarioData?.factors.fxImpact || 0)} border`}>
+                            <Badge
+                              className={`${getImpactColor(scenarioData?.factors.fxImpact || 0)} border`}
+                            >
                               {(scenarioData?.factors.fxImpact || 0).toFixed(1)}
                             </Badge>
                           </TooltipTrigger>
@@ -263,63 +311,100 @@ export default function RiskTable({ data, isLoading }: RiskTableProps) {
                             <div className="space-y-1">
                               <p className="font-semibold">Döviz Kuru Etkisi</p>
                               <p>Parametre: {data?.factors.fx}</p>
-                              <p>Hesaplama: |{data?.factors.fx.replace('%', '')}| × 2 = {(scenarioData?.factors.fxImpact || 0).toFixed(1)}</p>
+                              <p>
+                                Hesaplama: |{data?.factors.fx.replace('%', '')}|
+                                × 2 ={' '}
+                                {(scenarioData?.factors.fxImpact || 0).toFixed(
+                                  1
+                                )}
+                              </p>
                             </div>
                           </TooltipContent>
                         </Tooltip>
                       </td>
-                      
+
                       <td className="p-3 text-center">
                         <Tooltip>
                           <TooltipTrigger>
-                            <Badge className={`${getImpactColor(scenarioData?.factors.rateImpact || 0)} border`}>
-                              {(scenarioData?.factors.rateImpact || 0).toFixed(1)}
+                            <Badge
+                              className={`${getImpactColor(scenarioData?.factors.rateImpact || 0)} border`}
+                            >
+                              {(scenarioData?.factors.rateImpact || 0).toFixed(
+                                1
+                              )}
                             </Badge>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="space-y-1">
                               <p className="font-semibold">Faiz Oranı Etkisi</p>
                               <p>Parametre: {data?.factors.rate}</p>
-                              <p>Hesaplama: |{data?.factors.rate.replace('%', '')}| × 1 = {(scenarioData?.factors.rateImpact || 0).toFixed(1)}</p>
+                              <p>
+                                Hesaplama: |
+                                {data?.factors.rate.replace('%', '')}| × 1 ={' '}
+                                {(
+                                  scenarioData?.factors.rateImpact || 0
+                                ).toFixed(1)}
+                              </p>
                             </div>
                           </TooltipContent>
                         </Tooltip>
                       </td>
-                      
+
                       <td className="p-3 text-center">
                         <Tooltip>
                           <TooltipTrigger>
-                            <Badge className={`${getImpactColor(scenarioData?.factors.inflationImpact || 0)} border`}>
-                              {(scenarioData?.factors.inflationImpact || 0).toFixed(1)}
+                            <Badge
+                              className={`${getImpactColor(scenarioData?.factors.inflationImpact || 0)} border`}
+                            >
+                              {(
+                                scenarioData?.factors.inflationImpact || 0
+                              ).toFixed(1)}
                             </Badge>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="space-y-1">
                               <p className="font-semibold">Enflasyon Etkisi</p>
                               <p>Parametre: {data?.factors.inflation}</p>
-                              <p>Hesaplama: |{data?.factors.inflation.replace('%', '')}| × 1.5 = {(scenarioData?.factors.inflationImpact || 0).toFixed(1)}</p>
+                              <p>
+                                Hesaplama: |
+                                {data?.factors.inflation.replace('%', '')}| ×
+                                1.5 ={' '}
+                                {(
+                                  scenarioData?.factors.inflationImpact || 0
+                                ).toFixed(1)}
+                              </p>
                             </div>
                           </TooltipContent>
                         </Tooltip>
                       </td>
-                      
+
                       <td className="p-3 text-center">
                         <Tooltip>
                           <TooltipTrigger>
-                            <Badge className={`${getImpactColor(scenarioData?.factors.liquidityImpact || 0)} border`}>
-                              {(scenarioData?.factors.liquidityImpact || 0).toFixed(1)}
+                            <Badge
+                              className={`${getImpactColor(scenarioData?.factors.liquidityImpact || 0)} border`}
+                            >
+                              {(
+                                scenarioData?.factors.liquidityImpact || 0
+                              ).toFixed(1)}
                             </Badge>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="space-y-1">
                               <p className="font-semibold">Likidite Riski</p>
                               <p>Parametre: {data?.factors.liquidity}</p>
-                              <p>Hesaplama: {data?.factors.liquidity.replace('%', '')} × 2 = {(scenarioData?.factors.liquidityImpact || 0).toFixed(1)}</p>
+                              <p>
+                                Hesaplama:{' '}
+                                {data?.factors.liquidity.replace('%', '')} × 2 ={' '}
+                                {(
+                                  scenarioData?.factors.liquidityImpact || 0
+                                ).toFixed(1)}
+                              </p>
                             </div>
                           </TooltipContent>
                         </Tooltip>
                       </td>
-                      
+
                       <td className="p-3 text-center">
                         <Tooltip>
                           <TooltipTrigger>
@@ -329,12 +414,36 @@ export default function RiskTable({ data, isLoading }: RiskTableProps) {
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="space-y-1">
-                              <p className="font-semibold">Toplam Risk Etkisi</p>
-                              <p>Döviz: {(scenarioData?.factors.fxImpact || 0).toFixed(1)}</p>
-                              <p>Faiz: {(scenarioData?.factors.rateImpact || 0).toFixed(1)}</p>
-                              <p>Enflasyon: {(scenarioData?.factors.inflationImpact || 0).toFixed(1)}</p>
-                              <p>Likidite: {(scenarioData?.factors.liquidityImpact || 0).toFixed(1)}</p>
-                              <p className="font-semibold border-t pt-1">Toplam: {totalImpact.toFixed(1)}</p>
+                              <p className="font-semibold">
+                                Toplam Risk Etkisi
+                              </p>
+                              <p>
+                                Döviz:{' '}
+                                {(scenarioData?.factors.fxImpact || 0).toFixed(
+                                  1
+                                )}
+                              </p>
+                              <p>
+                                Faiz:{' '}
+                                {(
+                                  scenarioData?.factors.rateImpact || 0
+                                ).toFixed(1)}
+                              </p>
+                              <p>
+                                Enflasyon:{' '}
+                                {(
+                                  scenarioData?.factors.inflationImpact || 0
+                                ).toFixed(1)}
+                              </p>
+                              <p>
+                                Likidite:{' '}
+                                {(
+                                  scenarioData?.factors.liquidityImpact || 0
+                                ).toFixed(1)}
+                              </p>
+                              <p className="font-semibold border-t pt-1">
+                                Toplam: {totalImpact.toFixed(1)}
+                              </p>
                             </div>
                           </TooltipContent>
                         </Tooltip>
@@ -345,7 +454,7 @@ export default function RiskTable({ data, isLoading }: RiskTableProps) {
               </tbody>
             </table>
           </div>
-          
+
           {/* Özet Bilgi */}
           <div className="mt-6 p-4 bg-muted/20 rounded-lg">
             <h4 className="font-semibold mb-3 flex items-center gap-2">
@@ -356,10 +465,18 @@ export default function RiskTable({ data, isLoading }: RiskTableProps) {
               <div>
                 <p className="font-medium mb-2">Risk Faktörleri:</p>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li>• <strong>Döviz Etkisi:</strong> |fxDelta| × 2</li>
-                  <li>• <strong>Faiz Etkisi:</strong> |rateDelta| × 1</li>
-                  <li>• <strong>Enflasyon Etkisi:</strong> |inflationDelta| × 1.5</li>
-                  <li>• <strong>Likidite Riski:</strong> liquidityGap × 2</li>
+                  <li>
+                    • <strong>Döviz Etkisi:</strong> |fxDelta| × 2
+                  </li>
+                  <li>
+                    • <strong>Faiz Etkisi:</strong> |rateDelta| × 1
+                  </li>
+                  <li>
+                    • <strong>Enflasyon Etkisi:</strong> |inflationDelta| × 1.5
+                  </li>
+                  <li>
+                    • <strong>Likidite Riski:</strong> liquidityGap × 2
+                  </li>
                 </ul>
               </div>
               <div>

@@ -1,12 +1,31 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -14,7 +33,7 @@ import { useFormatCurrency } from '@/lib/utils/formatCurrency';
 import { logger } from '@/lib/logger';
 import type { Account, Transaction } from '@shared/schema';
 
-export default function Transfers () {
+export default function Transfers() {
   const formatCurrency = useFormatCurrency();
   const [fromAccountId, setFromAccountId] = useState('');
   const [toAccountId, setToAccountId] = useState('');
@@ -31,8 +50,12 @@ export default function Transfers () {
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/accounts');
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Hesaplar alınamadı.' }));
-        throw new Error(errorData.message || 'Hesaplar alınırken bir hata oluştu.');
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: 'Hesaplar alınamadı.' }));
+        throw new Error(
+          errorData.message || 'Hesaplar alınırken bir hata oluştu.'
+        );
       }
       const data = await response.json();
       logger.info('💸 Transfers: Fetched all accounts:', data);
@@ -45,10 +68,17 @@ export default function Transfers () {
   const { data: transfersData, isLoading: transfersLoading } = useQuery({
     queryKey: ['/api/transactions', 'transfers'],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/transactions?type=transfer&limit=20');
+      const response = await apiRequest(
+        'GET',
+        '/api/transactions?type=transfer&limit=20'
+      );
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Transferler alınamadı.' }));
-        throw new Error(errorData.message || 'Transferler alınırken bir hata oluştu.');
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: 'Transferler alınamadı.' }));
+        throw new Error(
+          errorData.message || 'Transferler alınırken bir hata oluştu.'
+        );
       }
       const data = await response.json();
       logger.info('💸 Transfers: Fetched transfer transactions:', data);
@@ -86,9 +116,13 @@ export default function Transfers () {
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'all'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'personal'] });
+      queryClient.invalidateQueries({
+        queryKey: ['/api/accounts', 'personal'],
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'company'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/transactions', 'transfers'] });
+      queryClient.invalidateQueries({
+        queryKey: ['/api/transactions', 'transfers'],
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
     },
     onError: (error: Error) => {
@@ -103,7 +137,12 @@ export default function Transfers () {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fromAccountId || !toAccountId || !amount || fromAccountId === toAccountId) {
+    if (
+      !fromAccountId ||
+      !toAccountId ||
+      !amount ||
+      fromAccountId === toAccountId
+    ) {
       toast({
         title: 'Geçersiz Veri',
         description: 'Lütfen tüm alanları doğru şekilde doldurun.',
@@ -137,7 +176,9 @@ export default function Transfers () {
 
   const getAccountName = (accountId: string) => {
     const account = accounts.find((acc: Account) => acc.id === accountId);
-    return account ? `${account.accountName} (${account.bankName})` : 'Bilinmeyen Hesap';
+    return account
+      ? `${account.accountName} (${account.bankName})`
+      : 'Bilinmeyen Hesap';
   };
 
   const getAccountBalance = (accountId: string) => {
@@ -145,14 +186,19 @@ export default function Transfers () {
     return account ? parseFloat(account.balance) : 0;
   };
 
-  const canTransfer = fromAccountId && toAccountId && amount &&
+  const canTransfer =
+    fromAccountId &&
+    toAccountId &&
+    amount &&
     fromAccountId !== toAccountId &&
     getAccountBalance(fromAccountId) >= parseFloat(amount || '0');
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="page-title">Virman İşlemleri</h1>
+        <h1 className="text-3xl font-bold" data-testid="page-title">
+          Virman İşlemleri
+        </h1>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -175,7 +221,8 @@ export default function Transfers () {
                   <SelectContent>
                     {accounts.map((account: Account) => (
                       <SelectItem key={account.id} value={account.id}>
-                        {account.accountName} ({account.bankName}) - {formatCurrency(parseFloat(account.balance))}
+                        {account.accountName} ({account.bankName}) -{' '}
+                        {formatCurrency(parseFloat(account.balance))}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -190,10 +237,13 @@ export default function Transfers () {
                   </SelectTrigger>
                   <SelectContent>
                     {accounts
-                      .filter((account: Account) => account.id !== fromAccountId)
+                      .filter(
+                        (account: Account) => account.id !== fromAccountId
+                      )
                       .map((account: Account) => (
                         <SelectItem key={account.id} value={account.id}>
-                          {account.accountName} ({account.bankName}) - {formatCurrency(parseFloat(account.balance))}
+                          {account.accountName} ({account.bankName}) -{' '}
+                          {formatCurrency(parseFloat(account.balance))}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -208,15 +258,17 @@ export default function Transfers () {
                     type="number"
                     placeholder="0.00"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={e => setAmount(e.target.value)}
                     step="0.01"
                     min="0"
                     required
                   />
-                  <span className="absolute right-3 top-2 text-sm text-muted-foreground">TRY</span>
+                  <span className="absolute right-3 top-2 text-sm text-muted-foreground">
+                    TRY
+                  </span>
                 </div>
                 <div className="flex gap-2 mt-2 flex-wrap">
-                  {[50, 100, 250, 500, 1000].map((quickAmount) => (
+                  {[50, 100, 250, 500, 1000].map(quickAmount => (
                     <Button
                       key={quickAmount}
                       type="button"
@@ -237,16 +289,20 @@ export default function Transfers () {
                   id="description"
                   placeholder="Transfer açıklaması (opsiyonel)"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={e => setDescription(e.target.value)}
                 />
               </div>
 
               {fromAccountId && toAccountId && amount && (
                 <Alert>
                   <AlertDescription>
-                    <strong>Transfer Özeti:</strong><br />
-                    {getAccountName(fromAccountId)} → {getAccountName(toAccountId)}<br />
-                    Tutar: {formatCurrency(parseFloat(amount))}<br />
+                    <strong>Transfer Özeti:</strong>
+                    <br />
+                    {getAccountName(fromAccountId)} →{' '}
+                    {getAccountName(toAccountId)}
+                    <br />
+                    Tutar: {formatCurrency(parseFloat(amount))}
+                    <br />
                     {!canTransfer && (
                       <span className="text-red-600">
                         ⚠️ Gönderen hesapta yeterli bakiye bulunmuyor.
@@ -259,9 +315,13 @@ export default function Transfers () {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || !canTransfer || transferMutation.isPending}
+                disabled={
+                  isSubmitting || !canTransfer || transferMutation.isPending
+                }
               >
-                {isSubmitting || transferMutation.isPending ? 'İşleniyor...' : 'Virman Yap'}
+                {isSubmitting || transferMutation.isPending
+                  ? 'İşleniyor...'
+                  : 'Virman Yap'}
               </Button>
             </form>
           </CardContent>
@@ -271,9 +331,7 @@ export default function Transfers () {
         <Card>
           <CardHeader>
             <CardTitle>Son Transferler</CardTitle>
-            <CardDescription>
-              Son yapılan virman işlemleri
-            </CardDescription>
+            <CardDescription>Son yapılan virman işlemleri</CardDescription>
           </CardHeader>
           <CardContent>
             {transfersLoading ? (
@@ -289,24 +347,28 @@ export default function Transfers () {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transfersData.transactions.map((transaction: Transaction) => (
-                    <TableRow key={transaction.id}>
-                      <TableCell>
-                        {new Date(transaction.date).toLocaleDateString('tr-TR')}
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="font-medium">{transaction.description}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(parseFloat(transaction.amount))}
-                      </TableCell>
-                      <TableCell>
-                        {transaction.category}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {transfersData.transactions.map(
+                    (transaction: Transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell>
+                          {new Date(transaction.date).toLocaleDateString(
+                            'tr-TR'
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div className="font-medium">
+                              {transaction.description}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(parseFloat(transaction.amount))}
+                        </TableCell>
+                        <TableCell>{transaction.category}</TableCell>
+                      </TableRow>
+                    )
+                  )}
                 </TableBody>
               </Table>
             ) : (

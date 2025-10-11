@@ -40,7 +40,7 @@ import {
   Target,
   PieChart,
   Calendar,
-  Wallet
+  Wallet,
 } from 'lucide-react';
 
 interface Budget {
@@ -76,7 +76,7 @@ const defaultCategories: BudgetCategory[] = [
     color: 'blue',
     totalBudget: 500000,
     totalSpent: 320000,
-    budgets: []
+    budgets: [],
   },
   {
     id: '2',
@@ -85,7 +85,7 @@ const defaultCategories: BudgetCategory[] = [
     color: 'green',
     totalBudget: 200000,
     totalSpent: 150000,
-    budgets: []
+    budgets: [],
   },
   {
     id: '3',
@@ -94,7 +94,7 @@ const defaultCategories: BudgetCategory[] = [
     color: 'purple',
     totalBudget: 300000,
     totalSpent: 280000,
-    budgets: []
+    budgets: [],
   },
   {
     id: '4',
@@ -103,8 +103,8 @@ const defaultCategories: BudgetCategory[] = [
     color: 'orange',
     totalBudget: 800000,
     totalSpent: 750000,
-    budgets: []
-  }
+    budgets: [],
+  },
 ];
 
 const defaultBudgets: Budget[] = [
@@ -120,7 +120,7 @@ const defaultBudgets: Budget[] = [
     endDate: '2024-01-31',
     status: 'on-track',
     percentage: 96,
-    description: 'Ana ofis ve depo kiraları'
+    description: 'Ana ofis ve depo kiraları',
   },
   {
     id: '2',
@@ -134,7 +134,7 @@ const defaultBudgets: Budget[] = [
     endDate: '2024-01-31',
     status: 'exceeded',
     percentage: 112,
-    description: 'Google Ads, Facebook Ads, SEO'
+    description: 'Google Ads, Facebook Ads, SEO',
   },
   {
     id: '3',
@@ -148,7 +148,7 @@ const defaultBudgets: Budget[] = [
     endDate: '2024-12-31',
     status: 'warning',
     percentage: 79,
-    description: 'Microsoft, Adobe, diğer SaaS lisansları'
+    description: 'Microsoft, Adobe, diğer SaaS lisansları',
   },
   {
     id: '4',
@@ -162,12 +162,13 @@ const defaultBudgets: Budget[] = [
     endDate: '2024-01-31',
     status: 'on-track',
     percentage: 97.5,
-    description: 'Çalışan maaşları ve yan haklar'
-  }
+    description: 'Çalışan maaşları ve yan haklar',
+  },
 ];
 
 export function BudgetManagement() {
-  const [categories, setCategories] = useState<BudgetCategory[]>(defaultCategories);
+  const [categories, setCategories] =
+    useState<BudgetCategory[]>(defaultCategories);
   const [budgets, setBudgets] = useState<Budget[]>(defaultBudgets);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -178,7 +179,8 @@ export function BudgetManagement() {
   const totalBudget = categories.reduce((sum, cat) => sum + cat.totalBudget, 0);
   const totalSpent = categories.reduce((sum, cat) => sum + cat.totalSpent, 0);
   const totalRemaining = totalBudget - totalSpent;
-  const overallPercentage = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+  const overallPercentage =
+    totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
   const getStatusColor = (status: string): string => {
     switch (status) {
@@ -246,7 +248,7 @@ export function BudgetManagement() {
             Finansal planlama ve harcama takibi
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <Button
             onClick={() => setShowAddBudget(true)}
@@ -264,7 +266,9 @@ export function BudgetManagement() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Toplam Bütçe</p>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                  Toplam Bütçe
+                </p>
                 <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
                   {formatCurrency(totalBudget)}
                 </p>
@@ -278,7 +282,9 @@ export function BudgetManagement() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Harcanan</p>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                  Harcanan
+                </p>
                 <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">
                   {formatCurrency(totalSpent)}
                 </p>
@@ -292,12 +298,16 @@ export function BudgetManagement() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-700 dark:text-green-300">Kalan</p>
-                <p className={`text-3xl font-bold ${
-                  totalRemaining >= 0 
-                    ? 'text-green-900 dark:text-green-100' 
-                    : 'text-red-600 dark:text-red-400'
-                }`}>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                  Kalan
+                </p>
+                <p
+                  className={`text-3xl font-bold ${
+                    totalRemaining >= 0
+                      ? 'text-green-900 dark:text-green-100'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
                   {formatCurrency(totalRemaining)}
                 </p>
               </div>
@@ -310,7 +320,9 @@ export function BudgetManagement() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Kullanım</p>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                  Kullanım
+                </p>
                 <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
                   %{overallPercentage.toFixed(1)}
                 </p>
@@ -334,7 +346,7 @@ export function BudgetManagement() {
         <TabsContent value="overview" className="space-y-6">
           {/* Category Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category) => (
+            {categories.map(category => (
               <Card key={category.id} className="border-l-4 border-l-blue-500">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm">
@@ -346,31 +358,45 @@ export function BudgetManagement() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Bütçe</span>
-                      <span className="font-medium">{formatCurrency(category.totalBudget)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(category.totalBudget)}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Harcanan</span>
-                      <span className="font-medium">{formatCurrency(category.totalSpent)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(category.totalSpent)}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Kalan</span>
-                      <span className={`font-medium ${
-                        category.totalBudget - category.totalSpent >= 0 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
-                      }`}>
-                        {formatCurrency(category.totalBudget - category.totalSpent)}
+                      <span
+                        className={`font-medium ${
+                          category.totalBudget - category.totalSpent >= 0
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}
+                      >
+                        {formatCurrency(
+                          category.totalBudget - category.totalSpent
+                        )}
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
                       <span>Kullanım</span>
-                      <span>%{((category.totalSpent / category.totalBudget) * 100).toFixed(1)}</span>
+                      <span>
+                        %
+                        {(
+                          (category.totalSpent / category.totalBudget) *
+                          100
+                        ).toFixed(1)}
+                      </span>
                     </div>
-                    <Progress 
-                      value={(category.totalSpent / category.totalBudget) * 100} 
+                    <Progress
+                      value={(category.totalSpent / category.totalBudget) * 100}
                       className="h-2"
                     />
                   </div>
@@ -404,11 +430,18 @@ export function BudgetManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {categories.map((category) => {
-                    const percentage = (category.totalSpent / category.totalBudget) * 100;
-                    const remaining = category.totalBudget - category.totalSpent;
-                    const status = remaining < 0 ? 'exceeded' : percentage > 90 ? 'warning' : 'on-track';
-                    
+                  {categories.map(category => {
+                    const percentage =
+                      (category.totalSpent / category.totalBudget) * 100;
+                    const remaining =
+                      category.totalBudget - category.totalSpent;
+                    const status =
+                      remaining < 0
+                        ? 'exceeded'
+                        : percentage > 90
+                          ? 'warning'
+                          : 'on-track';
+
                     return (
                       <TableRow key={category.id}>
                         <TableCell>
@@ -423,19 +456,27 @@ export function BudgetManagement() {
                         <TableCell>
                           {formatCurrency(category.totalSpent)}
                         </TableCell>
-                        <TableCell className={remaining >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        <TableCell
+                          className={
+                            remaining >= 0 ? 'text-green-600' : 'text-red-600'
+                          }
+                        >
                           {formatCurrency(remaining)}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Progress value={percentage} className="h-2 w-20" />
-                            <span className="text-sm">%{percentage.toFixed(1)}</span>
+                            <span className="text-sm">
+                              %{percentage.toFixed(1)}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(status)}>
                             {getStatusIcon(status)}
-                            <span className="ml-1">{getStatusText(status)}</span>
+                            <span className="ml-1">
+                              {getStatusText(status)}
+                            </span>
                           </Badge>
                         </TableCell>
                       </TableRow>
@@ -473,13 +514,15 @@ export function BudgetManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {budgets.map((budget) => (
+                  {budgets.map(budget => (
                     <TableRow key={budget.id}>
                       <TableCell>
                         <div>
                           <div className="font-medium">{budget.name}</div>
                           {budget.description && (
-                            <div className="text-sm text-muted-foreground">{budget.description}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {budget.description}
+                            </div>
                           )}
                         </div>
                       </TableCell>
@@ -488,23 +531,32 @@ export function BudgetManagement() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {budget.period === 'monthly' ? 'Aylık' : 
-                           budget.period === 'quarterly' ? 'Üç Aylık' : 'Yıllık'}
+                          {budget.period === 'monthly'
+                            ? 'Aylık'
+                            : budget.period === 'quarterly'
+                              ? 'Üç Aylık'
+                              : 'Yıllık'}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-medium">
                         {formatCurrency(budget.amount)}
                       </TableCell>
-                      <TableCell>
-                        {formatCurrency(budget.spent)}
-                      </TableCell>
-                      <TableCell className={budget.remaining >= 0 ? 'text-green-600' : 'text-red-600'}>
+                      <TableCell>{formatCurrency(budget.spent)}</TableCell>
+                      <TableCell
+                        className={
+                          budget.remaining >= 0
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }
+                      >
                         {formatCurrency(budget.remaining)}
                       </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(budget.status)}>
                           {getStatusIcon(budget.status)}
-                          <span className="ml-1">{getStatusText(budget.status)}</span>
+                          <span className="ml-1">
+                            {getStatusText(budget.status)}
+                          </span>
                         </Badge>
                       </TableCell>
                       <TableCell>

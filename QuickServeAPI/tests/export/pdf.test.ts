@@ -9,7 +9,7 @@ describe('PDF Exporter', () => {
       description: 'Test Transaction',
       category: 'Test Category',
       date: '2024-01-15',
-      type: 'income' as const
+      type: 'income' as const,
     },
     {
       id: '2',
@@ -17,8 +17,8 @@ describe('PDF Exporter', () => {
       description: 'Test Expense',
       category: 'Test Category',
       date: '2024-01-16',
-      type: 'expense' as const
-    }
+      type: 'expense' as const,
+    },
   ];
 
   const mockAccounts = [
@@ -26,8 +26,8 @@ describe('PDF Exporter', () => {
       id: '1',
       balance: 10000,
       bankName: 'Test Bank',
-      accountName: 'Test Account'
-    }
+      accountName: 'Test Account',
+    },
   ];
 
   const mockSummary = {
@@ -38,7 +38,7 @@ describe('PDF Exporter', () => {
     totalExpense: 3000,
     period: '2024-01',
     netWorth: 8000,
-    riskScore: 75
+    riskScore: 75,
   };
 
   const mockRiskAnalysis = {
@@ -46,8 +46,8 @@ describe('PDF Exporter', () => {
     riskLevel: 'medium' as const,
     recommendations: [
       'Portföyü çeşitlendirin',
-      'Risk yönetimi stratejisi geliştirin'
-    ]
+      'Risk yönetimi stratejisi geliştirin',
+    ],
   };
 
   const mockConsolidationBreakdown = {
@@ -55,14 +55,14 @@ describe('PDF Exporter', () => {
       bank: 6000,
       cash: 1000,
       credit: 500,
-      investment: 2500
+      investment: 2500,
     },
     personal: {
       bank: 2000,
       cash: 500,
       credit: 300,
-      investment: 1200
-    }
+      investment: 1200,
+    },
   };
 
   test('generateAdvancedFinancialReport - temel HTML yapısı', () => {
@@ -173,9 +173,13 @@ describe('PDF Exporter', () => {
       mockSummary
     );
 
-    expect(html).toContain('@import url(\'https://fonts.googleapis.com/css2?family=Inter');
+    expect(html).toContain(
+      "@import url('https://fonts.googleapis.com/css2?family=Inter"
+    );
     expect(html).toContain('.header {');
-    expect(html).toContain('background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)');
+    expect(html).toContain(
+      'background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+    );
     expect(html).toContain('.metric-card::before {');
     expect(html).toContain('@media print {');
   });
@@ -187,7 +191,9 @@ describe('PDF Exporter', () => {
       mockSummary
     );
 
-    expect(html).toContain('Bu rapor FinBot AI sistemi tarafından otomatik olarak oluşturulmuştur');
+    expect(html).toContain(
+      'Bu rapor FinBot AI sistemi tarafından otomatik olarak oluşturulmuştur'
+    );
     expect(html).toContain('FinBot v3.0');
     expect(html).toContain('Rapor Tarihi:');
   });

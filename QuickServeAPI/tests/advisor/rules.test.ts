@@ -1,5 +1,9 @@
 import { describe, test, expect } from 'vitest';
-import { analyzePortfolio, validatePortfolioInput, PortfolioInput } from '../../server/src/modules/advisor/rules';
+import {
+  analyzePortfolio,
+  validatePortfolioInput,
+  PortfolioInput,
+} from '../../server/src/modules/advisor/rules';
 
 describe('Advisor Rules', () => {
   describe('analyzePortfolio', () => {
@@ -13,9 +17,9 @@ describe('Advisor Rules', () => {
           bonds: 25000,
           crypto: 0,
           commodities: 0,
-          realEstate: 0
+          realEstate: 0,
         },
-        riskProfile: 'low'
+        riskProfile: 'low',
       };
 
       const result = analyzePortfolio(input);
@@ -49,9 +53,9 @@ describe('Advisor Rules', () => {
           bonds: 10000,
           crypto: 20000,
           commodities: 6000,
-          realEstate: 4000
+          realEstate: 4000,
         },
-        riskProfile: 'high'
+        riskProfile: 'high',
       };
 
       const result = analyzePortfolio(input);
@@ -82,9 +86,9 @@ describe('Advisor Rules', () => {
           bonds: 20000,
           crypto: 5000,
           commodities: 3000,
-          realEstate: 0
+          realEstate: 0,
         },
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = analyzePortfolio(input);
@@ -110,16 +114,22 @@ describe('Advisor Rules', () => {
           bonds: 100000,
           crypto: 0,
           commodities: 0,
-          realEstate: 0
+          realEstate: 0,
         },
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = analyzePortfolio(input);
 
       // Toplam dağılım %100 olmalı
-      const currentTotal = Object.values(result.currentAllocation).reduce((sum, value) => sum + value, 0);
-      const targetTotal = Object.values(result.targetAllocation).reduce((sum, value) => sum + value, 0);
+      const currentTotal = Object.values(result.currentAllocation).reduce(
+        (sum, value) => sum + value,
+        0
+      );
+      const targetTotal = Object.values(result.targetAllocation).reduce(
+        (sum, value) => sum + value,
+        0
+      );
 
       expect(currentTotal).toBeCloseTo(100, 1);
       expect(targetTotal).toBeCloseTo(100, 1);
@@ -135,9 +145,9 @@ describe('Advisor Rules', () => {
           bonds: 5000,
           crypto: 0,
           commodities: 0,
-          realEstate: 0
+          realEstate: 0,
         },
-        riskProfile: 'low'
+        riskProfile: 'low',
       };
 
       const highRiskInput: PortfolioInput = {
@@ -149,16 +159,18 @@ describe('Advisor Rules', () => {
           bonds: 5000,
           crypto: 20000,
           commodities: 5000,
-          realEstate: 0
+          realEstate: 0,
         },
-        riskProfile: 'high'
+        riskProfile: 'high',
       };
 
       const lowRiskResult = analyzePortfolio(lowRiskInput);
       const highRiskResult = analyzePortfolio(highRiskInput);
 
       // Düşük risk portföyü, düşük risk profili ile daha uyumlu olmalı
-      expect(lowRiskResult.riskScore).toBeGreaterThanOrEqual(highRiskResult.riskScore - 20);
+      expect(lowRiskResult.riskScore).toBeGreaterThanOrEqual(
+        highRiskResult.riskScore - 20
+      );
     });
 
     test('çeşitlendirme önerileri oluşturulmalı', () => {
@@ -171,15 +183,17 @@ describe('Advisor Rules', () => {
           bonds: 0,
           crypto: 0,
           commodities: 0,
-          realEstate: 0
+          realEstate: 0,
         },
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = analyzePortfolio(input);
 
       // Çeşitlendirme önerisi olmalı
-      const diversificationTip = result.tips.find(tip => tip.category === 'diversification');
+      const diversificationTip = result.tips.find(
+        tip => tip.category === 'diversification'
+      );
       expect(diversificationTip).toBeDefined();
       expect(diversificationTip?.title).toContain('çeşitlendir');
     });
@@ -194,15 +208,17 @@ describe('Advisor Rules', () => {
           bonds: 0,
           crypto: 0,
           commodities: 0,
-          realEstate: 100000 // %100 gayrimenkul
+          realEstate: 100000, // %100 gayrimenkul
         },
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = analyzePortfolio(input);
 
       // Konsantrasyon riski önerisi olmalı
-      const concentrationTip = result.tips.find(tip => tip.id === 'concentration-risk');
+      const concentrationTip = result.tips.find(
+        tip => tip.id === 'concentration-risk'
+      );
       expect(concentrationTip).toBeDefined();
       expect(concentrationTip?.priority).toBe('high');
     });
@@ -219,9 +235,9 @@ describe('Advisor Rules', () => {
           bonds: 100000,
           crypto: 25000,
           commodities: 15000,
-          realEstate: 50000
+          realEstate: 50000,
         },
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = validatePortfolioInput(validInput);
@@ -241,15 +257,17 @@ describe('Advisor Rules', () => {
           bonds: 100000,
           crypto: 25000,
           commodities: 15000,
-          realEstate: 50000
+          realEstate: 50000,
         },
-        riskProfile: 'invalid'
+        riskProfile: 'invalid',
       };
 
       const result = validatePortfolioInput(invalidInput);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('riskProfile "low", "medium" veya "high" olmalıdır');
+      expect(result.errors).toContain(
+        'riskProfile "low", "medium" veya "high" olmalıdır'
+      );
     });
 
     test('eksik portföy alanları → hata döndür', () => {
@@ -262,9 +280,9 @@ describe('Advisor Rules', () => {
           bonds: 100000,
           crypto: 25000,
           commodities: 15000,
-          realEstate: 50000
+          realEstate: 50000,
         },
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = validatePortfolioInput(incompleteInput);
@@ -283,20 +301,22 @@ describe('Advisor Rules', () => {
           bonds: 100000,
           crypto: 25000,
           commodities: 15000,
-          realEstate: 50000
+          realEstate: 50000,
         },
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = validatePortfolioInput(negativeInput);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('cash alanı 0 veya pozitif sayı olmalıdır');
+      expect(result.errors).toContain(
+        'cash alanı 0 veya pozitif sayı olmalıdır'
+      );
     });
 
     test('portföy verisi eksik → hata döndür', () => {
       const noPortfolioInput = {
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = validatePortfolioInput(noPortfolioInput);
@@ -317,9 +337,9 @@ describe('Advisor Rules', () => {
           bonds: 0,
           crypto: 0,
           commodities: 0,
-          realEstate: 0
+          realEstate: 0,
         },
-        riskProfile: 'low'
+        riskProfile: 'low',
       };
 
       const result = analyzePortfolio(input);
@@ -339,9 +359,9 @@ describe('Advisor Rules', () => {
           bonds: 10000000,
           crypto: 2500000,
           commodities: 1500000,
-          realEstate: 5000000
+          realEstate: 5000000,
         },
-        riskProfile: 'high'
+        riskProfile: 'high',
       };
 
       const result = analyzePortfolio(input);
@@ -361,14 +381,16 @@ describe('Advisor Rules', () => {
           bonds: 0,
           crypto: 0,
           commodities: 0,
-          realEstate: 0
+          realEstate: 0,
         },
-        riskProfile: 'medium'
+        riskProfile: 'medium',
       };
 
       const result = analyzePortfolio(input);
 
-      const diversificationTip = result.tips.find(tip => tip.category === 'diversification');
+      const diversificationTip = result.tips.find(
+        tip => tip.category === 'diversification'
+      );
       expect(diversificationTip).toBeDefined();
       expect(diversificationTip?.priority).toBe('high');
     });

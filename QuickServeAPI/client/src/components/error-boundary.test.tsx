@@ -2,10 +2,16 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ErrorBoundary, withErrorBoundary, useErrorHandler } from './error-boundary';
+import {
+  ErrorBoundary,
+  withErrorBoundary,
+  useErrorHandler,
+} from './error-boundary';
 
 // Mock console methods
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+const mockConsoleError = vi
+  .spyOn(console, 'error')
+  .mockImplementation(() => {});
 
 // Component that throws an error
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
@@ -36,7 +42,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <div>Test content</div>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Test content')).toBeInTheDocument();
@@ -46,18 +52,20 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Bir Hata Oluştu')).toBeInTheDocument();
-    expect(screen.getByText(/Uygulamada beklenmeyen bir hata meydana geldi/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Uygulamada beklenmeyen bir hata meydana geldi/)
+    ).toBeInTheDocument();
   });
 
   it('should show error ID', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText(/Hata ID:/)).toBeInTheDocument();
@@ -67,7 +75,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Tekrar Dene')).toBeInTheDocument();
@@ -77,7 +85,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Sayfayı Yenile')).toBeInTheDocument();
@@ -87,7 +95,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Ana Sayfa')).toBeInTheDocument();
@@ -97,7 +105,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Hata Detaylarını Kopyala')).toBeInTheDocument();
@@ -107,7 +115,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     const retryButton = screen.getByText('Tekrar Dene');
@@ -127,7 +135,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     const reloadButton = screen.getByText('Sayfayı Yenile');
@@ -146,7 +154,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     const homeButton = screen.getByText('Ana Sayfa');
@@ -167,7 +175,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     const copyButton = screen.getByText('Hata Detaylarını Kopyala');
@@ -183,7 +191,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary fallback={fallback}>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Custom fallback UI')).toBeInTheDocument();
@@ -195,14 +203,14 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary onError={onError}>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(onError).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
         componentStack: expect.any(String),
-      }),
+      })
     );
   });
 
@@ -213,7 +221,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Geliştirici Bilgileri:')).toBeInTheDocument();
@@ -229,10 +237,12 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
-    expect(screen.queryByText('Geliştirici Bilgileri:')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Geliştirici Bilgileri:')
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('Test error')).not.toBeInTheDocument();
 
     process.env.NODE_ENV = originalEnv;
@@ -266,7 +276,9 @@ describe('withErrorBoundary HOC', () => {
 
     const WrappedComponent = withErrorBoundary(TestComponent);
 
-    expect(WrappedComponent.displayName).toBe('withErrorBoundary(TestComponent)');
+    expect(WrappedComponent.displayName).toBe(
+      'withErrorBoundary(TestComponent)'
+    );
   });
 });
 
@@ -301,7 +313,7 @@ describe('ErrorBoundary with different error types', () => {
     render(
       <ErrorBoundary>
         <ThrowTypeError />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Bir Hata Oluştu')).toBeInTheDocument();
@@ -315,7 +327,7 @@ describe('ErrorBoundary with different error types', () => {
     render(
       <ErrorBoundary>
         <ThrowReferenceError />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Bir Hata Oluştu')).toBeInTheDocument();
@@ -331,7 +343,7 @@ describe('ErrorBoundary with different error types', () => {
     render(
       <ErrorBoundary>
         <ThrowCustomError />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(screen.getByText('Bir Hata Oluştu')).toBeInTheDocument();

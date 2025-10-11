@@ -32,13 +32,15 @@ interface AccountCardWithSubAccountsProps {
   onViewHistory: (accountId: string) => void;
 }
 
-export default function AccountCardWithSubAccounts ({
+export default function AccountCardWithSubAccounts({
   account,
   onAddTransaction,
   onViewHistory,
   formatCurrency = useFormatCurrency(),
 }: AccountCardWithSubAccountsProps) {
-  const [selectedSubAccount, setSelectedSubAccount] = useState<string | null>(null);
+  const [selectedSubAccount, setSelectedSubAccount] = useState<string | null>(
+    null
+  );
 
   // Parse sub-accounts from JSON string
   const subAccounts: SubAccount[] = account.subAccounts
@@ -47,34 +49,52 @@ export default function AccountCardWithSubAccounts ({
 
   const getSubAccountIcon = (type: string) => {
     switch (type) {
-      case 'checking': return <Building className="w-4 h-4" />;
-      case 'creditCard': return <CreditCard className="w-4 h-4" />;
-      case 'loan': return <Calendar className="w-4 h-4" />;
-      case 'kmh': return <AlertTriangle className="w-4 h-4" />;
-      case 'deposit': return <PiggyBank className="w-4 h-4" />;
-      default: return <Building className="w-4 h-4" />;
+      case 'checking':
+        return <Building className="w-4 h-4" />;
+      case 'creditCard':
+        return <CreditCard className="w-4 h-4" />;
+      case 'loan':
+        return <Calendar className="w-4 h-4" />;
+      case 'kmh':
+        return <AlertTriangle className="w-4 h-4" />;
+      case 'deposit':
+        return <PiggyBank className="w-4 h-4" />;
+      default:
+        return <Building className="w-4 h-4" />;
     }
   };
 
   const getSubAccountName = (type: string) => {
     switch (type) {
-      case 'checking': return 'Vadesiz Hesap';
-      case 'creditCard': return 'Kredi Kartı';
-      case 'loan': return 'Kredi';
-      case 'kmh': return 'KMH (Kredi Mevduat Hesabı)';
-      case 'deposit': return 'Vadeli Hesap';
-      default: return 'Hesap';
+      case 'checking':
+        return 'Vadesiz Hesap';
+      case 'creditCard':
+        return 'Kredi Kartı';
+      case 'loan':
+        return 'Kredi';
+      case 'kmh':
+        return 'KMH (Kredi Mevduat Hesabı)';
+      case 'deposit':
+        return 'Vadeli Hesap';
+      default:
+        return 'Hesap';
     }
   };
 
   const getSubAccountColor = (type: string) => {
     switch (type) {
-      case 'checking': return 'bg-blue-100 text-blue-800';
-      case 'creditCard': return 'bg-green-100 text-green-800';
-      case 'loan': return 'bg-orange-100 text-orange-800';
-      case 'kmh': return 'bg-red-100 text-red-800';
-      case 'deposit': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'checking':
+        return 'bg-blue-100 text-blue-800';
+      case 'creditCard':
+        return 'bg-green-100 text-green-800';
+      case 'loan':
+        return 'bg-orange-100 text-orange-800';
+      case 'kmh':
+        return 'bg-red-100 text-red-800';
+      case 'deposit':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -164,7 +184,8 @@ export default function AccountCardWithSubAccounts ({
             {subAccount.maturityDate && (
               <div className="flex items-center gap-1 col-span-2">
                 <Calendar className="w-3 h-3" />
-                Vade: {new Date(subAccount.maturityDate).toLocaleDateString('tr-TR')}
+                Vade:{' '}
+                {new Date(subAccount.maturityDate).toLocaleDateString('tr-TR')}
               </div>
             )}
           </div>
@@ -192,12 +213,18 @@ export default function AccountCardWithSubAccounts ({
 
   const getSubAccountBalanceLabel = (type: string) => {
     switch (type) {
-      case 'checking': return 'Bakiye';
-      case 'creditCard': return 'Kullanılabilir';
-      case 'loan': return 'Kalan Ana Para';
-      case 'kmh': return 'Kullanılabilir';
-      case 'deposit': return 'Bakiye';
-      default: return 'Bakiye';
+      case 'checking':
+        return 'Bakiye';
+      case 'creditCard':
+        return 'Kullanılabilir';
+      case 'loan':
+        return 'Kalan Ana Para';
+      case 'kmh':
+        return 'Kullanılabilir';
+      case 'deposit':
+        return 'Bakiye';
+      default:
+        return 'Bakiye';
     }
   };
 
@@ -209,7 +236,9 @@ export default function AccountCardWithSubAccounts ({
             <Building className="w-5 h-5 text-blue-600" />
             <div>
               <CardTitle className="text-lg">{account.bankName}</CardTitle>
-              <p className="text-sm text-muted-foreground">{account.accountName}</p>
+              <p className="text-sm text-muted-foreground">
+                {account.accountName}
+              </p>
             </div>
           </div>
           <Badge variant={account.type === 'company' ? 'default' : 'secondary'}>
@@ -231,15 +260,18 @@ export default function AccountCardWithSubAccounts ({
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-medium">
-                    {formatCurrency(parseFloat(account.balance))} {account.currency}
+                    {formatCurrency(parseFloat(account.balance))}{' '}
+                    {account.currency}
                   </span>
                   <div className="flex gap-1">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
-                        setSelectedSubAccount(selectedSubAccount === 'main' ? null : 'main');
+                        setSelectedSubAccount(
+                          selectedSubAccount === 'main' ? null : 'main'
+                        );
                       }}
                     >
                       <Plus className="w-3 h-3 mr-1" />
@@ -248,7 +280,7 @@ export default function AccountCardWithSubAccounts ({
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         onViewHistory(account.id);
                       }}
@@ -281,23 +313,34 @@ export default function AccountCardWithSubAccounts ({
 
           {/* Sub-accounts */}
           {subAccounts.map((subAccount, index) => (
-            <AccordionItem key={`${subAccount.type}-${index}`} value={subAccount.type}>
+            <AccordionItem
+              key={`${subAccount.type}-${index}`}
+              value={subAccount.type}
+            >
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-2">
                     {getSubAccountIcon(subAccount.type)}
                     <span>{getSubAccountName(subAccount.type)}</span>
                     <Badge className={getSubAccountColor(subAccount.type)}>
-                      {subAccount.type === 'creditCard' ? 'Kredi Kartı'
-                        : subAccount.type === 'loan' ? 'Kredi'
-                          : subAccount.type === 'kmh' ? 'KMH'
-                            : subAccount.type === 'deposit' ? 'Vadeli' : 'Alt Hesap'}
+                      {subAccount.type === 'creditCard'
+                        ? 'Kredi Kartı'
+                        : subAccount.type === 'loan'
+                          ? 'Kredi'
+                          : subAccount.type === 'kmh'
+                            ? 'KMH'
+                            : subAccount.type === 'deposit'
+                              ? 'Vadeli'
+                              : 'Alt Hesap'}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <div className="text-sm font-medium">
-                        {formatCurrency(Number(getSubAccountBalance(subAccount)))} {account.currency}
+                        {formatCurrency(
+                          Number(getSubAccountBalance(subAccount))
+                        )}{' '}
+                        {account.currency}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {getSubAccountBalanceLabel(subAccount.type)}
@@ -307,9 +350,13 @@ export default function AccountCardWithSubAccounts ({
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
-                          setSelectedSubAccount(selectedSubAccount === `${subAccount.type}-${index}` ? null : `${subAccount.type}-${index}`);
+                          setSelectedSubAccount(
+                            selectedSubAccount === `${subAccount.type}-${index}`
+                              ? null
+                              : `${subAccount.type}-${index}`
+                          );
                         }}
                       >
                         <Plus className="w-3 h-3 mr-1" />
@@ -318,9 +365,11 @@ export default function AccountCardWithSubAccounts ({
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
-                          onViewHistory(`${account.id}_${subAccount.type}_${index}`);
+                          onViewHistory(
+                            `${account.id}_${subAccount.type}_${index}`
+                          );
                         }}
                       >
                         <History className="w-3 h-3" />
@@ -366,7 +415,9 @@ export default function AccountCardWithSubAccounts ({
           </div>
 
           {/* Payment Alerts */}
-          {subAccounts.some(sa => sa.type === 'creditCard' || sa.type === 'loan') && (
+          {subAccounts.some(
+            sa => sa.type === 'creditCard' || sa.type === 'loan'
+          ) && (
             <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
               <div className="flex items-center gap-1 text-yellow-700">
                 <AlertTriangle className="w-3 h-3" />
@@ -395,4 +446,3 @@ export default function AccountCardWithSubAccounts ({
     </Card>
   );
 }
-

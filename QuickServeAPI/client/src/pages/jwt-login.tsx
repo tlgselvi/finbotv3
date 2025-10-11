@@ -4,11 +4,17 @@ import { useJWTAuth } from '@/hooks/useJWTAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Shield, Key } from 'lucide-react';
 
-export default function JWTLogin () {
+export default function JWTLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -47,9 +53,7 @@ export default function JWTLogin () {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold">JWT Giriş</CardTitle>
-          <CardDescription>
-            Token tabanlı güvenli giriş sistemi
-          </CardDescription>
+          <CardDescription>Token tabanlı güvenli giriş sistemi</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -60,7 +64,7 @@ export default function JWTLogin () {
                 type="email"
                 placeholder="ornek@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
                 disabled={isLoading || authLoading}
               />
@@ -73,7 +77,7 @@ export default function JWTLogin () {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
                 disabled={isLoading || authLoading}
               />
@@ -90,7 +94,7 @@ export default function JWTLogin () {
               className="w-full"
               disabled={isLoading || authLoading}
             >
-              {(isLoading || authLoading) ? (
+              {isLoading || authLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Giriş yapılıyor...

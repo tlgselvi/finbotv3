@@ -39,7 +39,12 @@ export interface RiskAssessment {
 }
 
 export interface FinancialRecommendation {
-  category: 'investment' | 'savings' | 'expense_reduction' | 'income_optimization' | 'debt_management';
+  category:
+    | 'investment'
+    | 'savings'
+    | 'expense_reduction'
+    | 'income_optimization'
+    | 'debt_management';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   title: string;
   description: string;
@@ -95,8 +100,11 @@ export class FinancialAnalysisService {
   async analyzeFinancials(request: FinancialAnalysisRequest): Promise<any> {
     try {
       // Get user's financial data
-      const financialData = await this.getFinancialData(request.userId, request.timeframe);
-      
+      const financialData = await this.getFinancialData(
+        request.userId,
+        request.timeframe
+      );
+
       // Generate AI-powered analysis based on type
       switch (request.analysisType) {
         case 'trend':
@@ -121,7 +129,10 @@ export class FinancialAnalysisService {
   /**
    * Analyze financial trends
    */
-  private async analyzeTrends(data: any, request: FinancialAnalysisRequest): Promise<TrendAnalysis> {
+  private async analyzeTrends(
+    data: any,
+    request: FinancialAnalysisRequest
+  ): Promise<TrendAnalysis> {
     const prompt = `
       Analyze the following financial data and provide trend analysis:
 
@@ -172,7 +183,10 @@ export class FinancialAnalysisService {
   /**
    * Assess financial risk
    */
-  private async assessRisk(data: any, request: FinancialAnalysisRequest): Promise<RiskAssessment> {
+  private async assessRisk(
+    data: any,
+    request: FinancialAnalysisRequest
+  ): Promise<RiskAssessment> {
     const prompt = `
       Assess the financial risk for the following data:
 
@@ -221,7 +235,10 @@ export class FinancialAnalysisService {
   /**
    * Generate financial recommendations
    */
-  private async generateRecommendations(data: any, request: FinancialAnalysisRequest): Promise<FinancialRecommendation[]> {
+  private async generateRecommendations(
+    data: any,
+    request: FinancialAnalysisRequest
+  ): Promise<FinancialRecommendation[]> {
     const prompt = `
       Generate personalized financial recommendations based on:
 
@@ -265,7 +282,10 @@ export class FinancialAnalysisService {
   /**
    * Calculate financial health score
    */
-  private async calculateFinancialHealth(data: any, request: FinancialAnalysisRequest): Promise<FinancialHealth> {
+  private async calculateFinancialHealth(
+    data: any,
+    request: FinancialAnalysisRequest
+  ): Promise<FinancialHealth> {
     const prompt = `
       Calculate a comprehensive financial health score for:
 
@@ -310,7 +330,10 @@ export class FinancialAnalysisService {
   /**
    * Generate financial forecast
    */
-  private async generateForecast(data: any, request: FinancialAnalysisRequest): Promise<FinancialForecast> {
+  private async generateForecast(
+    data: any,
+    request: FinancialAnalysisRequest
+  ): Promise<FinancialForecast> {
     const prompt = `
       Generate a financial forecast based on current data:
 
@@ -369,7 +392,7 @@ export class FinancialAnalysisService {
       week: 7,
       month: 30,
       quarter: 90,
-      year: 365
+      year: 365,
     };
 
     const days = timeframe ? timeframes[timeframe] || 30 : 30;
@@ -410,8 +433,14 @@ export class FinancialAnalysisService {
       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
     const netCashFlow = totalIncome - totalExpenses;
-    const totalAssets = userAccounts.reduce((sum, a) => sum + parseFloat(a.balance), 0);
-    const investmentValue = userInvestments.reduce((sum, i) => sum + parseFloat(i.currentValue), 0);
+    const totalAssets = userAccounts.reduce(
+      (sum, a) => sum + parseFloat(a.balance),
+      0
+    );
+    const investmentValue = userInvestments.reduce(
+      (sum, i) => sum + parseFloat(i.currentValue),
+      0
+    );
 
     return {
       totalIncome,
@@ -422,10 +451,18 @@ export class FinancialAnalysisService {
       monthlyIncome: totalIncome,
       monthlyExpenses: totalExpenses,
       netWorth: totalAssets + investmentValue,
-      accountBalances: userAccounts.map(a => ({ id: a.id, name: a.name, balance: a.balance })),
+      accountBalances: userAccounts.map(a => ({
+        id: a.id,
+        name: a.name,
+        balance: a.balance,
+      })),
       categories: this.categorizeTransactions(userTransactions),
-      investments: userInvestments.map(i => ({ type: i.type, value: i.currentValue, risk: i.riskLevel })),
-      savingsRate: totalIncome > 0 ? ((netCashFlow / totalIncome) * 100) : 0,
+      investments: userInvestments.map(i => ({
+        type: i.type,
+        value: i.currentValue,
+        risk: i.riskLevel,
+      })),
+      savingsRate: totalIncome > 0 ? (netCashFlow / totalIncome) * 100 : 0,
       debtToIncomeRatio: 0, // Would need debt data
       liquidityRatio: totalAssets / Math.max(totalExpenses, 1),
       emergencyFund: 0, // Would need emergency fund data
@@ -439,7 +476,7 @@ export class FinancialAnalysisService {
    */
   private categorizeTransactions(transactions: any[]) {
     const categories: Record<string, number> = {};
-    
+
     transactions.forEach(t => {
       const category = t.category || 'uncategorized';
       categories[category] = (categories[category] || 0) + parseFloat(t.amount);

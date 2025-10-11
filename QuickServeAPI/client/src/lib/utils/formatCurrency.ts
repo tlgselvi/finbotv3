@@ -14,10 +14,12 @@ export function formatCurrency(
       maximumFractionDigits: 2,
     });
   }
-  
+
   // Currency belirtilmemişse, context'ten al
   // Bu durumda hook kullanılması gerekiyor, bu yüzden hook versiyonunu export edelim
-  throw new Error('formatCurrency must be used with currency parameter or within CurrencyContext');
+  throw new Error(
+    'formatCurrency must be used with currency parameter or within CurrencyContext'
+  );
 }
 
 // Hook versiyonu - component'ler içinde kullanım için

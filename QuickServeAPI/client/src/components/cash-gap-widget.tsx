@@ -9,13 +9,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useFormatCurrency } from '@/contexts/CurrencyContext';
 import { logger } from '@/lib/logger';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
   BarChart3,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
 } from 'lucide-react';
 
 interface CashGapAnalysis {
@@ -117,13 +117,13 @@ export function CashGapWidget({ months = 6 }: CashGapWidgetProps) {
     try {
       setLoading(true);
       const response = await fetch(`/api/dashboard/cashgap?months=${months}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setCashGap(data.data);
       } else {
@@ -200,7 +200,7 @@ export function CashGapWidget({ months = 6 }: CashGapWidgetProps) {
         </CardTitle>
         <CardDescription>Alacak ve borç karşılaştırması</CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Main Cash Gap Display */}
         <div className="text-center space-y-2">
@@ -210,7 +210,9 @@ export function CashGapWidget({ months = 6 }: CashGapWidgetProps) {
             ) : (
               <ArrowDownRight className="h-6 w-6 text-red-600" />
             )}
-            <p className={`text-3xl font-bold ${getRiskColor(cashGap.riskLevel)}`}>
+            <p
+              className={`text-3xl font-bold ${getRiskColor(cashGap.riskLevel)}`}
+            >
               {formatCurrency(cashGap.cashGap)}
             </p>
           </div>
@@ -224,17 +226,21 @@ export function CashGapWidget({ months = 6 }: CashGapWidgetProps) {
           <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-green-600" />
-              <p className="text-sm text-green-700 dark:text-green-300">Toplam Alacak</p>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                Toplam Alacak
+              </p>
             </div>
             <p className="text-xl font-bold text-green-900 dark:text-green-100">
               {formatCurrency(cashGap.totalAR)}
             </p>
           </div>
-          
+
           <div className="bg-red-50 dark:bg-red-950/30 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown className="h-4 w-4 text-red-600" />
-              <p className="text-sm text-red-700 dark:text-red-300">Toplam Borç</p>
+              <p className="text-sm text-red-700 dark:text-red-300">
+                Toplam Borç
+              </p>
             </div>
             <p className="text-xl font-bold text-red-900 dark:text-red-100">
               {formatCurrency(cashGap.totalAP)}
@@ -245,40 +251,54 @@ export function CashGapWidget({ months = 6 }: CashGapWidgetProps) {
         {/* Timeline Analysis */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
-            <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">30 Günlük Net Gap</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+              30 Günlük Net Gap
+            </p>
             <div className="flex items-center gap-2">
               {cashGap.netGap30Days >= 0 ? (
                 <ArrowUpRight className="h-4 w-4 text-green-600" />
               ) : (
                 <ArrowDownRight className="h-4 w-4 text-red-600" />
               )}
-              <p className={`text-lg font-bold ${
-                cashGap.netGap30Days >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-              }`}>
+              <p
+                className={`text-lg font-bold ${
+                  cashGap.netGap30Days >= 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
+                }`}
+              >
                 {formatCurrency(cashGap.netGap30Days)}
               </p>
             </div>
             <p className="text-xs text-blue-600 dark:text-blue-400">
-              AR: {formatCurrency(cashGap.arDueIn30Days)} - AP: {formatCurrency(cashGap.apDueIn30Days)}
+              AR: {formatCurrency(cashGap.arDueIn30Days)} - AP:{' '}
+              {formatCurrency(cashGap.apDueIn30Days)}
             </p>
           </div>
-          
+
           <div className="bg-orange-50 dark:bg-orange-950/30 p-4 rounded-lg">
-            <p className="text-sm text-orange-700 dark:text-orange-300 mb-2">60 Günlük Net Gap</p>
+            <p className="text-sm text-orange-700 dark:text-orange-300 mb-2">
+              60 Günlük Net Gap
+            </p>
             <div className="flex items-center gap-2">
               {cashGap.netGap60Days >= 0 ? (
                 <ArrowUpRight className="h-4 w-4 text-green-600" />
               ) : (
                 <ArrowDownRight className="h-4 w-4 text-red-600" />
               )}
-              <p className={`text-lg font-bold ${
-                cashGap.netGap60Days >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-              }`}>
+              <p
+                className={`text-lg font-bold ${
+                  cashGap.netGap60Days >= 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
+                }`}
+              >
                 {formatCurrency(cashGap.netGap60Days)}
               </p>
             </div>
             <p className="text-xs text-orange-600 dark:text-orange-400">
-              AR: {formatCurrency(cashGap.arDueIn60Days)} - AP: {formatCurrency(cashGap.apDueIn60Days)}
+              AR: {formatCurrency(cashGap.arDueIn60Days)} - AP:{' '}
+              {formatCurrency(cashGap.apDueIn60Days)}
             </p>
           </div>
         </div>
@@ -290,7 +310,10 @@ export function CashGapWidget({ months = 6 }: CashGapWidgetProps) {
           </h4>
           <div className="space-y-2">
             {cashGap.timeline.slice(0, 6).map((period, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-950/30 rounded">
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-950/30 rounded"
+              >
                 <span className="text-sm font-medium">{period.period}</span>
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-green-600 dark:text-green-400">
@@ -299,9 +322,13 @@ export function CashGapWidget({ months = 6 }: CashGapWidgetProps) {
                   <span className="text-sm text-red-600 dark:text-red-400">
                     AP: {formatCurrency(period.apAmount)}
                   </span>
-                  <span className={`text-sm font-medium ${
-                    period.netCashFlow >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                  }`}>
+                  <span
+                    className={`text-sm font-medium ${
+                      period.netCashFlow >= 0
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}
+                  >
                     Net: {formatCurrency(period.netCashFlow)}
                   </span>
                 </div>
@@ -316,12 +343,19 @@ export function CashGapWidget({ months = 6 }: CashGapWidgetProps) {
             Öneriler
           </h4>
           <ul className="space-y-1">
-            {cashGap.recommendations.slice(0, 3).map((recommendation, index) => (
-              <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
-                {recommendation}
-              </li>
-            ))}
+            {cashGap.recommendations
+              .slice(0, 3)
+              .map((recommendation, index) => (
+                <li
+                  key={index}
+                  className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2"
+                >
+                  <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                    •
+                  </span>
+                  {recommendation}
+                </li>
+              ))}
           </ul>
         </div>
       </CardContent>

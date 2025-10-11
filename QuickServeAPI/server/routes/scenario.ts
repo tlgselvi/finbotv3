@@ -44,10 +44,15 @@ router.post('/run', requireAuth, async (req: AuthenticatedRequest, res) => {
 
     // Validate horizon
     const validHorizons = [3, 6, 12];
-    const scenarioHorizon = horizon && validHorizons.includes(horizon) ? horizon : 12;
+    const scenarioHorizon =
+      horizon && validHorizons.includes(horizon) ? horizon : 12;
 
     // Run scenario analysis
-    const result = await runScenarioAnalysis(userId, scenarioParams, scenarioHorizon);
+    const result = await runScenarioAnalysis(
+      userId,
+      scenarioParams,
+      scenarioHorizon
+    );
 
     res.json({
       success: true,
@@ -87,9 +92,10 @@ router.post('/compare', requireAuth, async (req: AuthenticatedRequest, res) => {
       }
 
       const validHorizons = [3, 6, 12];
-      const horizon = scenario.horizon && validHorizons.includes(scenario.horizon) 
-        ? scenario.horizon 
-        : 12;
+      const horizon =
+        scenario.horizon && validHorizons.includes(scenario.horizon)
+          ? scenario.horizon
+          : 12;
 
       return {
         name: scenario.name,
@@ -119,36 +125,43 @@ router.post('/compare', requireAuth, async (req: AuthenticatedRequest, res) => {
 });
 
 // GET /api/scenario/recommendations - Get scenario recommendations
-router.get('/recommendations', requireAuth, async (req: AuthenticatedRequest, res) => {
-  try {
-    const userId = req.user!.id;
-    const { baseParameters } = req.query;
+router.get(
+  '/recommendations',
+  requireAuth,
+  async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const { baseParameters } = req.query;
 
-    let baseParams: ScenarioParameters = {};
-    
-    if (baseParameters && typeof baseParameters === 'string') {
-      try {
-        baseParams = JSON.parse(baseParameters);
-      } catch (error) {
-        return res.status(400).json({
-          error: 'Geçersiz baseParameters formatı',
-        });
+      let baseParams: ScenarioParameters = {};
+
+      if (baseParameters && typeof baseParameters === 'string') {
+        try {
+          baseParams = JSON.parse(baseParameters);
+        } catch (error) {
+          return res.status(400).json({
+            error: 'Geçersiz baseParameters formatı',
+          });
+        }
       }
+
+      const recommendations = await getScenarioRecommendations(
+        userId,
+        baseParams
+      );
+
+      res.json({
+        success: true,
+        data: recommendations,
+      });
+    } catch (error) {
+      logger.error('Scenario recommendations error:', error);
+      res.status(500).json({
+        error: 'Senaryo önerileri alınırken hata oluştu',
+      });
     }
-
-    const recommendations = await getScenarioRecommendations(userId, baseParams);
-
-    res.json({
-      success: true,
-      data: recommendations,
-    });
-  } catch (error) {
-    logger.error('Scenario recommendations error:', error);
-    res.status(500).json({
-      error: 'Senaryo önerileri alınırken hata oluştu',
-    });
   }
-});
+);
 
 // POST /api/scenario/quick - Quick scenario analysis with predefined parameters
 router.post('/quick', requireAuth, async (req: AuthenticatedRequest, res) => {
@@ -158,35 +171,35 @@ router.post('/quick', requireAuth, async (req: AuthenticatedRequest, res) => {
 
     // Predefined scenario parameters
     const scenarioPresets: Record<string, ScenarioParameters> = {
-      'conservative': {
+      conservative: {
         revenueDelta: 2,
         opexDelta: -5,
         investmentDelta: 1,
         rateDelta: 0,
         inflationDelta: 2,
       },
-      'moderate': {
+      moderate: {
         revenueDelta: 0,
         opexDelta: 0,
         investmentDelta: 0,
         rateDelta: 0,
         inflationDelta: 0,
       },
-      'aggressive': {
+      aggressive: {
         revenueDelta: -5,
         opexDelta: 10,
         investmentDelta: 3,
         rateDelta: 1,
         inflationDelta: 3,
       },
-      'recession': {
+      recession: {
         revenueDelta: -15,
         opexDelta: 5,
         investmentDelta: -2,
         rateDelta: 2,
         inflationDelta: 4,
       },
-      'growth': {
+      growth: {
         revenueDelta: 10,
         opexDelta: 5,
         investmentDelta: 2,
@@ -197,15 +210,21 @@ router.post('/quick', requireAuth, async (req: AuthenticatedRequest, res) => {
 
     if (!scenarioType || !scenarioPresets[scenarioType]) {
       return res.status(400).json({
-        error: 'Geçerli bir senaryo tipi seçin: conservative, moderate, aggressive, recession, growth',
+        error:
+          'Geçerli bir senaryo tipi seçin: conservative, moderate, aggressive, recession, growth',
       });
     }
 
     const validHorizons = [3, 6, 12];
-    const scenarioHorizon = horizon && validHorizons.includes(horizon) ? horizon : 12;
+    const scenarioHorizon =
+      horizon && validHorizons.includes(horizon) ? horizon : 12;
 
     const parameters = scenarioPresets[scenarioType];
-    const result = await runScenarioAnalysis(userId, parameters, scenarioHorizon);
+    const result = await runScenarioAnalysis(
+      userId,
+      parameters,
+      scenarioHorizon
+    );
 
     res.json({
       success: true,
@@ -229,7 +248,7 @@ router.post('/quick', requireAuth, async (req: AuthenticatedRequest, res) => {
 router.get('/presets', requireAuth, async (req: AuthenticatedRequest, res) => {
   try {
     const presets = {
-      'conservative': {
+      conservative: {
         name: 'Muhafazakar',
         description: 'Düşük risk, istikrarlı büyüme',
         parameters: {
@@ -240,7 +259,7 @@ router.get('/presets', requireAuth, async (req: AuthenticatedRequest, res) => {
           inflationDelta: 2,
         },
       },
-      'moderate': {
+      moderate: {
         name: 'Orta Seviye',
         description: 'Dengeli risk-getiri profili',
         parameters: {
@@ -251,7 +270,7 @@ router.get('/presets', requireAuth, async (req: AuthenticatedRequest, res) => {
           inflationDelta: 0,
         },
       },
-      'aggressive': {
+      aggressive: {
         name: 'Agresif',
         description: 'Yüksek risk, potansiyel yüksek getiri',
         parameters: {
@@ -262,7 +281,7 @@ router.get('/presets', requireAuth, async (req: AuthenticatedRequest, res) => {
           inflationDelta: 3,
         },
       },
-      'recession': {
+      recession: {
         name: 'Durgunluk',
         description: 'Ekonomik durgunluk senaryosu',
         parameters: {
@@ -273,7 +292,7 @@ router.get('/presets', requireAuth, async (req: AuthenticatedRequest, res) => {
           inflationDelta: 4,
         },
       },
-      'growth': {
+      growth: {
         name: 'Büyüme',
         description: 'Güçlü ekonomik büyüme senaryosu',
         parameters: {

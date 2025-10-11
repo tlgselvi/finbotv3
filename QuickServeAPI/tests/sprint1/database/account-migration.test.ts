@@ -25,10 +25,10 @@ describe.skip('Account Migration Tests', () => {
         WHERE table_name = 'accounts' 
         ORDER BY ordinal_position
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
-      
+
       // Temel alanların varlığını kontrol et
       const columns = result.rows.map((row: any) => row.column_name);
       expect(columns).toContain('id');
@@ -48,10 +48,13 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank',
         accountName: 'Test Cash Account',
         balance: '1000.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
-      const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
+      const [insertedAccount] = await db
+        .insert(accounts)
+        .values(testAccount)
+        .returning();
       expect(insertedAccount).toBeDefined();
       expect(insertedAccount.type).toBe('cash');
 
@@ -62,10 +65,13 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank 2',
         accountName: 'Test Bank Account',
         balance: '5000.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
-      const [insertedBankAccount] = await db.insert(accounts).values(bankAccount).returning();
+      const [insertedBankAccount] = await db
+        .insert(accounts)
+        .values(bankAccount)
+        .returning();
       expect(insertedBankAccount.type).toBe('bank');
 
       // POS account test
@@ -75,10 +81,13 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank 3',
         accountName: 'Test POS Account',
         balance: '0.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
-      const [insertedPosAccount] = await db.insert(accounts).values(posAccount).returning();
+      const [insertedPosAccount] = await db
+        .insert(accounts)
+        .values(posAccount)
+        .returning();
       expect(insertedPosAccount.type).toBe('pos');
     });
 
@@ -89,16 +98,19 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank',
         accountName: 'Precision Test Account',
         balance: '123456789012345.1234', // 19,4 precision test
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
-      const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
+      const [insertedAccount] = await db
+        .insert(accounts)
+        .values(testAccount)
+        .returning();
       expect(insertedAccount.balance).toBe('123456789012345.1234');
     });
 
     test('Currency alanı TRY, EUR, USD değerlerini kabul etmeli', async () => {
       const currencies = ['TRY', 'EUR', 'USD'];
-      
+
       for (const currency of currencies) {
         const testAccount = {
           userId: `test-user-${currency}`,
@@ -106,10 +118,13 @@ describe.skip('Account Migration Tests', () => {
           bankName: 'Test Bank',
           accountName: `Test ${currency} Account`,
           balance: '1000.00',
-          currency: currency
+          currency: currency,
         };
 
-        const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
+        const [insertedAccount] = await db
+          .insert(accounts)
+          .values(testAccount)
+          .returning();
         expect(insertedAccount.currency).toBe(currency);
       }
     });
@@ -123,11 +138,14 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank CRUD',
         accountName: 'Test CRUD Account',
         balance: '2500.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
-      const [insertedAccount] = await db.insert(accounts).values(newAccount).returning();
-      
+      const [insertedAccount] = await db
+        .insert(accounts)
+        .values(newAccount)
+        .returning();
+
       expect(insertedAccount).toBeDefined();
       expect(insertedAccount.id).toBeDefined();
       expect(insertedAccount.userId).toBe(newAccount.userId);
@@ -145,13 +163,19 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank Read',
         accountName: 'Test Read Account',
         balance: '5000.00',
-        currency: 'EUR'
+        currency: 'EUR',
       };
 
-      const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
-      
-      const [foundAccount] = await db.select().from(accounts).where(eq(accounts.id, insertedAccount.id));
-      
+      const [insertedAccount] = await db
+        .insert(accounts)
+        .values(testAccount)
+        .returning();
+
+      const [foundAccount] = await db
+        .select()
+        .from(accounts)
+        .where(eq(accounts.id, insertedAccount.id));
+
       expect(foundAccount).toBeDefined();
       expect(foundAccount.id).toBe(insertedAccount.id);
       expect(foundAccount.userId).toBe(testAccount.userId);
@@ -164,17 +188,24 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank Update',
         accountName: 'Test Update Account',
         balance: '1000.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
-      const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
-      
+      const [insertedAccount] = await db
+        .insert(accounts)
+        .values(testAccount)
+        .returning();
+
       // Balance güncelle
-      await db.update(accounts)
+      await db
+        .update(accounts)
         .set({ balance: '2000.00' })
         .where(eq(accounts.id, insertedAccount.id));
-      
-      const [updatedAccount] = await db.select().from(accounts).where(eq(accounts.id, insertedAccount.id));
+
+      const [updatedAccount] = await db
+        .select()
+        .from(accounts)
+        .where(eq(accounts.id, insertedAccount.id));
       expect(updatedAccount.balance).toBe('2000.00');
     });
 
@@ -185,14 +216,20 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank Delete',
         accountName: 'Test Delete Account',
         balance: '0.00',
-        currency: 'USD'
+        currency: 'USD',
       };
 
-      const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
-      
+      const [insertedAccount] = await db
+        .insert(accounts)
+        .values(testAccount)
+        .returning();
+
       await db.delete(accounts).where(eq(accounts.id, insertedAccount.id));
-      
-      const [deletedAccount] = await db.select().from(accounts).where(eq(accounts.id, insertedAccount.id));
+
+      const [deletedAccount] = await db
+        .select()
+        .from(accounts)
+        .where(eq(accounts.id, insertedAccount.id));
       expect(deletedAccount).toBeUndefined();
     });
   });
@@ -204,7 +241,7 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank',
         accountName: 'Test Account',
         balance: '1000.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
       await expect(
@@ -218,7 +255,7 @@ describe.skip('Account Migration Tests', () => {
         bankName: 'Test Bank',
         accountName: 'Test Account',
         balance: '1000.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
       await expect(
@@ -232,7 +269,7 @@ describe.skip('Account Migration Tests', () => {
         type: 'cash',
         accountName: 'Test Account',
         balance: '1000.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
       await expect(
@@ -246,7 +283,7 @@ describe.skip('Account Migration Tests', () => {
         type: 'cash',
         bankName: 'Test Bank',
         balance: '1000.00',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
       await expect(
@@ -262,10 +299,13 @@ describe.skip('Account Migration Tests', () => {
         type: 'cash',
         bankName: 'Test Bank',
         accountName: 'Test Default Account',
-        currency: 'TRY'
+        currency: 'TRY',
       };
 
-      const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
+      const [insertedAccount] = await db
+        .insert(accounts)
+        .values(testAccount)
+        .returning();
       expect(insertedAccount.balance).toBe('0');
     });
 
@@ -274,10 +314,13 @@ describe.skip('Account Migration Tests', () => {
         userId: 'test-user-default-currency',
         type: 'cash',
         bankName: 'Test Bank',
-        accountName: 'Test Default Currency Account'
+        accountName: 'Test Default Currency Account',
       };
 
-      const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
+      const [insertedAccount] = await db
+        .insert(accounts)
+        .values(testAccount)
+        .returning();
       expect(insertedAccount.currency).toBe('TRY');
     });
   });
@@ -285,7 +328,7 @@ describe.skip('Account Migration Tests', () => {
   describe('Account Performance', () => {
     test('Büyük veri seti ile performans testi', async () => {
       const startTime = Date.now();
-      
+
       // 1000 account oluştur
       const accountsToInsert = Array.from({ length: 1000 }, (_, i) => ({
         userId: `test-user-perf-${i}`,
@@ -293,27 +336,27 @@ describe.skip('Account Migration Tests', () => {
         bankName: `Test Bank ${i % 10}`,
         accountName: `Test Account ${i}`,
         balance: (i * 100).toString(),
-        currency: i % 3 === 0 ? 'TRY' : i % 3 === 1 ? 'EUR' : 'USD'
+        currency: i % 3 === 0 ? 'TRY' : i % 3 === 1 ? 'EUR' : 'USD',
       }));
 
       await db.insert(accounts).values(accountsToInsert);
-      
+
       const endTime = Date.now();
       const duration = endTime - startTime;
-      
+
       // 1000 kayıt 5 saniyeden az sürmeli
       expect(duration).toBeLessThan(5000);
     });
 
     test('Account sorgulama performansı', async () => {
       const startTime = Date.now();
-      
+
       // Tüm accountları getir
       const allAccounts = await db.select().from(accounts);
-      
+
       const endTime = Date.now();
       const duration = endTime - startTime;
-      
+
       // Sorgu 1 saniyeden az sürmeli
       expect(duration).toBeLessThan(1000);
       expect(allAccounts.length).toBeGreaterThan(0);

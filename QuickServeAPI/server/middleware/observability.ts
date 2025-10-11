@@ -40,11 +40,14 @@ interface PerformanceMetrics {
     timestamp: string;
   }>;
   statusCodes: Record<number, number>;
-  endpoints: Record<string, {
-    count: number;
-    averageTime: number;
-    errorCount: number;
-  }>;
+  endpoints: Record<
+    string,
+    {
+      count: number;
+      averageTime: number;
+      errorCount: number;
+    }
+  >;
 }
 
 // In-memory metrics store (for development/testing)
@@ -56,14 +59,14 @@ class MetricsStore {
     errorRate: 0,
     slowestRequests: [],
     statusCodes: {},
-    endpoints: {}
+    endpoints: {},
   };
   private maxLogs = 10000; // Keep last 10k requests
   private maxSlowRequests = 100; // Keep top 100 slowest requests
 
   addLog(log: RequestLog): void {
     this.logs.push(log);
-    
+
     // Trim logs if too many
     if (this.logs.length > this.maxLogs) {
       this.logs = this.logs.slice(-this.maxLogs);
@@ -76,14 +79,17 @@ class MetricsStore {
     if (!log.endTime || !log.duration) return;
 
     this.metrics.requestCount++;
-    
+
     // Update average response time
-    const totalTime = this.metrics.averageResponseTime * (this.metrics.requestCount - 1) + log.duration;
+    const totalTime =
+      this.metrics.averageResponseTime * (this.metrics.requestCount - 1) +
+      log.duration;
     this.metrics.averageResponseTime = totalTime / this.metrics.requestCount;
 
     // Update status codes
     if (log.statusCode) {
-      this.metrics.statusCodes[log.statusCode] = (this.metrics.statusCodes[log.statusCode] || 0) + 1;
+      this.metrics.statusCodes[log.statusCode] =
+        (this.metrics.statusCodes[log.statusCode] || 0) + 1;
     }
 
     // Update endpoints
@@ -92,14 +98,16 @@ class MetricsStore {
       this.metrics.endpoints[endpointKey] = {
         count: 0,
         averageTime: 0,
-        errorCount: 0
+        errorCount: 0,
       };
     }
-    
+
     const endpoint = this.metrics.endpoints[endpointKey];
     endpoint.count++;
-    endpoint.averageTime = (endpoint.averageTime * (endpoint.count - 1) + log.duration) / endpoint.count;
-    
+    endpoint.averageTime =
+      (endpoint.averageTime * (endpoint.count - 1) + log.duration) /
+      endpoint.count;
+
     if (log.statusCode && log.statusCode >= 400) {
       endpoint.errorCount++;
     }
@@ -111,17 +119,21 @@ class MetricsStore {
     this.metrics.errorRate = (errorCount / this.metrics.requestCount) * 100;
 
     // Update slowest requests
-    if (log.duration > 1000) { // Only track requests > 1 second
+    if (log.duration > 1000) {
+      // Only track requests > 1 second
       this.metrics.slowestRequests.push({
         path: log.path,
         method: log.method,
         duration: log.duration,
-        timestamp: log.timestamp
+        timestamp: log.timestamp,
       });
 
       // Sort by duration and keep only top 100
       this.metrics.slowestRequests.sort((a, b) => b.duration - a.duration);
-      this.metrics.slowestRequests = this.metrics.slowestRequests.slice(0, this.maxSlowRequests);
+      this.metrics.slowestRequests = this.metrics.slowestRequests.slice(
+        0,
+        this.maxSlowRequests
+      );
     }
   }
 
@@ -139,15 +151,21 @@ class MetricsStore {
     }
 
     if (filters?.statusCode) {
-      filteredLogs = filteredLogs.filter(log => log.statusCode === filters.statusCode);
+      filteredLogs = filteredLogs.filter(
+        log => log.statusCode === filters.statusCode
+      );
     }
 
     if (filters?.startTime) {
-      filteredLogs = filteredLogs.filter(log => new Date(log.timestamp) >= filters.startTime!);
+      filteredLogs = filteredLogs.filter(
+        log => new Date(log.timestamp) >= filters.startTime!
+      );
     }
 
     if (filters?.endTime) {
-      filteredLogs = filteredLogs.filter(log => new Date(log.timestamp) <= filters.endTime!);
+      filteredLogs = filteredLogs.filter(
+        log => new Date(log.timestamp) <= filters.endTime!
+      );
     }
 
     if (filters?.limit) {
@@ -169,7 +187,7 @@ class MetricsStore {
       errorRate: 0,
       slowestRequests: [],
       statusCodes: {},
-      endpoints: {}
+      endpoints: {},
     };
   }
 }
@@ -190,7 +208,7 @@ export const requestLoggingMiddleware = (options: {
     slowThreshold = 1000,
     logBody = false,
     logHeaders = false,
-    excludePaths = ['/health', '/metrics']
+    excludePaths = ['/health', '/metrics'],
   } = options;
 
   return (req: Request, res: Response, next: NextFunction) => {
@@ -199,7 +217,7 @@ export const requestLoggingMiddleware = (options: {
       return next();
     }
 
-    const requestId = req.headers['x-request-id'] as string || randomUUID();
+    const requestId = (req.headers['x-request-id'] as string) || randomUUID();
     const startTime = Date.now();
 
     // Create request log
@@ -210,7 +228,7 @@ export const requestLoggingMiddleware = (options: {
       url: req.url,
       path: req.path,
       query: req.query,
-      headers: logHeaders ? req.headers as Record<string, string> : {},
+      headers: logHeaders ? (req.headers as Record<string, string>) : {},
       userAgent: req.get('User-Agent') || '',
       ip: req.ip || req.connection.remoteAddress || 'unknown',
       userId: (req as AuthenticatedRequest).user?.id,
@@ -223,8 +241,8 @@ export const requestLoggingMiddleware = (options: {
         params: req.params,
         protocol: req.protocol,
         secure: req.secure,
-        hostname: req.hostname
-      }
+        hostname: req.hostname,
+      },
     };
 
     // Set request ID in response headers
@@ -232,7 +250,7 @@ export const requestLoggingMiddleware = (options: {
 
     // Override res.json to capture response details
     const originalJson = res.json;
-    res.json = function(body: any) {
+    res.json = function (body: any) {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
@@ -243,14 +261,14 @@ export const requestLoggingMiddleware = (options: {
       requestLog.responseSize = JSON.stringify(body).length;
 
       // Determine if we should log this request
-      const shouldLog = 
+      const shouldLog =
         logLevel === 'all' ||
         (logLevel === 'errors' && res.statusCode >= 400) ||
         (logLevel === 'slow' && duration > slowThreshold);
 
       if (shouldLog) {
         metricsStore.addLog(requestLog);
-        
+
         // Log to console in development
         if (process.env.NODE_ENV === 'development') {
           const logMessage = `${requestLog.method} ${requestLog.path} - ${res.statusCode} - ${duration}ms`;
@@ -269,7 +287,7 @@ export const requestLoggingMiddleware = (options: {
 
     // Handle errors
     const originalEnd = res.end;
-    res.end = function(chunk?: any) {
+    res.end = function (chunk?: any) {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
@@ -289,10 +307,14 @@ export const requestLoggingMiddleware = (options: {
 };
 
 // Error logging middleware
-export const errorLoggingMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const errorLoggingMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const originalJson = res.json;
-  
-  res.json = function(body: any) {
+
+  res.json = function (body: any) {
     if (res.statusCode >= 400) {
       const errorLog = {
         timestamp: new Date().toISOString(),
@@ -307,7 +329,7 @@ export const errorLoggingMiddleware = (req: Request, res: Response, next: NextFu
         stack: body.stack,
         body: req.body,
         query: req.query,
-        params: req.params
+        params: req.params,
       };
 
       // Log error to console
@@ -326,13 +348,13 @@ export const errorLoggingMiddleware = (req: Request, res: Response, next: NextFu
         ip: errorLog.ip || 'unknown',
         userId: errorLog.userId,
         sessionId: (req as any).sessionID,
-        requestId: errorLog.requestId as string || randomUUID(),
+        requestId: (errorLog.requestId as string) || randomUUID(),
         startTime: Date.now() - 100, // Approximate
         endTime: Date.now(),
         duration: 100, // Approximate
         statusCode: res.statusCode,
         error: errorLog.error,
-        stack: errorLog.stack
+        stack: errorLog.stack,
       });
     }
 
@@ -345,44 +367,51 @@ export const errorLoggingMiddleware = (req: Request, res: Response, next: NextFu
 // Performance metrics endpoint
 export const metricsMiddleware = (req: Request, res: Response) => {
   const metrics = metricsStore.getMetrics();
-  
+
   res.json({
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     metrics: {
       ...metrics,
-      slowestRequests: metrics.slowestRequests.slice(0, 10) // Only return top 10
-    }
+      slowestRequests: metrics.slowestRequests.slice(0, 10), // Only return top 10
+    },
   });
 };
 
 // Request logs endpoint (for debugging)
 export const logsMiddleware = (req: Request, res: Response) => {
   const { userId, statusCode, limit = 100 } = req.query;
-  
+
   const filters: any = {};
   if (userId) filters.userId = userId as string;
   if (statusCode) filters.statusCode = parseInt(statusCode as string);
   if (limit) filters.limit = parseInt(limit as string);
 
   const logs = metricsStore.getLogs(filters);
-  
+
   res.json({
     count: logs.length,
     logs: logs.map(log => ({
       ...log,
       // Remove sensitive data
-      headers: log.headers ? Object.fromEntries(
-        Object.entries(log.headers).filter(([key]) => 
-          !['authorization', 'cookie', 'x-api-key'].includes(key.toLowerCase())
-        )
-      ) : {},
-      metadata: log.metadata ? {
-        ...log.metadata,
-        body: undefined // Remove body from logs
-      } : undefined
-    }))
+      headers: log.headers
+        ? Object.fromEntries(
+            Object.entries(log.headers).filter(
+              ([key]) =>
+                !['authorization', 'cookie', 'x-api-key'].includes(
+                  key.toLowerCase()
+                )
+            )
+          )
+        : {},
+      metadata: log.metadata
+        ? {
+            ...log.metadata,
+            body: undefined, // Remove body from logs
+          }
+        : undefined,
+    })),
   });
 };
 
@@ -394,7 +423,7 @@ export const healthCheckMiddleware = (req: Request, res: Response) => {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     version: process.env.npm_package_version || '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   };
 
   res.json(health);
@@ -406,14 +435,18 @@ export const getLogs = (filters?: any) => metricsStore.getLogs(filters);
 export const clearMetrics = () => metricsStore.clear();
 
 // Structured logging for application events
-export const logEvent = (level: 'info' | 'warn' | 'error', message: string, data?: any) => {
+export const logEvent = (
+  level: 'info' | 'warn' | 'error',
+  message: string,
+  data?: any
+) => {
   const logEntry = {
     timestamp: new Date().toISOString(),
     level,
     message,
     data,
     pid: process.pid,
-    hostname: process.env.HOSTNAME || 'unknown'
+    hostname: process.env.HOSTNAME || 'unknown',
   };
 
   switch (level) {
@@ -437,5 +470,5 @@ export default {
   getMetrics,
   getLogs,
   clearMetrics,
-  logEvent
+  logEvent,
 };

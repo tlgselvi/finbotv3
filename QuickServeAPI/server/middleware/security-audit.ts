@@ -3,7 +3,12 @@ import { logger } from '../utils/logger';
 
 interface SecurityAuditEvent {
   timestamp: string;
-  type: 'suspicious_activity' | 'rate_limit_exceeded' | 'sql_injection_attempt' | 'xss_attempt' | 'unauthorized_access';
+  type:
+    | 'suspicious_activity'
+    | 'rate_limit_exceeded'
+    | 'sql_injection_attempt'
+    | 'xss_attempt'
+    | 'unauthorized_access';
   severity: 'low' | 'medium' | 'high' | 'critical';
   ip: string;
   userAgent: string;
@@ -16,7 +21,10 @@ interface SecurityAuditEvent {
 class SecurityAuditor {
   private static instance: SecurityAuditor;
   private auditLog: SecurityAuditEvent[] = [];
-  private suspiciousIPs = new Map<string, { count: number; lastSeen: Date; blocked: boolean }>();
+  private suspiciousIPs = new Map<
+    string,
+    { count: number; lastSeen: Date; blocked: boolean }
+  >();
 
   public static getInstance(): SecurityAuditor {
     if (!SecurityAuditor.instance) {
@@ -28,7 +36,7 @@ class SecurityAuditor {
   public logEvent(event: Omit<SecurityAuditEvent, 'timestamp'>) {
     const auditEvent: SecurityAuditEvent = {
       ...event,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     this.auditLog.push(auditEvent);
@@ -67,10 +75,16 @@ class SecurityAuditor {
       existing.lastSeen = new Date();
       if (existing.count >= 5) {
         existing.blocked = true;
-        logger.error(`IP ${ip} blocked due to suspicious activity (${existing.count} events)`);
+        logger.error(
+          `IP ${ip} blocked due to suspicious activity (${existing.count} events)`
+        );
       }
     } else {
-      this.suspiciousIPs.set(ip, { count: 1, lastSeen: new Date(), blocked: false });
+      this.suspiciousIPs.set(ip, {
+        count: 1,
+        lastSeen: new Date(),
+        blocked: false,
+      });
     }
   }
 
@@ -79,7 +93,7 @@ class SecurityAuditor {
     if (process.env.NODE_ENV === 'development') {
       return false;
     }
-    
+
     const record = this.suspiciousIPs.get(ip);
     if (!record) return false;
 
@@ -114,16 +128,24 @@ class SecurityAuditor {
         low: recentEvents.filter(e => e.severity === 'low').length,
       },
       typeBreakdown: {
-        suspicious_activity: recentEvents.filter(e => e.type === 'suspicious_activity').length,
-        rate_limit_exceeded: recentEvents.filter(e => e.type === 'rate_limit_exceeded').length,
-        sql_injection_attempt: recentEvents.filter(e => e.type === 'sql_injection_attempt').length,
+        suspicious_activity: recentEvents.filter(
+          e => e.type === 'suspicious_activity'
+        ).length,
+        rate_limit_exceeded: recentEvents.filter(
+          e => e.type === 'rate_limit_exceeded'
+        ).length,
+        sql_injection_attempt: recentEvents.filter(
+          e => e.type === 'sql_injection_attempt'
+        ).length,
         xss_attempt: recentEvents.filter(e => e.type === 'xss_attempt').length,
-        unauthorized_access: recentEvents.filter(e => e.type === 'unauthorized_access').length,
+        unauthorized_access: recentEvents.filter(
+          e => e.type === 'unauthorized_access'
+        ).length,
       },
       blockedIPs: Array.from(this.suspiciousIPs.entries())
         .filter(([_, record]) => record.blocked)
         .map(([ip, _]) => ip),
-      suspiciousIPs: this.suspiciousIPs.size
+      suspiciousIPs: this.suspiciousIPs.size,
     };
 
     return stats;
@@ -131,10 +153,14 @@ class SecurityAuditor {
 }
 
 // Security audit middleware
-export const securityAudit = (req: Request, res: Response, next: NextFunction) => {
+export const securityAudit = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const auditor = SecurityAuditor.getInstance();
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
-  
+
   // Check if IP is blocked
   if (auditor.isIPBlocked(ip)) {
     auditor.logEvent({
@@ -144,12 +170,12 @@ export const securityAudit = (req: Request, res: Response, next: NextFunction) =
       userAgent: req.headers['user-agent'] || 'unknown',
       url: req.url,
       method: req.method,
-      details: { reason: 'IP blocked due to suspicious activity' }
+      details: { reason: 'IP blocked due to suspicious activity' },
     });
-    
-    return res.status(403).json({ 
+
+    return res.status(403).json({
       error: 'Access denied',
-      code: 'IP_BLOCKED'
+      code: 'IP_BLOCKED',
     });
   }
 
@@ -163,7 +189,7 @@ export const securityAudit = (req: Request, res: Response, next: NextFunction) =
     /(\bSCRIPT\s*\()/i,
     /(\bWAITFOR\s+DELAY\b)/i,
     /(\bBENCHMARK\s*\()/i,
-    /(\b(SELECT|INSERT|UPDATE|DELETE)\s+.*\bFROM\b.*\bWHERE\b.*\b(OR|AND)\b)/i
+    /(\b(SELECT|INSERT|UPDATE|DELETE)\s+.*\bFROM\b.*\bWHERE\b.*\b(OR|AND)\b)/i,
   ];
 
   // Check request body, query params, and headers for SQL injection
@@ -171,7 +197,7 @@ export const securityAudit = (req: Request, res: Response, next: NextFunction) =
     body: req.body,
     query: req.query,
     params: req.params,
-    headers: req.headers
+    headers: req.headers,
   });
 
   for (const pattern of sqlInjectionPatterns) {
@@ -183,15 +209,15 @@ export const securityAudit = (req: Request, res: Response, next: NextFunction) =
         userAgent: req.headers['user-agent'] || 'unknown',
         url: req.url,
         method: req.method,
-        details: { 
+        details: {
           pattern: pattern.source,
-          matchedData: requestData.match(pattern)?.[0]
-        }
+          matchedData: requestData.match(pattern)?.[0],
+        },
       });
 
       return res.status(400).json({
         error: 'Invalid request format',
-        code: 'SECURITY_VIOLATION'
+        code: 'SECURITY_VIOLATION',
       });
     }
   }
@@ -207,7 +233,7 @@ export const securityAudit = (req: Request, res: Response, next: NextFunction) =
     /<link[^>]*>.*?<\/link>/gi,
     /<meta[^>]*>.*?<\/meta>/gi,
     /<style[^>]*>.*?<\/style>/gi,
-    /expression\s*\(/gi
+    /expression\s*\(/gi,
   ];
 
   for (const pattern of xssPatterns) {
@@ -219,15 +245,15 @@ export const securityAudit = (req: Request, res: Response, next: NextFunction) =
         userAgent: req.headers['user-agent'] || 'unknown',
         url: req.url,
         method: req.method,
-        details: { 
+        details: {
           pattern: pattern.source,
-          matchedData: requestData.match(pattern)?.[0]
-        }
+          matchedData: requestData.match(pattern)?.[0],
+        },
       });
 
       return res.status(400).json({
         error: 'Invalid request format',
-        code: 'SECURITY_VIOLATION'
+        code: 'SECURITY_VIOLATION',
       });
     }
   }
@@ -243,7 +269,7 @@ export const securityAudit = (req: Request, res: Response, next: NextFunction) =
     /w3af/i,
     /acunetix/i,
     /nessus/i,
-    /openvas/i
+    /openvas/i,
   ];
 
   const userAgent = req.headers['user-agent'] || '';
@@ -256,10 +282,10 @@ export const securityAudit = (req: Request, res: Response, next: NextFunction) =
         userAgent,
         url: req.url,
         method: req.method,
-        details: { 
+        details: {
           reason: 'Suspicious user agent',
-          userAgent
-        }
+          userAgent,
+        },
       });
       break;
     }
@@ -286,7 +312,7 @@ export const rateLimitWithAudit = (windowMs: number, maxRequests: number) => {
     }
 
     const userRequests = requests.get(ip);
-    
+
     if (!userRequests || userRequests.resetTime < windowStart) {
       requests.set(ip, { count: 1, resetTime: now });
       return next();
@@ -300,17 +326,17 @@ export const rateLimitWithAudit = (windowMs: number, maxRequests: number) => {
         userAgent: req.headers['user-agent'] || 'unknown',
         url: req.url,
         method: req.method,
-        details: { 
+        details: {
           requestCount: userRequests.count,
           limit: maxRequests,
-          windowMs
-        }
+          windowMs,
+        },
       });
 
       return res.status(429).json({
         error: 'Too many requests',
         code: 'RATE_LIMIT_EXCEEDED',
-        retryAfter: Math.ceil(windowMs / 1000)
+        retryAfter: Math.ceil(windowMs / 1000),
       });
     }
 
@@ -324,22 +350,22 @@ export const getSecurityAuditLog = (req: Request, res: Response) => {
   const auditor = SecurityAuditor.getInstance();
   const limit = parseInt(req.query.limit as string) || 100;
   const events = auditor.getAuditLog(limit);
-  
+
   res.json({
     success: true,
     data: events,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
 export const getSecurityStats = (req: Request, res: Response) => {
   const auditor = SecurityAuditor.getInstance();
   const stats = auditor.getSecurityStats();
-  
+
   res.json({
     success: true,
     data: stats,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -348,5 +374,5 @@ export default {
   rateLimitWithAudit,
   getSecurityAuditLog,
   getSecurityStats,
-  SecurityAuditor
+  SecurityAuditor,
 };

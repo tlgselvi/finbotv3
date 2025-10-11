@@ -3,12 +3,15 @@
 ## 📋 PHASE SİSTEMİ
 
 ### `pnpm test1` - PHASE 1: Deploy Hazırlık ⭐
+
 **Deploy öncesi ZORUNLU!**
+
 ```bash
 pnpm test1
 ```
 
 **Ne yapar:**
+
 - ✅ Critical Tests (84 test)
 - ✅ Coverage Analizi
 - ✅ Performance Raporu
@@ -20,12 +23,15 @@ pnpm test1
 ---
 
 ### `pnpm test2` - PHASE 2: Git & CI/CD 🔀
+
 **Git ve CI/CD kontrolleri**
+
 ```bash
 pnpm test2
 ```
 
 **Ne yapar:**
+
 - ✅ Critical Tests
 - ✅ Git Hooks Kontrol
 - ✅ CI/CD Files Kontrol
@@ -37,12 +43,15 @@ pnpm test2
 ---
 
 ### `pnpm test3` - PHASE 3: Akıllı Sistem 🤖
+
 **Gelişmiş analiz ve otomasyonlar**
+
 ```bash
 pnpm test3
 ```
 
 **Ne yapar:**
+
 - ✅ Full Test Suite
 - ✅ Auto-Fix Suggestions
 - ✅ Smart Test Selection
@@ -54,12 +63,15 @@ pnpm test3
 ---
 
 ### `pnpm test4` - PHASE 4: Görsel & AI 📊
+
 **Dashboard ve AI destekli analizler**
+
 ```bash
 pnpm test4
 ```
 
 **Ne yapar:**
+
 - ✅ Visual Dashboard
 - ✅ AI Test Generator
 - ✅ Trend Analysis
@@ -73,25 +85,31 @@ pnpm test4
 ## 🚀 HIZLI KOMUTLAR
 
 ### `pnpm test:quick` - Hızlı Test
+
 ```bash
 pnpm test:quick
 ```
+
 Sadece critical testler - 2 dakika ⚡
 
 ---
 
 ### `pnpm test:full` - Tam Test
+
 ```bash
 pnpm test:full
 ```
+
 Her şey dahil - 15 dakika 🌐
 
 ---
 
 ### `pnpm test:deploy` - Deploy Check
+
 ```bash
 pnpm test:deploy
 ```
+
 Deploy öncesi tüm kontroller - 5 dakika 🚀
 
 ---
@@ -99,12 +117,14 @@ Deploy öncesi tüm kontroller - 5 dakika 🚀
 ## 📊 ÖZEL KOMUTLAR
 
 ### Coverage
+
 ```bash
 pnpm test:coverage        # Coverage çalıştır
 pnpm test:coverage-only   # Sadece rapor göster
 ```
 
 ### Kategorik
+
 ```bash
 pnpm test:business        # İş senaryoları
 pnpm test:security        # Güvenlik
@@ -113,6 +133,7 @@ pnpm test:frontend        # UI testleri
 ```
 
 ### Analiz
+
 ```bash
 pnpm test:analyze         # Detaylı analiz
 pnpm test:fix             # Otomatik düzeltmeler
@@ -124,6 +145,7 @@ pnpm test:smart           # Akıllı test seçimi
 ## 🎯 KULLANIM SENARYOLARI
 
 ### Senaryo 1: Günlük Geliştirme
+
 ```bash
 # Kod yazdın, test et
 pnpm test:quick
@@ -136,6 +158,7 @@ pnpm test2
 ```
 
 ### Senaryo 2: Deploy Hazırlık
+
 ```bash
 # 1. Temel kontrol
 pnpm test1
@@ -147,6 +170,7 @@ pnpm test:deploy
 ```
 
 ### Senaryo 3: Sprint Sonu
+
 ```bash
 # 1. Full test
 pnpm test:full
@@ -208,4 +232,3 @@ test:full (25 dk)        → Her şey
 5. `test:quick` her commit'te (hız)
 
 **Mantık:** Küçükten büyüğe, hızdan detaya! 🎯
-

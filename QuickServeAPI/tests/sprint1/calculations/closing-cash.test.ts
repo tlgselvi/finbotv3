@@ -8,12 +8,12 @@ vi.mock('../../../server/db', () => {
   const mockDb = {
     insert: vi.fn(() => ({
       values: vi.fn(() => ({
-        returning: vi.fn(() => Promise.resolve([{ id: 'test-account-id' }]))
-      }))
+        returning: vi.fn(() => Promise.resolve([{ id: 'test-account-id' }])),
+      })),
     })),
     delete: vi.fn(() => ({
-      where: vi.fn(() => Promise.resolve())
-    }))
+      where: vi.fn(() => Promise.resolve()),
+    })),
   };
   return { db: mockDb };
 });
@@ -24,19 +24,19 @@ const simulateCloseDay = (accountId: string, targetDate: Date) => {
   if (!accountId || accountId === 'invalid-account-id') {
     throw new Error('Invalid account ID');
   }
-  
+
   if (!targetDate || isNaN(targetDate.getTime())) {
     throw new Error('Invalid date');
   }
-  
+
   // Bu fonksiyon gerçek implementasyondan import edilecek
   // Şimdilik mock implementasyon
   return {
-    closingCash: 15000.50,
+    closingCash: 15000.5,
     runway: 6.5,
     monthlyExpenses: 2300.75,
-    monthlyIncome: 5000.00,
-    netCashFlow: 2699.25
+    monthlyIncome: 5000.0,
+    netCashFlow: 2699.25,
   };
 };
 
@@ -58,16 +58,21 @@ describe('ClosingCash & Runway Calculations', () => {
       bankName: 'Test Bank Calculations',
       accountName: 'Test Cash Account Calculations',
       balance: '10000.00',
-      currency: 'TRY'
+      currency: 'TRY',
     };
 
-    const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
+    const [insertedAccount] = await db
+      .insert(accounts)
+      .values(testAccount)
+      .returning();
     testAccountId = insertedAccount.id;
   });
 
   afterAll(async () => {
     // Test verilerini temizle
-    await db.delete(transactions).where(eq(transactions.accountId, testAccountId));
+    await db
+      .delete(transactions)
+      .where(eq(transactions.accountId, testAccountId));
     await db.delete(accounts).where(eq(accounts.id, testAccountId));
   });
 
@@ -91,19 +96,26 @@ describe('ClosingCash & Runway Calculations', () => {
       expect(result.runway).toBeGreaterThan(0);
 
       // Net cash flow hesaplama kontrolü
-      expect(result.netCashFlow).toBe(result.monthlyIncome - result.monthlyExpenses);
+      expect(result.netCashFlow).toBe(
+        result.monthlyIncome - result.monthlyExpenses
+      );
 
       // Runway hesaplama kontrolü (±%1 tolerans)
-      const expectedRunway = calculateRunway(result.closingCash, result.monthlyExpenses);
+      const expectedRunway = calculateRunway(
+        result.closingCash,
+        result.monthlyExpenses
+      );
       const tolerance = expectedRunway * 0.01; // %1 tolerans
-      expect(Math.abs(result.runway - expectedRunway)).toBeLessThanOrEqual(tolerance);
+      expect(Math.abs(result.runway - expectedRunway)).toBeLessThanOrEqual(
+        tolerance
+      );
     });
 
     test('Farklı tarihlerde tutarlı sonuçlar', async () => {
       const dates = [
         new Date('2024-01-31'),
         new Date('2024-06-30'),
-        new Date('2024-12-31')
+        new Date('2024-12-31'),
       ];
 
       const results = dates.map(date => simulateCloseDay(testAccountId, date));
@@ -130,7 +142,7 @@ describe('ClosingCash & Runway Calculations', () => {
         runway: 0,
         monthlyExpenses: 2000,
         monthlyIncome: 1500,
-        netCashFlow: -500
+        netCashFlow: -500,
       };
 
       expect(zeroCashResult.closingCash).toBe(0);
@@ -145,7 +157,7 @@ describe('ClosingCash & Runway Calculations', () => {
         runway: -2.5,
         monthlyExpenses: 2000,
         monthlyIncome: 1500,
-        netCashFlow: -500
+        netCashFlow: -500,
       };
 
       expect(negativeCashResult.closingCash).toBeLessThan(0);
@@ -161,7 +173,7 @@ describe('ClosingCash & Runway Calculations', () => {
         { closingCash: 5000, monthlyExpenses: 1000, expectedRunway: 5 },
         { closingCash: 15000, monthlyExpenses: 3000, expectedRunway: 5 },
         { closingCash: 2000, monthlyExpenses: 1000, expectedRunway: 2 },
-        { closingCash: 1000, monthlyExpenses: 500, expectedRunway: 2 }
+        { closingCash: 1000, monthlyExpenses: 500, expectedRunway: 2 },
       ];
 
       testCases.forEach(({ closingCash, monthlyExpenses, expectedRunway }) => {
@@ -201,7 +213,7 @@ describe('ClosingCash & Runway Calculations', () => {
           amount: '5000.00',
           description: 'Maaş',
           category: 'salary',
-          date: new Date('2024-01-01')
+          date: new Date('2024-01-01'),
         },
         {
           accountId: testAccountId,
@@ -209,7 +221,7 @@ describe('ClosingCash & Runway Calculations', () => {
           amount: '2000.00',
           description: 'Freelance',
           category: 'freelance',
-          date: new Date('2024-01-15')
+          date: new Date('2024-01-15'),
         },
         {
           accountId: testAccountId,
@@ -217,7 +229,7 @@ describe('ClosingCash & Runway Calculations', () => {
           amount: '1000.00',
           description: 'Kira',
           category: 'rent',
-          date: new Date('2024-01-01')
+          date: new Date('2024-01-01'),
         },
         {
           accountId: testAccountId,
@@ -225,8 +237,8 @@ describe('ClosingCash & Runway Calculations', () => {
           amount: '500.00',
           description: 'Yemek',
           category: 'food',
-          date: new Date('2024-01-10')
-        }
+          date: new Date('2024-01-10'),
+        },
       ];
 
       await db.insert(transactions).values(testTransactions);
@@ -255,11 +267,17 @@ describe('ClosingCash & Runway Calculations', () => {
       const monthlyData = [
         { month: 1, income: 5000, expenses: 2000 },
         { month: 2, income: 5500, expenses: 2200 },
-        { month: 3, income: 4800, expenses: 2100 }
+        { month: 3, income: 4800, expenses: 2100 },
       ];
 
-      const totalIncome = monthlyData.reduce((sum, data) => sum + data.income, 0);
-      const totalExpenses = monthlyData.reduce((sum, data) => sum + data.expenses, 0);
+      const totalIncome = monthlyData.reduce(
+        (sum, data) => sum + data.income,
+        0
+      );
+      const totalExpenses = monthlyData.reduce(
+        (sum, data) => sum + data.expenses,
+        0
+      );
       const averageIncome = totalIncome / monthlyData.length;
       const averageExpenses = totalExpenses / monthlyData.length;
 
@@ -278,7 +296,7 @@ describe('ClosingCash & Runway Calculations', () => {
         runway: 500,
         monthlyExpenses: 2000,
         monthlyIncome: 5000,
-        netCashFlow: 3000
+        netCashFlow: 3000,
       };
 
       expect(highCashResult.closingCash).toBe(1000000);
@@ -292,7 +310,7 @@ describe('ClosingCash & Runway Calculations', () => {
         runway: 0.05,
         monthlyExpenses: 2000,
         monthlyIncome: 1500,
-        netCashFlow: -500
+        netCashFlow: -500,
       };
 
       expect(lowCashResult.closingCash).toBe(100);
@@ -306,7 +324,7 @@ describe('ClosingCash & Runway Calculations', () => {
         runway: 2.5,
         monthlyExpenses: 2000,
         monthlyIncome: 0,
-        netCashFlow: -2000
+        netCashFlow: -2000,
       };
 
       expect(zeroIncomeResult.monthlyIncome).toBe(0);
@@ -319,7 +337,7 @@ describe('ClosingCash & Runway Calculations', () => {
         runway: Infinity,
         monthlyExpenses: 0,
         monthlyIncome: 5000,
-        netCashFlow: 5000
+        netCashFlow: 5000,
       };
 
       expect(zeroExpenseResult.monthlyExpenses).toBe(0);
@@ -339,7 +357,7 @@ describe('ClosingCash & Runway Calculations', () => {
         amount: (Math.random() * 1000).toFixed(2),
         description: `Test transaction ${i}`,
         category: i % 2 === 0 ? 'salary' : 'food',
-        date: new Date(2024, 0, (i % 30) + 1)
+        date: new Date(2024, 0, (i % 30) + 1),
       }));
 
       await db.insert(transactions).values(transactionsToInsert);
@@ -377,7 +395,7 @@ describe('ClosingCash & Runway Calculations', () => {
   describe('Data Validation', () => {
     test('Geçersiz account ID ile hata', async () => {
       const invalidAccountId = 'invalid-account-id';
-      
+
       expect(() => {
         simulateCloseDay(invalidAccountId, new Date('2024-12-31'));
       }).toThrow();
@@ -385,7 +403,7 @@ describe('ClosingCash & Runway Calculations', () => {
 
     test('Geçersiz tarih ile hata', async () => {
       const invalidDate = new Date('invalid-date');
-      
+
       expect(() => {
         simulateCloseDay(testAccountId, invalidDate);
       }).toThrow();
@@ -394,7 +412,7 @@ describe('ClosingCash & Runway Calculations', () => {
     test('Gelecek tarih ile çalışma', async () => {
       const futureDate = new Date('2025-12-31');
       const result = simulateCloseDay(testAccountId, futureDate);
-      
+
       expect(result).toBeDefined();
       expect(result.closingCash).toBeDefined();
     });

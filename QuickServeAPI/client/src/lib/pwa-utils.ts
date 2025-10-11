@@ -10,13 +10,13 @@ class PWAInstallManager {
   private deferredPrompt: BeforeInstallPromptEvent | null = null;
   private isInstalled = false;
 
-  constructor () {
+  constructor() {
     this.init();
   }
 
-  private init () {
+  private init() {
     // Install prompt event listener
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener('beforeinstallprompt', e => {
       logger.info('[PWA] beforeinstallprompt event fired');
       e.preventDefault();
       this.deferredPrompt = e as BeforeInstallPromptEvent;
@@ -33,15 +33,17 @@ class PWAInstallManager {
     this.checkIfInstalled();
   }
 
-  private checkIfInstalled () {
+  private checkIfInstalled() {
     // Check if running as PWA
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const isStandalone = window.matchMedia(
+      '(display-mode: standalone)'
+    ).matches;
     const isWebApp = (window.navigator as any).standalone === true;
 
     this.isInstalled = isStandalone || isWebApp;
   }
 
-  async showInstallPrompt (): Promise<boolean> {
+  async showInstallPrompt(): Promise<boolean> {
     if (!this.deferredPrompt) {
       logger.info('[PWA] No install prompt available');
       return false;
@@ -65,11 +67,11 @@ class PWAInstallManager {
     }
   }
 
-  canInstall (): boolean {
+  canInstall(): boolean {
     return !!this.deferredPrompt && !this.isInstalled;
   }
 
-  getIsInstalled (): boolean {
+  getIsInstalled(): boolean {
     return this.isInstalled;
   }
 }
@@ -77,7 +79,7 @@ class PWAInstallManager {
 export const pwaInstallManager = new PWAInstallManager();
 
 // Service Worker Registration
-export async function registerServiceWorker (): Promise<ServiceWorkerRegistration | null> {
+export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
   if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
@@ -91,10 +93,15 @@ export async function registerServiceWorker (): Promise<ServiceWorkerRegistratio
         const newWorker = registration.installing;
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
               logger.info('[PWA] New SW available, reload to update');
               // Show update notification to user
-              if (confirm('Yeni güncelleme mevcut. Uygulamayı yenileyelim mi?')) {
+              if (
+                confirm('Yeni güncelleme mevcut. Uygulamayı yenileyelim mi?')
+              ) {
                 window.location.reload();
               }
             }
@@ -114,7 +121,7 @@ export async function registerServiceWorker (): Promise<ServiceWorkerRegistratio
 }
 
 // Push Notification Utilities
-export async function requestNotificationPermission (): Promise<NotificationPermission> {
+export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (!('Notification' in window)) {
     logger.info('[PWA] Notifications not supported');
     return 'denied';
@@ -135,13 +142,15 @@ export async function requestNotificationPermission (): Promise<NotificationPerm
   return permission;
 }
 
-export async function subscribeToPush (registration: ServiceWorkerRegistration): Promise<PushSubscription | null> {
+export async function subscribeToPush(
+  registration: ServiceWorkerRegistration
+): Promise<PushSubscription | null> {
   try {
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(
         // VAPID public key - replace with your own
-        'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9HLg2cHSLztjyzwVjfLV5xCzU-UUyy5LZbDXP_Vx5v6MG5rBu5',
+        'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9HLg2cHSLztjyzwVjfLV5xCzU-UUyy5LZbDXP_Vx5v6MG5rBu5'
       ),
     });
 
@@ -154,11 +163,9 @@ export async function subscribeToPush (registration: ServiceWorkerRegistration):
 }
 
 // Helper function for VAPID key conversion
-function urlBase64ToUint8Array (base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
 
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -173,7 +180,7 @@ function urlBase64ToUint8Array (base64String: string): Uint8Array {
 export class OfflineStorage {
   private readonly OFFLINE_KEY = 'finbot-offline-transactions';
 
-  async saveOfflineTransaction (transaction: any): Promise<void> {
+  async saveOfflineTransaction(transaction: any): Promise<void> {
     try {
       const existing = await this.getOfflineTransactions();
       existing.push({
@@ -187,16 +194,21 @@ export class OfflineStorage {
       logger.info('[PWA] Transaction saved offline');
 
       // Register for background sync if available
-      if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      if (
+        'serviceWorker' in navigator &&
+        'sync' in window.ServiceWorkerRegistration.prototype
+      ) {
         const registration = await navigator.serviceWorker.ready;
-        await (registration as any).sync.register('background-sync-transactions');
+        await (registration as any).sync.register(
+          'background-sync-transactions'
+        );
       }
     } catch (error) {
       logger.error('[PWA] Failed to save offline transaction:', error);
     }
   }
 
-  getOfflineTransactions (): any[] {
+  getOfflineTransactions(): any[] {
     try {
       const stored = localStorage.getItem(this.OFFLINE_KEY);
       return stored ? JSON.parse(stored) : [];
@@ -206,11 +218,11 @@ export class OfflineStorage {
     }
   }
 
-  clearOfflineTransactions (): void {
+  clearOfflineTransactions(): void {
     localStorage.removeItem(this.OFFLINE_KEY);
   }
 
-  getOfflineCount (): number {
+  getOfflineCount(): number {
     const transactions = this.getOfflineTransactions();
     return transactions.length;
   }

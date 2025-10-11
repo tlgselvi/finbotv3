@@ -3,7 +3,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 /**
  * CurrencySwitcher Component Tests
  * Basitleştirilmiş - Currency logic testleri
- * 
+ *
  * NOT: Full React component rendering tests skip edildi
  * Çünkü complex setup gerektirir (QueryClient, Context, etc.)
  * Business logic testlerine odaklanıyoruz
@@ -17,7 +17,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
   describe('Currency Data', () => {
     test('supported currencies list', () => {
       const supportedCurrencies = ['TRY', 'USD', 'EUR', 'GBP'];
-      
+
       expect(supportedCurrencies).toContain('TRY');
       expect(supportedCurrencies).toContain('USD');
       expect(supportedCurrencies).toContain('EUR');
@@ -29,7 +29,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
         TRY: '₺',
         USD: '$',
         EUR: '€',
-        GBP: '£'
+        GBP: '£',
       };
 
       expect(currencySymbols.TRY).toBe('₺');
@@ -42,7 +42,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
         TRY: '🇹🇷',
         USD: '🇺🇸',
         EUR: '🇪🇺',
-        GBP: '🇬🇧'
+        GBP: '🇬🇧',
       };
 
       expect(currencyFlags.TRY).toBe('🇹🇷');
@@ -55,9 +55,9 @@ describe('CurrencySwitcher - Currency Logic', () => {
       const amount = 10000;
       const formatted = amount.toLocaleString('tr-TR', {
         style: 'currency',
-        currency: 'TRY'
+        currency: 'TRY',
       });
-      
+
       expect(formatted).toContain('10');
       expect(formatted).toBeDefined();
     });
@@ -66,9 +66,9 @@ describe('CurrencySwitcher - Currency Logic', () => {
       const amount = 5000;
       const formatted = amount.toLocaleString('en-US', {
         style: 'currency',
-        currency: 'USD'
+        currency: 'USD',
       });
-      
+
       expect(formatted).toContain('5');
       expect(formatted).toBeDefined();
     });
@@ -76,7 +76,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
     test('formats large numbers', () => {
       const amount = 1000000;
       const formatted = amount.toLocaleString('tr-TR');
-      
+
       expect(formatted).toBeDefined();
       expect(formatted.length).toBeGreaterThan(5);
     });
@@ -84,7 +84,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
     test('formats decimal numbers', () => {
       const amount = 1234.56;
       const formatted = amount.toFixed(2);
-      
+
       expect(formatted).toBe('1234.56');
     });
   });
@@ -94,7 +94,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
       const amountTRY = 330000; // 330K TRY
       const exchangeRate = 33; // 1 USD = 33 TRY
       const amountUSD = amountTRY / exchangeRate;
-      
+
       expect(amountUSD).toBe(10000); // 10K USD
     });
 
@@ -102,7 +102,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
       const amountUSD = 5000;
       const exchangeRate = 33;
       const amountTRY = amountUSD * exchangeRate;
-      
+
       expect(amountTRY).toBe(165000);
     });
 
@@ -110,7 +110,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
       const amountEUR = 3000;
       const exchangeRateEURtoTRY = 35;
       const amountTRY = amountEUR * exchangeRateEURtoTRY;
-      
+
       expect(amountTRY).toBe(105000);
     });
   });
@@ -119,7 +119,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
     test('validates currency code format', () => {
       const validCodes = ['TRY', 'USD', 'EUR'];
       const invalidCodes = ['try', 'usd', 'TR', 'US', ''];
-      
+
       validCodes.forEach(code => {
         expect(code.length).toBe(3);
         expect(code).toBe(code.toUpperCase());
@@ -133,10 +133,11 @@ describe('CurrencySwitcher - Currency Logic', () => {
     test('handles invalid currency gracefully', () => {
       const invalidCurrency = 'INVALID';
       const defaultCurrency = 'TRY';
-      
-      const result = invalidCurrency.length === 3 ? invalidCurrency : defaultCurrency;
+
+      const result =
+        invalidCurrency.length === 3 ? invalidCurrency : defaultCurrency;
       expect(result).toBe(defaultCurrency);
-      
+
       // In real app, would fallback to TRY
     });
   });
@@ -163,7 +164,7 @@ describe('CurrencySwitcher - Currency Logic', () => {
 
     test('loads currency preference', () => {
       const mockLocalStorage: Record<string, string> = {
-        'currency': 'EUR'
+        currency: 'EUR',
       };
 
       const loadedCurrency = mockLocalStorage['currency'] || 'TRY';

@@ -13,7 +13,13 @@ export interface CSVExportData {
   agingReports?: any[];
   runwayData?: any;
   cashGapData?: any;
-  type: 'accounts' | 'transactions' | 'aging' | 'runway' | 'cashgap' | 'combined';
+  type:
+    | 'accounts'
+    | 'transactions'
+    | 'aging'
+    | 'runway'
+    | 'cashgap'
+    | 'combined';
 }
 
 /**
@@ -38,10 +44,43 @@ export function exportToCSV(
       thousandSeparator: '.',
       encoding: 'UTF-8',
       headers: {
-        accounts: ['ID', 'Banka Adı', 'Hesap Adı', 'Tip', 'Bakiye', 'Para Birimi', 'Oluşturma Tarihi'],
-        transactions: ['ID', 'Hesap', 'Tutar', 'Açıklama', 'Kategori', 'Tarih', 'Tip'],
-        aging: ['ID', 'Tip', 'Müşteri/Tedarikçi', 'Fatura No', 'Fatura Tarihi', 'Vade Tarihi', 'Tutar', 'Gün', 'Kova', 'Durum'],
-        runway: ['Ay', 'Başlangıç Nakit', 'Giderler', 'Net Nakit', 'Kapanış Nakit'],
+        accounts: [
+          'ID',
+          'Banka Adı',
+          'Hesap Adı',
+          'Tip',
+          'Bakiye',
+          'Para Birimi',
+          'Oluşturma Tarihi',
+        ],
+        transactions: [
+          'ID',
+          'Hesap',
+          'Tutar',
+          'Açıklama',
+          'Kategori',
+          'Tarih',
+          'Tip',
+        ],
+        aging: [
+          'ID',
+          'Tip',
+          'Müşteri/Tedarikçi',
+          'Fatura No',
+          'Fatura Tarihi',
+          'Vade Tarihi',
+          'Tutar',
+          'Gün',
+          'Kova',
+          'Durum',
+        ],
+        runway: [
+          'Ay',
+          'Başlangıç Nakit',
+          'Giderler',
+          'Net Nakit',
+          'Kapanış Nakit',
+        ],
         cashgap: ['Dönem', 'Alacak', 'Borç', 'Net Akış', 'Birikimli Nakit'],
       },
     },
@@ -51,11 +90,50 @@ export function exportToCSV(
       thousandSeparator: ',',
       encoding: 'UTF-8',
       headers: {
-        accounts: ['ID', 'Bank Name', 'Account Name', 'Type', 'Balance', 'Currency', 'Created Date'],
-        transactions: ['ID', 'Account', 'Amount', 'Description', 'Category', 'Date', 'Type'],
-        aging: ['ID', 'Type', 'Customer/Vendor', 'Invoice No', 'Invoice Date', 'Due Date', 'Amount', 'Days', 'Bucket', 'Status'],
-        runway: ['Month', 'Opening Cash', 'Expenses', 'Net Cash', 'Closing Cash'],
-        cashgap: ['Period', 'Receivables', 'Payables', 'Net Flow', 'Cumulative Cash'],
+        accounts: [
+          'ID',
+          'Bank Name',
+          'Account Name',
+          'Type',
+          'Balance',
+          'Currency',
+          'Created Date',
+        ],
+        transactions: [
+          'ID',
+          'Account',
+          'Amount',
+          'Description',
+          'Category',
+          'Date',
+          'Type',
+        ],
+        aging: [
+          'ID',
+          'Type',
+          'Customer/Vendor',
+          'Invoice No',
+          'Invoice Date',
+          'Due Date',
+          'Amount',
+          'Days',
+          'Bucket',
+          'Status',
+        ],
+        runway: [
+          'Month',
+          'Opening Cash',
+          'Expenses',
+          'Net Cash',
+          'Closing Cash',
+        ],
+        cashgap: [
+          'Period',
+          'Receivables',
+          'Payables',
+          'Net Flow',
+          'Cumulative Cash',
+        ],
       },
     },
   };
@@ -127,7 +205,10 @@ export function exportToCSV(
   }
 
   // Export transactions
-  if (data.transactions && (data.type === 'transactions' || data.type === 'combined')) {
+  if (
+    data.transactions &&
+    (data.type === 'transactions' || data.type === 'combined')
+  ) {
     if (includeHeaders && data.type === 'transactions') {
       csvContent += config.headers.transactions.join(config.separator) + '\n';
     } else if (includeHeaders && data.type === 'combined') {
@@ -135,8 +216,10 @@ export function exportToCSV(
     }
 
     data.transactions.forEach(transaction => {
-      const accountName = data.accounts?.find(acc => acc.id === transaction.accountId)?.accountName || 'Unknown';
-      
+      const accountName =
+        data.accounts?.find(acc => acc.id === transaction.accountId)
+          ?.accountName || 'Unknown';
+
       const row = [
         transaction.id,
         accountName,
@@ -175,7 +258,7 @@ export function generateCSVFilename(
  */
 export function getCSVExportOptions(locale: string): CSVExportOptions {
   const isTurkish = locale.startsWith('tr');
-  
+
   return {
     locale: isTurkish ? 'tr-TR' : 'en-US',
     dateFormat: isTurkish ? 'DD/MM/YYYY' : 'MM/DD/YYYY',
@@ -188,9 +271,9 @@ export function getCSVExportOptions(locale: string): CSVExportOptions {
 function exportAgingReports(reports: any[], options: CSVExportOptions): string {
   const config = localeConfig[options.locale];
   const headers = config.headers.aging;
-  
+
   if (reports.length === 0) return headers.join(config.separator);
-  
+
   const rows = reports.map(report => [
     report.id,
     report.reportType === 'ar' ? 'Alacak' : 'Borç',
@@ -201,20 +284,24 @@ function exportAgingReports(reports: any[], options: CSVExportOptions): string {
     formatNumber(parseFloat(report.currentAmount)),
     report.agingDays.toString(),
     report.agingBucket,
-    report.status === 'outstanding' ? 'Beklemede' : report.status === 'overdue' ? 'Gecikmiş' : 'Ödenmiş',
+    report.status === 'outstanding'
+      ? 'Beklemede'
+      : report.status === 'overdue'
+        ? 'Gecikmiş'
+        : 'Ödenmiş',
   ]);
-  
+
   return [headers, ...rows].map(row => row.join(config.separator)).join('\n');
 }
 
 function exportRunwayData(runwayData: any, options: CSVExportOptions): string {
   const config = localeConfig[options.locale];
   const headers = config.headers.runway;
-  
+
   if (!runwayData || !runwayData.monthlyBreakdown) {
     return headers.join(config.separator);
   }
-  
+
   const rows = runwayData.monthlyBreakdown.map((month: any) => [
     month.month,
     formatNumber(month.projectedCash),
@@ -222,18 +309,21 @@ function exportRunwayData(runwayData: any, options: CSVExportOptions): string {
     formatNumber(month.netCash),
     formatNumber(month.projectedCash),
   ]);
-  
+
   return [headers, ...rows].map(row => row.join(config.separator)).join('\n');
 }
 
-function exportCashGapData(cashGapData: any, options: CSVExportOptions): string {
+function exportCashGapData(
+  cashGapData: any,
+  options: CSVExportOptions
+): string {
   const config = localeConfig[options.locale];
   const headers = config.headers.cashgap;
-  
+
   if (!cashGapData || !cashGapData.timeline) {
     return headers.join(config.separator);
   }
-  
+
   const rows = cashGapData.timeline.map((period: any) => [
     period.period,
     formatNumber(period.arAmount),
@@ -241,7 +331,6 @@ function exportCashGapData(cashGapData: any, options: CSVExportOptions): string 
     formatNumber(period.netCashFlow),
     formatNumber(period.cumulativeCash),
   ]);
-  
+
   return [headers, ...rows].map(row => row.join(config.separator)).join('\n');
 }
-

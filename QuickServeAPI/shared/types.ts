@@ -38,7 +38,15 @@ export interface SubAccount {
 
 export interface SystemAlert {
   id: string;
-  type: 'info' | 'warning' | 'error' | 'success' | 'budget_exceeded' | 'low_balance' | 'recurring_payment' | 'monthly_summary';
+  type:
+    | 'info'
+    | 'warning'
+    | 'error'
+    | 'success'
+    | 'budget_exceeded'
+    | 'low_balance'
+    | 'recurring_payment'
+    | 'monthly_summary';
   message: string;
   title?: string;
   description?: string;
@@ -110,4 +118,3 @@ export interface ErrorResponse {
   error: string;
   details?: any;
 }
-

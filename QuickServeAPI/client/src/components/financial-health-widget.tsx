@@ -10,13 +10,13 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useFormatCurrency } from '@/contexts/CurrencyContext';
 import { logger } from '@/lib/logger';
-import { 
-  Heart, 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
+import {
+  Heart,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
   CheckCircle,
-  Activity
+  Activity,
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorDisplay } from '@/components/ui/error-display';
@@ -122,13 +122,13 @@ export function FinancialHealthWidget({}: FinancialHealthWidgetProps) {
     try {
       setLoading(true);
       const response = await fetch('/api/dashboard/financial-health');
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setHealth(data.data);
       } else {
@@ -201,24 +201,21 @@ export function FinancialHealthWidget({}: FinancialHealthWidgetProps) {
         </CardTitle>
         <CardDescription>Genel finansal durum analizi</CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Health Score */}
         <div className="text-center space-y-4">
           <div className="space-y-2">
-            <p className={`text-4xl font-bold ${getHealthColor(health.healthStatus)}`}>
+            <p
+              className={`text-4xl font-bold ${getHealthColor(health.healthStatus)}`}
+            >
               {health.healthScore}/100
             </p>
-            <p className="text-sm text-muted-foreground">
-              Sağlık Skoru
-            </p>
+            <p className="text-sm text-muted-foreground">Sağlık Skoru</p>
           </div>
-          
-          <Progress 
-            value={health.healthScore} 
-            className="h-4"
-          />
-          
+
+          <Progress value={health.healthScore} className="h-4" />
+
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>0</span>
             <span>100</span>
@@ -236,9 +233,11 @@ export function FinancialHealthWidget({}: FinancialHealthWidgetProps) {
               {health.keyMetrics.runwayStatus}
             </Badge>
           </div>
-          
+
           <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg">
-            <p className="text-xs text-green-700 dark:text-green-300">Net Pozisyon</p>
+            <p className="text-xs text-green-700 dark:text-green-300">
+              Net Pozisyon
+            </p>
             <p className="text-lg font-bold text-green-900 dark:text-green-100">
               {formatCurrency(health.keyMetrics.netPosition)}
             </p>
@@ -246,19 +245,27 @@ export function FinancialHealthWidget({}: FinancialHealthWidgetProps) {
               {health.keyMetrics.cashGapRisk}
             </Badge>
           </div>
-          
+
           <div className="bg-purple-50 dark:bg-purple-950/30 p-3 rounded-lg">
-            <p className="text-xs text-purple-700 dark:text-purple-300">Toplam Nakit</p>
+            <p className="text-xs text-purple-700 dark:text-purple-300">
+              Toplam Nakit
+            </p>
             <p className="text-lg font-bold text-purple-900 dark:text-purple-100">
               {formatCurrency(health.keyMetrics.totalCash)}
             </p>
           </div>
-          
+
           <div className="bg-orange-50 dark:bg-orange-950/30 p-3 rounded-lg">
-            <p className="text-xs text-orange-700 dark:text-orange-300">Cash Gap</p>
-            <p className={`text-lg font-bold ${
-              health.keyMetrics.cashGap >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-            }`}>
+            <p className="text-xs text-orange-700 dark:text-orange-300">
+              Cash Gap
+            </p>
+            <p
+              className={`text-lg font-bold ${
+                health.keyMetrics.cashGap >= 0
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              }`}
+            >
               {formatCurrency(health.keyMetrics.cashGap)}
             </p>
           </div>
@@ -273,7 +280,9 @@ export function FinancialHealthWidget({}: FinancialHealthWidgetProps) {
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 mb-1">
                 <TrendingUp className="h-4 w-4 text-green-600" />
-                <p className="text-sm text-green-700 dark:text-green-300">Toplam Alacak</p>
+                <p className="text-sm text-green-700 dark:text-green-300">
+                  Toplam Alacak
+                </p>
               </div>
               <p className="text-lg font-bold text-green-900 dark:text-green-100">
                 {formatCurrency(health.keyMetrics.totalAR)}
@@ -282,7 +291,9 @@ export function FinancialHealthWidget({}: FinancialHealthWidgetProps) {
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 mb-1">
                 <TrendingDown className="h-4 w-4 text-red-600" />
-                <p className="text-sm text-red-700 dark:text-red-300">Toplam Borç</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  Toplam Borç
+                </p>
               </div>
               <p className="text-lg font-bold text-red-900 dark:text-red-100">
                 {formatCurrency(health.keyMetrics.totalAP)}
@@ -298,8 +309,13 @@ export function FinancialHealthWidget({}: FinancialHealthWidgetProps) {
           </h4>
           <ul className="space-y-1">
             {health.insights.map((insight, index) => (
-              <li key={index} className="text-sm text-blue-600 dark:text-blue-400 flex items-start gap-2">
-                <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
+              <li
+                key={index}
+                className="text-sm text-blue-600 dark:text-blue-400 flex items-start gap-2"
+              >
+                <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                  •
+                </span>
                 {insight}
               </li>
             ))}
@@ -313,8 +329,13 @@ export function FinancialHealthWidget({}: FinancialHealthWidgetProps) {
           </h4>
           <ul className="space-y-1">
             {health.recommendations.slice(0, 3).map((recommendation, index) => (
-              <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
+              <li
+                key={index}
+                className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2"
+              >
+                <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                  •
+                </span>
                 {recommendation}
               </li>
             ))}

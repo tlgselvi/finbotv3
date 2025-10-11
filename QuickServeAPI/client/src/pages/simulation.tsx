@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -57,20 +63,26 @@ interface SimulationResult {
   recommendations: string[];
 }
 
-export default function Simulation () {
+export default function Simulation() {
   const formatCurrency = useFormatCurrency();
   const [selectedParam1, setSelectedParam1] = useState<string>('exchange_rate');
   const [selectedParam2, setSelectedParam2] = useState<string>('interest_rate');
   const [param1Value, setParam1Value] = useState<number>(30.5);
   const [param2Value, setParam2Value] = useState<number>(45.0);
   const [isRunning, setIsRunning] = useState(false);
-  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+  const [simulationResult, setSimulationResult] =
+    useState<SimulationResult | null>(null);
 
   // Fetch simulation parameters
-  const { data: parameters = [], isLoading: parametersLoading } = useQuery<SimulationParameter[]>({
+  const { data: parameters = [], isLoading: parametersLoading } = useQuery<
+    SimulationParameter[]
+  >({
     queryKey: ['/api/ai-agents/simulation/parameters'],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/ai-agents/simulation/parameters');
+      const response = await apiRequest(
+        'GET',
+        '/api/ai-agents/simulation/parameters'
+      );
       const data = await response.json();
       return data.data;
     },
@@ -93,17 +105,21 @@ export default function Simulation () {
   const handleRunSimulation = async () => {
     setIsRunning(true);
     try {
-      const response = await apiRequest('POST', '/api/ai-agents/simulation/run', {
-        param1: {
-          name: selectedParam1,
-          value: param1Value,
-        },
-        param2: {
-          name: selectedParam2,
-          value: param2Value,
-        },
-        timeHorizon: 12,
-      });
+      const response = await apiRequest(
+        'POST',
+        '/api/ai-agents/simulation/run',
+        {
+          param1: {
+            name: selectedParam1,
+            value: param1Value,
+          },
+          param2: {
+            name: selectedParam2,
+            value: param2Value,
+          },
+          timeHorizon: 12,
+        }
+      );
 
       const data = await response.json();
       setSimulationResult(data.data);
@@ -125,23 +141,35 @@ export default function Simulation () {
 
   const getParameterLabel = (name: string) => {
     switch (name) {
-      case 'exchange_rate': return 'Döviz Kuru (USD/TRY)';
-      case 'interest_rate': return 'Faiz Oranı';
-      case 'inflation_rate': return 'Enflasyon Oranı';
-      case 'stock_market_return': return 'Borsa Getiri Oranı';
-      case 'crypto_volatility': return 'Kripto Para Volatilitesi';
-      default: return name;
+      case 'exchange_rate':
+        return 'Döviz Kuru (USD/TRY)';
+      case 'interest_rate':
+        return 'Faiz Oranı';
+      case 'inflation_rate':
+        return 'Enflasyon Oranı';
+      case 'stock_market_return':
+        return 'Borsa Getiri Oranı';
+      case 'crypto_volatility':
+        return 'Kripto Para Volatilitesi';
+      default:
+        return name;
     }
   };
 
   const getParameterIcon = (name: string) => {
     switch (name) {
-      case 'exchange_rate': return <DollarSign className="w-4 h-4" />;
-      case 'interest_rate': return <TrendingUp className="w-4 h-4" />;
-      case 'inflation_rate': return <TrendingUp className="w-4 h-4" />;
-      case 'stock_market_return': return <BarChart3 className="w-4 h-4" />;
-      case 'crypto_volatility': return <AlertTriangle className="w-4 h-4" />;
-      default: return <Target className="w-4 h-4" />;
+      case 'exchange_rate':
+        return <DollarSign className="w-4 h-4" />;
+      case 'interest_rate':
+        return <TrendingUp className="w-4 h-4" />;
+      case 'inflation_rate':
+        return <TrendingUp className="w-4 h-4" />;
+      case 'stock_market_return':
+        return <BarChart3 className="w-4 h-4" />;
+      case 'crypto_volatility':
+        return <AlertTriangle className="w-4 h-4" />;
+      default:
+        return <Target className="w-4 h-4" />;
     }
   };
 
@@ -172,9 +200,12 @@ export default function Simulation () {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold" data-testid="page-title">Simülasyon Analizi</h1>
+          <h1 className="text-3xl font-bold" data-testid="page-title">
+            Simülasyon Analizi
+          </h1>
           <p className="text-muted-foreground mt-2">
-            "Ne olursa ne olur" senaryoları ile portföy performansını analiz edin
+            "Ne olursa ne olur" senaryoları ile portföy performansını analiz
+            edin
           </p>
         </div>
         <Button
@@ -195,7 +226,8 @@ export default function Simulation () {
             Simülasyon Parametreleri
           </CardTitle>
           <CardDescription>
-            2 parametre seçerek portföyünüzün farklı senaryolardaki performansını analiz edin
+            2 parametre seçerek portföyünüzün farklı senaryolardaki
+            performansını analiz edin
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -209,7 +241,9 @@ export default function Simulation () {
                   <Label className="text-base font-medium">1. Parametre</Label>
                   <div className="flex items-center gap-2 mt-2">
                     {getParameterIcon(selectedParam1)}
-                    <span className="font-medium">{getParameterLabel(selectedParam1)}</span>
+                    <span className="font-medium">
+                      {getParameterLabel(selectedParam1)}
+                    </span>
                   </div>
                 </div>
 
@@ -224,18 +258,35 @@ export default function Simulation () {
                     <Slider
                       value={[param1Value]}
                       onValueChange={([value]) => setParam1Value(value)}
-                      min={parameters.find(p => p.name === selectedParam1)?.minValue || 0}
-                      max={parameters.find(p => p.name === selectedParam1)?.maxValue || 100}
-                      step={parameters.find(p => p.name === selectedParam1)?.step || 0.1}
+                      min={
+                        parameters.find(p => p.name === selectedParam1)
+                          ?.minValue || 0
+                      }
+                      max={
+                        parameters.find(p => p.name === selectedParam1)
+                          ?.maxValue || 100
+                      }
+                      step={
+                        parameters.find(p => p.name === selectedParam1)?.step ||
+                        0.1
+                      }
                       className="w-full"
                     />
                     <Input
                       type="number"
                       value={param1Value}
-                      onChange={(e) => setParam1Value(Number(e.target.value))}
-                      min={parameters.find(p => p.name === selectedParam1)?.minValue}
-                      max={parameters.find(p => p.name === selectedParam1)?.maxValue}
-                      step={parameters.find(p => p.name === selectedParam1)?.step}
+                      onChange={e => setParam1Value(Number(e.target.value))}
+                      min={
+                        parameters.find(p => p.name === selectedParam1)
+                          ?.minValue
+                      }
+                      max={
+                        parameters.find(p => p.name === selectedParam1)
+                          ?.maxValue
+                      }
+                      step={
+                        parameters.find(p => p.name === selectedParam1)?.step
+                      }
                       className="w-full"
                     />
                   </div>
@@ -248,7 +299,9 @@ export default function Simulation () {
                   <Label className="text-base font-medium">2. Parametre</Label>
                   <div className="flex items-center gap-2 mt-2">
                     {getParameterIcon(selectedParam2)}
-                    <span className="font-medium">{getParameterLabel(selectedParam2)}</span>
+                    <span className="font-medium">
+                      {getParameterLabel(selectedParam2)}
+                    </span>
                   </div>
                 </div>
 
@@ -263,18 +316,35 @@ export default function Simulation () {
                     <Slider
                       value={[param2Value]}
                       onValueChange={([value]) => setParam2Value(value)}
-                      min={parameters.find(p => p.name === selectedParam2)?.minValue || 0}
-                      max={parameters.find(p => p.name === selectedParam2)?.maxValue || 100}
-                      step={parameters.find(p => p.name === selectedParam2)?.step || 0.1}
+                      min={
+                        parameters.find(p => p.name === selectedParam2)
+                          ?.minValue || 0
+                      }
+                      max={
+                        parameters.find(p => p.name === selectedParam2)
+                          ?.maxValue || 100
+                      }
+                      step={
+                        parameters.find(p => p.name === selectedParam2)?.step ||
+                        0.1
+                      }
                       className="w-full"
                     />
                     <Input
                       type="number"
                       value={param2Value}
-                      onChange={(e) => setParam2Value(Number(e.target.value))}
-                      min={parameters.find(p => p.name === selectedParam2)?.minValue}
-                      max={parameters.find(p => p.name === selectedParam2)?.maxValue}
-                      step={parameters.find(p => p.name === selectedParam2)?.step}
+                      onChange={e => setParam2Value(Number(e.target.value))}
+                      min={
+                        parameters.find(p => p.name === selectedParam2)
+                          ?.minValue
+                      }
+                      max={
+                        parameters.find(p => p.name === selectedParam2)
+                          ?.maxValue
+                      }
+                      step={
+                        parameters.find(p => p.name === selectedParam2)?.step
+                      }
                       className="w-full"
                     />
                   </div>
@@ -286,13 +356,21 @@ export default function Simulation () {
           {/* Parameter Descriptions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
             <div>
-              <Label className="text-sm font-medium">Seçilen Parametreler:</Label>
+              <Label className="text-sm font-medium">
+                Seçilen Parametreler:
+              </Label>
               <div className="mt-2 space-y-2">
-                <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                <Badge
+                  variant="outline"
+                  className="flex items-center gap-1 w-fit"
+                >
                   {getParameterIcon(selectedParam1)}
                   {getParameterLabel(selectedParam1)}: {param1Value.toFixed(1)}
                 </Badge>
-                <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                <Badge
+                  variant="outline"
+                  className="flex items-center gap-1 w-fit"
+                >
                   {getParameterIcon(selectedParam2)}
                   {getParameterLabel(selectedParam2)}: {param2Value.toFixed(1)}
                 </Badge>
@@ -301,8 +379,18 @@ export default function Simulation () {
             <div>
               <Label className="text-sm font-medium">Mevcut Değerler:</Label>
               <div className="mt-2 text-sm text-muted-foreground">
-                <div>{getParameterLabel(selectedParam1)}: {parameters.find(p => p.name === selectedParam1)?.currentValue.toFixed(1)}</div>
-                <div>{getParameterLabel(selectedParam2)}: {parameters.find(p => p.name === selectedParam2)?.currentValue.toFixed(1)}</div>
+                <div>
+                  {getParameterLabel(selectedParam1)}:{' '}
+                  {parameters
+                    .find(p => p.name === selectedParam1)
+                    ?.currentValue.toFixed(1)}
+                </div>
+                <div>
+                  {getParameterLabel(selectedParam2)}:{' '}
+                  {parameters
+                    .find(p => p.name === selectedParam2)
+                    ?.currentValue.toFixed(1)}
+                </div>
               </div>
             </div>
           </div>
@@ -325,15 +413,30 @@ export default function Simulation () {
               <CardContent>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-green-600">
-                    {formatCurrency(simulationResult.bestCase.results.portfolioValue)}
+                    {formatCurrency(
+                      simulationResult.bestCase.results.portfolioValue
+                    )}
                   </div>
-                  <div className={`text-lg font-medium ${getGainColor(simulationResult.bestCase.results.totalGain)}`}>
-                    {simulationResult.bestCase.results.totalGain >= 0 ? '+' : ''}
-                    {formatCurrency(simulationResult.bestCase.results.totalGain)}
+                  <div
+                    className={`text-lg font-medium ${getGainColor(simulationResult.bestCase.results.totalGain)}`}
+                  >
+                    {simulationResult.bestCase.results.totalGain >= 0
+                      ? '+'
+                      : ''}
+                    {formatCurrency(
+                      simulationResult.bestCase.results.totalGain
+                    )}
                   </div>
-                  <div className={`text-sm ${getGainColor(simulationResult.bestCase.results.gainPercentage)}`}>
-                    {simulationResult.bestCase.results.gainPercentage >= 0 ? '+' : ''}
-                    {simulationResult.bestCase.results.gainPercentage.toFixed(2)}% getiri
+                  <div
+                    className={`text-sm ${getGainColor(simulationResult.bestCase.results.gainPercentage)}`}
+                  >
+                    {simulationResult.bestCase.results.gainPercentage >= 0
+                      ? '+'
+                      : ''}
+                    {simulationResult.bestCase.results.gainPercentage.toFixed(
+                      2
+                    )}
+                    % getiri
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Risk: {simulationResult.bestCase.results.riskScore}/10
@@ -353,15 +456,30 @@ export default function Simulation () {
               <CardContent>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-blue-600">
-                    {formatCurrency(simulationResult.baseCase.results.portfolioValue)}
+                    {formatCurrency(
+                      simulationResult.baseCase.results.portfolioValue
+                    )}
                   </div>
-                  <div className={`text-lg font-medium ${getGainColor(simulationResult.baseCase.results.totalGain)}`}>
-                    {simulationResult.baseCase.results.totalGain >= 0 ? '+' : ''}
-                    {formatCurrency(simulationResult.baseCase.results.totalGain)}
+                  <div
+                    className={`text-lg font-medium ${getGainColor(simulationResult.baseCase.results.totalGain)}`}
+                  >
+                    {simulationResult.baseCase.results.totalGain >= 0
+                      ? '+'
+                      : ''}
+                    {formatCurrency(
+                      simulationResult.baseCase.results.totalGain
+                    )}
                   </div>
-                  <div className={`text-sm ${getGainColor(simulationResult.baseCase.results.gainPercentage)}`}>
-                    {simulationResult.baseCase.results.gainPercentage >= 0 ? '+' : ''}
-                    {simulationResult.baseCase.results.gainPercentage.toFixed(2)}% getiri
+                  <div
+                    className={`text-sm ${getGainColor(simulationResult.baseCase.results.gainPercentage)}`}
+                  >
+                    {simulationResult.baseCase.results.gainPercentage >= 0
+                      ? '+'
+                      : ''}
+                    {simulationResult.baseCase.results.gainPercentage.toFixed(
+                      2
+                    )}
+                    % getiri
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Risk: {simulationResult.baseCase.results.riskScore}/10
@@ -381,15 +499,30 @@ export default function Simulation () {
               <CardContent>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-red-600">
-                    {formatCurrency(simulationResult.worstCase.results.portfolioValue)}
+                    {formatCurrency(
+                      simulationResult.worstCase.results.portfolioValue
+                    )}
                   </div>
-                  <div className={`text-lg font-medium ${getGainColor(simulationResult.worstCase.results.totalGain)}`}>
-                    {simulationResult.worstCase.results.totalGain >= 0 ? '+' : ''}
-                    {formatCurrency(simulationResult.worstCase.results.totalGain)}
+                  <div
+                    className={`text-lg font-medium ${getGainColor(simulationResult.worstCase.results.totalGain)}`}
+                  >
+                    {simulationResult.worstCase.results.totalGain >= 0
+                      ? '+'
+                      : ''}
+                    {formatCurrency(
+                      simulationResult.worstCase.results.totalGain
+                    )}
                   </div>
-                  <div className={`text-sm ${getGainColor(simulationResult.worstCase.results.gainPercentage)}`}>
-                    {simulationResult.worstCase.results.gainPercentage >= 0 ? '+' : ''}
-                    {simulationResult.worstCase.results.gainPercentage.toFixed(2)}% getiri
+                  <div
+                    className={`text-sm ${getGainColor(simulationResult.worstCase.results.gainPercentage)}`}
+                  >
+                    {simulationResult.worstCase.results.gainPercentage >= 0
+                      ? '+'
+                      : ''}
+                    {simulationResult.worstCase.results.gainPercentage.toFixed(
+                      2
+                    )}
+                    % getiri
                   </div>
                   <div className="text-xs text-muted-foreground">
                     Risk: {simulationResult.worstCase.results.riskScore}/10
@@ -428,14 +561,16 @@ export default function Simulation () {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {simulationResult.recommendations.map((recommendation, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <Badge variant="outline" className="mt-0.5">
-                        {index + 1}
-                      </Badge>
-                      <span className="text-sm">{recommendation}</span>
-                    </div>
-                  ))}
+                  {simulationResult.recommendations.map(
+                    (recommendation, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <Badge variant="outline" className="mt-0.5">
+                          {index + 1}
+                        </Badge>
+                        <span className="text-sm">{recommendation}</span>
+                      </div>
+                    )
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -447,8 +582,9 @@ export default function Simulation () {
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          Simülasyon, seçtiğiniz parametrelerin portföyünüz üzerindeki etkilerini analiz eder.
-          Sonuçlar tahmini değerlerdir ve gerçek piyasa koşulları farklı olabilir.
+          Simülasyon, seçtiğiniz parametrelerin portföyünüz üzerindeki
+          etkilerini analiz eder. Sonuçlar tahmini değerlerdir ve gerçek piyasa
+          koşulları farklı olabilir.
         </AlertDescription>
       </Alert>
     </div>

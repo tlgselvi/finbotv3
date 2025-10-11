@@ -14,10 +14,13 @@ router.get('/investment-advisor/risk-assessment', async (req, res) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
-    const riskAssessment = await investmentAdvisorService.calculateRiskScore(userId);
+    const riskAssessment =
+      await investmentAdvisorService.calculateRiskScore(userId);
 
     res.json({
       success: true,
@@ -40,13 +43,16 @@ router.get('/investment-advisor/portfolio-recommendation', async (req, res) => {
     const { strategy } = req.query; // conservative, balanced, aggressive
 
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
-    const recommendation = await investmentAdvisorService.generatePortfolioRecommendation(
-      userId,
-      strategy as any,
-    );
+    const recommendation =
+      await investmentAdvisorService.generatePortfolioRecommendation(
+        userId,
+        strategy as any
+      );
 
     res.json({
       success: true,
@@ -67,10 +73,13 @@ router.get('/investment-advisor/suggestions', async (req, res) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
-    const suggestions = await investmentAdvisorService.getInvestmentSuggestions(userId);
+    const suggestions =
+      await investmentAdvisorService.getInvestmentSuggestions(userId);
 
     res.json({
       success: true,
@@ -116,7 +125,9 @@ router.post('/simulation/run', async (req, res) => {
     const { param1, param2, timeHorizon = 12 } = req.body;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     if (!param1 || !param2) {
@@ -130,7 +141,7 @@ router.post('/simulation/run', async (req, res) => {
       userId,
       param1,
       param2,
-      timeHorizon,
+      timeHorizon
     );
 
     res.json({
@@ -156,18 +167,22 @@ router.get('/comprehensive-analysis', async (req, res) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     // Run all AI analyses in parallel
-    const [riskAssessment, portfolioRecommendation, investmentSuggestions] = await Promise.all([
-      investmentAdvisorService.calculateRiskScore(userId),
-      investmentAdvisorService.generatePortfolioRecommendation(userId),
-      investmentAdvisorService.getInvestmentSuggestions(userId),
-    ]);
+    const [riskAssessment, portfolioRecommendation, investmentSuggestions] =
+      await Promise.all([
+        investmentAdvisorService.calculateRiskScore(userId),
+        investmentAdvisorService.generatePortfolioRecommendation(userId),
+        investmentAdvisorService.getInvestmentSuggestions(userId),
+      ]);
 
     // Get simulation parameters for quick access
-    const simulationParameters = simulationAgentService.getSimulationParameters();
+    const simulationParameters =
+      simulationAgentService.getSimulationParameters();
 
     const comprehensiveAnalysis = {
       riskAssessment,

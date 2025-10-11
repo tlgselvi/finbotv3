@@ -44,7 +44,7 @@ import {
   Receipt,
   ArrowUpDown,
   History,
-  Settings
+  Settings,
 } from 'lucide-react';
 
 interface Cashbox {
@@ -85,7 +85,7 @@ const defaultCashboxes: Cashbox[] = [
     status: 'active',
     lastTransaction: '2024-01-15T10:30:00Z',
     transactionCount: 156,
-    description: 'Ana ofis nakit kasa'
+    description: 'Ana ofis nakit kasa',
   },
   {
     id: '2',
@@ -99,7 +99,7 @@ const defaultCashboxes: Cashbox[] = [
     description: 'Ana işletme hesabı',
     bankName: 'Garanti BBVA',
     accountNumber: '1234567890',
-    iban: 'TR12 0006 2000 1234 0000 1234 56'
+    iban: 'TR12 0006 2000 1234 0000 1234 56',
   },
   {
     id: '3',
@@ -113,7 +113,7 @@ const defaultCashboxes: Cashbox[] = [
     description: 'Yatırım hesabı',
     bankName: 'Türkiye İş Bankası',
     accountNumber: '0987654321',
-    iban: 'TR64 0006 4000 0010 9876 5432 10'
+    iban: 'TR64 0006 4000 0010 9876 5432 10',
   },
   {
     id: '4',
@@ -125,8 +125,8 @@ const defaultCashboxes: Cashbox[] = [
     lastTransaction: '2024-01-15T12:15:00Z',
     transactionCount: 67,
     description: 'İş kredi kartı',
-    bankName: 'Akbank'
-  }
+    bankName: 'Akbank',
+  },
 ];
 
 const defaultTransactions: Transaction[] = [
@@ -140,7 +140,7 @@ const defaultTransactions: Transaction[] = [
     category: 'Satış Geliri',
     date: '2024-01-15T14:20:00Z',
     reference: 'INV-2024-001',
-    status: 'completed'
+    status: 'completed',
   },
   {
     id: '2',
@@ -151,7 +151,7 @@ const defaultTransactions: Transaction[] = [
     description: 'Ofis malzemeleri',
     category: 'Operasyonel Gider',
     date: '2024-01-15T10:30:00Z',
-    status: 'completed'
+    status: 'completed',
   },
   {
     id: '3',
@@ -163,7 +163,7 @@ const defaultTransactions: Transaction[] = [
     category: 'Transfer',
     date: '2024-01-14T16:45:00Z',
     reference: 'TRF-001',
-    status: 'completed'
+    status: 'completed',
   },
   {
     id: '4',
@@ -174,13 +174,14 @@ const defaultTransactions: Transaction[] = [
     description: 'Pazarlama harcaması',
     category: 'Pazarlama',
     date: '2024-01-15T12:15:00Z',
-    status: 'pending'
-  }
+    status: 'pending',
+  },
 ];
 
 export function CashboxManagement() {
   const [cashboxes, setCashboxes] = useState<Cashbox[]>(defaultCashboxes);
-  const [transactions, setTransactions] = useState<Transaction[]>(defaultTransactions);
+  const [transactions, setTransactions] =
+    useState<Transaction[]>(defaultTransactions);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAddCashbox, setShowAddCashbox] = useState(false);
@@ -188,10 +189,13 @@ export function CashboxManagement() {
   const formatCurrency = useFormatCurrency();
 
   // Calculate totals
-  const totalBalance = cashboxes.reduce((sum, cashbox) => sum + cashbox.balance, 0);
+  const totalBalance = cashboxes.reduce(
+    (sum, cashbox) => sum + cashbox.balance,
+    0
+  );
   const totalTransactions = transactions.length;
-  const todayTransactions = transactions.filter(t => 
-    new Date(t.date).toDateString() === new Date().toDateString()
+  const todayTransactions = transactions.filter(
+    t => new Date(t.date).toDateString() === new Date().toDateString()
   ).length;
 
   const getTypeIcon = (type: string) => {
@@ -303,7 +307,7 @@ export function CashboxManagement() {
             Nakit akışı ve kasa takibi
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <Button
             onClick={() => setShowAddTransaction(true)}
@@ -329,7 +333,9 @@ export function CashboxManagement() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-700 dark:text-green-300">Toplam Bakiye</p>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                  Toplam Bakiye
+                </p>
                 <p className="text-3xl font-bold text-green-900 dark:text-green-100">
                   {formatCurrency(totalBalance)}
                 </p>
@@ -343,7 +349,9 @@ export function CashboxManagement() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Toplam Kasa</p>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                  Toplam Kasa
+                </p>
                 <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
                   {cashboxes.length}
                 </p>
@@ -357,7 +365,9 @@ export function CashboxManagement() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Toplam İşlem</p>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                  Toplam İşlem
+                </p>
                 <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
                   {totalTransactions}
                 </p>
@@ -371,7 +381,9 @@ export function CashboxManagement() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Bugünkü İşlem</p>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                  Bugünkü İşlem
+                </p>
                 <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">
                   {todayTransactions}
                 </p>
@@ -394,7 +406,7 @@ export function CashboxManagement() {
         <TabsContent value="overview" className="space-y-6">
           {/* Cashbox Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {cashboxes.map((cashbox) => (
+            {cashboxes.map(cashbox => (
               <Card key={cashbox.id} className="border-l-4 border-l-blue-500">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm">
@@ -406,29 +418,43 @@ export function CashboxManagement() {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Bakiye</span>
-                      <span className={`font-medium ${
-                        cashbox.balance >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <span
+                        className={`font-medium ${
+                          cashbox.balance >= 0
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}
+                      >
                         {formatCurrency(cashbox.balance)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">İşlem Sayısı</span>
-                      <span className="font-medium">{cashbox.transactionCount}</span>
+                      <span className="text-muted-foreground">
+                        İşlem Sayısı
+                      </span>
+                      <span className="font-medium">
+                        {cashbox.transactionCount}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Son İşlem</span>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(cashbox.lastTransaction).toLocaleDateString('tr-TR')}
+                        {new Date(cashbox.lastTransaction).toLocaleDateString(
+                          'tr-TR'
+                        )}
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <Badge className={getTypeColor(cashbox.type)}>
                       {getTypeText(cashbox.type)}
                     </Badge>
-                    <Badge variant={cashbox.status === 'active' ? 'default' : 'secondary'}>
+                    <Badge
+                      variant={
+                        cashbox.status === 'active' ? 'default' : 'secondary'
+                      }
+                    >
                       {cashbox.status === 'active' ? 'Aktif' : 'Pasif'}
                     </Badge>
                   </div>
@@ -450,8 +476,11 @@ export function CashboxManagement() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {transactions.slice(0, 5).map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
+                {transactions.slice(0, 5).map(transaction => (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       {getTransactionTypeIcon(transaction.type)}
                       <div>
@@ -462,11 +491,17 @@ export function CashboxManagement() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`font-medium ${
-                        transaction.type === 'income' ? 'text-green-600' : 
-                        transaction.type === 'expense' ? 'text-red-600' : 'text-blue-600'
-                      }`}>
-                        {transaction.type === 'expense' ? '-' : '+'}{formatCurrency(transaction.amount)}
+                      <p
+                        className={`font-medium ${
+                          transaction.type === 'income'
+                            ? 'text-green-600'
+                            : transaction.type === 'expense'
+                              ? 'text-red-600'
+                              : 'text-blue-600'
+                        }`}
+                      >
+                        {transaction.type === 'expense' ? '-' : '+'}
+                        {formatCurrency(transaction.amount)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(transaction.date).toLocaleDateString('tr-TR')}
@@ -486,9 +521,7 @@ export function CashboxManagement() {
                 <Building className="h-5 w-5 text-blue-600" />
                 Kasa Listesi
               </CardTitle>
-              <CardDescription>
-                Tüm kasaların detaylı bilgileri
-              </CardDescription>
+              <CardDescription>Tüm kasaların detaylı bilgileri</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -503,39 +536,57 @@ export function CashboxManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {cashboxes.map((cashbox) => (
+                  {cashboxes.map(cashbox => (
                     <TableRow key={cashbox.id}>
                       <TableCell>
                         <div>
                           <div className="font-medium">{cashbox.name}</div>
                           {cashbox.description && (
-                            <div className="text-sm text-muted-foreground">{cashbox.description}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {cashbox.description}
+                            </div>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge className={getTypeColor(cashbox.type)}>
                           {getTypeIcon(cashbox.type)}
-                          <span className="ml-1">{getTypeText(cashbox.type)}</span>
+                          <span className="ml-1">
+                            {getTypeText(cashbox.type)}
+                          </span>
                         </Badge>
                       </TableCell>
-                      <TableCell className={`font-medium ${
-                        cashbox.balance >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <TableCell
+                        className={`font-medium ${
+                          cashbox.balance >= 0
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}
+                      >
                         {formatCurrency(cashbox.balance)}
                       </TableCell>
                       <TableCell>
                         {cashbox.bankName && (
                           <div className="text-sm">
-                            <div className="font-medium">{cashbox.bankName}</div>
+                            <div className="font-medium">
+                              {cashbox.bankName}
+                            </div>
                             {cashbox.accountNumber && (
-                              <div className="text-muted-foreground">****{cashbox.accountNumber.slice(-4)}</div>
+                              <div className="text-muted-foreground">
+                                ****{cashbox.accountNumber.slice(-4)}
+                              </div>
                             )}
                           </div>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={cashbox.status === 'active' ? 'default' : 'secondary'}>
+                        <Badge
+                          variant={
+                            cashbox.status === 'active'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
                           {cashbox.status === 'active' ? 'Aktif' : 'Pasif'}
                         </Badge>
                       </TableCell>
@@ -585,41 +636,58 @@ export function CashboxManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.map((transaction) => (
+                  {transactions.map(transaction => (
                     <TableRow key={transaction.id}>
                       <TableCell>
                         {new Date(transaction.date).toLocaleDateString('tr-TR')}
                       </TableCell>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{transaction.description}</div>
+                          <div className="font-medium">
+                            {transaction.description}
+                          </div>
                           {transaction.reference && (
-                            <div className="text-sm text-muted-foreground">Ref: {transaction.reference}</div>
+                            <div className="text-sm text-muted-foreground">
+                              Ref: {transaction.reference}
+                            </div>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{transaction.cashboxName}</Badge>
+                        <Badge variant="outline">
+                          {transaction.cashboxName}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
                           {getTransactionTypeIcon(transaction.type)}
                           <span className="ml-1">
-                            {transaction.type === 'income' ? 'Gelir' : 
-                             transaction.type === 'expense' ? 'Gider' : 'Transfer'}
+                            {transaction.type === 'income'
+                              ? 'Gelir'
+                              : transaction.type === 'expense'
+                                ? 'Gider'
+                                : 'Transfer'}
                           </span>
                         </Badge>
                       </TableCell>
-                      <TableCell className={`font-medium ${
-                        transaction.type === 'income' ? 'text-green-600' : 
-                        transaction.type === 'expense' ? 'text-red-600' : 'text-blue-600'
-                      }`}>
-                        {transaction.type === 'expense' ? '-' : '+'}{formatCurrency(transaction.amount)}
+                      <TableCell
+                        className={`font-medium ${
+                          transaction.type === 'income'
+                            ? 'text-green-600'
+                            : transaction.type === 'expense'
+                              ? 'text-red-600'
+                              : 'text-blue-600'
+                        }`}
+                      >
+                        {transaction.type === 'expense' ? '-' : '+'}
+                        {formatCurrency(transaction.amount)}
                       </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(transaction.status)}>
                           {getStatusIcon(transaction.status)}
-                          <span className="ml-1">{getStatusText(transaction.status)}</span>
+                          <span className="ml-1">
+                            {getStatusText(transaction.status)}
+                          </span>
                         </Badge>
                       </TableCell>
                       <TableCell>

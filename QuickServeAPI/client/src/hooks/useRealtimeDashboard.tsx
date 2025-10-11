@@ -9,7 +9,7 @@ interface DashboardUpdate {
   timestamp: number;
 }
 
-export function useRealtimeDashboard () {
+export function useRealtimeDashboard() {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -36,9 +36,12 @@ export function useRealtimeDashboard () {
     }
 
     // Create EventSource connection with token in URL
-    const eventSource = new EventSource(`/api/dashboard/stream?token=${token}`, {
-      withCredentials: true,
-    });
+    const eventSource = new EventSource(
+      `/api/dashboard/stream?token=${token}`,
+      {
+        withCredentials: true,
+      }
+    );
 
     eventSourceRef.current = eventSource;
 
@@ -47,7 +50,7 @@ export function useRealtimeDashboard () {
       setConnectionError(null);
     };
 
-    eventSource.onmessage = (event) => {
+    eventSource.onmessage = event => {
       try {
         const update: DashboardUpdate = JSON.parse(event.data);
 
@@ -62,7 +65,7 @@ export function useRealtimeDashboard () {
       }
     };
 
-    eventSource.onerror = (error) => {
+    eventSource.onerror = error => {
       logger.error('Real-time connection error:', error);
       setIsConnected(false);
       setConnectionError('Bağlantı hatası');
@@ -112,4 +115,3 @@ export function useRealtimeDashboard () {
     reconnect,
   };
 }
-

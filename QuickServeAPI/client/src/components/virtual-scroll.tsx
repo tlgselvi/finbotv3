@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
 
 interface VirtualScrollProps<T> {
   items: T[];
@@ -35,7 +41,10 @@ export function VirtualScroll<T>({
 
   // Calculate visible range
   const visibleRange = useMemo(() => {
-    const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+    const startIndex = Math.max(
+      0,
+      Math.floor(scrollTop / itemHeight) - overscan
+    );
     const endIndex = Math.min(
       items.length - 1,
       Math.ceil((scrollTop + containerHeight) / itemHeight) + overscan
@@ -56,11 +65,14 @@ export function VirtualScroll<T>({
   const offsetY = visibleRange.startIndex * itemHeight;
 
   // Handle scroll
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const newScrollTop = e.currentTarget.scrollTop;
-    setScrollTop(newScrollTop);
-    onScroll?.(newScrollTop);
-  }, [onScroll]);
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const newScrollTop = e.currentTarget.scrollTop;
+      setScrollTop(newScrollTop);
+      onScroll?.(newScrollTop);
+    },
+    [onScroll]
+  );
 
   // Performance optimization: Throttle scroll events
   const throttledHandleScroll = useMemo(() => {
@@ -81,7 +93,7 @@ export function VirtualScroll<T>({
 
   if (loading) {
     return (
-      <div 
+      <div
         className={`flex items-center justify-center ${className}`}
         style={{ height: containerHeight }}
       >
@@ -95,7 +107,7 @@ export function VirtualScroll<T>({
 
   if (items.length === 0) {
     return (
-      <div 
+      <div
         className={`flex items-center justify-center ${className}`}
         style={{ height: containerHeight }}
       >
@@ -150,7 +162,10 @@ export function useVirtualScroll<T>(
   const [isScrolling, setIsScrolling] = useState(false);
 
   const visibleRange = useMemo(() => {
-    const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+    const startIndex = Math.max(
+      0,
+      Math.floor(scrollTop / itemHeight) - overscan
+    );
     const endIndex = Math.min(
       items.length - 1,
       Math.ceil((scrollTop + containerHeight) / itemHeight) + overscan
@@ -169,15 +184,18 @@ export function useVirtualScroll<T>(
   const handleScroll = useCallback((newScrollTop: number) => {
     setScrollTop(newScrollTop);
     setIsScrolling(true);
-    
+
     // Reset scrolling state after a short delay
     setTimeout(() => setIsScrolling(false), 150);
   }, []);
 
-  const scrollToIndex = useCallback((index: number) => {
-    const targetScrollTop = index * itemHeight;
-    setScrollTop(targetScrollTop);
-  }, [itemHeight]);
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      const targetScrollTop = index * itemHeight;
+      setScrollTop(targetScrollTop);
+    },
+    [itemHeight]
+  );
 
   const scrollToTop = useCallback(() => {
     setScrollTop(0);
@@ -216,14 +234,16 @@ export function useVirtualScrollPerformance() {
     const measureFrameRate = () => {
       const now = performance.now();
       frameCountRef.current++;
-      
+
       if (now - lastFrameTimeRef.current >= 1000) {
-        const frameRate = Math.round((frameCountRef.current * 1000) / (now - lastFrameTimeRef.current));
+        const frameRate = Math.round(
+          (frameCountRef.current * 1000) / (now - lastFrameTimeRef.current)
+        );
         setMetrics(prev => ({ ...prev, frameRate }));
         frameCountRef.current = 0;
         lastFrameTimeRef.current = now;
       }
-      
+
       requestAnimationFrame(measureFrameRate);
     };
 

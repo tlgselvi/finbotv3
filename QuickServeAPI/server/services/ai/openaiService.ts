@@ -11,9 +11,10 @@ interface AISettings {
 
 class OpenAIService {
   private settings: AISettings;
-  private responseCache: Map<string, { response: string; timestamp: number }> = new Map();
+  private responseCache: Map<string, { response: string; timestamp: number }> =
+    new Map();
 
-  constructor () {
+  constructor() {
     // Default settings
     this.settings = {
       provider: 'mock',
@@ -27,7 +28,7 @@ class OpenAIService {
   /**
    * Update AI settings
    */
-  async updateSettings (settings: Partial<AISettings>): Promise<void> {
+  async updateSettings(settings: Partial<AISettings>): Promise<void> {
     this.settings = { ...this.settings, ...settings };
     logger.info('✅ AI settings updated:', this.settings.provider);
   }
@@ -35,14 +36,14 @@ class OpenAIService {
   /**
    * Get current AI settings
    */
-  getSettings (): AISettings {
+  getSettings(): AISettings {
     return { ...this.settings };
   }
 
   /**
    * Test OpenAI API connection
    */
-  async testConnection (): Promise<{ success: boolean; message: string }> {
+  async testConnection(): Promise<{ success: boolean; message: string }> {
     if (!this.settings.apiKey) {
       return { success: false, message: 'API key bulunamadı' };
     }
@@ -64,7 +65,10 @@ class OpenAIService {
         return { success: true, message: 'OpenAI API bağlantısı başarılı' };
       } else {
         const error = await response.json();
-        return { success: false, message: `API hatası: ${error.error?.message || 'Bilinmeyen hata'}` };
+        return {
+          success: false,
+          message: `API hatası: ${error.error?.message || 'Bilinmeyen hata'}`,
+        };
       }
     } catch (error: any) {
       return { success: false, message: `Bağlantı hatası: ${error.message}` };
@@ -74,23 +78,39 @@ class OpenAIService {
   /**
    * Generate AI response
    */
-  async generateResponse (prompt: string, context?: any): Promise<{ success: boolean; response: string; model: string; cached?: boolean; error?: string }> {
+  async generateResponse(
+    prompt: string,
+    context?: any
+  ): Promise<{
+    success: boolean;
+    response: string;
+    model: string;
+    cached?: boolean;
+    error?: string;
+  }> {
     // Check cache first
     const cacheKey = this.getCacheKey(prompt, context);
     const cached = this.responseCache.get(cacheKey);
 
-    if (cached && Date.now() - cached.timestamp < this.settings.cacheDuration * 60 * 1000) {
-      return { 
-        success: true, 
-        response: cached.response, 
+    if (
+      cached &&
+      Date.now() - cached.timestamp < this.settings.cacheDuration * 60 * 1000
+    ) {
+      return {
+        success: true,
+        response: cached.response,
         model: this.settings.defaultModel,
-        cached: true 
+        cached: true,
       };
     }
 
     let response: string;
 
-    if (this.settings.provider === 'mock' || !this.settings.isActive || !this.settings.apiKey) {
+    if (
+      this.settings.provider === 'mock' ||
+      !this.settings.isActive ||
+      !this.settings.apiKey
+    ) {
       response = this.generateMockResponse(prompt, context);
     } else {
       try {
@@ -107,22 +127,23 @@ class OpenAIService {
       timestamp: Date.now(),
     });
 
-    return { 
-      success: true, 
-      response, 
+    return {
+      success: true,
+      response,
       model: this.settings.defaultModel,
-      cached: false 
+      cached: false,
     };
   }
 
   /**
    * Call OpenAI API
    */
-  private async callOpenAI (prompt: string, context?: any): Promise<string> {
+  private async callOpenAI(prompt: string, context?: any): Promise<string> {
     const messages = [
       {
         role: 'system',
-        content: 'Sen FinBot adında bir finansal asistanısın. Türkçe yanıt ver ve finansal konularda yardımcı ol.',
+        content:
+          'Sen FinBot adında bir finansal asistanısın. Türkçe yanıt ver ve finansal konularda yardımcı ol.',
       },
       {
         role: 'user',
@@ -155,7 +176,7 @@ class OpenAIService {
   /**
    * Generate mock response
    */
-  private generateMockResponse (prompt: string, context?: any): string {
+  private generateMockResponse(prompt: string, context?: any): string {
     const responses = [
       'Toplam varlıklarınız 65.000 TL. Şirket hesaplarınızda 50.000 TL, kişisel hesaplarınızda 15.000 TL bulunuyor.',
       'Mevcut finansal durumunuza göre, bütçe planlaması yapmanızı öneririm.',
@@ -171,7 +192,7 @@ class OpenAIService {
   /**
    * Build prompt with context
    */
-  private buildPrompt (prompt: string, context?: any): string {
+  private buildPrompt(prompt: string, context?: any): string {
     let fullPrompt = prompt;
 
     if (context) {
@@ -192,7 +213,7 @@ class OpenAIService {
   /**
    * Get cache key
    */
-  private getCacheKey (prompt: string, context?: any): string {
+  private getCacheKey(prompt: string, context?: any): string {
     const contextStr = context ? JSON.stringify(context) : '';
     const combined = prompt + contextStr;
     return crypto.createHash('md5').update(combined).digest('hex');
@@ -201,7 +222,7 @@ class OpenAIService {
   /**
    * Clear cache
    */
-  clearCache (): void {
+  clearCache(): void {
     this.responseCache.clear();
     logger.info('AI cache cleared');
   }
@@ -210,4 +231,3 @@ class OpenAIService {
 // Export singleton instance
 export const openaiService = new OpenAIService();
 export default openaiService;
-

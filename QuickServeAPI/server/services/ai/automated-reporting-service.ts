@@ -65,7 +65,7 @@ export class AutomatedReportingService {
   constructor() {
     this.reportsDirectory = path.join(process.cwd(), 'reports');
     this.ensureReportsDirectory();
-    
+
     // this.chartCanvas = new ChartJSNodeCanvas({
     //   width: 800,
     //   height: 600,
@@ -80,28 +80,36 @@ export class AutomatedReportingService {
     try {
       const reportId = this.generateReportId();
       const period = this.calculateReportPeriod(config.reportType);
-      
+
       // Get user data
       const user = await this.getUserData(config.userId);
-      const financialData = await this.getReportFinancialData(config.userId, period);
-      
+      const financialData = await this.getReportFinancialData(
+        config.userId,
+        period
+      );
+
       // Generate AI analysis if requested
       let aiInsights: string[] = [];
       let recommendations: string[] = [];
-      
+
       if (config.includeAIInsights || config.includeRecommendations) {
         const analysis = await financialAnalysisService.analyzeFinancials({
           userId: config.userId,
           analysisType: 'trend',
-          timeframe: config.reportType === 'weekly' ? 'week' : 
-                    config.reportType === 'monthly' ? 'month' :
-                    config.reportType === 'quarterly' ? 'quarter' : 'year'
+          timeframe:
+            config.reportType === 'weekly'
+              ? 'week'
+              : config.reportType === 'monthly'
+                ? 'month'
+                : config.reportType === 'quarterly'
+                  ? 'quarter'
+                  : 'year',
         });
-        
+
         if (config.includeAIInsights) {
           aiInsights = analysis.insights || [];
         }
-        
+
         if (config.includeRecommendations) {
           recommendations = analysis.recommendations || [];
         }
@@ -109,7 +117,7 @@ export class AutomatedReportingService {
 
       // Generate report sections
       const sections = await this.generateReportSections(financialData, config);
-      
+
       // Generate charts if requested
       let charts: ReportChart[] = [];
       if (config.includeCharts) {
@@ -148,9 +156,10 @@ export class AutomatedReportingService {
       // Save report metadata to database
       await this.saveReportMetadata(report);
 
-      logger.info(`Generated ${config.reportType} report for user ${config.userId}: ${reportId}`);
+      logger.info(
+        `Generated ${config.reportType} report for user ${config.userId}: ${reportId}`
+      );
       return report;
-
     } catch (error) {
       logger.error('Report generation error:', error);
       throw error;
@@ -162,12 +171,15 @@ export class AutomatedReportingService {
    */
   async generateScheduledReports(): Promise<void> {
     try {
-      const users = await db.select().from(users).where(eq(users.isActive, true));
-      
+      const users = await db
+        .select()
+        .from(users)
+        .where(eq(users.isActive, true));
+
       for (const user of users) {
         // Check if user has automated reporting enabled
         const userSettings = await this.getUserReportSettings(user.id);
-        
+
         if (userSettings.enabled) {
           const config: ReportConfig = {
             userId: user.id,
@@ -193,7 +205,10 @@ export class AutomatedReportingService {
   /**
    * Generate report sections
    */
-  private async generateReportSections(data: any, config: ReportConfig): Promise<ReportSection[]> {
+  private async generateReportSections(
+    data: any,
+    config: ReportConfig
+  ): Promise<ReportSection[]> {
     const sections: ReportSection[] = [];
 
     // Executive Summary
@@ -211,47 +226,55 @@ export class AutomatedReportingService {
       Provide a concise executive summary (2-3 paragraphs) highlighting key financial performance indicators and notable trends.
     `;
 
-    const summaryResponse = await openaiService.generateResponse(summaryPrompt, {
-      temperature: 0.3,
-      max_tokens: 500,
-    });
+    const summaryResponse = await openaiService.generateResponse(
+      summaryPrompt,
+      {
+        temperature: 0.3,
+        max_tokens: 500,
+      }
+    );
 
     sections.push({
       title: 'Executive Summary',
-      content: summaryResponse.success ? summaryResponse.response : 'Unable to generate AI summary',
+      content: summaryResponse.success
+        ? summaryResponse.response
+        : 'Unable to generate AI summary',
       data: {
         totalIncome: data.totalIncome,
         totalExpenses: data.totalExpenses,
         netCashFlow: data.netCashFlow,
         savingsRate: data.savingsRate,
-      }
+      },
     });
 
     // Income Analysis
     sections.push({
       title: 'Income Analysis',
       content: this.generateIncomeAnalysis(data),
-      data: data.incomeBreakdown
+      data: data.incomeBreakdown,
     });
 
     // Expense Analysis
     sections.push({
       title: 'Expense Analysis',
       content: this.generateExpenseAnalysis(data),
-      data: data.expenseBreakdown
+      data: data.expenseBreakdown,
     });
 
     // Account Performance
     sections.push({
       title: 'Account Performance',
       content: this.generateAccountPerformance(data),
-      data: data.accountPerformance
+      data: data.accountPerformance,
     });
 
     // Custom sections
     if (config.customSections) {
       for (const sectionTitle of config.customSections) {
-        const customContent = await this.generateCustomSection(sectionTitle, data);
+        const customContent = await this.generateCustomSection(
+          sectionTitle,
+          data
+        );
         sections.push({
           title: sectionTitle,
           content: customContent,
@@ -265,7 +288,10 @@ export class AutomatedReportingService {
   /**
    * Generate report charts
    */
-  private async generateReportCharts(data: any, reportId: string): Promise<ReportChart[]> {
+  private async generateReportCharts(
+    data: any,
+    reportId: string
+  ): Promise<ReportChart[]> {
     const charts: ReportChart[] = [];
 
     // Mock chart data - charts will be generated on frontend
@@ -274,21 +300,23 @@ export class AutomatedReportingService {
       title: 'Income vs Expenses',
       data: {
         labels: ['Income', 'Expenses'],
-        datasets: [{
-          label: 'Amount',
-          data: [data.totalIncome, data.totalExpenses],
-          backgroundColor: ['#22c55e', '#ef4444'],
-        }]
+        datasets: [
+          {
+            label: 'Amount',
+            data: [data.totalIncome, data.totalExpenses],
+            backgroundColor: ['#22c55e', '#ef4444'],
+          },
+        ],
       },
       options: {
         responsive: true,
         plugins: {
           title: {
             display: true,
-            text: 'Monthly Income vs Expenses'
-          }
-        }
-      }
+            text: 'Monthly Income vs Expenses',
+          },
+        },
+      },
     };
 
     charts.push(incomeExpenseChart);
@@ -299,22 +327,29 @@ export class AutomatedReportingService {
       title: 'Expense Categories',
       data: {
         labels: Object.keys(data.expenseBreakdown),
-        datasets: [{
-          data: Object.values(data.expenseBreakdown),
-          backgroundColor: [
-            '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'
-          ]
-        }]
+        datasets: [
+          {
+            data: Object.values(data.expenseBreakdown),
+            backgroundColor: [
+              '#3b82f6',
+              '#ef4444',
+              '#10b981',
+              '#f59e0b',
+              '#8b5cf6',
+              '#06b6d4',
+            ],
+          },
+        ],
       },
       options: {
         responsive: true,
         plugins: {
           title: {
             display: true,
-            text: 'Expense Distribution by Category'
-          }
-        }
-      }
+            text: 'Expense Distribution by Category',
+          },
+        },
+      },
     };
 
     charts.push(expenseCategoriesChart);
@@ -325,10 +360,13 @@ export class AutomatedReportingService {
   /**
    * Generate report file (HTML format)
    */
-  private async generateReportFile(report: GeneratedReport, user: any): Promise<string> {
+  private async generateReportFile(
+    report: GeneratedReport,
+    user: any
+  ): Promise<string> {
     const html = this.generateHTMLReport(report, user);
     const filePath = path.join(this.reportsDirectory, `${report.id}.html`);
-    
+
     fs.writeFileSync(filePath, html);
     return filePath;
   }
@@ -385,37 +423,53 @@ export class AutomatedReportingService {
         </div>
     </div>
 
-    ${report.sections.map(section => `
+    ${report.sections
+      .map(
+        section => `
         <div class="section">
             <h2>${section.title}</h2>
             <p>${section.content}</p>
         </div>
-    `).join('')}
+    `
+      )
+      .join('')}
 
-    ${report.charts.map(chart => `
+    ${report.charts
+      .map(
+        chart => `
         <div class="chart">
             <h3>${chart.title}</h3>
             <img src="${chart.imagePath}" alt="${chart.title}" style="max-width: 100%;">
         </div>
-    `).join('')}
+    `
+      )
+      .join('')}
 
-    ${report.aiInsights.length > 0 ? `
+    ${
+      report.aiInsights.length > 0
+        ? `
         <div class="insights">
             <h2>AI Insights</h2>
             <ul>
                 ${report.aiInsights.map(insight => `<li>${insight}</li>`).join('')}
             </ul>
         </div>
-    ` : ''}
+    `
+        : ''
+    }
 
-    ${report.recommendations.length > 0 ? `
+    ${
+      report.recommendations.length > 0
+        ? `
         <div class="recommendations">
             <h2>Recommendations</h2>
             <ul>
                 ${report.recommendations.map(rec => `<li>${rec}</li>`).join('')}
             </ul>
         </div>
-    ` : ''}
+    `
+        : ''
+    }
 
     <footer style="margin-top: 50px; text-align: center; color: #666;">
         <p>This report was automatically generated by FinBot v3 AI Assistant</p>
@@ -428,7 +482,10 @@ export class AutomatedReportingService {
   /**
    * Send report via email
    */
-  private async sendReportEmail(report: GeneratedReport, emailAddress: string): Promise<void> {
+  private async sendReportEmail(
+    report: GeneratedReport,
+    emailAddress: string
+  ): Promise<void> {
     // Email sending implementation would go here
     // For now, just log the action
     logger.info(`Report ${report.id} would be sent to ${emailAddress}`);
@@ -449,13 +506,16 @@ export class AutomatedReportingService {
     return `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private calculateReportPeriod(reportType: string): { start: Date; end: Date } {
+  private calculateReportPeriod(reportType: string): {
+    start: Date;
+    end: Date;
+  } {
     const now = new Date();
     const periods = {
       weekly: 7,
       monthly: 30,
       quarterly: 90,
-      annual: 365
+      annual: 365,
     };
 
     const days = periods[reportType] || 30;
@@ -465,7 +525,11 @@ export class AutomatedReportingService {
   }
 
   private async getUserData(userId: string) {
-    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
     return user[0];
   }
 
@@ -481,7 +545,10 @@ export class AutomatedReportingService {
     };
   }
 
-  private async getReportFinancialData(userId: string, period: { start: Date; end: Date }) {
+  private async getReportFinancialData(
+    userId: string,
+    period: { start: Date; end: Date }
+  ) {
     // Get transactions for the period
     const transactions = await db
       .select()
@@ -503,7 +570,7 @@ export class AutomatedReportingService {
       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
     const netCashFlow = totalIncome - totalExpenses;
-    const savingsRate = totalIncome > 0 ? ((netCashFlow / totalIncome) * 100) : 0;
+    const savingsRate = totalIncome > 0 ? (netCashFlow / totalIncome) * 100 : 0;
 
     // Categorize expenses
     const expenseBreakdown: Record<string, number> = {};
@@ -511,7 +578,8 @@ export class AutomatedReportingService {
       .filter(t => t.type === 'expense')
       .forEach(t => {
         const category = t.category || 'uncategorized';
-        expenseBreakdown[category] = (expenseBreakdown[category] || 0) + parseFloat(t.amount);
+        expenseBreakdown[category] =
+          (expenseBreakdown[category] || 0) + parseFloat(t.amount);
       });
 
     return {
@@ -521,7 +589,7 @@ export class AutomatedReportingService {
       savingsRate,
       expenseBreakdown,
       topExpenseCategories: Object.entries(expenseBreakdown)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([, a], [, b]) => b - a)
         .slice(0, 5),
       incomeBreakdown: {}, // Would categorize income
       accountPerformance: {}, // Would calculate account performance
@@ -540,15 +608,20 @@ export class AutomatedReportingService {
     return `Account performance analysis would show the growth and activity of your various accounts during this period.`;
   }
 
-  private async generateCustomSection(title: string, data: any): Promise<string> {
+  private async generateCustomSection(
+    title: string,
+    data: any
+  ): Promise<string> {
     const prompt = `Generate content for a financial report section titled "${title}" based on the following data: ${JSON.stringify(data)}`;
-    
+
     const response = await openaiService.generateResponse(prompt, {
       temperature: 0.4,
       max_tokens: 300,
     });
 
-    return response.success ? response.response : `Content for ${title} section could not be generated.`;
+    return response.success
+      ? response.response
+      : `Content for ${title} section could not be generated.`;
   }
 
   private ensureReportsDirectory(): void {

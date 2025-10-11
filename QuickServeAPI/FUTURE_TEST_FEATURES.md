@@ -1,6 +1,7 @@
 # 🚀 Akıllı Test Sistemi - Gelecek Özellikler
 
 ## 📋 MEVCUT ÖZELLIKLER
+
 1. ✅ Testleri çalıştırır
 2. ✅ README'yi günceller
 3. ✅ Eksikleri tespit eder
@@ -15,31 +16,34 @@
 ### 1️⃣ **Test Coverage Analizi ve İzleme** 📊
 
 **Ne Yapar:**
+
 - Coverage eşiğini kontrol eder (%75 altında uyarı)
 - En düşük coverage'a sahip dosyaları bulur
 - Coverage trendini takip eder (günlük/haftalık)
 - Coverage badge'i oluşturur
 
 **Örnek Çıktı:**
+
 ```
 📊 Coverage Analizi:
    Overall: 72.5% ⚠️ (Hedef: 75%)
-   
+
    En Düşük Coverage:
    • server/ai-persona-service.ts: 45%
    • server/forecasting-service.ts: 52%
    • server/cache.ts: 38%
-   
+
    Trend: 📈 +2.3% (son 7 gün)
 ```
 
 **Kod:**
+
 ```javascript
 function analyzeCoverage(coverageData) {
   const threshold = 75;
   const low = findLowCoverageFiles(coverageData, threshold);
   const trend = calculateCoverageTrend();
-  
+
   if (overall < threshold) {
     console.warn(`⚠️ Coverage ${overall}% (Hedef: ${threshold}%)`);
     suggestImprovements(low);
@@ -52,33 +56,36 @@ function analyzeCoverage(coverageData) {
 ### 2️⃣ **Otomatik Test Düzeltme & Öneriler** 🔧
 
 **Ne Yapar:**
+
 - Başarısız testleri analiz eder
 - Common hataları tespit eder (mock eksikliği, import hatası)
 - Otomatik düzeltme önerileri verir
 - Hatta bazılarını otomatik düzeltir!
 
 **Örnek:**
+
 ```
 ❌ Başarısız Test: jwt-token-service.test.ts
    Hata: Cannot read properties of undefined (reading 'toString')
-   
+
 🔍 Analiz:
    • crypto.randomBytes() mock eksik
    • toString() metodu tanımlı değil
-   
+
 💡 Öneri:
    Mock'a şu satırı ekle:
    randomBytes: vi.fn(() => ({ toString: () => 'mock-hex' }))
-   
+
 🤖 Otomatik Düzelt? (y/n)
 ```
 
 **Kod:**
+
 ```javascript
 function analyzeFailedTests(failures) {
   failures.forEach(test => {
     const errorType = detectErrorType(test.error);
-    
+
     if (errorType === 'MISSING_MOCK') {
       const mockSuggestion = generateMockCode(test);
       offer AutoFix(test, mockSuggestion);
@@ -92,12 +99,14 @@ function analyzeFailedTests(failures) {
 ### 3️⃣ **Git Entegrasyonu** 🔀
 
 **Ne Yapar:**
+
 - Test sonuçlarını commit mesajına ekler
 - Başarısız testler varsa commit'i engeller
 - Pre-commit hook olarak çalışır
 - Changed files için sadece ilgili testleri çalıştırır (hızlı!)
 
 **Örnek:**
+
 ```bash
 git commit -m "Add new feature"
 
@@ -105,13 +114,14 @@ git commit -m "Add new feature"
    • Değişen dosyalar: 3
    • İlgili testler: 12
    • Süre: 2.1s
-   
+
 ✅ Tüm testler geçti! Commit devam ediyor...
 
 [main abc123] Add new feature (Tests: 12/12 ✅)
 ```
 
 **Setup:**
+
 ```bash
 # .git/hooks/pre-commit
 #!/bin/sh
@@ -127,12 +137,14 @@ fi
 ### 4️⃣ **CI/CD Auto-Setup** 🚢
 
 **Ne Yapar:**
+
 - GitHub Actions workflow dosyası oluşturur
 - Test badge'leri ekler
 - Test sonuçlarını JSON/XML olarak export eder
 - Docker test ortamı hazırlar
 
 **Oluşturulan Dosyalar:**
+
 ```yaml
 # .github/workflows/tests.yml
 name: Tests
@@ -148,6 +160,7 @@ jobs:
 ```
 
 **Badge:**
+
 ```markdown
 ![Tests](https://img.shields.io/badge/tests-447%2F949-green)
 ![Coverage](https://img.shields.io/badge/coverage-75%25-brightgreen)
@@ -158,12 +171,14 @@ jobs:
 ### 5️⃣ **Performans İzleme** ⚡
 
 **Ne Yapar:**
+
 - Test sürelerini kaydeder
 - Yavaş testleri tespit eder (>5s)
 - Performans trendini gösterir
 - Bottleneck'leri bulur
 
 **Örnek:**
+
 ```
 ⏱️ Performans Raporu:
 
@@ -184,12 +199,14 @@ Trend: 📉 -1.2s (son çalıştırmaya göre) ✅
 ### 6️⃣ **Dependency Health Check** 📦
 
 **Ne Yapar:**
+
 - Kullanılmayan test dependency'leri bulur
 - Güncel olmayan paketleri kontrol eder
 - Security açıkları için npm audit çalıştırır
 - Temizlik önerir
 
 **Örnek:**
+
 ```
 📦 Dependency Analizi:
 
@@ -212,24 +229,28 @@ Trend: 📉 -1.2s (son çalıştırmaya göre) ✅
 ### 7️⃣ **Akıllı Dökümantasyon** 📚
 
 **Ne Yapar:**
+
 - Test coverage badge'i oluşturur
 - API dökümantasyonunu günceller
 - CHANGELOG.md'yi otomatik günceller
 - Test raporunu Markdown'a çevirir
 
 **Örnek:**
+
 ```markdown
 # CHANGELOG.md (Auto-generated)
 
 ## [Unreleased] - 2025-10-11
 
 ### Tests
+
 - ✅ Added 5 new test files
 - ✅ Coverage increased: 70% → 75%
 - ✅ Fixed 3 failing tests
 - 🐛 Mocked crypto properly in jwt-token-service.test.ts
 
 ### Performance
+
 - ⚡ Test suite 2.3s faster
 - ⚡ Optimized mock data loading
 ```
@@ -239,12 +260,14 @@ Trend: 📉 -1.2s (son çalıştırmaya göre) ✅
 ### 8️⃣ **Notifications** 🔔
 
 **Ne Yapar:**
+
 - Slack/Discord webhook entegrasyonu
 - Email bildirimi
 - Desktop notification
 - Test başarısızlıklarını hemen bildirir
 
 **Örnek Slack Mesajı:**
+
 ```
 🧪 FinBot Test Suite
 Branch: main
@@ -264,12 +287,13 @@ Failed Tests:
 ```
 
 **Setup:**
+
 ```javascript
 async function sendNotification(results) {
   if (results.failing > 0) {
     await slack.send({
       text: `⚠️ ${results.failing} tests failed!`,
-      attachments: formatResults(results)
+      attachments: formatResults(results),
     });
   }
 }
@@ -280,12 +304,14 @@ async function sendNotification(results) {
 ### 9️⃣ **Test Data Management** 💾
 
 **Ne Yapar:**
+
 - Mock data'yı otomatik günceller
 - Test database'i seed eder
 - Fixture dosyalarını yönetir
 - Gerçek API'den mock data üretir
 
 **Örnek:**
+
 ```
 💾 Test Data Yönetimi:
 
@@ -297,7 +323,7 @@ async function sendNotification(results) {
 🔄 API'den Yeni Data Üret:
    → GET /api/users → fixtures/users.json
    → GET /api/transactions → fixtures/transactions.json
-   
+
 ✅ 3 fixture güncellendi
 ✅ Test database seed edildi
 ```
@@ -307,12 +333,14 @@ async function sendNotification(results) {
 ### 🔟 **AI-Powered Test Generator** 🤖
 
 **Ne Yapar:**
+
 - GPT-4 ile test case'leri önerir
 - Kod analiz ederek edge case'leri bulur
 - Best practice'lere göre test yazar
 - Code review için öneriler verir
 
 **Örnek:**
+
 ```
 🤖 AI Test Önerileri:
 
@@ -339,12 +367,14 @@ Missing Edge Cases:
 ### 1️⃣1️⃣ **Visual Dashboard** 📈
 
 **Ne Yapar:**
+
 - HTML coverage raporu oluşturur
 - Trend grafikleri gösterir
 - Interactive dashboard açar
 - Real-time test monitoring
 
 **Dashboard Özellikleri:**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  FinBot Test Dashboard                      │
@@ -368,6 +398,7 @@ Missing Edge Cases:
 ```
 
 **Komut:**
+
 ```bash
 pnpm test:dashboard
 # Browser'da http://localhost:3000 açılır
@@ -378,12 +409,14 @@ pnpm test:dashboard
 ### 1️⃣2️⃣ **Incremental/Smart Testing** 🎯
 
 **Ne Yapar:**
+
 - Sadece değişen dosyalar için test çalıştırır
 - Git diff'e göre akıllı test seçimi
 - Cache kullanarak 10x hızlandırır
 - Dependency graph analizi
 
 **Örnek:**
+
 ```bash
 git diff main...feature-branch
 
@@ -407,12 +440,13 @@ Run? (y/n)
 ```
 
 **Kod:**
+
 ```javascript
 async function smartTestSelection() {
   const changedFiles = await getGitDiff();
   const dependencyGraph = buildDependencyGraph();
   const affectedTests = findAffectedTests(changedFiles, dependencyGraph);
-  
+
   return runTests(affectedTests, { cache: true });
 }
 ```
@@ -422,11 +456,13 @@ async function smartTestSelection() {
 ## 🎬 KOMBİNE SENARYO
 
 **Ultimate Test Command:**
+
 ```bash
 pnpm test:ultimate
 ```
 
 **Yapacakları:**
+
 1. ✅ Testleri çalıştır (mevcut)
 2. ✅ README güncelle (mevcut)
 3. ✅ Eksikleri tespit et (mevcut)
@@ -454,18 +490,21 @@ pnpm test:ultimate
 ## 🎯 HANGİLERİ ÖNCELİKLİ?
 
 ### Phase 1 (Hemen Eklenebilir):
+
 1. ✅ Test Coverage Analizi
 2. ✅ Git Pre-commit Hook
 3. ✅ Performance İzleme
 4. ✅ Dependency Health Check
 
 ### Phase 2 (Orta Vadeli):
+
 5. ✅ Otomatik Test Düzeltme
 6. ✅ CI/CD Auto-Setup
 7. ✅ Notification System
 8. ✅ Smart Testing
 
 ### Phase 3 (İleri Seviye):
+
 9. ✅ AI-Powered Generator
 10. ✅ Visual Dashboard
 11. ✅ Test Data Management
@@ -527,10 +566,10 @@ pnpm test:ultimate
 ## 🚀 HANGİSİNİ EKLEYELİM?
 
 **En pratik ve değerli olanlar:**
+
 1. 📊 **Coverage Analizi** - Test kalitesini ölç
 2. 🔀 **Git Pre-commit Hook** - Hatalı commit'i engelle
 3. ⚡ **Performance İzleme** - Yavaş testleri bul
 4. 📦 **Dependency Check** - Güvenlik + temizlik
 
 **Hangisini istiyorsunuz? 🤔**
-

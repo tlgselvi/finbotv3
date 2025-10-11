@@ -2,7 +2,7 @@ import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Home, BarChart3, TrendingUp } from 'lucide-react';
 
-export default function Navigation () {
+export default function Navigation() {
   const [location] = useLocation();
 
   const navItems = [
@@ -16,11 +16,13 @@ export default function Navigation () {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-2">
             <TrendingUp className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold" data-testid="app-title">FinBot</h1>
+            <h1 className="text-xl font-bold" data-testid="app-title">
+              FinBot
+            </h1>
           </div>
 
           <div className="flex items-center space-x-1">
-            {navItems.map((item) => {
+            {navItems.map(item => {
               const Icon = item.icon;
               const isActive = location === item.path;
 

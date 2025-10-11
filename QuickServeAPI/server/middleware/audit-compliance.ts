@@ -14,7 +14,7 @@ export const COMPLIANCE_CONFIG = {
     passwordResetTokens: 1, // 1 day
     sessionData: 30, // 30 days
     cspReports: 30, // 30 days
-    errorLogs: 90 // 3 months
+    errorLogs: 90, // 3 months
   },
 
   // PII fields that need special handling
@@ -24,14 +24,14 @@ export const COMPLIANCE_CONFIG = {
     'ip_address',
     'user_agent',
     'personal_data',
-    'financial_data'
+    'financial_data',
   ],
 
   // Data minimization rules
   dataMinimization: {
     maxLogSize: 1000, // Maximum characters per log entry
     excludeFields: ['password', 'token', 'secret', 'key'],
-    hashFields: ['ip_address', 'user_agent']
+    hashFields: ['ip_address', 'user_agent'],
   },
 
   // Audit log categories
@@ -42,24 +42,30 @@ export const COMPLIANCE_CONFIG = {
     DATA_MODIFICATION: 'data_modification',
     SYSTEM_OPERATION: 'system_operation',
     SECURITY_EVENT: 'security_event',
-    COMPLIANCE_EVENT: 'compliance_event'
-  }
+    COMPLIANCE_EVENT: 'compliance_event',
+  },
 };
 
 // PII Detection and Masking
 export class PIIProcessor {
   // Email regex pattern
-  private static readonly EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
-  
+  private static readonly EMAIL_REGEX =
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+
   // Phone regex pattern (Turkish format)
   private static readonly PHONE_REGEX = /(\+90|0)?[5][0-9]{9}/g;
-  
+
   // IP address regex
-  private static readonly IP_REGEX = /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g;
+  private static readonly IP_REGEX =
+    /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g;
 
   // Hash sensitive data
   public static hashSensitiveData(data: string): string {
-    return crypto.createHash('sha256').update(data).digest('hex').substring(0, 16);
+    return crypto
+      .createHash('sha256')
+      .update(data)
+      .digest('hex')
+      .substring(0, 16);
   }
 
   // Mask email addresses
@@ -91,17 +97,17 @@ export class PIIProcessor {
     let processed = text;
 
     // Mask emails
-    processed = processed.replace(PIIProcessor.EMAIL_REGEX, (match) => 
+    processed = processed.replace(PIIProcessor.EMAIL_REGEX, match =>
       PIIProcessor.maskEmail(match)
     );
 
     // Mask phone numbers
-    processed = processed.replace(PIIProcessor.PHONE_REGEX, (match) => 
+    processed = processed.replace(PIIProcessor.PHONE_REGEX, match =>
       PIIProcessor.maskPhone(match)
     );
 
     // Mask IP addresses
-    processed = processed.replace(PIIProcessor.IP_REGEX, (match) => 
+    processed = processed.replace(PIIProcessor.IP_REGEX, match =>
       PIIProcessor.maskIP(match)
     );
 
@@ -110,7 +116,7 @@ export class PIIProcessor {
 
   // Check if field contains PII
   public static isPIIField(fieldName: string): boolean {
-    return COMPLIANCE_CONFIG.piiFields.some(piiField => 
+    return COMPLIANCE_CONFIG.piiFields.some(piiField =>
       fieldName.toLowerCase().includes(piiField.toLowerCase())
     );
   }
@@ -120,14 +126,15 @@ export class PIIProcessor {
     if (typeof data === 'string') {
       return PIIProcessor.processText(data);
     }
-    
+
     if (typeof data === 'object' && data !== null) {
       const anonymized: any = {};
       for (const [key, value] of Object.entries(data)) {
         if (PIIProcessor.isPIIField(key)) {
-          anonymized[key] = typeof value === 'string' 
-            ? PIIProcessor.hashSensitiveData(value)
-            : '[ANONYMIZED]';
+          anonymized[key] =
+            typeof value === 'string'
+              ? PIIProcessor.hashSensitiveData(value)
+              : '[ANONYMIZED]';
         } else {
           anonymized[key] = PIIProcessor.anonymizeData(value);
         }
@@ -178,12 +185,16 @@ export class AuditComplianceManager {
         action: data.action.substring(0, 255), // Truncate if too long
         category: data.category,
         details: minimizedDetails,
-        ipAddress: data.ipAddress ? PIIProcessor.hashSensitiveData(data.ipAddress) : null,
-        userAgent: data.userAgent ? PIIProcessor.hashSensitiveData(data.userAgent) : null,
+        ipAddress: data.ipAddress
+          ? PIIProcessor.hashSensitiveData(data.ipAddress)
+          : null,
+        userAgent: data.userAgent
+          ? PIIProcessor.hashSensitiveData(data.userAgent)
+          : null,
         sessionId: data.sessionId || null,
         metadata: anonymizedMetadata,
         timestamp: new Date(),
-        complianceFlags: this.generateComplianceFlags(data)
+        complianceFlags: this.generateComplianceFlags(data),
       };
 
       // Check if userActivityLogs table exists before inserting
@@ -191,16 +202,23 @@ export class AuditComplianceManager {
         await db.insert(userActivityLogs).values(logEntry);
       } catch (dbError: any) {
         // If table doesn't exist, just log to console
-        if (dbError.message?.includes('no such table') || dbError.message?.includes('relation') || dbError.message?.includes('does not exist')) {
-          logger.debug('userActivityLogs table not found, skipping database insert');
+        if (
+          dbError.message?.includes('no such table') ||
+          dbError.message?.includes('relation') ||
+          dbError.message?.includes('does not exist')
+        ) {
+          logger.debug(
+            'userActivityLogs table not found, skipping database insert'
+          );
         } else {
           throw dbError; // Re-throw other database errors
         }
       }
 
       // Log to console for monitoring
-      logger.info(`[AUDIT] ${data.category.toUpperCase()} - ${data.action} - User: ${data.userId || 'Anonymous'}`);
-      
+      logger.info(
+        `[AUDIT] ${data.category.toUpperCase()} - ${data.action} - User: ${data.userId || 'Anonymous'}`
+      );
     } catch (error) {
       logger.error('Audit logging error:', error);
       // Don't throw - audit logging should not break the main flow
@@ -210,16 +228,17 @@ export class AuditComplianceManager {
   // Data minimization
   private minimizeData(data: any): string {
     if (!data) return '';
-    
+
     const jsonString = JSON.stringify(data);
-    
+
     // Remove sensitive fields
     const cleaned = this.removeSensitiveFields(JSON.parse(jsonString));
-    
+
     // Truncate if too long
     const result = JSON.stringify(cleaned);
-    return result.length > COMPLIANCE_CONFIG.dataMinimization.maxLogSize 
-      ? result.substring(0, COMPLIANCE_CONFIG.dataMinimization.maxLogSize) + '...'
+    return result.length > COMPLIANCE_CONFIG.dataMinimization.maxLogSize
+      ? result.substring(0, COMPLIANCE_CONFIG.dataMinimization.maxLogSize) +
+          '...'
       : result;
   }
 
@@ -252,27 +271,32 @@ export class AuditComplianceManager {
   // Generate compliance flags
   private generateComplianceFlags(data: any): string[] {
     const flags: string[] = [];
-    
+
     if (data.userId) flags.push('USER_IDENTIFIED');
     if (data.ipAddress) flags.push('IP_LOGGED');
     if (data.userAgent) flags.push('USER_AGENT_LOGGED');
     if (data.sessionId) flags.push('SESSION_TRACKED');
-    
+
     // Check for PII in details
     const detailsString = JSON.stringify(data.details || {});
-    if (PIIProcessor.EMAIL_REGEX.test(detailsString)) flags.push('EMAIL_DETECTED');
-    if (PIIProcessor.PHONE_REGEX.test(detailsString)) flags.push('PHONE_DETECTED');
+    if (PIIProcessor.EMAIL_REGEX.test(detailsString))
+      flags.push('EMAIL_DETECTED');
+    if (PIIProcessor.PHONE_REGEX.test(detailsString))
+      flags.push('PHONE_DETECTED');
     if (PIIProcessor.IP_REGEX.test(detailsString)) flags.push('IP_DETECTED');
-    
+
     return flags;
   }
 
   // Start retention jobs
   private startRetentionJobs(): void {
     // Daily retention job
-    const dailyJob = setInterval(async () => {
-      await this.runRetentionJob();
-    }, 24 * 60 * 60 * 1000); // 24 hours
+    const dailyJob = setInterval(
+      async () => {
+        await this.runRetentionJob();
+      },
+      24 * 60 * 60 * 1000
+    ); // 24 hours
 
     this.retentionJobs.set('daily', dailyJob);
 
@@ -286,36 +310,48 @@ export class AuditComplianceManager {
   private async runRetentionJob(): Promise<void> {
     try {
       logger.info('[COMPLIANCE] Running data retention job...');
-      
+
       const now = new Date();
       let totalDeleted = 0;
 
       // Check if userActivityLogs table exists before attempting to clean
       try {
         // Clean user activity logs
-        const userActivityCutoff = new Date(now.getTime() - (COMPLIANCE_CONFIG.retention.userActivityLogs * 24 * 60 * 60 * 1000));
+        const userActivityCutoff = new Date(
+          now.getTime() -
+            COMPLIANCE_CONFIG.retention.userActivityLogs * 24 * 60 * 60 * 1000
+        );
         const deletedActivityLogs = await db
           .delete(userActivityLogs)
           .where(lt(userActivityLogs.timestamp, userActivityCutoff));
-        
+
         totalDeleted += deletedActivityLogs.rowCount || 0;
-        logger.info(`[COMPLIANCE] Deleted ${deletedActivityLogs.rowCount || 0} expired activity logs`);
+        logger.info(
+          `[COMPLIANCE] Deleted ${deletedActivityLogs.rowCount || 0} expired activity logs`
+        );
       } catch (tableError) {
-        logger.debug('[COMPLIANCE] userActivityLogs table not found, skipping cleanup');
+        logger.debug(
+          '[COMPLIANCE] userActivityLogs table not found, skipping cleanup'
+        );
       }
 
       // Add other table cleanups here as needed
       // Example: password reset tokens, session data, etc.
 
-      logger.info(`[COMPLIANCE] Retention job completed. Total deleted: ${totalDeleted} records`);
-      
+      logger.info(
+        `[COMPLIANCE] Retention job completed. Total deleted: ${totalDeleted} records`
+      );
     } catch (error) {
       logger.error('[COMPLIANCE] Retention job failed:', error);
     }
   }
 
   // Export audit data for compliance requests
-  public async exportAuditData(userId: string, startDate?: Date, endDate?: Date): Promise<{
+  public async exportAuditData(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<{
     userActivity: any[];
     summary: {
       totalRecords: number;
@@ -324,7 +360,8 @@ export class AuditComplianceManager {
     };
   }> {
     try {
-      const start = startDate || new Date(Date.now() - 365 * 24 * 60 * 60 * 1000); // 1 year default
+      const start =
+        startDate || new Date(Date.now() - 365 * 24 * 60 * 60 * 1000); // 1 year default
       const end = endDate || new Date();
 
       // Get user activity logs
@@ -333,7 +370,7 @@ export class AuditComplianceManager {
         .from(userActivityLogs)
         .where(
           and(
-            eq(userActivityLogs.userId, userId),
+            eq(userActivityLogs.userId, userId)
             // Add date range filter if needed
           )
         )
@@ -350,15 +387,14 @@ export class AuditComplianceManager {
           ...log,
           // Ensure PII is properly masked in export
           ipAddress: log.ipAddress ? '[MASKED]' : null,
-          userAgent: log.userAgent ? '[MASKED]' : null
+          userAgent: log.userAgent ? '[MASKED]' : null,
         })),
         summary: {
           totalRecords: activityLogs.length,
           dateRange: { start, end },
-          categories
-        }
+          categories,
+        },
       };
-
     } catch (error) {
       logger.error('Export audit data error:', error);
       throw new Error('Failed to export audit data');
@@ -372,7 +408,7 @@ export class AuditComplianceManager {
   }> {
     try {
       logger.info(`🗑️ [COMPLIANCE] Purging data for user: ${userId}`);
-      
+
       let totalDeleted = 0;
       const tables: string[] = [];
 
@@ -380,7 +416,7 @@ export class AuditComplianceManager {
       const deletedActivityLogs = await db
         .delete(userActivityLogs)
         .where(eq(userActivityLogs.userId, userId));
-      
+
       totalDeleted += deletedActivityLogs.rowCount || 0;
       if (deletedActivityLogs.rowCount && deletedActivityLogs.rowCount > 0) {
         tables.push('userActivityLogs');
@@ -389,13 +425,14 @@ export class AuditComplianceManager {
       // Add other user data deletions here
       // Example: user profiles, sessions, etc.
 
-      logger.info(`✅ [COMPLIANCE] Purged ${totalDeleted} records for user ${userId}`);
-      
+      logger.info(
+        `✅ [COMPLIANCE] Purged ${totalDeleted} records for user ${userId}`
+      );
+
       return {
         deletedRecords: totalDeleted,
-        tables
+        tables,
       };
-
     } catch (error) {
       logger.error('Purge user data error:', error);
       throw new Error('Failed to purge user data');
@@ -415,7 +452,7 @@ export class AuditComplianceManager {
       const totalLogsResult = await db
         .select({ count: userActivityLogs.id })
         .from(userActivityLogs);
-      
+
       const totalLogs = totalLogsResult.length;
 
       // Get oldest activity log
@@ -430,12 +467,11 @@ export class AuditComplianceManager {
         retentionStatus: {
           activityLogs: {
             count: totalLogs,
-            oldestRecord: oldestLog[0]?.timestamp || null
-          }
+            oldestRecord: oldestLog[0]?.timestamp || null,
+          },
         },
-        piiFlags: {} // Would be populated from actual data analysis
+        piiFlags: {}, // Would be populated from actual data analysis
       };
-
     } catch (error) {
       logger.error('Get compliance metrics error:', error);
       throw new Error('Failed to get compliance metrics');
@@ -457,10 +493,10 @@ export const auditComplianceMiddleware = {
   // Log all API requests
   logRequests: (req: Request, res: Response, next: NextFunction) => {
     const startTime = Date.now();
-    
+
     res.on('finish', async () => {
       const duration = Date.now() - startTime;
-      
+
       await AuditComplianceManager.getInstance().logActivity({
         userId: (req as any).user?.id,
         action: `${req.method} ${req.path}`,
@@ -471,15 +507,15 @@ export const auditComplianceMiddleware = {
           statusCode: res.statusCode,
           duration,
           query: req.query,
-          params: req.params
+          params: req.params,
         },
         ipAddress: req.ip,
         userAgent: req.get('User-Agent'),
         sessionId: req.sessionID,
         metadata: {
           responseSize: res.get('Content-Length'),
-          contentType: res.get('Content-Type')
-        }
+          contentType: res.get('Content-Type'),
+        },
       });
     });
 
@@ -489,8 +525,8 @@ export const auditComplianceMiddleware = {
   // Log authentication events
   logAuth: (req: Request, res: Response, next: NextFunction) => {
     const originalSend = res.send;
-    
-    res.send = function(data) {
+
+    res.send = function (data) {
       if (res.statusCode === 200 && req.path.includes('/auth/')) {
         AuditComplianceManager.getInstance().logActivity({
           userId: (req as any).user?.id,
@@ -498,14 +534,14 @@ export const auditComplianceMiddleware = {
           category: COMPLIANCE_CONFIG.categories.AUTHENTICATION,
           details: {
             path: req.path,
-            success: res.statusCode === 200
+            success: res.statusCode === 200,
           },
           ipAddress: req.ip,
           userAgent: req.get('User-Agent'),
-          sessionId: req.sessionID
+          sessionId: req.sessionID,
         });
       }
-      
+
       return originalSend.call(this, data);
     };
 
@@ -515,8 +551,8 @@ export const auditComplianceMiddleware = {
   // Log data access
   logDataAccess: (req: Request, res: Response, next: NextFunction) => {
     const originalSend = res.send;
-    
-    res.send = function(data) {
+
+    res.send = function (data) {
       if (req.method === 'GET' && res.statusCode === 200) {
         AuditComplianceManager.getInstance().logActivity({
           userId: (req as any).user?.id,
@@ -525,19 +561,19 @@ export const auditComplianceMiddleware = {
           details: {
             resource: req.path,
             method: req.method,
-            dataSize: data ? data.length : 0
+            dataSize: data ? data.length : 0,
           },
           ipAddress: req.ip,
           userAgent: req.get('User-Agent'),
-          sessionId: req.sessionID
+          sessionId: req.sessionID,
         });
       }
-      
+
       return originalSend.call(this, data);
     };
 
     next();
-  }
+  },
 };
 
 // Export singleton instance

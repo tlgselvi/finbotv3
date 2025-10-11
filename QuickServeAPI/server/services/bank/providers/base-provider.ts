@@ -196,7 +196,9 @@ export abstract class BaseBankProvider {
   /**
    * Get transfer status
    */
-  abstract getTransfer(transferId: string): Promise<BankApiResponse<BankTransfer>>;
+  abstract getTransfer(
+    transferId: string
+  ): Promise<BankApiResponse<BankTransfer>>;
 
   /**
    * Get cards associated with an account
@@ -254,7 +256,9 @@ export abstract class BaseBankProvider {
   /**
    * Refresh authentication token (for OAuth providers)
    */
-  abstract refreshToken(): Promise<BankApiResponse<{ token: string; expiresAt: Date }>>;
+  abstract refreshToken(): Promise<
+    BankApiResponse<{ token: string; expiresAt: Date }>
+  >;
 
   /**
    * Revoke authentication
@@ -315,15 +319,18 @@ export abstract class BaseBankProvider {
       error: {
         code: 'MAX_RETRIES_EXCEEDED',
         message: this.getErrorMessage(lastError),
-        details: lastError
-      }
+        details: lastError,
+      },
     };
   }
 
   /**
    * Validate transaction data
    */
-  protected validateTransaction(transaction: any): { valid: boolean; errors: string[] } {
+  protected validateTransaction(transaction: any): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!transaction.id) errors.push('Transaction ID is required');
@@ -337,14 +344,17 @@ export abstract class BaseBankProvider {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
   /**
    * Validate account data
    */
-  protected validateAccount(account: any): { valid: boolean; errors: string[] } {
+  protected validateAccount(account: any): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!account.id) errors.push('Account ID is required');
@@ -354,7 +364,7 @@ export abstract class BaseBankProvider {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 

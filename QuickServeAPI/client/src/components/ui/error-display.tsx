@@ -1,6 +1,12 @@
 import { AlertCircle, RefreshCw, Home, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { logger } from '@/lib/logger';
@@ -27,10 +33,10 @@ export function ErrorDisplay({
   showDetails = false,
   className,
   variant = 'card',
-  size = 'md'
+  size = 'md',
 }: ErrorDisplayProps) {
   const [showFullDetails, setShowFullDetails] = useState(showDetails);
-  
+
   const errorMessage = typeof error === 'string' ? error : error.message;
   const errorStack = typeof error === 'string' ? null : error.stack;
 
@@ -38,18 +44,18 @@ export function ErrorDisplay({
     sm: {
       icon: 'h-4 w-4',
       text: 'text-sm',
-      button: 'h-8 text-xs'
+      button: 'h-8 text-xs',
     },
     md: {
       icon: 'h-5 w-5',
       text: 'text-base',
-      button: 'h-9 text-sm'
+      button: 'h-9 text-sm',
     },
     lg: {
       icon: 'h-6 w-6',
       text: 'text-lg',
-      button: 'h-10 text-base'
-    }
+      button: 'h-10 text-base',
+    },
   };
 
   const copyErrorDetails = async () => {
@@ -58,11 +64,13 @@ export function ErrorDisplay({
       stack: errorStack,
       timestamp: new Date().toISOString(),
       url: window.location.href,
-      userAgent: navigator.userAgent
+      userAgent: navigator.userAgent,
     };
 
     try {
-      await navigator.clipboard.writeText(JSON.stringify(errorDetails, null, 2));
+      await navigator.clipboard.writeText(
+        JSON.stringify(errorDetails, null, 2)
+      );
       // Toast could be added here
     } catch {
       // Fallback
@@ -77,7 +85,9 @@ export function ErrorDisplay({
         <AlertDescription>
           <div className="space-y-2">
             <p className="font-medium">{title}</p>
-            <p className={sizeClasses[size].text}>{description || errorMessage}</p>
+            <p className={sizeClasses[size].text}>
+              {description || errorMessage}
+            </p>
             {(onRetry || onGoHome) && (
               <div className="flex gap-2 pt-2">
                 {onRetry && (
@@ -112,7 +122,9 @@ export function ErrorDisplay({
 
   if (variant === 'minimal') {
     return (
-      <div className={cn('flex items-center gap-2 text-destructive', className)}>
+      <div
+        className={cn('flex items-center gap-2 text-destructive', className)}
+      >
         <AlertCircle className={sizeClasses[size].icon} />
         <span className={sizeClasses[size].text}>
           {description || errorMessage}
@@ -138,9 +150,7 @@ export function ErrorDisplay({
           <AlertCircle className={sizeClasses[size].icon} />
           {title}
         </CardTitle>
-        {description && (
-          <CardDescription>{description}</CardDescription>
-        )}
+        {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent className="space-y-4">
         <p className={cn('text-muted-foreground', sizeClasses[size].text)}>
@@ -170,7 +180,7 @@ export function ErrorDisplay({
               Tekrar Dene
             </Button>
           )}
-          
+
           {onGoHome && (
             <Button
               variant="outline"
@@ -219,11 +229,11 @@ interface ConnectionStatusProps {
   className?: string;
 }
 
-export function ConnectionStatus({ 
-  isConnected, 
-  error, 
+export function ConnectionStatus({
+  isConnected,
+  error,
   onReconnect,
-  className 
+  className,
 }: ConnectionStatusProps) {
   if (isConnected && !error) {
     return (
@@ -237,9 +247,7 @@ export function ConnectionStatus({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <div className="h-2 w-2 rounded-full bg-red-600"></div>
-      <span className="text-xs text-red-600">
-        {error || 'Bağlantı yok'}
-      </span>
+      <span className="text-xs text-red-600">{error || 'Bağlantı yok'}</span>
       {onReconnect && (
         <Button
           variant="ghost"

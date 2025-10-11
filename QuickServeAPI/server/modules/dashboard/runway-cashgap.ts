@@ -1,6 +1,10 @@
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import { db } from '../../db';
-import { accounts, transactions, arApItems } from '../../../shared/schema-sqlite';
+import {
+  accounts,
+  transactions,
+  arApItems,
+} from '../../../shared/schema-sqlite';
 
 export interface RunwayAnalysis {
   currentCash: number;
@@ -56,7 +60,12 @@ export async function calculateRunway(
     .where(eq(accounts.user_id, userId));
 
   const currentCash = userAccounts.reduce((sum, account) => {
-    return sum + (typeof account.balance === 'number' ? account.balance : parseFloat(String(account.balance)));
+    return (
+      sum +
+      (typeof account.balance === 'number'
+        ? account.balance
+        : parseFloat(String(account.balance)))
+    );
   }, 0);
 
   // Calculate monthly expenses from last 6 months
@@ -67,22 +76,27 @@ export async function calculateRunway(
   const recentTransactions = await dbInstance
     .select()
     .from(transactions)
-    .where(and(
-      eq(transactions.user_id, userId),
-      gte(transactions.created_at, sixMonthsAgoStr),
-      lte(transactions.amount, 0) // Expenses are negative
-    ));
+    .where(
+      and(
+        eq(transactions.user_id, userId),
+        gte(transactions.created_at, sixMonthsAgoStr),
+        lte(transactions.amount, 0) // Expenses are negative
+      )
+    );
 
-  const totalExpenses = Math.abs(recentTransactions.reduce((sum, t) => {
-    const amt = typeof t.amount === 'number' ? t.amount : parseFloat(String(t.amount));
-    return sum + amt;
-  }, 0));
+  const totalExpenses = Math.abs(
+    recentTransactions.reduce((sum, t) => {
+      const amt =
+        typeof t.amount === 'number' ? t.amount : parseFloat(String(t.amount));
+      return sum + amt;
+    }, 0)
+  );
   const monthlyExpenses = totalExpenses / 6; // Average over 6 months
 
   // Calculate runway
   let runwayMonths: number;
   let runwayDays: number;
-  
+
   // Handle negative cash
   if (currentCash <= 0) {
     runwayMonths = 0;
@@ -107,9 +121,11 @@ export async function calculateRunway(
 
   // Generate recommendations
   const recommendations: string[] = [];
-  
+
   if (status === 'critical') {
-    recommendations.push('Acil nakit ihtiyacınız var - gelir artırma veya gider azaltma gerekli');
+    recommendations.push(
+      'Acil nakit ihtiyacınız var - gelir artırma veya gider azaltma gerekli'
+    );
     recommendations.push('Kısa vadeli kredi limitleri değerlendirin');
     recommendations.push('Alacaklarınızı hızlandırma stratejileri uygulayın');
   } else if (status === 'warning') {
@@ -133,12 +149,15 @@ export async function calculateRunway(
   for (let i = 1; i <= months; i++) {
     const monthDate = new Date();
     monthDate.setMonth(monthDate.getMonth() + i);
-    const monthName = monthDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' });
-    
+    const monthName = monthDate.toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+    });
+
     const expenses = monthlyExpenses;
     const netCash = -expenses; // Expenses reduce cash
     runningCash += netCash;
-    
+
     monthlyBreakdown.push({
       month: monthName,
       projectedCash: Math.max(0, runningCash),
@@ -173,26 +192,28 @@ export async function calculateCashGap(
   const arItems = await dbInstance
     .select()
     .from(arApItems)
-    .where(and(
-      eq(arApItems.user_id, userId),
-      eq(arApItems.type, 'receivable')
-    ));
+    .where(
+      and(eq(arApItems.user_id, userId), eq(arApItems.type, 'receivable'))
+    );
 
   const apItems = await dbInstance
     .select()
     .from(arApItems)
-    .where(and(
-      eq(arApItems.user_id, userId),
-      eq(arApItems.type, 'payable')
-    ));
+    .where(and(eq(arApItems.user_id, userId), eq(arApItems.type, 'payable')));
 
   // Calculate totals
   const totalAR = arItems.reduce((sum, item) => {
-    const amt = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+    const amt =
+      typeof item.amount === 'number'
+        ? item.amount
+        : parseFloat(String(item.amount));
     return sum + amt;
   }, 0);
   const totalAP = apItems.reduce((sum, item) => {
-    const amt = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+    const amt =
+      typeof item.amount === 'number'
+        ? item.amount
+        : parseFloat(String(item.amount));
     return sum + amt;
   }, 0);
   const cashGap = totalAR - totalAP;
@@ -201,14 +222,20 @@ export async function calculateCashGap(
   const arDueIn30Days = arItems
     .filter(item => (item.age_days || 0) <= 30)
     .reduce((sum, item) => {
-      const amt = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+      const amt =
+        typeof item.amount === 'number'
+          ? item.amount
+          : parseFloat(String(item.amount));
       return sum + amt;
     }, 0);
 
   const apDueIn30Days = apItems
     .filter(item => (item.age_days || 0) <= 30)
     .reduce((sum, item) => {
-      const amt = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+      const amt =
+        typeof item.amount === 'number'
+          ? item.amount
+          : parseFloat(String(item.amount));
       return sum + amt;
     }, 0);
 
@@ -217,14 +244,20 @@ export async function calculateCashGap(
   const arDueIn60Days = arItems
     .filter(item => (item.age_days || 0) <= 60)
     .reduce((sum, item) => {
-      const amt = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+      const amt =
+        typeof item.amount === 'number'
+          ? item.amount
+          : parseFloat(String(item.amount));
       return sum + amt;
     }, 0);
 
   const apDueIn60Days = apItems
     .filter(item => (item.age_days || 0) <= 60)
     .reduce((sum, item) => {
-      const amt = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+      const amt =
+        typeof item.amount === 'number'
+          ? item.amount
+          : parseFloat(String(item.amount));
       return sum + amt;
     }, 0);
 
@@ -232,37 +265,39 @@ export async function calculateCashGap(
 
   // Determine risk level
   let riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  
+
   // Positive gap (AR > AP) is good, negative gap (AP > AR) is risky
   if (cashGap >= 0) {
     // Positive gap - low to medium risk
     const gapRatio = totalAP > 0 ? cashGap / totalAP : 0;
     if (gapRatio > 0.5) {
-      riskLevel = 'low';  // Very positive gap
+      riskLevel = 'low'; // Very positive gap
     } else if (gapRatio > 0.2) {
       riskLevel = 'low';
     } else {
-      riskLevel = 'medium';  // Small positive gap
+      riskLevel = 'medium'; // Small positive gap
     }
   } else {
     // Negative gap - medium to critical risk
     const gapRatio = totalAR > 0 ? Math.abs(cashGap) / totalAR : 1;
     if (gapRatio > 1.0) {
-      riskLevel = 'critical';  // AP much larger than AR
+      riskLevel = 'critical'; // AP much larger than AR
     } else if (gapRatio > 0.5) {
       riskLevel = 'high';
     } else if (gapRatio > 0.2) {
       riskLevel = 'medium';
     } else {
-      riskLevel = 'medium';  // Small negative gap
+      riskLevel = 'medium'; // Small negative gap
     }
   }
 
   // Generate recommendations
   const recommendations: string[] = [];
-  
+
   if (cashGap < 0) {
-    recommendations.push('Borçlarınız alacaklarınızdan fazla - nakit akışı riski var');
+    recommendations.push(
+      'Borçlarınız alacaklarınızdan fazla - nakit akışı riski var'
+    );
     recommendations.push('Alacak tahsilat süreçlerinizi hızlandırın');
     recommendations.push('Borç ödeme planlarını gözden geçirin');
   } else {
@@ -288,14 +323,17 @@ export async function calculateCashGap(
   for (let i = 0; i < months; i++) {
     const periodStart = i * 30;
     const periodEnd = (i + 1) * 30;
-    
+
     const arInPeriod = arItems
       .filter(item => {
         const days = item.age_days || 0;
         return days > periodStart && days <= periodEnd;
       })
       .reduce((sum, item) => {
-        const amt = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+        const amt =
+          typeof item.amount === 'number'
+            ? item.amount
+            : parseFloat(String(item.amount));
         return sum + amt;
       }, 0);
 
@@ -305,7 +343,10 @@ export async function calculateCashGap(
         return days > periodStart && days <= periodEnd;
       })
       .reduce((sum, item) => {
-        const amt = typeof item.amount === 'number' ? item.amount : parseFloat(String(item.amount));
+        const amt =
+          typeof item.amount === 'number'
+            ? item.amount
+            : parseFloat(String(item.amount));
         return sum + amt;
       }, 0);
 
@@ -365,7 +406,7 @@ export async function getDashboardRunwayCashGap(
 
   // Calculate overall risk
   let overallRisk: 'low' | 'medium' | 'high' | 'critical' = 'low';
-  
+
   if (runway.status === 'critical' || cashGap.riskLevel === 'critical') {
     overallRisk = 'critical';
   } else if (runway.status === 'warning' || cashGap.riskLevel === 'high') {
@@ -401,18 +442,20 @@ export async function getCashFlowForecast(
   userId: string,
   months: number = 12,
   dbInstance: any = db
-): Promise<Array<{
-  month: string;
-  openingCash: number;
-  projectedInflows: number;
-  projectedOutflows: number;
-  netCashFlow: number;
-  closingCash: number;
-  confidence: 'low' | 'medium' | 'high';
-}>> {
+): Promise<
+  Array<{
+    month: string;
+    openingCash: number;
+    projectedInflows: number;
+    projectedOutflows: number;
+    netCashFlow: number;
+    closingCash: number;
+    confidence: 'low' | 'medium' | 'high';
+  }>
+> {
   const runway = await calculateRunway(userId, months, dbInstance);
   const cashGap = await calculateCashGap(userId, months, dbInstance);
-  
+
   const forecast: Array<{
     month: string;
     openingCash: number;
@@ -424,26 +467,32 @@ export async function getCashFlowForecast(
   }> = [];
 
   let openingCash = runway.currentCash;
-  
+
   for (let i = 0; i < months; i++) {
     const monthDate = new Date();
     monthDate.setMonth(monthDate.getMonth() + i);
-    const monthName = monthDate.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' });
-    
+    const monthName = monthDate.toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+    });
+
     // Estimate inflows from AR aging
-    const projectedInflows = i < cashGap.timeline.length ? cashGap.timeline[i].arAmount : 0;
-    
+    const projectedInflows =
+      i < cashGap.timeline.length ? cashGap.timeline[i].arAmount : 0;
+
     // Estimate outflows from expenses and AP
-    const projectedOutflows = runway.monthlyExpenses + (i < cashGap.timeline.length ? cashGap.timeline[i].apAmount : 0);
-    
+    const projectedOutflows =
+      runway.monthlyExpenses +
+      (i < cashGap.timeline.length ? cashGap.timeline[i].apAmount : 0);
+
     const netCashFlow = projectedInflows - projectedOutflows;
     const closingCash = openingCash + netCashFlow;
-    
+
     // Determine confidence based on data quality
     let confidence: 'low' | 'medium' | 'high' = 'low';
     if (i < 3) confidence = 'high';
     else if (i < 6) confidence = 'medium';
-    
+
     forecast.push({
       month: monthName,
       openingCash,
@@ -453,7 +502,7 @@ export async function getCashFlowForecast(
       closingCash: Math.max(0, closingCash),
       confidence,
     });
-    
+
     openingCash = closingCash;
   }
 

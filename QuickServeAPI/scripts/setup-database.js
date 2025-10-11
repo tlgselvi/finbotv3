@@ -19,7 +19,7 @@ const DATABASE_URL = process.env.DATABASE_URL;
 const logger = {
   info: (msg, ...args) => console.log(`[INFO] ${msg}`, ...args),
   error: (msg, ...args) => console.error(`[ERROR] ${msg}`, ...args),
-  warn: (msg, ...args) => console.warn(`[WARN] ${msg}`, ...args)
+  warn: (msg, ...args) => console.warn(`[WARN] ${msg}`, ...args),
 };
 
 if (!DATABASE_URL) {
@@ -29,7 +29,7 @@ if (!DATABASE_URL) {
 
 async function setupDatabase() {
   let sqlClient = null;
-  
+
   try {
     logger.info('🔄 Setting up database...');
 
@@ -38,7 +38,7 @@ async function setupDatabase() {
 
     // Use appropriate driver based on URL
     let db;
-    
+
     if (DATABASE_URL.includes('neon.tech')) {
       // Neon database with HTTP connection
       sqlClient = neon(DATABASE_URL);
@@ -64,7 +64,10 @@ async function setupDatabase() {
       await migrate(db, { migrationsFolder: './migrations' });
       logger.info('✅ Database migrations completed');
     } catch (migrationError) {
-      logger.info('⚠️  Migration failed, using schema push instead:', migrationError.message);
+      logger.info(
+        '⚠️  Migration failed, using schema push instead:',
+        migrationError.message
+      );
       // Fallback: schema will be pushed by drizzle-kit push during build
       logger.info('✅ Schema will be pushed during build');
     }
@@ -77,11 +80,13 @@ async function setupDatabase() {
       await seedDatabase();
       logger.info('✅ Database seeding completed');
     } catch (seedError) {
-      logger.info('⚠️  Seeding failed, continuing without seed data:', seedError.message);
+      logger.info(
+        '⚠️  Seeding failed, continuing without seed data:',
+        seedError.message
+      );
     }
 
     logger.info('🎉 Database setup completed successfully!');
-
   } catch (error) {
     logger.error('❌ Database setup failed:', error.message);
     logger.error('📋 Error details:', error.stack);

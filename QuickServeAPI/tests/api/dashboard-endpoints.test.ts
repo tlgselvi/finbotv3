@@ -7,11 +7,17 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../server/routes';
 import { db } from '../../server/db';
-import { users, accounts, transactions, userProfiles } from '../../shared/schema';
+import {
+  users,
+  accounts,
+  transactions,
+  userProfiles,
+} from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 import argon2 from 'argon2';
 
-const BACKEND_AVAILABLE = !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
+const BACKEND_AVAILABLE =
+  !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
 
 describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
   let testUserId: string;
@@ -42,7 +48,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
       name: 'Test User',
       role: 'USER',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     await db.insert(userProfiles).values({
@@ -50,7 +56,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
       role: 'USER',
       permissions: ['READ', 'WRITE'],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     // Login to get token
@@ -70,7 +76,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
         currency: 'TRY',
         accountType: 'bank',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         id: `acc-${testUserId}-2`,
@@ -80,8 +86,8 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
         currency: 'TRY',
         accountType: 'bank',
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ]);
 
     // Create test transactions
@@ -97,7 +103,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
         description: 'Test expense',
         date: now,
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
       },
       {
         id: `tx-${testUserId}-2`,
@@ -109,8 +115,8 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
         description: 'Test income',
         date: now,
         createdAt: now,
-        updatedAt: now
-      }
+        updatedAt: now,
+      },
     ]);
   });
 
@@ -143,8 +149,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
     });
 
     it('should require authentication', async () => {
-      const res = await request(app)
-        .get(`/api/dashboard/runway/${testUserId}`);
+      const res = await request(app).get(`/api/dashboard/runway/${testUserId}`);
 
       expect(res.status).toBe(401);
     });
@@ -183,8 +188,9 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
     });
 
     it('should require authentication', async () => {
-      const res = await request(app)
-        .get(`/api/dashboard/cash-gap/${testUserId}`);
+      const res = await request(app).get(
+        `/api/dashboard/cash-gap/${testUserId}`
+      );
 
       expect(res.status).toBe(401);
     });
@@ -236,21 +242,22 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard API Endpoints', () => {
   describe('Rate Limiting', () => {
     it('should enforce rate limits', async () => {
       // Make multiple rapid requests
-      const requests = Array(10).fill(null).map(() =>
-        request(app)
-          .get(`/api/dashboard/runway/${testUserId}`)
-          .set('Authorization', `Bearer ${authToken}`)
-      );
+      const requests = Array(10)
+        .fill(null)
+        .map(() =>
+          request(app)
+            .get(`/api/dashboard/runway/${testUserId}`)
+            .set('Authorization', `Bearer ${authToken}`)
+        );
 
       const responses = await Promise.all(requests);
       const statuses = responses.map(r => r.status);
 
       // At least one should succeed
       expect(statuses).toContain(200);
-      
+
       // If rate limiting is active, some might be 429
       // This is optional based on implementation
     });
   });
 });
-

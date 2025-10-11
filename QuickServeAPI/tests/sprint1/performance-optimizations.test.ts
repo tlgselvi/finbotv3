@@ -10,7 +10,7 @@ const createMockRequest = (overrides = {}) => ({
   query: {},
   body: {},
   user: { id: 'test-user' },
-  ...overrides
+  ...overrides,
 });
 
 const createMockResponse = () => {
@@ -20,7 +20,7 @@ const createMockResponse = () => {
     setHeader: vi.fn(),
     status: vi.fn().mockReturnThis(),
     json: vi.fn().mockReturnThis(),
-    end: vi.fn().mockReturnThis()
+    end: vi.fn().mockReturnThis(),
   };
   return res;
 };

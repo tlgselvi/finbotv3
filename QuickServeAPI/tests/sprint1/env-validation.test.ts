@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { validateEnvironment, maskSensitiveValue, logEnvironmentConfig } from '../../server/utils/env-validation.js';
+import {
+  validateEnvironment,
+  maskSensitiveValue,
+  logEnvironmentConfig,
+} from '../../server/utils/env-validation.js';
 
 // Mock process.env
 const originalEnv = process.env;
@@ -42,10 +46,12 @@ describe('Environment Validation', () => {
       };
 
       const result = validateEnvironment();
-      
+
       expect(result.NODE_ENV).toBe('development');
       expect(result.DATABASE_URL).toBe('file:./dev.db');
-      expect(result.JWT_SECRET).toBe('dev_jwt_secret_key_for_development_only_32_chars');
+      expect(result.JWT_SECRET).toBe(
+        'dev_jwt_secret_key_for_development_only_32_chars'
+      );
       expect(result.API_PORT).toBe(5000);
       expect(result.CORS_ORIGIN).toBe('http://localhost:5000');
       expect(result.BCRYPT_ROUNDS).toBe(10);
@@ -78,7 +84,7 @@ describe('Environment Validation', () => {
       };
 
       const result = validateEnvironment();
-      
+
       expect(result.NODE_ENV).toBe('production');
       expect(result.API_PORT).toBe(3000);
       expect(result.BCRYPT_ROUNDS).toBe(12);
@@ -106,7 +112,7 @@ describe('Environment Validation', () => {
       };
 
       const result = validateEnvironment();
-      
+
       expect(result.NODE_ENV).toBe('development');
       expect(result.JWT_EXPIRES_IN).toBe('24h');
       expect(result.JWT_REFRESH_EXPIRES_IN).toBe('7d');
@@ -227,7 +233,7 @@ describe('Environment Validation', () => {
         ENABLE_SCENARIOS: true,
         ENABLE_REPORTS: true,
         DEFAULT_CURRENCY: 'TRY',
-        VAT_RATE: 0.20,
+        VAT_RATE: 0.2,
         SGK_RATE: 0.15,
         MAX_CONCURRENT_REQUESTS: 50,
         REQUEST_TIMEOUT: 30000,

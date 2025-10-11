@@ -53,13 +53,13 @@ export async function getARTrends(
 ): Promise<TrendAnalysis> {
   const endDate = new Date();
   const startDate = new Date();
-  
+
   switch (period) {
     case 'monthly':
       startDate.setMonth(endDate.getMonth() - months);
       break;
     case 'quarterly':
-      startDate.setMonth(endDate.getMonth() - (months * 3));
+      startDate.setMonth(endDate.getMonth() - months * 3);
       break;
     case 'yearly':
       startDate.setFullYear(endDate.getFullYear() - Math.ceil(months / 12));
@@ -69,21 +69,26 @@ export async function getARTrends(
   const reports = await db
     .select()
     .from(agingReports)
-    .where(and(
-      eq(agingReports.userId, userId),
-      eq(agingReports.reportType, 'ar'),
-      gte(agingReports.createdAt, startDate),
-      lte(agingReports.createdAt, endDate)
-    ))
+    .where(
+      and(
+        eq(agingReports.userId, userId),
+        eq(agingReports.reportType, 'ar'),
+        gte(agingReports.createdAt, startDate),
+        lte(agingReports.createdAt, endDate)
+      )
+    )
     .orderBy(agingReports.createdAt);
 
   // Group by period
-  const periodGroups = new Map<string, { date: Date; total: number; count: number }>();
-  
+  const periodGroups = new Map<
+    string,
+    { date: Date; total: number; count: number }
+  >();
+
   reports.forEach(report => {
     const reportDate = new Date(report.createdAt);
     let periodKey: string;
-    
+
     switch (period) {
       case 'monthly':
         periodKey = `${reportDate.getFullYear()}-${String(reportDate.getMonth() + 1).padStart(2, '0')}`;
@@ -98,7 +103,7 @@ export async function getARTrends(
       default:
         periodKey = reportDate.toISOString().split('T')[0];
     }
-    
+
     if (!periodGroups.has(periodKey)) {
       periodGroups.set(periodKey, {
         date: reportDate,
@@ -106,7 +111,7 @@ export async function getARTrends(
         count: 0,
       });
     }
-    
+
     const group = periodGroups.get(periodKey)!;
     group.total += parseFloat(report.currentAmount);
     group.count += 1;
@@ -127,7 +132,7 @@ export async function getARTrends(
     const curr = data[i];
     const change = curr.value - prev.value;
     const changePercent = prev.value !== 0 ? (change / prev.value) * 100 : 0;
-    
+
     data[i].change = change;
     data[i].changePercent = changePercent;
   }
@@ -136,39 +141,46 @@ export async function getARTrends(
   const values = data.map(d => d.value);
   const totalValue = values.reduce((sum, val) => sum + val, 0);
   const averageValue = values.length > 0 ? totalValue / values.length : 0;
-  
+
   // Calculate trend
   let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
   let trendStrength: 'weak' | 'moderate' | 'strong' = 'weak';
-  
+
   if (data.length >= 2) {
     const firstValue = data[0].value;
     const lastValue = data[data.length - 1].value;
     const totalChange = lastValue - firstValue;
-    const changePercent = firstValue !== 0 ? Math.abs(totalChange / firstValue) * 100 : 0;
-    
+    const changePercent =
+      firstValue !== 0 ? Math.abs(totalChange / firstValue) * 100 : 0;
+
     if (totalChange > 0) {
       trend = 'increasing';
     } else if (totalChange < 0) {
       trend = 'decreasing';
     }
-    
+
     if (changePercent > 20) {
       trendStrength = 'strong';
     } else if (changePercent > 5) {
       trendStrength = 'moderate';
     }
   }
-  
+
   // Calculate volatility
-  const volatility = values.length > 1 
-    ? Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - averageValue, 2), 0) / values.length)
-    : 0;
-  
+  const volatility =
+    values.length > 1
+      ? Math.sqrt(
+          values.reduce(
+            (sum, val) => sum + Math.pow(val - averageValue, 2),
+            0
+          ) / values.length
+        )
+      : 0;
+
   // Find peak and lowest values
   const peakIndex = values.indexOf(Math.max(...values));
   const lowestIndex = values.indexOf(Math.min(...values));
-  
+
   const summary = {
     totalValue,
     averageValue,
@@ -185,9 +197,11 @@ export async function getARTrends(
   let forecast;
   if (data.length >= 3) {
     const recentChanges = data.slice(-3).map(d => d.change || 0);
-    const avgChange = recentChanges.reduce((sum, change) => sum + change, 0) / recentChanges.length;
+    const avgChange =
+      recentChanges.reduce((sum, change) => sum + change, 0) /
+      recentChanges.length;
     const lastValue = data[data.length - 1].value;
-    
+
     forecast = {
       nextPeriod: lastValue + avgChange,
       confidence: Math.min(0.8, data.length / 12), // More data = higher confidence
@@ -215,13 +229,13 @@ export async function getAPTrends(
   // Similar to AR trends but for AP
   const endDate = new Date();
   const startDate = new Date();
-  
+
   switch (period) {
     case 'monthly':
       startDate.setMonth(endDate.getMonth() - months);
       break;
     case 'quarterly':
-      startDate.setMonth(endDate.getMonth() - (months * 3));
+      startDate.setMonth(endDate.getMonth() - months * 3);
       break;
     case 'yearly':
       startDate.setFullYear(endDate.getFullYear() - Math.ceil(months / 12));
@@ -231,21 +245,26 @@ export async function getAPTrends(
   const reports = await db
     .select()
     .from(agingReports)
-    .where(and(
-      eq(agingReports.userId, userId),
-      eq(agingReports.reportType, 'ap'),
-      gte(agingReports.createdAt, startDate),
-      lte(agingReports.createdAt, endDate)
-    ))
+    .where(
+      and(
+        eq(agingReports.userId, userId),
+        eq(agingReports.reportType, 'ap'),
+        gte(agingReports.createdAt, startDate),
+        lte(agingReports.createdAt, endDate)
+      )
+    )
     .orderBy(agingReports.createdAt);
 
   // Process similar to AR trends
-  const periodGroups = new Map<string, { date: Date; total: number; count: number }>();
-  
+  const periodGroups = new Map<
+    string,
+    { date: Date; total: number; count: number }
+  >();
+
   reports.forEach(report => {
     const reportDate = new Date(report.createdAt);
     let periodKey: string;
-    
+
     switch (period) {
       case 'monthly':
         periodKey = `${reportDate.getFullYear()}-${String(reportDate.getMonth() + 1).padStart(2, '0')}`;
@@ -260,7 +279,7 @@ export async function getAPTrends(
       default:
         periodKey = reportDate.toISOString().split('T')[0];
     }
-    
+
     if (!periodGroups.has(periodKey)) {
       periodGroups.set(periodKey, {
         date: reportDate,
@@ -268,7 +287,7 @@ export async function getAPTrends(
         count: 0,
       });
     }
-    
+
     const group = periodGroups.get(periodKey)!;
     group.total += parseFloat(report.currentAmount);
     group.count += 1;
@@ -288,7 +307,7 @@ export async function getAPTrends(
     const curr = data[i];
     const change = curr.value - prev.value;
     const changePercent = prev.value !== 0 ? (change / prev.value) * 100 : 0;
-    
+
     data[i].change = change;
     data[i].changePercent = changePercent;
   }
@@ -296,36 +315,43 @@ export async function getAPTrends(
   const values = data.map(d => d.value);
   const totalValue = values.reduce((sum, val) => sum + val, 0);
   const averageValue = values.length > 0 ? totalValue / values.length : 0;
-  
+
   let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
   let trendStrength: 'weak' | 'moderate' | 'strong' = 'weak';
-  
+
   if (data.length >= 2) {
     const firstValue = data[0].value;
     const lastValue = data[data.length - 1].value;
     const totalChange = lastValue - firstValue;
-    const changePercent = firstValue !== 0 ? Math.abs(totalChange / firstValue) * 100 : 0;
-    
+    const changePercent =
+      firstValue !== 0 ? Math.abs(totalChange / firstValue) * 100 : 0;
+
     if (totalChange > 0) {
       trend = 'increasing';
     } else if (totalChange < 0) {
       trend = 'decreasing';
     }
-    
+
     if (changePercent > 20) {
       trendStrength = 'strong';
     } else if (changePercent > 5) {
       trendStrength = 'moderate';
     }
   }
-  
-  const volatility = values.length > 1 
-    ? Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - averageValue, 2), 0) / values.length)
-    : 0;
-  
+
+  const volatility =
+    values.length > 1
+      ? Math.sqrt(
+          values.reduce(
+            (sum, val) => sum + Math.pow(val - averageValue, 2),
+            0
+          ) / values.length
+        )
+      : 0;
+
   const peakIndex = values.indexOf(Math.max(...values));
   const lowestIndex = values.indexOf(Math.min(...values));
-  
+
   const summary = {
     totalValue,
     averageValue,
@@ -341,9 +367,11 @@ export async function getAPTrends(
   let forecast;
   if (data.length >= 3) {
     const recentChanges = data.slice(-3).map(d => d.change || 0);
-    const avgChange = recentChanges.reduce((sum, change) => sum + change, 0) / recentChanges.length;
+    const avgChange =
+      recentChanges.reduce((sum, change) => sum + change, 0) /
+      recentChanges.length;
     const lastValue = data[data.length - 1].value;
-    
+
     forecast = {
       nextPeriod: lastValue + avgChange,
       confidence: Math.min(0.8, data.length / 12),
@@ -384,26 +412,31 @@ export async function getCashFlowProjection(
   const recentTransactions = await db
     .select()
     .from(transactions)
-    .where(and(
-      eq(transactions.userId, userId),
-      gte(transactions.createdAt, sixMonthsAgo)
-    ))
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        gte(transactions.createdAt, sixMonthsAgo)
+      )
+    )
     .orderBy(transactions.createdAt);
 
   // Calculate monthly averages
-  const monthlyData = new Map<string, { inflows: number; outflows: number; count: number }>();
-  
+  const monthlyData = new Map<
+    string,
+    { inflows: number; outflows: number; count: number }
+  >();
+
   recentTransactions.forEach(transaction => {
     const date = new Date(transaction.createdAt);
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    
+
     if (!monthlyData.has(monthKey)) {
       monthlyData.set(monthKey, { inflows: 0, outflows: 0, count: 0 });
     }
-    
+
     const data = monthlyData.get(monthKey)!;
     const amount = parseFloat(transaction.amount);
-    
+
     if (amount > 0) {
       data.inflows += amount;
     } else {
@@ -413,8 +446,16 @@ export async function getCashFlowProjection(
   });
 
   // Calculate averages
-  const avgInflows = Array.from(monthlyData.values()).reduce((sum, data) => sum + data.inflows, 0) / Math.max(monthlyData.size, 1);
-  const avgOutflows = Array.from(monthlyData.values()).reduce((sum, data) => sum + data.outflows, 0) / Math.max(monthlyData.size, 1);
+  const avgInflows =
+    Array.from(monthlyData.values()).reduce(
+      (sum, data) => sum + data.inflows,
+      0
+    ) / Math.max(monthlyData.size, 1);
+  const avgOutflows =
+    Array.from(monthlyData.values()).reduce(
+      (sum, data) => sum + data.outflows,
+      0
+    ) / Math.max(monthlyData.size, 1);
 
   // Generate projections
   const projections: CashFlowProjection[] = [];
@@ -423,20 +464,23 @@ export async function getCashFlowProjection(
   for (let i = 1; i <= months; i++) {
     const date = new Date();
     date.setMonth(date.getMonth() + i);
-    
+
     const projectedInflows = avgInflows * (1 + (Math.random() - 0.5) * 0.2); // ±10% variation
     const projectedOutflows = avgOutflows * (1 + (Math.random() - 0.5) * 0.2);
     const netCashFlow = projectedInflows - projectedOutflows;
-    
+
     cumulativeCash += netCashFlow;
-    
+
     // Determine confidence based on historical data quality
     let confidence: 'low' | 'medium' | 'high' = 'low';
     if (i <= 3) confidence = 'high';
     else if (i <= 6) confidence = 'medium';
-    
+
     projections.push({
-      period: date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' }),
+      period: date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'long',
+      }),
       date,
       projectedInflows,
       projectedOutflows,
@@ -463,7 +507,7 @@ export async function getFinancialHealthTrends(
 ): Promise<TrendAnalysis> {
   // This would typically come from stored historical health scores
   // For now, we'll simulate based on account and transaction data
-  
+
   const endDate = new Date();
   const startDate = new Date();
   startDate.setMonth(endDate.getMonth() - months);
@@ -476,19 +520,22 @@ export async function getFinancialHealthTrends(
 
   // Simulate health score calculation for each month
   const data: TrendDataPoint[] = [];
-  
+
   for (let i = months; i >= 0; i--) {
     const date = new Date();
     date.setMonth(date.getMonth() - i);
-    
+
     // Simple health score simulation based on current data
     // In a real implementation, this would be stored historical data
     const baseScore = 75;
     const variation = (Math.random() - 0.5) * 20; // ±10 points
     const score = Math.max(0, Math.min(100, baseScore + variation));
-    
+
     data.push({
-      period: date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'short' }),
+      period: date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'short',
+      }),
       date,
       value: score,
     });
@@ -500,7 +547,7 @@ export async function getFinancialHealthTrends(
     const curr = data[i];
     const change = curr.value - prev.value;
     const changePercent = prev.value !== 0 ? (change / prev.value) * 100 : 0;
-    
+
     data[i].change = change;
     data[i].changePercent = changePercent;
   }
@@ -508,36 +555,43 @@ export async function getFinancialHealthTrends(
   const values = data.map(d => d.value);
   const totalValue = values.reduce((sum, val) => sum + val, 0);
   const averageValue = values.length > 0 ? totalValue / values.length : 0;
-  
+
   let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
   let trendStrength: 'weak' | 'moderate' | 'strong' = 'weak';
-  
+
   if (data.length >= 2) {
     const firstValue = data[0].value;
     const lastValue = data[data.length - 1].value;
     const totalChange = lastValue - firstValue;
-    const changePercent = firstValue !== 0 ? Math.abs(totalChange / firstValue) * 100 : 0;
-    
+    const changePercent =
+      firstValue !== 0 ? Math.abs(totalChange / firstValue) * 100 : 0;
+
     if (totalChange > 2) {
       trend = 'increasing';
     } else if (totalChange < -2) {
       trend = 'decreasing';
     }
-    
+
     if (changePercent > 10) {
       trendStrength = 'strong';
     } else if (changePercent > 3) {
       trendStrength = 'moderate';
     }
   }
-  
-  const volatility = values.length > 1 
-    ? Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - averageValue, 2), 0) / values.length)
-    : 0;
-  
+
+  const volatility =
+    values.length > 1
+      ? Math.sqrt(
+          values.reduce(
+            (sum, val) => sum + Math.pow(val - averageValue, 2),
+            0
+          ) / values.length
+        )
+      : 0;
+
   const peakIndex = values.indexOf(Math.max(...values));
   const lowestIndex = values.indexOf(Math.min(...values));
-  
+
   const summary = {
     totalValue,
     averageValue,

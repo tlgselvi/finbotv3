@@ -7,7 +7,10 @@ const calculateRunway = (cashBalance: number, monthlyExpenses: number) => {
   return cashBalance / monthlyExpenses;
 };
 
-const calculateDSCR = (netOperatingIncome: number, totalDebtService: number) => {
+const calculateDSCR = (
+  netOperatingIncome: number,
+  totalDebtService: number
+) => {
   if (totalDebtService === 0) return Infinity;
   return netOperatingIncome / totalDebtService;
 };
@@ -22,42 +25,55 @@ const calculateDPO = (totalPayables: number, dailyPurchases: number) => {
   return totalPayables / dailyPurchases;
 };
 
-const calculateBudgetVariance = (plannedAmount: number, actualAmount: number) => {
+const calculateBudgetVariance = (
+  plannedAmount: number,
+  actualAmount: number
+) => {
   if (plannedAmount === 0) return 0;
   return ((actualAmount - plannedAmount) / plannedAmount) * 100;
 };
 
 const generateKPIDashboard = async (dashboardData: any) => {
   const kpis = {
-    runway: calculateRunway(dashboardData.cashBalance, dashboardData.monthlyExpenses),
-    dscr: calculateDSCR(dashboardData.netOperatingIncome, dashboardData.totalDebtService),
+    runway: calculateRunway(
+      dashboardData.cashBalance,
+      dashboardData.monthlyExpenses
+    ),
+    dscr: calculateDSCR(
+      dashboardData.netOperatingIncome,
+      dashboardData.totalDebtService
+    ),
     dso: calculateDSO(dashboardData.totalReceivables, dashboardData.dailySales),
-    dpo: calculateDPO(dashboardData.totalPayables, dashboardData.dailyPurchases),
-    budgetVariance: calculateBudgetVariance(dashboardData.plannedAmount, dashboardData.actualAmount)
+    dpo: calculateDPO(
+      dashboardData.totalPayables,
+      dashboardData.dailyPurchases
+    ),
+    budgetVariance: calculateBudgetVariance(
+      dashboardData.plannedAmount,
+      dashboardData.actualAmount
+    ),
   };
 
   const dashboard = {
     kpis,
     summary: `KPI Dashboard: Runway ${kpis.runway.toFixed(1)} months, DSCR ${kpis.dscr.toFixed(2)}, DSO ${kpis.dso.toFixed(1)} days, DPO ${kpis.dpo.toFixed(1)} days, Budget Variance ${kpis.budgetVariance.toFixed(1)}%`,
-    generatedAt: new Date()
+    generatedAt: new Date(),
   };
 
   // Save dashboard to database
-  const [savedDashboard] = await db.execute(`
+  const [savedDashboard] = await db.execute(
+    `
     INSERT INTO kpi_dashboards (kpis, summary, generated_at, created_at)
     VALUES ($1, $2, $3, $4)
     RETURNING *
-  `, [
-    JSON.stringify(kpis),
-    dashboard.summary,
-    dashboard.generatedAt,
-    new Date()
-  ]);
+  `,
+    [JSON.stringify(kpis), dashboard.summary, dashboard.generatedAt, new Date()]
+  );
 
   return {
     dashboardId: savedDashboard.rows[0].id,
     dashboard,
-    chartData: generateChartData(kpis)
+    chartData: generateChartData(kpis),
   };
 };
 
@@ -65,36 +81,55 @@ const generateChartData = (kpis: any) => {
   return {
     runway: {
       value: kpis.runway,
-      status: kpis.runway > 6 ? 'good' : kpis.runway > 3 ? 'warning' : 'critical',
-      color: kpis.runway > 6 ? '#10b981' : kpis.runway > 3 ? '#f59e0b' : '#ef4444'
+      status:
+        kpis.runway > 6 ? 'good' : kpis.runway > 3 ? 'warning' : 'critical',
+      color:
+        kpis.runway > 6 ? '#10b981' : kpis.runway > 3 ? '#f59e0b' : '#ef4444',
     },
     dscr: {
       value: kpis.dscr,
-      status: kpis.dscr >= 1.2 ? 'good' : kpis.dscr >= 1.0 ? 'warning' : 'critical',
-      color: kpis.dscr >= 1.2 ? '#10b981' : kpis.dscr >= 1.0 ? '#f59e0b' : '#ef4444'
+      status:
+        kpis.dscr >= 1.2 ? 'good' : kpis.dscr >= 1.0 ? 'warning' : 'critical',
+      color:
+        kpis.dscr >= 1.2 ? '#10b981' : kpis.dscr >= 1.0 ? '#f59e0b' : '#ef4444',
     },
     dso: {
       value: kpis.dso,
       status: kpis.dso <= 30 ? 'good' : kpis.dso <= 45 ? 'warning' : 'critical',
-      color: kpis.dso <= 30 ? '#10b981' : kpis.dso <= 45 ? '#f59e0b' : '#ef4444'
+      color:
+        kpis.dso <= 30 ? '#10b981' : kpis.dso <= 45 ? '#f59e0b' : '#ef4444',
     },
     dpo: {
       value: kpis.dpo,
       status: kpis.dpo >= 30 ? 'good' : kpis.dpo >= 15 ? 'warning' : 'critical',
-      color: kpis.dpo >= 30 ? '#10b981' : kpis.dpo >= 15 ? '#f59e0b' : '#ef4444'
+      color:
+        kpis.dpo >= 30 ? '#10b981' : kpis.dpo >= 15 ? '#f59e0b' : '#ef4444',
     },
     budgetVariance: {
       value: kpis.budgetVariance,
-      status: Math.abs(kpis.budgetVariance) <= 5 ? 'good' : Math.abs(kpis.budgetVariance) <= 10 ? 'warning' : 'critical',
-      color: Math.abs(kpis.budgetVariance) <= 5 ? '#10b981' : Math.abs(kpis.budgetVariance) <= 10 ? '#f59e0b' : '#ef4444'
-    }
+      status:
+        Math.abs(kpis.budgetVariance) <= 5
+          ? 'good'
+          : Math.abs(kpis.budgetVariance) <= 10
+            ? 'warning'
+            : 'critical',
+      color:
+        Math.abs(kpis.budgetVariance) <= 5
+          ? '#10b981'
+          : Math.abs(kpis.budgetVariance) <= 10
+            ? '#f59e0b'
+            : '#ef4444',
+    },
   };
 };
 
 const exportKPIToPDF = async (dashboardId: string) => {
-  const [dashboard] = await db.execute(`
+  const [dashboard] = await db.execute(
+    `
     SELECT * FROM kpi_dashboards WHERE id = $1
-  `, [dashboardId]);
+  `,
+    [dashboardId]
+  );
 
   if (!dashboard.rows[0]) {
     throw new Error('Dashboard not found');
@@ -107,20 +142,23 @@ const exportKPIToPDF = async (dashboardId: string) => {
     title: 'KPI Dashboard Report',
     generatedAt: dashboard.rows[0].generated_at,
     kpis: chartData,
-    summary: dashboard.rows[0].summary
+    summary: dashboard.rows[0].summary,
   };
 
   return {
     success: true,
     filePath: `/exports/kpi-dashboard-${dashboardId}.pdf`,
-    content: pdfContent
+    content: pdfContent,
   };
 };
 
 const exportKPIToExcel = async (dashboardId: string) => {
-  const [dashboard] = await db.execute(`
+  const [dashboard] = await db.execute(
+    `
     SELECT * FROM kpi_dashboards WHERE id = $1
-  `, [dashboardId]);
+  `,
+    [dashboardId]
+  );
 
   if (!dashboard.rows[0]) {
     throw new Error('Dashboard not found');
@@ -138,23 +176,31 @@ const exportKPIToExcel = async (dashboardId: string) => {
       ['DSCR', kpis.dscr, chartData.dscr.status, chartData.dscr.color],
       ['DSO', kpis.dso, chartData.dso.status, chartData.dso.color],
       ['DPO', kpis.dpo, chartData.dpo.status, chartData.dpo.color],
-      ['Budget Variance', kpis.budgetVariance, chartData.budgetVariance.status, chartData.budgetVariance.color]
-    ]
+      [
+        'Budget Variance',
+        kpis.budgetVariance,
+        chartData.budgetVariance.status,
+        chartData.budgetVariance.color,
+      ],
+    ],
   };
 
   return {
     success: true,
     filePath: `/exports/kpi-dashboard-${dashboardId}.xlsx`,
-    content: excelContent
+    content: excelContent,
   };
 };
 
 const getKPIDashboardHistory = async (limit: number = 10) => {
-  const [result] = await db.execute(`
+  const [result] = await db.execute(
+    `
     SELECT * FROM kpi_dashboards 
     ORDER BY generated_at DESC 
     LIMIT $1
-  `, [limit]);
+  `,
+    [limit]
+  );
 
   return result.rows;
 };
@@ -180,7 +226,7 @@ describe.skip('KPI Dashboard Tests', () => {
         { cashBalance: 100000, monthlyExpenses: 20000, expectedRunway: 5 },
         { cashBalance: 50000, monthlyExpenses: 10000, expectedRunway: 5 },
         { cashBalance: 300000, monthlyExpenses: 25000, expectedRunway: 12 },
-        { cashBalance: 10000, monthlyExpenses: 5000, expectedRunway: 2 }
+        { cashBalance: 10000, monthlyExpenses: 5000, expectedRunway: 2 },
       ];
 
       testCases.forEach(({ cashBalance, monthlyExpenses, expectedRunway }) => {
@@ -191,16 +237,34 @@ describe.skip('KPI Dashboard Tests', () => {
 
     test('DSCR hesaplama doğru olmalı', () => {
       const testCases = [
-        { netOperatingIncome: 120000, totalDebtService: 100000, expectedDSCR: 1.2 },
-        { netOperatingIncome: 150000, totalDebtService: 100000, expectedDSCR: 1.5 },
-        { netOperatingIncome: 80000, totalDebtService: 100000, expectedDSCR: 0.8 },
-        { netOperatingIncome: 200000, totalDebtService: 100000, expectedDSCR: 2.0 }
+        {
+          netOperatingIncome: 120000,
+          totalDebtService: 100000,
+          expectedDSCR: 1.2,
+        },
+        {
+          netOperatingIncome: 150000,
+          totalDebtService: 100000,
+          expectedDSCR: 1.5,
+        },
+        {
+          netOperatingIncome: 80000,
+          totalDebtService: 100000,
+          expectedDSCR: 0.8,
+        },
+        {
+          netOperatingIncome: 200000,
+          totalDebtService: 100000,
+          expectedDSCR: 2.0,
+        },
       ];
 
-      testCases.forEach(({ netOperatingIncome, totalDebtService, expectedDSCR }) => {
-        const dscr = calculateDSCR(netOperatingIncome, totalDebtService);
-        expect(dscr).toBe(expectedDSCR);
-      });
+      testCases.forEach(
+        ({ netOperatingIncome, totalDebtService, expectedDSCR }) => {
+          const dscr = calculateDSCR(netOperatingIncome, totalDebtService);
+          expect(dscr).toBe(expectedDSCR);
+        }
+      );
     });
 
     test('DSO hesaplama doğru olmalı', () => {
@@ -208,7 +272,7 @@ describe.skip('KPI Dashboard Tests', () => {
         { totalReceivables: 30000, dailySales: 1000, expectedDSO: 30 },
         { totalReceivables: 60000, dailySales: 2000, expectedDSO: 30 },
         { totalReceivables: 45000, dailySales: 1500, expectedDSO: 30 },
-        { totalReceivables: 90000, dailySales: 1000, expectedDSO: 90 }
+        { totalReceivables: 90000, dailySales: 1000, expectedDSO: 90 },
       ];
 
       testCases.forEach(({ totalReceivables, dailySales, expectedDSO }) => {
@@ -222,7 +286,7 @@ describe.skip('KPI Dashboard Tests', () => {
         { totalPayables: 15000, dailyPurchases: 500, expectedDPO: 30 },
         { totalPayables: 30000, dailyPurchases: 1000, expectedDPO: 30 },
         { totalPayables: 22500, dailyPurchases: 750, expectedDPO: 30 },
-        { totalPayables: 45000, dailyPurchases: 500, expectedDPO: 90 }
+        { totalPayables: 45000, dailyPurchases: 500, expectedDPO: 90 },
       ];
 
       testCases.forEach(({ totalPayables, dailyPurchases, expectedDPO }) => {
@@ -236,7 +300,7 @@ describe.skip('KPI Dashboard Tests', () => {
         { plannedAmount: 100000, actualAmount: 105000, expectedVariance: 5 },
         { plannedAmount: 100000, actualAmount: 95000, expectedVariance: -5 },
         { plannedAmount: 100000, actualAmount: 120000, expectedVariance: 20 },
-        { plannedAmount: 100000, actualAmount: 80000, expectedVariance: -20 }
+        { plannedAmount: 100000, actualAmount: 80000, expectedVariance: -20 },
       ];
 
       testCases.forEach(({ plannedAmount, actualAmount, expectedVariance }) => {
@@ -258,16 +322,16 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 30000,
         dailyPurchases: 1000,
         plannedAmount: 100000,
-        actualAmount: 105000
+        actualAmount: 105000,
       };
 
       const result = await generateKPIDashboard(dashboardData);
-      
+
       expect(result.dashboard).toBeDefined();
       expect(result.dashboard.kpis).toBeDefined();
       expect(result.dashboard.summary).toBeDefined();
       expect(result.dashboard.generatedAt).toBeDefined();
-      
+
       expect(result.dashboard.kpis.runway).toBe(8); // 200000 / 25000
       expect(result.dashboard.kpis.dscr).toBe(1.5); // 150000 / 100000
       expect(result.dashboard.kpis.dso).toBe(30); // 45000 / 1500
@@ -287,7 +351,7 @@ describe.skip('KPI Dashboard Tests', () => {
           totalPayables: 15000,
           dailyPurchases: 500,
           plannedAmount: 50000,
-          actualAmount: 48000
+          actualAmount: 48000,
         },
         {
           cashBalance: 300000,
@@ -299,13 +363,13 @@ describe.skip('KPI Dashboard Tests', () => {
           totalPayables: 60000,
           dailyPurchases: 2000,
           plannedAmount: 200000,
-          actualAmount: 220000
-        }
+          actualAmount: 220000,
+        },
       ];
 
       for (const dashboardData of testCases) {
         const result = await generateKPIDashboard(dashboardData);
-        
+
         expect(result.dashboard).toBeDefined();
         expect(result.dashboard.kpis).toBeDefined();
         expect(result.dashboard.summary).toBeDefined();
@@ -323,18 +387,18 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 15000,
         dailyPurchases: 500,
         plannedAmount: 100000,
-        actualAmount: 105000
+        actualAmount: 105000,
       };
 
       const result = await generateKPIDashboard(dashboardData);
-      
+
       expect(result.chartData).toBeDefined();
       expect(result.chartData.runway).toBeDefined();
       expect(result.chartData.dscr).toBeDefined();
       expect(result.chartData.dso).toBeDefined();
       expect(result.chartData.dpo).toBeDefined();
       expect(result.chartData.budgetVariance).toBeDefined();
-      
+
       // Status kontrolü
       expect(result.chartData.runway.status).toBe('good'); // 5 months > 3
       expect(result.chartData.dscr.status).toBe('good'); // 1.2 >= 1.2
@@ -356,12 +420,12 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 40000,
         dailyPurchases: 1500,
         plannedAmount: 100000,
-        actualAmount: 95000
+        actualAmount: 95000,
       };
 
       const result = await generateKPIDashboard(dashboardData);
       const pdfExport = await exportKPIToPDF(result.dashboardId);
-      
+
       expect(pdfExport.success).toBe(true);
       expect(pdfExport.filePath).toContain('kpi-dashboard-');
       expect(pdfExport.content).toBeDefined();
@@ -380,12 +444,12 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 50000,
         dailyPurchases: 2000,
         plannedAmount: 150000,
-        actualAmount: 160000
+        actualAmount: 160000,
       };
 
       const result = await generateKPIDashboard(dashboardData);
       const excelExport = await exportKPIToExcel(result.dashboardId);
-      
+
       expect(excelExport.success).toBe(true);
       expect(excelExport.filePath).toContain('kpi-dashboard-');
       expect(excelExport.content).toBeDefined();
@@ -395,9 +459,13 @@ describe.skip('KPI Dashboard Tests', () => {
 
     test('Var olmayan dashboard export hatası', async () => {
       const nonExistentId = 'non-existent-id';
-      
-      await expect(exportKPIToPDF(nonExistentId)).rejects.toThrow('Dashboard not found');
-      await expect(exportKPIToExcel(nonExistentId)).rejects.toThrow('Dashboard not found');
+
+      await expect(exportKPIToPDF(nonExistentId)).rejects.toThrow(
+        'Dashboard not found'
+      );
+      await expect(exportKPIToExcel(nonExistentId)).rejects.toThrow(
+        'Dashboard not found'
+      );
     });
   });
 
@@ -413,17 +481,20 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 15000,
         dailyPurchases: 500,
         plannedAmount: 100000,
-        actualAmount: 105000
+        actualAmount: 105000,
       };
 
       const result = await generateKPIDashboard(dashboardData);
-      
+
       expect(result.dashboardId).toBeDefined();
-      
-      const [savedDashboard] = await db.execute(`
+
+      const [savedDashboard] = await db.execute(
+        `
         SELECT * FROM kpi_dashboards WHERE id = $1
-      `, [result.dashboardId]);
-      
+      `,
+        [result.dashboardId]
+      );
+
       expect(savedDashboard.rows[0].kpis).toBeDefined();
       expect(savedDashboard.rows[0].summary).toBeDefined();
       expect(savedDashboard.rows[0].generated_at).toBeDefined();
@@ -442,7 +513,7 @@ describe.skip('KPI Dashboard Tests', () => {
           totalPayables: 15000,
           dailyPurchases: 500,
           plannedAmount: 100000,
-          actualAmount: 105000
+          actualAmount: 105000,
         },
         {
           cashBalance: 150000,
@@ -454,8 +525,8 @@ describe.skip('KPI Dashboard Tests', () => {
           totalPayables: 22500,
           dailyPurchases: 750,
           plannedAmount: 150000,
-          actualAmount: 160000
-        }
+          actualAmount: 160000,
+        },
       ];
 
       for (const dashboardData of testDashboards) {
@@ -463,7 +534,7 @@ describe.skip('KPI Dashboard Tests', () => {
       }
 
       const history = await getKPIDashboardHistory(5);
-      
+
       expect(history).toBeDefined();
       expect(history.length).toBeGreaterThanOrEqual(2);
     });
@@ -479,21 +550,27 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 30000,
         dailyPurchases: 1000,
         plannedAmount: 200000,
-        actualAmount: 210000
+        actualAmount: 210000,
       };
 
       const result = await generateKPIDashboard(dashboardData);
-      
+
       // Dashboard'u güncelle
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE kpi_dashboards 
         SET summary = $1, updated_at = $2
         WHERE id = $3
-      `, ['Updated test dashboard', new Date(), result.dashboardId]);
+      `,
+        ['Updated test dashboard', new Date(), result.dashboardId]
+      );
 
-      const [updatedDashboard] = await db.execute(`
+      const [updatedDashboard] = await db.execute(
+        `
         SELECT * FROM kpi_dashboards WHERE id = $1
-      `, [result.dashboardId]);
+      `,
+        [result.dashboardId]
+      );
 
       expect(updatedDashboard.rows[0].summary).toBe('Updated test dashboard');
     });
@@ -511,11 +588,11 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 0,
         dailyPurchases: 0,
         plannedAmount: 0,
-        actualAmount: 0
+        actualAmount: 0,
       };
 
       const result = await generateKPIDashboard(dashboardData);
-      
+
       expect(result.dashboard.kpis.runway).toBe(Infinity); // 0 / 0 = Infinity
       expect(result.dashboard.kpis.dscr).toBe(Infinity); // 0 / 0 = Infinity
       expect(result.dashboard.kpis.dso).toBe(0); // 0 / 0 = 0
@@ -534,11 +611,11 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 15000,
         dailyPurchases: 500,
         plannedAmount: 100000,
-        actualAmount: 80000
+        actualAmount: 80000,
       };
 
       const result = await generateKPIDashboard(dashboardData);
-      
+
       expect(result.dashboard.kpis.runway).toBe(-2.5); // -50000 / 20000
       expect(result.dashboard.kpis.dscr).toBe(-1); // -10000 / 10000
       expect(result.dashboard.kpis.dso).toBe(30); // 30000 / 1000
@@ -557,11 +634,11 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 15000000, // 15 million
         dailyPurchases: 500000, // 500 thousand
         plannedAmount: 100000000, // 100 million
-        actualAmount: 105000000 // 105 million
+        actualAmount: 105000000, // 105 million
       };
 
       const result = await generateKPIDashboard(dashboardData);
-      
+
       expect(result.dashboard.kpis.runway).toBe(100); // 1000000000 / 10000000
       expect(result.dashboard.kpis.dscr).toBe(2.5); // 500000000 / 200000000
       expect(result.dashboard.kpis.dso).toBe(30); // 30000000 / 1000000
@@ -575,7 +652,7 @@ describe.skip('KPI Dashboard Tests', () => {
       const startTime = Date.now();
 
       // 100 dashboard oluştur
-      const promises = Array.from({ length: 100 }, (_, i) => 
+      const promises = Array.from({ length: 100 }, (_, i) =>
         generateKPIDashboard({
           cashBalance: 100000 + i * 1000,
           monthlyExpenses: 20000 + i * 200,
@@ -586,7 +663,7 @@ describe.skip('KPI Dashboard Tests', () => {
           totalPayables: 15000 + i * 150,
           dailyPurchases: 500 + i * 5,
           plannedAmount: 100000 + i * 1000,
-          actualAmount: 105000 + i * 1050
+          actualAmount: 105000 + i * 1050,
         })
       );
 
@@ -623,7 +700,7 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 15000,
         dailyPurchases: 500,
         plannedAmount: 100000,
-        actualAmount: 105000
+        actualAmount: 105000,
       };
 
       const result = await generateKPIDashboard(dashboardData);
@@ -633,7 +710,7 @@ describe.skip('KPI Dashboard Tests', () => {
       // PDF ve Excel export paralel çalıştır
       const [pdfExport, excelExport] = await Promise.all([
         exportKPIToPDF(result.dashboardId),
-        exportKPIToExcel(result.dashboardId)
+        exportKPIToExcel(result.dashboardId),
       ]);
 
       const endTime = Date.now();
@@ -658,10 +735,12 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 15000,
         dailyPurchases: 500,
         plannedAmount: 100000,
-        actualAmount: 105000
+        actualAmount: 105000,
       };
 
-      await expect(generateKPIDashboard(invalidDashboardData)).rejects.toThrow();
+      await expect(
+        generateKPIDashboard(invalidDashboardData)
+      ).rejects.toThrow();
     });
 
     test('Eksik veri ile hata', async () => {
@@ -675,10 +754,12 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 15000,
         dailyPurchases: 500,
         plannedAmount: 100000,
-        actualAmount: 105000
+        actualAmount: 105000,
       };
 
-      await expect(generateKPIDashboard(incompleteDashboardData)).rejects.toThrow();
+      await expect(
+        generateKPIDashboard(incompleteDashboardData)
+      ).rejects.toThrow();
     });
 
     test('Null değerler ile hata', async () => {
@@ -692,7 +773,7 @@ describe.skip('KPI Dashboard Tests', () => {
         totalPayables: 15000,
         dailyPurchases: 500,
         plannedAmount: 100000,
-        actualAmount: 105000
+        actualAmount: 105000,
       };
 
       await expect(generateKPIDashboard(nullDashboardData)).rejects.toThrow();

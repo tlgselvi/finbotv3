@@ -29,7 +29,7 @@ export class InvestmentAdvisorService {
   /**
    * Calculate risk score based on portfolio composition and user profile
    */
-  async calculateRiskScore (userId: string): Promise<RiskAssessment> {
+  async calculateRiskScore(userId: string): Promise<RiskAssessment> {
     try {
       // Get user's current investments
       const userInvestments = await db
@@ -98,7 +98,10 @@ export class InvestmentAdvisorService {
   /**
    * Generate portfolio recommendations based on risk profile
    */
-  async generatePortfolioRecommendation (userId: string, riskTolerance?: 'conservative' | 'balanced' | 'aggressive'): Promise<PortfolioRecommendation> {
+  async generatePortfolioRecommendation(
+    userId: string,
+    riskTolerance?: 'conservative' | 'balanced' | 'aggressive'
+  ): Promise<PortfolioRecommendation> {
     try {
       // Get risk assessment
       const riskAssessment = await this.calculateRiskScore(userId);
@@ -140,10 +143,13 @@ export class InvestmentAdvisorService {
         Respond in JSON format.
       `;
 
-      const response = await openaiService.generateResponse(recommendationPrompt, {
-        temperature: 0.4,
-        max_tokens: 400,
-      });
+      const response = await openaiService.generateResponse(
+        recommendationPrompt,
+        {
+          temperature: 0.4,
+          max_tokens: 400,
+        }
+      );
 
       if (!response.success) {
         throw new Error(response.error || 'Recommendation generation failed');
@@ -175,7 +181,7 @@ export class InvestmentAdvisorService {
   /**
    * Get investment suggestions based on current portfolio
    */
-  async getInvestmentSuggestions (userId: string): Promise<{
+  async getInvestmentSuggestions(userId: string): Promise<{
     suggestions: Array<{
       type: string;
       symbol?: string;
@@ -231,9 +237,11 @@ export class InvestmentAdvisorService {
   /**
    * Calculate basic portfolio metrics
    */
-  private calculatePortfolioMetrics (investments: any[]) {
+  private calculatePortfolioMetrics(investments: any[]) {
     const totalValue = investments.reduce((sum, inv) => {
-      const value = inv.currentPrice ? inv.quantity * inv.currentPrice : inv.quantity * inv.purchasePrice;
+      const value = inv.currentPrice
+        ? inv.quantity * inv.currentPrice
+        : inv.quantity * inv.purchasePrice;
       return sum + value;
     }, 0);
 
@@ -254,7 +262,7 @@ export class InvestmentAdvisorService {
   /**
    * Fallback risk calculation
    */
-  private calculateBasicRiskScore (investments: any[]): RiskAssessment {
+  private calculateBasicRiskScore(investments: any[]): RiskAssessment {
     if (investments.length === 0) {
       return {
         riskScore: 5,
@@ -304,23 +312,39 @@ export class InvestmentAdvisorService {
   /**
    * Fallback portfolio recommendations
    */
-  private getFallbackRecommendation (strategy: string): PortfolioRecommendation {
+  private getFallbackRecommendation(strategy: string): PortfolioRecommendation {
     const allocations = {
       conservative: {
-        stocks: 30, bonds: 50, crypto: 5, funds: 10, realEstate: 5,
-        expectedReturn: 6, expectedVolatility: 8,
+        stocks: 30,
+        bonds: 50,
+        crypto: 5,
+        funds: 10,
+        realEstate: 5,
+        expectedReturn: 6,
+        expectedVolatility: 8,
       },
       balanced: {
-        stocks: 50, bonds: 30, crypto: 10, funds: 5, realEstate: 5,
-        expectedReturn: 9, expectedVolatility: 12,
+        stocks: 50,
+        bonds: 30,
+        crypto: 10,
+        funds: 5,
+        realEstate: 5,
+        expectedReturn: 9,
+        expectedVolatility: 12,
       },
       aggressive: {
-        stocks: 60, bonds: 15, crypto: 15, funds: 5, realEstate: 5,
-        expectedReturn: 12, expectedVolatility: 18,
+        stocks: 60,
+        bonds: 15,
+        crypto: 15,
+        funds: 5,
+        realEstate: 5,
+        expectedReturn: 12,
+        expectedVolatility: 18,
       },
     };
 
-    const allocation = allocations[strategy as keyof typeof allocations] || allocations.balanced;
+    const allocation =
+      allocations[strategy as keyof typeof allocations] || allocations.balanced;
 
     return {
       strategy: strategy as any,
@@ -334,24 +358,65 @@ export class InvestmentAdvisorService {
   /**
    * Fallback investment suggestions
    */
-  private getFallbackSuggestions (riskLevel: string) {
+  private getFallbackSuggestions(riskLevel: string) {
     const suggestions = {
       low: [
-        { type: 'bond', reason: 'Düşük riskli tahvil yatırımı', expectedReturn: 5, riskLevel: 'low' as const },
-        { type: 'fund', reason: 'Dengeli fon yatırımı', expectedReturn: 7, riskLevel: 'low' as const },
+        {
+          type: 'bond',
+          reason: 'Düşük riskli tahvil yatırımı',
+          expectedReturn: 5,
+          riskLevel: 'low' as const,
+        },
+        {
+          type: 'fund',
+          reason: 'Dengeli fon yatırımı',
+          expectedReturn: 7,
+          riskLevel: 'low' as const,
+        },
       ],
       medium: [
-        { type: 'stock', symbol: 'AAPL', reason: 'Teknoloji hissesi', expectedReturn: 10, riskLevel: 'medium' as const },
-        { type: 'bond', reason: 'Kurumsal tahvil', expectedReturn: 6, riskLevel: 'low' as const },
-        { type: 'crypto', symbol: 'BTC', reason: 'Kripto para çeşitlendirmesi', expectedReturn: 15, riskLevel: 'high' as const },
+        {
+          type: 'stock',
+          symbol: 'AAPL',
+          reason: 'Teknoloji hissesi',
+          expectedReturn: 10,
+          riskLevel: 'medium' as const,
+        },
+        {
+          type: 'bond',
+          reason: 'Kurumsal tahvil',
+          expectedReturn: 6,
+          riskLevel: 'low' as const,
+        },
+        {
+          type: 'crypto',
+          symbol: 'BTC',
+          reason: 'Kripto para çeşitlendirmesi',
+          expectedReturn: 15,
+          riskLevel: 'high' as const,
+        },
       ],
       high: [
-        { type: 'crypto', symbol: 'ETH', reason: 'Ethereum yatırımı', expectedReturn: 20, riskLevel: 'high' as const },
-        { type: 'stock', symbol: 'TSLA', reason: 'Büyüme hissesi', expectedReturn: 18, riskLevel: 'high' as const },
+        {
+          type: 'crypto',
+          symbol: 'ETH',
+          reason: 'Ethereum yatırımı',
+          expectedReturn: 20,
+          riskLevel: 'high' as const,
+        },
+        {
+          type: 'stock',
+          symbol: 'TSLA',
+          reason: 'Büyüme hissesi',
+          expectedReturn: 18,
+          riskLevel: 'high' as const,
+        },
       ],
     };
 
-    return suggestions[riskLevel as keyof typeof suggestions] || suggestions.medium;
+    return (
+      suggestions[riskLevel as keyof typeof suggestions] || suggestions.medium
+    );
   }
 }
 

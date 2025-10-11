@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import { apiRequest } from '../../client/src/lib/queryClient';
 
-const BACKEND_AVAILABLE = !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
+const BACKEND_AVAILABLE =
+  !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
 
 describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
   const testUser = {
@@ -98,7 +99,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
     beforeEach(async () => {
       // Register and login user
       await apiRequest('POST', '/api/auth/register', testUser);
-      
+
       const loginResponse = await apiRequest('POST', '/api/auth/login', {
         email: testUser.email,
         password: testUser.password,
@@ -114,7 +115,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
     it('should access protected route with valid session', async () => {
       const response = await apiRequest('GET', '/api/dashboard', undefined, {
         headers: {
-          'Cookie': authCookie,
+          Cookie: authCookie,
         },
       });
 
@@ -129,18 +130,23 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
 
     it('should logout and invalidate session', async () => {
       // Logout
-      const logoutResponse = await apiRequest('POST', '/api/auth/logout', undefined, {
-        headers: {
-          'Cookie': authCookie,
-        },
-      });
+      const logoutResponse = await apiRequest(
+        'POST',
+        '/api/auth/logout',
+        undefined,
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       expect(logoutResponse.status).toBe(200);
 
       // Try to access protected route after logout
       const response = await apiRequest('GET', '/api/dashboard', undefined, {
         headers: {
-          'Cookie': authCookie,
+          Cookie: authCookie,
         },
       });
 
@@ -154,7 +160,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
     beforeEach(async () => {
       // Register and login user
       await apiRequest('POST', '/api/auth/register', testUser);
-      
+
       const loginResponse = await apiRequest('POST', '/api/auth/login', {
         email: testUser.email,
         password: testUser.password,
@@ -167,13 +173,18 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
     });
 
     it('should send verification email', async () => {
-      const response = await apiRequest('POST', '/api/email-verification/send-verification', {
-        email: testUser.email,
-      }, {
-        headers: {
-          'Cookie': authCookie,
+      const response = await apiRequest(
+        'POST',
+        '/api/email-verification/send-verification',
+        {
+          email: testUser.email,
         },
-      });
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -183,22 +194,32 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
 
     it('should confirm email verification', async () => {
       // First send verification
-      await apiRequest('POST', '/api/email-verification/send-verification', {
-        email: testUser.email,
-      }, {
-        headers: {
-          'Cookie': authCookie,
+      await apiRequest(
+        'POST',
+        '/api/email-verification/send-verification',
+        {
+          email: testUser.email,
         },
-      });
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       // Then confirm
-      const response = await apiRequest('POST', '/api/email-verification/confirm-verification', {
-        verificationCode: '1234',
-      }, {
-        headers: {
-          'Cookie': authCookie,
+      const response = await apiRequest(
+        'POST',
+        '/api/email-verification/confirm-verification',
+        {
+          verificationCode: '1234',
         },
-      });
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -206,11 +227,16 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
     });
 
     it('should get verification status', async () => {
-      const response = await apiRequest('GET', '/api/email-verification/status', undefined, {
-        headers: {
-          'Cookie': authCookie,
-        },
-      });
+      const response = await apiRequest(
+        'GET',
+        '/api/email-verification/status',
+        undefined,
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -222,18 +248,23 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
   describe('Rate Limiting', () => {
     it('should bypass rate limit with test header', async () => {
       const promises = Array.from({ length: 10 }, () =>
-        apiRequest('POST', '/api/auth/login', {
-          email: 'nonexistent@example.com',
-          password: 'wrongpassword',
-        }, {
-          headers: {
-            'X-Test-Bypass': '1',
+        apiRequest(
+          'POST',
+          '/api/auth/login',
+          {
+            email: 'nonexistent@example.com',
+            password: 'wrongpassword',
           },
-        })
+          {
+            headers: {
+              'X-Test-Bypass': '1',
+            },
+          }
+        )
       );
 
       const responses = await Promise.all(promises);
-      
+
       // All should return 401 (invalid credentials), not 429 (rate limited)
       responses.forEach(response => {
         expect(response.status).toBe(401);
@@ -259,7 +290,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
         // Use JWT to access protected route
         const response = await apiRequest('GET', '/api/dashboard', undefined, {
           headers: {
-            'Authorization': `Bearer ${jwtToken}`,
+            Authorization: `Bearer ${jwtToken}`,
           },
         });
 
@@ -268,4 +299,3 @@ describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
     });
   });
 });
-

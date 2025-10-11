@@ -25,7 +25,7 @@ if (!DATABASE_URL) {
 
 async function seedDatabase() {
   let sqlClient = null;
-  
+
   try {
     logger.info('🌱 Starting database seeding...');
 
@@ -34,7 +34,7 @@ async function seedDatabase() {
 
     // Use appropriate driver based on URL
     let db;
-    
+
     if (DATABASE_URL.includes('neon.tech')) {
       // Neon database with HTTP connection
       sqlClient = neon(DATABASE_URL);
@@ -51,15 +51,14 @@ async function seedDatabase() {
 
     // Seed admin user
     await seedAdminUser(db);
-    
+
     // Seed demo user
     await seedDemoUser(db);
-    
+
     // Seed demo financial data
     await seedDemoData(db);
 
     logger.info('🎉 Database seeding completed successfully!');
-
   } catch (error) {
     logger.error('❌ Database seeding failed:', error.message);
     logger.error('📋 Error details:', error.stack);
@@ -79,7 +78,7 @@ async function seedDatabase() {
 
 async function seedAdminUser(db) {
   logger.info('👤 Seeding admin user...');
-  
+
   const adminPassword = await bcrypt.hash('admin123', 10);
   const adminUser = {
     id: crypto.randomUUID(),
@@ -88,12 +87,15 @@ async function seedAdminUser(db) {
     passwordHash: adminPassword,
     role: 'ADMIN',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
 
   // Check if admin exists
-  const existingAdmins = await db.select().from(schema.users).where(eq(schema.users.email, adminUser.email));
-  
+  const existingAdmins = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.email, adminUser.email));
+
   if (existingAdmins.length === 0) {
     await db.insert(schema.users).values(adminUser);
     logger.info('✅ Admin user created');
@@ -106,7 +108,7 @@ async function seedAdminUser(db) {
 
 async function seedDemoUser(db) {
   logger.info('👤 Seeding demo user...');
-  
+
   const demoPassword = await bcrypt.hash('demo123', 10);
   const demoUser = {
     id: crypto.randomUUID(),
@@ -115,12 +117,15 @@ async function seedDemoUser(db) {
     passwordHash: demoPassword,
     role: 'USER',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
 
   // Check if demo user exists
-  const existingDemos = await db.select().from(schema.users).where(eq(schema.users.email, demoUser.email));
-  
+  const existingDemos = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.email, demoUser.email));
+
   if (existingDemos.length === 0) {
     await db.insert(schema.users).values(demoUser);
     logger.info('✅ Demo user created');
@@ -133,17 +138,20 @@ async function seedDemoUser(db) {
 
 async function seedDemoData(db) {
   logger.info('💰 Seeding demo financial data...');
-  
+
   // Get demo user ID
-  const demoUsers = await db.select().from(schema.users).where(eq(schema.users.email, 'demo@finbot.com'));
-  
+  const demoUsers = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.email, 'demo@finbot.com'));
+
   if (demoUsers.length === 0) {
     logger.info('⚠️  Demo user not found, skipping demo data');
     return;
   }
-  
+
   const demoUserId = demoUsers[0].id;
-  
+
   // Sample bank accounts
   const bankAccounts = [
     {
@@ -151,33 +159,35 @@ async function seedDemoData(db) {
       userId: demoUserId,
       name: 'Ana Hesap',
       type: 'CHECKING',
-      balance: 15000.00,
+      balance: 15000.0,
       currency: 'TRY',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: crypto.randomUUID(),
       userId: demoUserId,
       name: 'Tasarruf Hesabı',
       type: 'SAVINGS',
-      balance: 50000.00,
+      balance: 50000.0,
       currency: 'TRY',
       createdAt: new Date(),
-      updatedAt: new Date()
-    }
+      updatedAt: new Date(),
+    },
   ];
 
   // Insert bank accounts
   for (const account of bankAccounts) {
-    const existingAccounts = await db.select().from(schema.bankAccounts)
+    const existingAccounts = await db
+      .select()
+      .from(schema.bankAccounts)
       .where(eq(schema.bankAccounts.userId, demoUserId));
-    
+
     if (existingAccounts.length === 0) {
       await db.insert(schema.bankAccounts).values(account);
     }
   }
-  
+
   logger.info('✅ Demo financial data created');
 }
 

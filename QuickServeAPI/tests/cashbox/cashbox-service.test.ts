@@ -1,6 +1,17 @@
-import { describe, it, expect, beforeEach, afterEach, beforeAll } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  beforeAll,
+} from '@jest/globals';
 import { db } from '../../server/db';
-import { cashboxes, cashboxTransactions, cashboxAuditLogs } from '@shared/schema';
+import {
+  cashboxes,
+  cashboxTransactions,
+  cashboxAuditLogs,
+} from '@shared/schema';
 import {
   createCashbox,
   getCashboxes,
@@ -224,7 +235,9 @@ describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
     });
 
     it('should return null for non-existent cashbox', async () => {
-      const result = await updateCashbox(testUserId, 'non-existent-id', { name: 'Updated' });
+      const result = await updateCashbox(testUserId, 'non-existent-id', {
+        name: 'Updated',
+      });
 
       expect(result).toBeNull();
     });
@@ -348,7 +361,10 @@ describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
         description: 'Test deposit',
       };
 
-      const result = await createCashboxTransaction(testUserId, transactionData);
+      const result = await createCashboxTransaction(
+        testUserId,
+        transactionData
+      );
 
       expect(result).toBeDefined();
       expect(result!.type).toBe('deposit');
@@ -369,7 +385,10 @@ describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
         description: 'Test withdrawal',
       };
 
-      const result = await createCashboxTransaction(testUserId, transactionData);
+      const result = await createCashboxTransaction(
+        testUserId,
+        transactionData
+      );
 
       expect(result).toBeDefined();
       expect(result!.type).toBe('withdrawal');
@@ -390,8 +409,9 @@ describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
         description: 'Test withdrawal',
       };
 
-      await expect(createCashboxTransaction(testUserId, transactionData))
-        .rejects.toThrow('Yetersiz bakiye');
+      await expect(
+        createCashboxTransaction(testUserId, transactionData)
+      ).rejects.toThrow('Yetersiz bakiye');
     });
 
     it('should throw error for non-existent cashbox', async () => {
@@ -402,8 +422,9 @@ describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
         currency: 'TRY',
       };
 
-      await expect(createCashboxTransaction(testUserId, transactionData))
-        .rejects.toThrow('Kasa bulunamadı veya erişim yetkiniz yok');
+      await expect(
+        createCashboxTransaction(testUserId, transactionData)
+      ).rejects.toThrow('Kasa bulunamadı veya erişim yetkiniz yok');
     });
   });
 
@@ -464,8 +485,9 @@ describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
         currency: 'TRY',
       };
 
-      await expect(transferBetweenCashboxes(testUserId, transferData))
-        .rejects.toThrow('Yetersiz bakiye');
+      await expect(
+        transferBetweenCashboxes(testUserId, transferData)
+      ).rejects.toThrow('Yetersiz bakiye');
     });
 
     it('should throw error for same cashbox', async () => {
@@ -476,8 +498,9 @@ describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
         currency: 'TRY',
       };
 
-      await expect(transferBetweenCashboxes(testUserId, transferData))
-        .rejects.toThrow('Kaynak ve hedef kasa aynı olamaz');
+      await expect(
+        transferBetweenCashboxes(testUserId, transferData)
+      ).rejects.toThrow('Kaynak ve hedef kasa aynı olamaz');
     });
 
     it('should throw error for different currencies', async () => {
@@ -494,8 +517,11 @@ describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
         currency: 'TRY',
       };
 
-      await expect(transferBetweenCashboxes(testUserId, transferData))
-        .rejects.toThrow('Para birimleri farklı kasalar arasında transfer edilemez');
+      await expect(
+        transferBetweenCashboxes(testUserId, transferData)
+      ).rejects.toThrow(
+        'Para birimleri farklı kasalar arasında transfer edilemez'
+      );
     });
   });
 

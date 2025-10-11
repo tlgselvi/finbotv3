@@ -1,6 +1,12 @@
 import type { ErrorInfo, ReactNode } from 'react';
 import React, { Component } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
@@ -20,7 +26,7 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  constructor (props: Props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       hasError: false,
@@ -30,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
     };
   }
 
-  static getDerivedStateFromError (error: Error): State {
+  static getDerivedStateFromError(error: Error): State {
     // Update state so the next render will show the fallback UI
     return {
       hasError: true,
@@ -40,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
     };
   }
 
-  componentDidCatch (error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
       logger.error('ErrorBoundary caught an error:', error, errorInfo);
@@ -116,7 +122,8 @@ export class ErrorBoundary extends Component<Props, State> {
       url: window.location.href,
     };
 
-    navigator.clipboard.writeText(JSON.stringify(errorDetails, null, 2))
+    navigator.clipboard
+      .writeText(JSON.stringify(errorDetails, null, 2))
       .then(() => {
         // Show success message
         alert('Hata detayları panoya kopyalandı');
@@ -127,7 +134,7 @@ export class ErrorBoundary extends Component<Props, State> {
       });
   };
 
-  render () {
+  render() {
     if (this.state.hasError) {
       // Custom fallback UI
       if (this.props.fallback) {
@@ -144,7 +151,8 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
               <CardTitle className="text-2xl">Bir Hata Oluştu</CardTitle>
               <CardDescription>
-                Uygulamada beklenmeyen bir hata meydana geldi. Lütfen sayfayı yenileyin veya ana sayfaya dönün.
+                Uygulamada beklenmeyen bir hata meydana geldi. Lütfen sayfayı
+                yenileyin veya ana sayfaya dönün.
               </CardDescription>
             </CardHeader>
 
@@ -161,7 +169,9 @@ export class ErrorBoundary extends Component<Props, State> {
                       </p>
                       {this.state.error.stack && (
                         <details className="text-xs">
-                          <summary className="cursor-pointer font-medium">Stack Trace</summary>
+                          <summary className="cursor-pointer font-medium">
+                            Stack Trace
+                          </summary>
                           <pre className="mt-2 bg-muted p-2 rounded overflow-auto max-h-32">
                             {this.state.error.stack}
                           </pre>
@@ -174,28 +184,50 @@ export class ErrorBoundary extends Component<Props, State> {
 
               {/* Error ID for support */}
               <div className="text-center text-sm text-muted-foreground">
-                <p>Hata ID: <code className="bg-muted px-1 rounded">{this.state.errorId}</code></p>
+                <p>
+                  Hata ID:{' '}
+                  <code className="bg-muted px-1 rounded">
+                    {this.state.errorId}
+                  </code>
+                </p>
                 <p>Bu hatayı destek ekibine bildirirken bu ID'yi kullanın.</p>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button onClick={this.handleRetry} variant="default" className="flex items-center gap-2">
+                <Button
+                  onClick={this.handleRetry}
+                  variant="default"
+                  className="flex items-center gap-2"
+                >
                   <RefreshCw className="h-4 w-4" />
                   Tekrar Dene
                 </Button>
 
-                <Button onClick={this.handleReload} variant="outline" className="flex items-center gap-2">
+                <Button
+                  onClick={this.handleReload}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
                   <RefreshCw className="h-4 w-4" />
                   Sayfayı Yenile
                 </Button>
 
-                <Button onClick={this.handleGoHome} variant="outline" className="flex items-center gap-2">
+                <Button
+                  onClick={this.handleGoHome}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
                   <Home className="h-4 w-4" />
                   Ana Sayfa
                 </Button>
 
-                <Button onClick={this.copyErrorDetails} variant="ghost" size="sm" className="flex items-center gap-2">
+                <Button
+                  onClick={this.copyErrorDetails}
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
                   <Bug className="h-4 w-4" />
                   Hata Detaylarını Kopyala
                 </Button>
@@ -203,7 +235,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
               {/* Support Information */}
               <div className="text-center text-sm text-muted-foreground border-t pt-4">
-                <p>Problem devam ederse, lütfen destek ekibi ile iletişime geçin.</p>
+                <p>
+                  Problem devam ederse, lütfen destek ekibi ile iletişime geçin.
+                </p>
                 <p>Hata ID'sini paylaşarak daha hızlı yardım alabilirsiniz.</p>
               </div>
             </CardContent>
@@ -217,9 +251,9 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 // Higher-order component for easier usage
-export function withErrorBoundary<P extends object> (
+export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<Props, 'children'>,
+  errorBoundaryProps?: Omit<Props, 'children'>
 ) {
   const WrappedComponent = (props: P) => (
     <ErrorBoundary {...errorBoundaryProps}>
@@ -233,7 +267,7 @@ export function withErrorBoundary<P extends object> (
 }
 
 // Hook for programmatic error handling
-export function useErrorHandler () {
+export function useErrorHandler() {
   return (error: Error, errorInfo?: { componentStack?: string }) => {
     logger.error('Manual error report:', error, errorInfo);
 

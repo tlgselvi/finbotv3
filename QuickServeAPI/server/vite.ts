@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 const viteLogger = createLogger();
 
-export function log (message: string, source = 'express') {
+export function log(message: string, source = 'express') {
   const formattedTime = new Date().toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -24,7 +24,7 @@ export function log (message: string, source = 'express') {
   logger.info(`${formattedTime} [${source}] ${message}`);
 }
 
-export async function setupVite (app: Express, server: Server) {
+export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
@@ -53,14 +53,14 @@ export async function setupVite (app: Express, server: Server) {
       const clientTemplate = path.resolve(
         process.cwd(),
         'client',
-        'index.html',
+        'index.html'
       );
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, 'utf-8');
       template = template.replace(
         'src="/src/main.tsx"',
-        `src="/src/main.tsx?v=${nanoid()}"`,
+        `src="/src/main.tsx?v=${nanoid()}"`
       );
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ 'Content-Type': 'text/html' }).end(page);
@@ -71,17 +71,23 @@ export async function setupVite (app: Express, server: Server) {
   });
 }
 
-export function serveStatic (app: Express) {
+export function serveStatic(app: Express) {
   const distPath = path.resolve(process.cwd(), 'dist', 'public');
   logger.info('serveStatic - distPath:', distPath);
   logger.info('serveStatic - process.cwd():', process.cwd());
-  logger.info('serveStatic - fs.existsSync(distPath):', fs.existsSync(distPath));
+  logger.info(
+    'serveStatic - fs.existsSync(distPath):',
+    fs.existsSync(distPath)
+  );
 
   if (!fs.existsSync(distPath)) {
     logger.error('Build directory not found:', distPath);
-    logger.info('Available files in process.cwd():', fs.readdirSync(process.cwd()));
+    logger.info(
+      'Available files in process.cwd():',
+      fs.readdirSync(process.cwd())
+    );
     throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
+      `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
   }
 

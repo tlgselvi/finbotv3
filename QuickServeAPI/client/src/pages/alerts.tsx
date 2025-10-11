@@ -1,10 +1,32 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { AlertTriangle, Info, CheckCircle, Bell, Trash2, Calendar, User, Settings, Play } from 'lucide-react';
+import {
+  AlertTriangle,
+  Info,
+  CheckCircle,
+  Bell,
+  Trash2,
+  Calendar,
+  User,
+  Settings,
+  Play,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +41,8 @@ const severityConfig = {
     name: 'Düşük',
   },
   medium: {
-    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+    color:
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
     icon: AlertTriangle,
     bgColor: 'border-yellow-200 dark:border-yellow-800',
     name: 'Orta',
@@ -39,7 +62,7 @@ const alertTypeLabels = {
   monthly_summary: 'Aylık Özet',
 } as const;
 
-export default function AlertsPage () {
+export default function AlertsPage() {
   const [showDismissed, setShowDismissed] = useState(false);
   const [filterType, setFilterType] = useState<string>('all');
   const [filterSeverity, setFilterSeverity] = useState<string>('all');
@@ -51,7 +74,10 @@ export default function AlertsPage () {
 
   const dismissMutation = useMutation({
     mutationFn: async (alertId: string) => {
-      const response = await apiRequest('POST', `/api/alerts/${alertId}/dismiss`);
+      const response = await apiRequest(
+        'POST',
+        `/api/alerts/${alertId}/dismiss`
+      );
       return response.json();
     },
     onSuccess: () => {
@@ -95,14 +121,19 @@ export default function AlertsPage () {
 
   const filteredAlerts = (alerts as SystemAlert[]).filter(alert => {
     const typeMatch = filterType === 'all' || alert.type === filterType;
-    const severityMatch = filterSeverity === 'all' || alert.severity === filterSeverity;
+    const severityMatch =
+      filterSeverity === 'all' || alert.severity === filterSeverity;
     const dismissedMatch = showDismissed ? true : !alert.isDismissed;
 
     return typeMatch && severityMatch && dismissedMatch;
   });
 
-  const activeAlerts = (alerts as SystemAlert[]).filter(alert => alert.isActive && !alert.isDismissed);
-  const dismissedAlerts = (alerts as SystemAlert[]).filter(alert => alert.isDismissed);
+  const activeAlerts = (alerts as SystemAlert[]).filter(
+    alert => alert.isActive && !alert.isDismissed
+  );
+  const dismissedAlerts = (alerts as SystemAlert[]).filter(
+    alert => alert.isDismissed
+  );
 
   const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString('tr-TR', {
@@ -140,9 +171,7 @@ export default function AlertsPage () {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Sistem Uyarıları</h1>
         </div>
-        <div className="text-center py-8">
-          Uyarılar yükleniyor...
-        </div>
+        <div className="text-center py-8">Uyarılar yükleniyor...</div>
       </div>
     );
   }
@@ -151,8 +180,13 @@ export default function AlertsPage () {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold" data-testid="alerts-title">Sistem Uyarıları</h1>
-          <p className="text-muted-foreground mt-1" data-testid="alerts-description">
+          <h1 className="text-3xl font-bold" data-testid="alerts-title">
+            Sistem Uyarıları
+          </h1>
+          <p
+            className="text-muted-foreground mt-1"
+            data-testid="alerts-description"
+          >
             Finansal durum uyarılarını yönetin ve takip edin
           </p>
         </div>
@@ -162,7 +196,9 @@ export default function AlertsPage () {
           data-testid="button-run-checks"
         >
           <Play className="w-4 h-4 mr-2" />
-          {runChecksMutation.isPending ? 'Kontrol Ediliyor...' : 'Kontrolleri Çalıştır'}
+          {runChecksMutation.isPending
+            ? 'Kontrol Ediliyor...'
+            : 'Kontrolleri Çalıştır'}
         </Button>
       </div>
 
@@ -170,40 +206,52 @@ export default function AlertsPage () {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card data-testid="card-active-alerts">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aktif Uyarılar</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Aktif Uyarılar
+            </CardTitle>
             <Bell className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-active-count">{activeAlerts.length}</div>
+            <div className="text-2xl font-bold" data-testid="text-active-count">
+              {activeAlerts.length}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {activeAlerts.filter(a => a.severity === 'high').length} yüksek öncelikli
+              {activeAlerts.filter(a => a.severity === 'high').length} yüksek
+              öncelikli
             </p>
           </CardContent>
         </Card>
 
         <Card data-testid="card-dismissed-alerts">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Kapatılan Uyarılar</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Kapatılan Uyarılar
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-dismissed-count">{dismissedAlerts.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Geçmiş uyarılar
-            </p>
+            <div
+              className="text-2xl font-bold"
+              data-testid="text-dismissed-count"
+            >
+              {dismissedAlerts.length}
+            </div>
+            <p className="text-xs text-muted-foreground">Geçmiş uyarılar</p>
           </CardContent>
         </Card>
 
         <Card data-testid="card-total-alerts">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Uyarılar</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Toplam Uyarılar
+            </CardTitle>
             <Settings className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-total-count">{alerts.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Tüm uyarılar
-            </p>
+            <div className="text-2xl font-bold" data-testid="text-total-count">
+              {alerts.length}
+            </div>
+            <p className="text-xs text-muted-foreground">Tüm uyarılar</p>
           </CardContent>
         </Card>
       </div>
@@ -232,19 +280,26 @@ export default function AlertsPage () {
               <SelectContent>
                 <SelectItem value="all">Tüm Türler</SelectItem>
                 {Object.entries(alertTypeLabels).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <Select value={filterSeverity} onValueChange={setFilterSeverity}>
-              <SelectTrigger className="w-48" data-testid="select-filter-severity">
+              <SelectTrigger
+                className="w-48"
+                data-testid="select-filter-severity"
+              >
                 <SelectValue placeholder="Önem derecesi" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tüm Dereceler</SelectItem>
                 {Object.entries(severityConfig).map(([value, config]) => (
-                  <SelectItem key={value} value={value}>{config.name}</SelectItem>
+                  <SelectItem key={value} value={value}>
+                    {config.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -262,14 +317,14 @@ export default function AlertsPage () {
               <p className="text-muted-foreground">
                 {showDismissed
                   ? 'Seçili filtrelere uygun uyarı bulunamadı'
-                  : 'Aktif uyarınız bulunmuyor'
-                }
+                  : 'Aktif uyarınız bulunmuyor'}
               </p>
             </CardContent>
           </Card>
         ) : (
-          filteredAlerts.map((alert) => {
-            const config = severityConfig[alert.severity as keyof typeof severityConfig];
+          filteredAlerts.map(alert => {
+            const config =
+              severityConfig[alert.severity as keyof typeof severityConfig];
             const Icon = config.icon;
             const metadata = getAlertMetadata(alert);
 
@@ -284,7 +339,10 @@ export default function AlertsPage () {
                     <div className="flex items-center gap-3">
                       <Icon className="h-5 w-5 flex-shrink-0" />
                       <div>
-                        <CardTitle className="text-lg" data-testid={`text-alert-title-${alert.id}`}>
+                        <CardTitle
+                          className="text-lg"
+                          data-testid={`text-alert-title-${alert.id}`}
+                        >
                           {alert.title}
                         </CardTitle>
                         <div className="flex items-center gap-3 mt-2">
@@ -299,7 +357,9 @@ export default function AlertsPage () {
                             variant="outline"
                             data-testid={`badge-alert-type-${alert.id}`}
                           >
-                            {alertTypeLabels[alert.type as keyof typeof alertTypeLabels] || alert.type}
+                            {alertTypeLabels[
+                              alert.type as keyof typeof alertTypeLabels
+                            ] || alert.type}
                           </Badge>
                           {alert.isDismissed && (
                             <Badge
@@ -315,12 +375,18 @@ export default function AlertsPage () {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-right text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1" data-testid={`text-alert-created-${alert.id}`}>
+                        <div
+                          className="flex items-center gap-1"
+                          data-testid={`text-alert-created-${alert.id}`}
+                        >
                           <Calendar className="h-3 w-3" />
                           {formatDate(alert.createdAt)}
                         </div>
                         {alert.dismissedAt && (
-                          <div className="text-xs mt-1" data-testid={`text-alert-dismissed-at-${alert.id}`}>
+                          <div
+                            className="text-xs mt-1"
+                            data-testid={`text-alert-dismissed-at-${alert.id}`}
+                          >
                             Kapatıldı: {formatDate(alert.dismissedAt)}
                           </div>
                         )}
@@ -341,58 +407,115 @@ export default function AlertsPage () {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base mb-3" data-testid={`text-alert-description-${alert.id}`}>
+                  <CardDescription
+                    className="text-base mb-3"
+                    data-testid={`text-alert-description-${alert.id}`}
+                  >
                     {alert.description}
                   </CardDescription>
 
                   {metadata && (
-                    <div className="bg-muted/50 rounded-lg p-3 text-sm" data-testid={`text-alert-metadata-${alert.id}`}>
+                    <div
+                      className="bg-muted/50 rounded-lg p-3 text-sm"
+                      data-testid={`text-alert-metadata-${alert.id}`}
+                    >
                       <h4 className="font-medium mb-2">Detaylar:</h4>
                       <div className="space-y-1 text-muted-foreground">
-                        {alert.type === 'budget_exceeded' && metadata.category && (
-                          <div>
-                            <span className="font-medium">Kategori:</span> {metadata.category}
-                            <br />
-                            <span className="font-medium">Harcanan:</span> {parseFloat(metadata.spent).toLocaleString('tr-TR')} TL
-                            <br />
-                            <span className="font-medium">Limit:</span> {parseFloat(metadata.limit).toLocaleString('tr-TR')} TL
-                            <br />
-                            <span className="font-medium">İşlem Sayısı:</span> {metadata.transactionCount}
-                          </div>
-                        )}
-                        {alert.type === 'low_balance' && metadata.currentBalance && (
-                          <div>
-                            <span className="font-medium">Güncel Bakiye:</span> {parseFloat(metadata.currentBalance).toLocaleString('tr-TR')} TL
-                            <br />
-                            <span className="font-medium">Eşik Değer:</span> {parseFloat(metadata.threshold).toLocaleString('tr-TR')} TL
-                          </div>
-                        )}
-                        {alert.type === 'recurring_payment' && metadata.amount && (
-                          <div>
-                            <span className="font-medium">Tutar:</span> {parseFloat(metadata.amount).toLocaleString('tr-TR')} TL
-                            <br />
-                            <span className="font-medium">Son Ödeme:</span> {metadata.daysSinceLastPayment} gün önce
-                          </div>
-                        )}
+                        {alert.type === 'budget_exceeded' &&
+                          metadata.category && (
+                            <div>
+                              <span className="font-medium">Kategori:</span>{' '}
+                              {metadata.category}
+                              <br />
+                              <span className="font-medium">
+                                Harcanan:
+                              </span>{' '}
+                              {parseFloat(metadata.spent).toLocaleString(
+                                'tr-TR'
+                              )}{' '}
+                              TL
+                              <br />
+                              <span className="font-medium">Limit:</span>{' '}
+                              {parseFloat(metadata.limit).toLocaleString(
+                                'tr-TR'
+                              )}{' '}
+                              TL
+                              <br />
+                              <span className="font-medium">
+                                İşlem Sayısı:
+                              </span>{' '}
+                              {metadata.transactionCount}
+                            </div>
+                          )}
+                        {alert.type === 'low_balance' &&
+                          metadata.currentBalance && (
+                            <div>
+                              <span className="font-medium">
+                                Güncel Bakiye:
+                              </span>{' '}
+                              {parseFloat(
+                                metadata.currentBalance
+                              ).toLocaleString('tr-TR')}{' '}
+                              TL
+                              <br />
+                              <span className="font-medium">
+                                Eşik Değer:
+                              </span>{' '}
+                              {parseFloat(metadata.threshold).toLocaleString(
+                                'tr-TR'
+                              )}{' '}
+                              TL
+                            </div>
+                          )}
+                        {alert.type === 'recurring_payment' &&
+                          metadata.amount && (
+                            <div>
+                              <span className="font-medium">Tutar:</span>{' '}
+                              {parseFloat(metadata.amount).toLocaleString(
+                                'tr-TR'
+                              )}{' '}
+                              TL
+                              <br />
+                              <span className="font-medium">
+                                Son Ödeme:
+                              </span>{' '}
+                              {metadata.daysSinceLastPayment} gün önce
+                            </div>
+                          )}
                         {alert.type === 'monthly_summary' && metadata.net && (
                           <div>
-                            <span className="font-medium">Gelir:</span> {parseFloat(metadata.income).toLocaleString('tr-TR')} TL
+                            <span className="font-medium">Gelir:</span>{' '}
+                            {parseFloat(metadata.income).toLocaleString(
+                              'tr-TR'
+                            )}{' '}
+                            TL
                             <br />
-                            <span className="font-medium">Gider:</span> {parseFloat(metadata.expenses).toLocaleString('tr-TR')} TL
+                            <span className="font-medium">Gider:</span>{' '}
+                            {parseFloat(metadata.expenses).toLocaleString(
+                              'tr-TR'
+                            )}{' '}
+                            TL
                             <br />
-                            <span className="font-medium">Net:</span> {parseFloat(metadata.net).toLocaleString('tr-TR')} TL
+                            <span className="font-medium">Net:</span>{' '}
+                            {parseFloat(metadata.net).toLocaleString('tr-TR')}{' '}
+                            TL
                             <br />
-                            <span className="font-medium">İşlem Sayısı:</span> {metadata.transactionCount}
+                            <span className="font-medium">
+                              İşlem Sayısı:
+                            </span>{' '}
+                            {metadata.transactionCount}
                           </div>
                         )}
                         {alert.accountId && (
                           <div>
-                            <span className="font-medium">Hesap ID:</span> {alert.accountId}
+                            <span className="font-medium">Hesap ID:</span>{' '}
+                            {alert.accountId}
                           </div>
                         )}
                         {alert.transactionId && (
                           <div>
-                            <span className="font-medium">İşlem ID:</span> {alert.transactionId}
+                            <span className="font-medium">İşlem ID:</span>{' '}
+                            {alert.transactionId}
                           </div>
                         )}
                       </div>

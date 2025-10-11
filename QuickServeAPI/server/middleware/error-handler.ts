@@ -9,7 +9,7 @@ export class AppError extends Error {
   public isOperational: boolean;
   public code?: string;
 
-  constructor (message: string, statusCode: number = 500, code?: string) {
+  constructor(message: string, statusCode: number = 500, code?: string) {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
@@ -20,42 +20,42 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor (message: string, details?: any) {
+  constructor(message: string, details?: any) {
     super(message, 400, 'VALIDATION_ERROR');
     this.name = 'ValidationError';
   }
 }
 
 export class AuthenticationError extends AppError {
-  constructor (message: string = 'Authentication required') {
+  constructor(message: string = 'Authentication required') {
     super(message, 401, 'AUTHENTICATION_ERROR');
     this.name = 'AuthenticationError';
   }
 }
 
 export class AuthorizationError extends AppError {
-  constructor (message: string = 'Insufficient permissions') {
+  constructor(message: string = 'Insufficient permissions') {
     super(message, 403, 'AUTHORIZATION_ERROR');
     this.name = 'AuthorizationError';
   }
 }
 
 export class NotFoundError extends AppError {
-  constructor (message: string = 'Resource not found') {
+  constructor(message: string = 'Resource not found') {
     super(message, 404, 'NOT_FOUND_ERROR');
     this.name = 'NotFoundError';
   }
 }
 
 export class ConflictError extends AppError {
-  constructor (message: string = 'Resource conflict') {
+  constructor(message: string = 'Resource conflict') {
     super(message, 409, 'CONFLICT_ERROR');
     this.name = 'ConflictError';
   }
 }
 
 export class RateLimitError extends AppError {
-  constructor (message: string = 'Too many requests') {
+  constructor(message: string = 'Too many requests') {
     super(message, 429, 'RATE_LIMIT_ERROR');
     this.name = 'RateLimitError';
   }
@@ -81,7 +81,12 @@ interface ErrorLog {
 }
 
 // Enhanced error logging
-function logError (error: Error, req: Request, statusCode: number, code?: string) {
+function logError(
+  error: Error,
+  req: Request,
+  statusCode: number,
+  code?: string
+) {
   const errorLog: ErrorLog = {
     timestamp: new Date().toISOString(),
     level: statusCode >= 500 ? 'error' : 'warn',
@@ -115,7 +120,7 @@ function logError (error: Error, req: Request, statusCode: number, code?: string
 }
 
 // Handle different types of errors
-function handleZodError (error: ZodError): { message: string; details: any } {
+function handleZodError(error: ZodError): { message: string; details: any } {
   const issues = error.issues.map(issue => ({
     field: issue.path.join('.'),
     message: issue.message,
@@ -128,7 +133,10 @@ function handleZodError (error: ZodError): { message: string; details: any } {
   };
 }
 
-function handleJWTError (error: jwt.JsonWebTokenError | jwt.TokenExpiredError): { message: string; code: string } {
+function handleJWTError(error: jwt.JsonWebTokenError | jwt.TokenExpiredError): {
+  message: string;
+  code: string;
+} {
   if (error instanceof jwt.TokenExpiredError) {
     return {
       message: 'Token has expired',
@@ -142,23 +150,26 @@ function handleJWTError (error: jwt.JsonWebTokenError | jwt.TokenExpiredError): 
   };
 }
 
-function handleDatabaseError (error: any): { message: string; code: string } {
+function handleDatabaseError(error: any): { message: string; code: string } {
   // Handle common database errors
-  if (error.code === '23505') { // Unique constraint violation
+  if (error.code === '23505') {
+    // Unique constraint violation
     return {
       message: 'Resource already exists',
       code: 'DUPLICATE_RESOURCE',
     };
   }
 
-  if (error.code === '23503') { // Foreign key constraint violation
+  if (error.code === '23503') {
+    // Foreign key constraint violation
     return {
       message: 'Referenced resource does not exist',
       code: 'FOREIGN_KEY_VIOLATION',
     };
   }
 
-  if (error.code === '23502') { // Not null constraint violation
+  if (error.code === '23502') {
+    // Not null constraint violation
     return {
       message: 'Required field is missing',
       code: 'NULL_CONSTRAINT_VIOLATION',
@@ -172,11 +183,11 @@ function handleDatabaseError (error: any): { message: string; code: string } {
 }
 
 // Main error handling middleware
-export function errorHandler (
+export function errorHandler(
   error: Error,
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   let statusCode = 500;
   let message = 'Internal server error';
@@ -194,7 +205,10 @@ export function errorHandler (
     message = zodResult.message;
     details = zodResult.details;
     code = 'VALIDATION_ERROR';
-  } else if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {
+  } else if (
+    error instanceof jwt.JsonWebTokenError ||
+    error instanceof jwt.TokenExpiredError
+  ) {
     statusCode = 401;
     const jwtResult = handleJWTError(error);
     message = jwtResult.message;
@@ -254,20 +268,24 @@ export function errorHandler (
 }
 
 // Async error wrapper
-export function asyncHandler (fn: Function) {
+export function asyncHandler(fn: Function) {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
 
 // 404 handler
-export function notFoundHandler (req: Request, res: Response, next: NextFunction) {
+export function notFoundHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const error = new NotFoundError(`Route ${req.method} ${req.path} not found`);
   next(error);
 }
 
 // Global unhandled rejection handler
-export function setupGlobalErrorHandlers () {
+export function setupGlobalErrorHandlers() {
   // Handle unhandled promise rejections
   process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     logger.error('🚨 Unhandled Promise Rejection:', {
@@ -295,9 +313,14 @@ export function setupGlobalErrorHandlers () {
 }
 
 // Request ID middleware
-export function requestIdMiddleware (req: Request, res: Response, next: NextFunction) {
-  const requestId = req.headers['x-request-id'] ||
-                   `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+export function requestIdMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const requestId =
+    req.headers['x-request-id'] ||
+    `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   req.headers['x-request-id'] = requestId;
   res.setHeader('x-request-id', requestId);

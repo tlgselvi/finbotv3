@@ -15,7 +15,7 @@ class SentryIntegration {
     try {
       // Dynamic import to avoid issues when Sentry is not installed
       const Sentry = await import('@sentry/node');
-      
+
       if (process.env.SENTRY_DSN) {
         Sentry.init({
           dsn: process.env.SENTRY_DSN,
@@ -38,13 +38,15 @@ class SentryIntegration {
           },
           beforeSendTransaction(event) {
             // Filter out health check and metrics endpoints
-            if (event.transaction?.includes('/health') || 
-                event.transaction?.includes('/metrics') ||
-                event.transaction?.includes('/logs')) {
+            if (
+              event.transaction?.includes('/health') ||
+              event.transaction?.includes('/metrics') ||
+              event.transaction?.includes('/logs')
+            ) {
               return null;
             }
             return event;
-          }
+          },
         });
 
         this.sentry = Sentry;
@@ -69,22 +71,27 @@ class SentryIntegration {
       logger.error('🚨 Exception (Sentry fallback):', {
         error: error.message,
         stack: error.stack,
-        context
+        context,
       });
     }
   }
 
   // Capture message
-  captureMessage(message: string, level: 'debug' | 'info' | 'warning' | 'error' | 'fatal' = 'info', context?: any) {
+  captureMessage(
+    message: string,
+    level: 'debug' | 'info' | 'warning' | 'error' | 'fatal' = 'info',
+    context?: any
+  ) {
     if (this.sentry && this.isInitialized) {
       this.sentry.captureMessage(message, level, context);
     } else {
       // Fallback logging
-      const emoji = level === 'error' ? '🚨' : level === 'warning' ? '⚠️' : 'ℹ️';
+      const emoji =
+        level === 'error' ? '🚨' : level === 'warning' ? '⚠️' : 'ℹ️';
       logger.info(`${emoji} Message (Sentry fallback):`, {
         message,
         level,
-        context
+        context,
       });
     }
   }
@@ -97,7 +104,12 @@ class SentryIntegration {
   }
 
   // Set user context
-  setUser(user: { id?: string; email?: string; username?: string; role?: string }) {
+  setUser(user: {
+    id?: string;
+    email?: string;
+    username?: string;
+    role?: string;
+  }) {
     if (this.sentry && this.isInitialized) {
       this.sentry.setUser(user);
     }
@@ -152,7 +164,11 @@ class SentryIntegration {
 export const sentry = new SentryIntegration();
 
 // Sentry middleware for Express
-export const sentryMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const sentryMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   if (sentry.sentry && sentry.isInitialized) {
     sentry.sentry.requestHandler()(req, res, next);
   } else {
@@ -161,7 +177,11 @@ export const sentryMiddleware = (req: Request, res: Response, next: NextFunction
 };
 
 // Sentry error handler middleware
-export const sentryErrorHandler = (req: Request, res: Response, next: NextFunction) => {
+export const sentryErrorHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   if (sentry.sentry && sentry.isInitialized) {
     sentry.sentry.errorHandler()(req, res, next);
   } else {
@@ -170,7 +190,11 @@ export const sentryErrorHandler = (req: Request, res: Response, next: NextFuncti
 };
 
 // Sentry tracing middleware
-export const sentryTracingMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const sentryTracingMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   if (sentry.sentry && sentry.isInitialized) {
     sentry.sentry.tracingHandler()(req, res, next);
   } else {
@@ -179,7 +203,12 @@ export const sentryTracingMiddleware = (req: Request, res: Response, next: NextF
 };
 
 // Custom error handler with Sentry integration
-export const errorHandlerWithSentry = (error: Error, req: Request, res: Response, next: NextFunction) => {
+export const errorHandlerWithSentry = (
+  error: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // Set user context if available
   if ((req as AuthenticatedRequest).user) {
     const user = (req as AuthenticatedRequest).user!;
@@ -187,7 +216,7 @@ export const errorHandlerWithSentry = (error: Error, req: Request, res: Response
       id: user.id,
       email: user.email,
       username: user.username,
-      role: user.role
+      role: user.role,
     });
   }
 
@@ -200,7 +229,7 @@ export const errorHandlerWithSentry = (error: Error, req: Request, res: Response
     params: req.params,
     ip: req.ip || req.connection.remoteAddress,
     userAgent: req.get('User-Agent'),
-    sessionId: (req as any).sessionID
+    sessionId: (req as any).sessionID,
   });
 
   // Add breadcrumb
@@ -211,20 +240,20 @@ export const errorHandlerWithSentry = (error: Error, req: Request, res: Response
     data: {
       method: req.method,
       path: req.path,
-      statusCode: res.statusCode
-    }
+      statusCode: res.statusCode,
+    },
   });
 
   // Capture exception
   sentry.captureException(error, {
     tags: {
       endpoint: `${req.method} ${req.path}`,
-      userId: (req as AuthenticatedRequest).user?.id
+      userId: (req as AuthenticatedRequest).user?.id,
     },
     extra: {
       requestId: req.headers['x-request-id'],
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   });
 
   // Log to console in development
@@ -235,25 +264,35 @@ export const errorHandlerWithSentry = (error: Error, req: Request, res: Response
       request: {
         method: req.method,
         url: req.url,
-        userId: (req as AuthenticatedRequest).user?.id
-      }
+        userId: (req as AuthenticatedRequest).user?.id,
+      },
     });
   }
 
   // Send error response
   const statusCode = res.statusCode || 500;
   res.status(statusCode).json({
-    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : error.message,
+    error:
+      process.env.NODE_ENV === 'production'
+        ? 'Internal Server Error'
+        : error.message,
     code: 'INTERNAL_ERROR',
     requestId: req.headers['x-request-id'],
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
 // Performance monitoring middleware
-export const performanceMonitoringMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const performanceMonitoringMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const startTime = Date.now();
-  const transaction = sentry.startTransaction(`${req.method} ${req.path}`, 'http.server');
+  const transaction = sentry.startTransaction(
+    `${req.method} ${req.path}`,
+    'http.server'
+  );
 
   if (transaction) {
     // Set transaction context
@@ -268,18 +307,18 @@ export const performanceMonitoringMiddleware = (req: Request, res: Response, nex
       transaction.setUser({
         id: user.id,
         email: user.email,
-        username: user.username
+        username: user.username,
       });
     }
 
     // Override res.end to finish transaction
     const originalEnd = res.end;
-    res.end = function(chunk?: any) {
+    res.end = function (chunk?: any) {
       const duration = Date.now() - startTime;
-      
+
       transaction.setData('statusCode', res.statusCode);
       transaction.setData('duration', duration);
-      
+
       if (res.statusCode >= 400) {
         transaction.setStatus('internal_error');
       } else if (res.statusCode >= 300) {
@@ -297,16 +336,21 @@ export const performanceMonitoringMiddleware = (req: Request, res: Response, nex
 };
 
 // Database query monitoring
-export const databaseQueryMonitoring = (query: string, duration: number, error?: Error) => {
-  if (duration > 1000) { // Log slow queries (>1 second)
+export const databaseQueryMonitoring = (
+  query: string,
+  duration: number,
+  error?: Error
+) => {
+  if (duration > 1000) {
+    // Log slow queries (>1 second)
     sentry.addBreadcrumb({
       category: 'db',
       message: 'Slow database query',
       level: 'warning',
       data: {
         query: query.substring(0, 200), // Truncate long queries
-        duration
-      }
+        duration,
+      },
     });
 
     sentry.captureMessage('Slow database query detected', 'warning', {
@@ -314,8 +358,8 @@ export const databaseQueryMonitoring = (query: string, duration: number, error?:
       duration,
       tags: {
         type: 'database',
-        performance: 'slow_query'
-      }
+        performance: 'slow_query',
+      },
     });
   }
 
@@ -323,15 +367,18 @@ export const databaseQueryMonitoring = (query: string, duration: number, error?:
     sentry.captureException(error, {
       tags: {
         type: 'database',
-        query: query.substring(0, 100)
-      }
+        query: query.substring(0, 100),
+      },
     });
   }
 };
 
 // Custom error classes for better Sentry grouping
 export class ValidationError extends Error {
-  constructor(message: string, public field?: string) {
+  constructor(
+    message: string,
+    public field?: string
+  ) {
     super(message);
     this.name = 'ValidationError';
   }
@@ -352,14 +399,21 @@ export class AuthorizationError extends Error {
 }
 
 export class DatabaseError extends Error {
-  constructor(message: string, public originalError?: Error) {
+  constructor(
+    message: string,
+    public originalError?: Error
+  ) {
     super(message);
     this.name = 'DatabaseError';
   }
 }
 
 export class ExternalServiceError extends Error {
-  constructor(message: string, public service: string, public statusCode?: number) {
+  constructor(
+    message: string,
+    public service: string,
+    public statusCode?: number
+  ) {
     super(message);
     this.name = 'ExternalServiceError';
   }
@@ -381,30 +435,38 @@ export const captureError = (error: Error, context?: any) => {
       name: error.name,
       message: error.message,
       stack: error.stack,
-      context
+      context,
     });
   }
 };
 
 // Helper function to capture performance issues
-export const capturePerformanceIssue = (operation: string, duration: number, threshold: number = 1000) => {
+export const capturePerformanceIssue = (
+  operation: string,
+  duration: number,
+  threshold: number = 1000
+) => {
   if (duration > threshold) {
-    sentry.captureMessage(`Performance issue: ${operation} took ${duration}ms`, 'warning', {
-      operation,
-      duration,
-      threshold,
-      tags: {
-        type: 'performance',
-        operation
+    sentry.captureMessage(
+      `Performance issue: ${operation} took ${duration}ms`,
+      'warning',
+      {
+        operation,
+        duration,
+        threshold,
+        tags: {
+          type: 'performance',
+          operation,
+        },
       }
-    });
+    );
   }
 };
 
 // Graceful shutdown handler
 export const gracefulShutdown = async () => {
   logger.info('🔄 Gracefully shutting down...');
-  
+
   try {
     await sentry.close();
     logger.info('✅ Sentry closed successfully');
@@ -416,7 +478,7 @@ export const gracefulShutdown = async () => {
 };
 
 // Handle uncaught exceptions and unhandled rejections
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   logger.error('🚨 Uncaught Exception:', error);
   sentry.captureException(error);
   gracefulShutdown();
@@ -446,5 +508,5 @@ export default {
   ExternalServiceError,
   captureError,
   capturePerformanceIssue,
-  gracefulShutdown
+  gracefulShutdown,
 };

@@ -97,13 +97,13 @@ export function RunwayWidget({ months = 12 }: RunwayWidgetProps) {
     try {
       setLoading(true);
       const response = await fetch(`/api/dashboard/runway?months=${months}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setRunway(data.data);
       } else {
@@ -182,7 +182,7 @@ export function RunwayWidget({ months = 12 }: RunwayWidgetProps) {
         </CardTitle>
         <CardDescription>Nakit tükenme süresi analizi</CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Main Runway Display */}
         <div className="text-center space-y-4">
@@ -194,12 +194,9 @@ export function RunwayWidget({ months = 12 }: RunwayWidgetProps) {
               ({runway.runwayDays} gün)
             </p>
           </div>
-          
-          <Progress 
-            value={progressPercentage} 
-            className="h-3"
-          />
-          
+
+          <Progress value={progressPercentage} className="h-3" />
+
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>0 ay</span>
             <span>12 ay</span>
@@ -209,14 +206,18 @@ export function RunwayWidget({ months = 12 }: RunwayWidgetProps) {
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
-            <p className="text-sm text-blue-700 dark:text-blue-300">Mevcut Nakit</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Mevcut Nakit
+            </p>
             <p className="text-xl font-bold text-blue-900 dark:text-blue-100">
               {formatCurrency(runway.currentCash)}
             </p>
           </div>
-          
+
           <div className="bg-red-50 dark:bg-red-950/30 p-4 rounded-lg">
-            <p className="text-sm text-red-700 dark:text-red-300">Aylık Gider</p>
+            <p className="text-sm text-red-700 dark:text-red-300">
+              Aylık Gider
+            </p>
             <p className="text-xl font-bold text-red-900 dark:text-red-100">
               {formatCurrency(runway.monthlyExpenses)}
             </p>
@@ -230,15 +231,22 @@ export function RunwayWidget({ months = 12 }: RunwayWidgetProps) {
           </h4>
           <div className="space-y-2">
             {runway.monthlyBreakdown.slice(0, 6).map((month, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-950/30 rounded">
+              <div
+                key={index}
+                className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-950/30 rounded"
+              >
                 <span className="text-sm font-medium">{month.month}</span>
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground">
                     Gider: {formatCurrency(month.expenses)}
                   </span>
-                  <span className={`text-sm font-medium ${
-                    month.projectedCash > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                  }`}>
+                  <span
+                    className={`text-sm font-medium ${
+                      month.projectedCash > 0
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}
+                  >
                     {formatCurrency(month.projectedCash)}
                   </span>
                 </div>
@@ -254,8 +262,13 @@ export function RunwayWidget({ months = 12 }: RunwayWidgetProps) {
           </h4>
           <ul className="space-y-1">
             {runway.recommendations.slice(0, 3).map((recommendation, index) => (
-              <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
+              <li
+                key={index}
+                className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2"
+              >
+                <span className="text-blue-600 dark:text-blue-400 mt-0.5">
+                  •
+                </span>
                 {recommendation}
               </li>
             ))}

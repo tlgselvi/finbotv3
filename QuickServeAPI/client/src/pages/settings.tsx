@@ -1,19 +1,35 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTheme } from '@/lib/theme-context';
 import { useAuth } from '@/hooks/useAuth';
-import { Moon, Sun, Monitor, Users, Settings as SettingsIcon, Brain } from 'lucide-react';
+import {
+  Moon,
+  Sun,
+  Monitor,
+  Users,
+  Settings as SettingsIcon,
+  Brain,
+} from 'lucide-react';
 import { UserManagement } from '@/components/user-management';
 import { AISettings } from '@/components/ai-settings';
 
-export default function Settings () {
+export default function Settings() {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
   // Get tab from URL parameter - simplified for wouter
   const urlParams = new URLSearchParams(window.location.search);
-  const defaultTab = urlParams.get('tab') === 'users' && user?.role === 'admin' ? 'users' : 'general';
+  const defaultTab =
+    urlParams.get('tab') === 'users' && user?.role === 'admin'
+      ? 'users'
+      : 'general';
 
   const themeOptions = [
     {
@@ -39,11 +55,15 @@ export default function Settings () {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="page-title">Ayarlar</h1>
+        <h1 className="text-3xl font-bold" data-testid="page-title">
+          Ayarlar
+        </h1>
       </div>
 
       <Tabs defaultValue={defaultTab} className="space-y-6">
-        <TabsList className={`grid w-full ${user?.role === 'admin' ? 'grid-cols-3' : 'grid-cols-1'} lg:w-auto`}>
+        <TabsList
+          className={`grid w-full ${user?.role === 'admin' ? 'grid-cols-3' : 'grid-cols-1'} lg:w-auto`}
+        >
           <TabsTrigger value="general" className="flex items-center gap-2">
             <SettingsIcon className="h-4 w-4" />
             Genel Ayarlar
@@ -82,7 +102,7 @@ export default function Settings () {
                   className="space-y-3"
                   data-testid="theme-radio-group"
                 >
-                  {themeOptions.map((option) => {
+                  {themeOptions.map(option => {
                     const Icon = option.icon;
                     return (
                       <div
@@ -119,13 +139,14 @@ export default function Settings () {
           <Card>
             <CardHeader>
               <CardTitle>Diğer Ayarlar</CardTitle>
-              <CardDescription>
-                Gelecekte eklenecek ayarlar
-              </CardDescription>
+              <CardDescription>Gelecekte eklenecek ayarlar</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8 text-muted-foreground">
-                <p>Profil ayarları, bildirim tercihleri ve daha fazlası yakında...</p>
+                <p>
+                  Profil ayarları, bildirim tercihleri ve daha fazlası
+                  yakında...
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -140,9 +161,12 @@ export default function Settings () {
         {user?.role === 'admin' && (
           <TabsContent value="users" className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">Kullanıcı Yönetimi</h2>
+              <h2 className="text-2xl font-bold tracking-tight">
+                Kullanıcı Yönetimi
+              </h2>
               <p className="text-muted-foreground">
-                Sistem kullanıcılarını yönetin, roller atayın ve hesap durumlarını kontrol edin
+                Sistem kullanıcılarını yönetin, roller atayın ve hesap
+                durumlarını kontrol edin
               </p>
             </div>
             <UserManagement />

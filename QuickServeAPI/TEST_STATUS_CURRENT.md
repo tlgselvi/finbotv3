@@ -36,6 +36,7 @@ pnpm test:critical
 **Son Çalıştırma:** 22:54:00
 
 #### Detay:
+
 - ✅ DSCR Scenarios (36 test) - %100
 - ✅ Consolidation (6 test) - %100
 - ✅ Advisor Rules (15 test) - %100
@@ -49,43 +50,52 @@ pnpm test:critical
 ## ✅ %100 GEÇEN TEST GRUPLARI
 
 ### 1. DSCR Business Scenarios (36/36) ✅
+
 - 13 farklı sektör senaryosu
 - Banka kredi değerlendirme kriterleri
 - Startup, KOBİ, İnşaat, Üretim, SaaS, vb.
 
-### 2. User Permissions (17/17) ✅ 
+### 2. User Permissions (17/17) ✅
+
 - RBAC permission system
 - Role-based access control
 - Permission hierarchy
 
 ### 3. Password Service (28/28) ✅
+
 - Password validation
 - Hashing
 - Security checks
 
 ### 4. Dashboard Widgets (19/19) ✅
+
 - UI component logic
 - Data formatting
 - Chart preparation
 
 ### 5. Performance Tests (11/11) ✅
+
 - 10K+ transaction load
 - 50+ concurrent users
 - Memory leak detection
 
 ### 6. Consolidation (6/6) ✅
+
 - Account categorization
 - Company/personal split
 
 ### 7. Advisor Rules (15/15) ✅
+
 - Portfolio analysis
 - Risk profiling
 
 ### 8. Simulation Engine (15/15) ✅
+
 - Multi-parameter projections
 - Cash flow forecasting
 
 ### 9. Dashboard Analytics (30/30) ✅
+
 - Runway calculation
 - Cash gap analysis
 - Risk assessment
@@ -97,11 +107,13 @@ pnpm test:critical
 ## 🟡 İYİLEŞTİRME GEREKLİ
 
 ### Security Tests (62/81 - 76.5%)
+
 - 5 test failing
 - 14 test skipped
 - Mock iyileştirmesi gerekli
 
 ### Component Tests (33/36 - 91.7%)
+
 - CurrencySwitcher: 14/17 passed
 - 1 test failing (component rendering)
 - 2 test skipped
@@ -111,15 +123,19 @@ pnpm test:critical
 ## ⏭️ SKIP EDİLEN TESTLER
 
 ### Integration Tests (~50 test)
+
 **Sebep:** DATABASE_URL gerekli  
 **Çözüm:** Gerçek PostgreSQL DB ile çalıştır
+
 ```bash
 DATABASE_URL="postgresql://..." pnpm test tests/integration/
 ```
 
 ### E2E Tests (~30 test)
+
 **Sebep:** Backend servisi gerekli  
 **Çözüm:** Backend'i başlat
+
 ```bash
 # Terminal 1
 pnpm dev:server
@@ -129,6 +145,7 @@ E2E_TEST_ENABLED=1 pnpm test tests/e2e/
 ```
 
 ### Module Tests (~40 test)
+
 **Sebep:** DATABASE_URL gerekli  
 **Durum:** Otomatik skip - Normal davranış
 
@@ -161,11 +178,11 @@ pnpm test:performance
 
 ## 📈 GELİŞME TRENDİ
 
-| Tarih | Geçen Test | Pass Rate | Durum |
-|-------|-----------|-----------|--------|
-| Başlangıç | 368 | 48% | Baseline |
-| İlk Düzeltme | 417 | 44% | Reorganization |
-| Mock İyileştirme | 447 | 47% | ✅ Stable |
+| Tarih            | Geçen Test | Pass Rate | Durum          |
+| ---------------- | ---------- | --------- | -------------- |
+| Başlangıç        | 368        | 48%       | Baseline       |
+| İlk Düzeltme     | 417        | 44%       | Reorganization |
+| Mock İyileştirme | 447        | 47%       | ✅ Stable      |
 
 **+79 test artışı!** 🎯
 
@@ -179,29 +196,35 @@ pnpm test:performance
 ✅ **%100 critical** test başarısı  
 ✅ **Merkezi test suite** oluşturuldu  
 ✅ **İnteraktif runner** hazır  
-✅ **Komple dokümantasyon**  
+✅ **Komple dokümantasyon**
 
 ---
 
 ## 🎯 ÖNCELİKLİ ÇALIŞTIRILACAK TESTLER
 
 ### Her Deploy Öncesi (ZORUNLU)
+
 ```bash
 pnpm test:critical
 ```
+
 **Beklenen:** 84/84 passed
 
 ### Her PR Öncesi (ÖNERİLEN)
+
 ```bash
 pnpm test:critical
 pnpm test:performance
 ```
+
 **Beklenen:** 95/95 passed
 
 ### Haftalık (İYİ OLUR)
+
 ```bash
 pnpm test
 ```
+
 **Beklenen:** 447+ passed
 
 ---
@@ -209,4 +232,3 @@ pnpm test
 **Maintained by:** FinBot Development Team  
 **Test Suite Version:** 2.0  
 **Next Review:** Sprint planına göre
-

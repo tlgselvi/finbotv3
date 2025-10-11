@@ -1,14 +1,25 @@
 import { z } from 'zod';
 
 // Re-export types from types.ts
-export type { Account, SubAccount, SystemAlert, Transaction, Budget, User, Report, ApiResponse, PaginatedResponse, ErrorResponse } from './types';
+export type {
+  Account,
+  SubAccount,
+  SystemAlert,
+  Transaction,
+  Budget,
+  User,
+  Report,
+  ApiResponse,
+  PaginatedResponse,
+  ErrorResponse,
+} from './types';
 
 // User Roles V2
 export enum UserRoleV2 {
   ADMIN = 'ADMIN',
   FINANCE = 'FINANCE',
   VIEWER = 'VIEWER',
-  AUDITOR = 'AUDITOR'
+  AUDITOR = 'AUDITOR',
 }
 
 export type UserRoleV2Type = keyof typeof UserRoleV2;
@@ -19,38 +30,38 @@ export enum PermissionV2 {
   MANAGE_USERS = 'MANAGE_USERS',
   VIEW_USERS = 'VIEW_USERS',
   ASSIGN_ROLES = 'ASSIGN_ROLES',
-  
+
   // Cashbox Management
   MANAGE_CASHBOXES = 'MANAGE_CASHBOXES',
   VIEW_CASHBOXES = 'VIEW_CASHBOXES',
   TRANSFER_CASHBOX = 'TRANSFER_CASHBOX',
-  
+
   // Bank Integration
   MANAGE_BANK_INTEGRATIONS = 'MANAGE_BANK_INTEGRATIONS',
   VIEW_BANK_INTEGRATIONS = 'VIEW_BANK_INTEGRATIONS',
   IMPORT_BANK_DATA = 'IMPORT_BANK_DATA',
-  
+
   // Budget Management
   MANAGE_BUDGET = 'MANAGE_BUDGET',
   VIEW_BUDGET = 'VIEW_BUDGET',
-  
+
   // Transaction Management
   MANAGE_TRANSACTIONS = 'MANAGE_TRANSACTIONS',
   VIEW_TRANSACTIONS = 'VIEW_TRANSACTIONS',
-  
+
   // Reports
   VIEW_REPORTS = 'VIEW_REPORTS',
   EXPORT_REPORTS = 'EXPORT_REPORTS',
-  
+
   // Dashboard
   VIEW_DASHBOARD = 'VIEW_DASHBOARD',
-  
+
   // Audit
   VIEW_AUDIT_LOGS = 'VIEW_AUDIT_LOGS',
-  
+
   // System
   VIEW_SYSTEM_STATUS = 'VIEW_SYSTEM_STATUS',
-  MANAGE_SETTINGS = 'MANAGE_SETTINGS'
+  MANAGE_SETTINGS = 'MANAGE_SETTINGS',
 }
 
 export type PermissionV2Type = keyof typeof PermissionV2;
@@ -82,7 +93,7 @@ export const rolePermissionsV2: Record<UserRoleV2Type, PermissionV2Type[]> = {
     'VIEW_DASHBOARD',
     'VIEW_AUDIT_LOGS',
     'VIEW_SYSTEM_STATUS',
-    'MANAGE_SETTINGS'
+    'MANAGE_SETTINGS',
   ],
   FINANCE: [
     'MANAGE_CASHBOXES',
@@ -97,7 +108,7 @@ export const rolePermissionsV2: Record<UserRoleV2Type, PermissionV2Type[]> = {
     'VIEW_TRANSACTIONS',
     'VIEW_REPORTS',
     'EXPORT_REPORTS',
-    'VIEW_DASHBOARD'
+    'VIEW_DASHBOARD',
   ],
   VIEWER: [
     'VIEW_CASHBOXES',
@@ -106,7 +117,7 @@ export const rolePermissionsV2: Record<UserRoleV2Type, PermissionV2Type[]> = {
     'VIEW_TRANSACTIONS',
     'VIEW_REPORTS',
     'VIEW_BANK_INTEGRATIONS',
-    'EXPORT_REPORTS'
+    'EXPORT_REPORTS',
   ],
   AUDITOR: [
     'VIEW_AUDIT_LOGS',
@@ -115,17 +126,23 @@ export const rolePermissionsV2: Record<UserRoleV2Type, PermissionV2Type[]> = {
     'VIEW_DASHBOARD',
     'VIEW_CASHBOXES',
     'VIEW_BANK_INTEGRATIONS',
-    'EXPORT_REPORTS'
-  ]
+    'EXPORT_REPORTS',
+  ],
 };
 
 // Permission helper functions
-export function hasPermissionV2(userRole: UserRoleV2Type, permission: PermissionV2Type): boolean {
+export function hasPermissionV2(
+  userRole: UserRoleV2Type,
+  permission: PermissionV2Type
+): boolean {
   const permissions = rolePermissionsV2[userRole];
   return permissions.includes(permission);
 }
 
-export function hasAnyPermissionV2(userRole: UserRoleV2Type, permissions: PermissionV2Type[]): boolean {
+export function hasAnyPermissionV2(
+  userRole: UserRoleV2Type,
+  permissions: PermissionV2Type[]
+): boolean {
   const userPermissions = rolePermissionsV2[userRole];
   return permissions.some(permission => userPermissions.includes(permission));
 }
@@ -160,7 +177,10 @@ export enum TeamRole {
 export type TeamPermissionType = TeamPermission;
 export type TeamRoleType = TeamRole;
 
-export function hasTeamPermission(role: TeamRoleType, permission: TeamPermissionType): boolean {
+export function hasTeamPermission(
+  role: TeamRoleType,
+  permission: TeamPermissionType
+): boolean {
   const permissions: Record<TeamRoleType, TeamPermissionType[]> = {
     [TeamRole.OWNER]: [
       TeamPermission.VIEW_TEAM,
@@ -175,12 +195,8 @@ export function hasTeamPermission(role: TeamRoleType, permission: TeamPermission
       TeamPermission.INVITE_MEMBERS,
       TeamPermission.REMOVE_MEMBERS,
     ],
-    [TeamRole.MEMBER]: [
-      TeamPermission.VIEW_TEAM,
-    ],
-    [TeamRole.VIEWER]: [
-      TeamPermission.VIEW_TEAM,
-    ],
+    [TeamRole.MEMBER]: [TeamPermission.VIEW_TEAM],
+    [TeamRole.VIEWER]: [TeamPermission.VIEW_TEAM],
   };
   return permissions[role]?.includes(permission) || false;
 }
@@ -188,19 +204,19 @@ export function hasTeamPermission(role: TeamRoleType, permission: TeamPermission
 // Category helper
 export function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
-    'salary': 'Maaş',
-    'freelance': 'Serbest Çalışma',
-    'investment': 'Yatırım',
-    'other_income': 'Diğer Gelir',
-    'rent': 'Kira',
-    'food': 'Yiyecek',
-    'transport': 'Ulaşım',
-    'utilities': 'Faturalar',
-    'entertainment': 'Eğlence',
-    'health': 'Sağlık',
-    'education': 'Eğitim',
-    'shopping': 'Alışveriş',
-    'other_expense': 'Diğer Gider',
+    salary: 'Maaş',
+    freelance: 'Serbest Çalışma',
+    investment: 'Yatırım',
+    other_income: 'Diğer Gelir',
+    rent: 'Kira',
+    food: 'Yiyecek',
+    transport: 'Ulaşım',
+    utilities: 'Faturalar',
+    entertainment: 'Eğlence',
+    health: 'Sağlık',
+    education: 'Eğitim',
+    shopping: 'Alışveriş',
+    other_expense: 'Diğer Gider',
   };
   return labels[category] || category;
 }
@@ -218,7 +234,14 @@ export const registerSchema = z.object({
 });
 
 export const updateUserRoleSchema = z.object({
-  role: z.enum(['USER', 'ACCOUNTANT', 'MANAGER', 'ADMIN', 'SUPER_ADMIN', 'AUDITOR']),
+  role: z.enum([
+    'USER',
+    'ACCOUNTANT',
+    'MANAGER',
+    'ADMIN',
+    'SUPER_ADMIN',
+    'AUDITOR',
+  ]),
 });
 
 export const updateUserStatusSchema = z.object({
@@ -272,10 +295,12 @@ export const transactionSchema = z.object({
 
 export const transactionJsonFileSchema = z.object({
   transactions: z.array(transactionSchema),
-  metadata: z.object({
-    exportDate: z.string(),
-    totalCount: z.number(),
-  }).optional(),
+  metadata: z
+    .object({
+      exportDate: z.string(),
+      totalCount: z.number(),
+    })
+    .optional(),
 });
 
 // Transaction categories
@@ -284,7 +309,7 @@ export const transactionCategories = {
     { value: 'salary', label: 'Maaş' },
     { value: 'freelance', label: 'Serbest Çalışma' },
     { value: 'investment', label: 'Yatırım Geliri' },
-    { value: 'other_income', label: 'Diğer Gelir' }
+    { value: 'other_income', label: 'Diğer Gelir' },
   ],
   expense: [
     { value: 'rent', label: 'Kira' },
@@ -295,11 +320,9 @@ export const transactionCategories = {
     { value: 'health', label: 'Sağlık' },
     { value: 'education', label: 'Eğitim' },
     { value: 'shopping', label: 'Alışveriş' },
-    { value: 'other_expense', label: 'Diğer Gider' }
+    { value: 'other_expense', label: 'Diğer Gider' },
   ],
-  transfer: [
-    { value: 'transfer', label: 'Transfer' }
-  ]
+  transfer: [{ value: 'transfer', label: 'Transfer' }],
 };
 
 // Type exports from schemas
@@ -311,7 +334,12 @@ export interface Credit {
   id: string;
   userId: string;
   name: string;
-  type: 'credit_card' | 'personal_loan' | 'business_loan' | 'mortgage' | 'line_of_credit';
+  type:
+    | 'credit_card'
+    | 'personal_loan'
+    | 'business_loan'
+    | 'mortgage'
+    | 'line_of_credit';
   totalAmount: number;
   remainingAmount: number;
   interestRate: number;
@@ -471,4 +499,3 @@ export const exportTransactionsByDateSchema = z.object({
   endDate: z.string(),
   format: z.enum(['json', 'csv', 'pdf']).default('json'),
 });
-

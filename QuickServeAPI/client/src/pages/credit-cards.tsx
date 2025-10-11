@@ -1,21 +1,54 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useFormatCurrency } from '@/lib/utils/formatCurrency';
-import { Plus, CreditCard, Calendar, DollarSign, AlertTriangle } from 'lucide-react';
+import {
+  Plus,
+  CreditCard,
+  Calendar,
+  DollarSign,
+  AlertTriangle,
+} from 'lucide-react';
 import type { Credit } from '@shared/schema';
 
-export default function CreditCards () {
+export default function CreditCards() {
   const formatCurrency = useFormatCurrency();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newCredit, setNewCredit] = useState({
@@ -117,7 +150,10 @@ export default function CreditCards () {
       personal_loan: { label: 'Bireysel Kredi', variant: 'outline' as const },
     };
 
-    const typeInfo = types[type as keyof typeof types] || { label: type, variant: 'secondary' as const };
+    const typeInfo = types[type as keyof typeof types] || {
+      label: type,
+      variant: 'secondary' as const,
+    };
     return <Badge variant={typeInfo.variant}>{typeInfo.label}</Badge>;
   };
 
@@ -125,24 +161,41 @@ export default function CreditCards () {
     const today = new Date();
     return credits.filter((credit: Credit) => {
       const dueDate = credit.dueDate ? new Date(credit.dueDate) : null;
-      return dueDate && dueDate < today && credit.amount && parseFloat(credit.amount) > 0;
+      return (
+        dueDate &&
+        dueDate < today &&
+        credit.amount &&
+        parseFloat(credit.amount) > 0
+      );
     });
   };
 
   const totalDebt = credits
     .filter((credit: Credit) => credit.amount && parseFloat(credit.amount) > 0)
-    .reduce((sum: number, credit: Credit) => sum + parseFloat(credit.amount), 0);
+    .reduce(
+      (sum: number, credit: Credit) => sum + parseFloat(credit.amount),
+      0
+    );
 
   const totalMinimumPayments = credits
-    .filter((credit: Credit) => credit.minimumPayment && parseFloat(credit.minimumPayment) > 0)
-    .reduce((sum: number, credit: Credit) => sum + parseFloat(credit.minimumPayment || '0'), 0);
+    .filter(
+      (credit: Credit) =>
+        credit.minimumPayment && parseFloat(credit.minimumPayment) > 0
+    )
+    .reduce(
+      (sum: number, credit: Credit) =>
+        sum + parseFloat(credit.minimumPayment || '0'),
+      0
+    );
 
   const overdueCredits = getOverdueCredits();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="page-title">Kredi ve Kartlar</h1>
+        <h1 className="text-3xl font-bold" data-testid="page-title">
+          Kredi ve Kartlar
+        </h1>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -163,7 +216,9 @@ export default function CreditCards () {
                 <Input
                   id="title"
                   value={newCredit.title}
-                  onChange={(e) => setNewCredit({ ...newCredit, title: e.target.value })}
+                  onChange={e =>
+                    setNewCredit({ ...newCredit, title: e.target.value })
+                  }
                   placeholder="Örn: Visa Kart, Konut Kredisi"
                   required
                 />
@@ -174,7 +229,9 @@ export default function CreditCards () {
                 <Input
                   id="description"
                   value={newCredit.description}
-                  onChange={(e) => setNewCredit({ ...newCredit, description: e.target.value })}
+                  onChange={e =>
+                    setNewCredit({ ...newCredit, description: e.target.value })
+                  }
                   placeholder="Detaylı açıklama (opsiyonel)"
                 />
               </div>
@@ -182,21 +239,33 @@ export default function CreditCards () {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="type">Tür</Label>
-                  <Select value={newCredit.type} onValueChange={(value: 'credit_card' | 'bank_loan' | 'personal_loan') => setNewCredit({ ...newCredit, type: value })}>
+                  <Select
+                    value={newCredit.type}
+                    onValueChange={(
+                      value: 'credit_card' | 'bank_loan' | 'personal_loan'
+                    ) => setNewCredit({ ...newCredit, type: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="credit_card">Kredi Kartı</SelectItem>
                       <SelectItem value="bank_loan">Banka Kredisi</SelectItem>
-                      <SelectItem value="personal_loan">Bireysel Kredi</SelectItem>
+                      <SelectItem value="personal_loan">
+                        Bireysel Kredi
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
                   <Label htmlFor="currency">Para Birimi</Label>
-                  <Select value={newCredit.currency} onValueChange={(value) => setNewCredit({ ...newCredit, currency: value })}>
+                  <Select
+                    value={newCredit.currency}
+                    onValueChange={value =>
+                      setNewCredit({ ...newCredit, currency: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -216,7 +285,9 @@ export default function CreditCards () {
                     id="amount"
                     type="number"
                     value={newCredit.amount}
-                    onChange={(e) => setNewCredit({ ...newCredit, amount: e.target.value })}
+                    onChange={e =>
+                      setNewCredit({ ...newCredit, amount: e.target.value })
+                    }
                     placeholder="0.00"
                     step="0.01"
                     min="0"
@@ -230,7 +301,12 @@ export default function CreditCards () {
                     id="interestRate"
                     type="number"
                     value={newCredit.interestRate}
-                    onChange={(e) => setNewCredit({ ...newCredit, interestRate: e.target.value })}
+                    onChange={e =>
+                      setNewCredit({
+                        ...newCredit,
+                        interestRate: e.target.value,
+                      })
+                    }
                     placeholder="0.00"
                     step="0.01"
                     min="0"
@@ -245,7 +321,9 @@ export default function CreditCards () {
                     id="dueDate"
                     type="date"
                     value={newCredit.dueDate}
-                    onChange={(e) => setNewCredit({ ...newCredit, dueDate: e.target.value })}
+                    onChange={e =>
+                      setNewCredit({ ...newCredit, dueDate: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -256,7 +334,12 @@ export default function CreditCards () {
                     id="minimumPayment"
                     type="number"
                     value={newCredit.minimumPayment}
-                    onChange={(e) => setNewCredit({ ...newCredit, minimumPayment: e.target.value })}
+                    onChange={e =>
+                      setNewCredit({
+                        ...newCredit,
+                        minimumPayment: e.target.value,
+                      })
+                    }
                     placeholder="0.00"
                     step="0.01"
                     min="0"
@@ -265,11 +348,20 @@ export default function CreditCards () {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddDialogOpen(false)}
+                >
                   İptal
                 </Button>
-                <Button type="submit" disabled={isSubmitting || addCreditMutation.isPending}>
-                  {isSubmitting || addCreditMutation.isPending ? 'Ekleniyor...' : 'Ekle'}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || addCreditMutation.isPending}
+                >
+                  {isSubmitting || addCreditMutation.isPending
+                    ? 'Ekleniyor...'
+                    : 'Ekle'}
                 </Button>
               </DialogFooter>
             </form>
@@ -282,8 +374,8 @@ export default function CreditCards () {
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <strong>{overdueCredits.length}</strong> adet vadesi geçmiş kredi/kart bulunuyor.
-            Acil ödeme yapmanız önerilir.
+            <strong>{overdueCredits.length}</strong> adet vadesi geçmiş
+            kredi/kart bulunuyor. Acil ödeme yapmanız önerilir.
           </AlertDescription>
         </Alert>
       )}
@@ -304,7 +396,9 @@ export default function CreditCards () {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Minimum Ödemeler</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Minimum Ödemeler
+            </CardTitle>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -353,25 +447,41 @@ export default function CreditCards () {
               </TableHeader>
               <TableBody>
                 {credits.map((credit: Credit) => {
-                  const isOverdue = credit.dueDate ? new Date(credit.dueDate) < new Date() && parseFloat(credit.amount || '0') > 0 : false;
+                  const isOverdue = credit.dueDate
+                    ? new Date(credit.dueDate) < new Date() &&
+                      parseFloat(credit.amount || '0') > 0
+                    : false;
                   return (
-                    <TableRow key={credit.id} className={isOverdue ? 'bg-red-50' : ''}>
-                      <TableCell className="font-medium">{credit.title}</TableCell>
+                    <TableRow
+                      key={credit.id}
+                      className={isOverdue ? 'bg-red-50' : ''}
+                    >
+                      <TableCell className="font-medium">
+                        {credit.title}
+                      </TableCell>
                       <TableCell>{getTypeBadge(credit.type)}</TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(parseFloat(credit.amount || '0'))}
                       </TableCell>
                       <TableCell className="text-right">
-                        {credit.interestRate ? `${parseFloat(credit.interestRate)}%` : '-'}
+                        {credit.interestRate
+                          ? `${parseFloat(credit.interestRate)}%`
+                          : '-'}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
-                          {credit.dueDate ? new Date(credit.dueDate).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}
+                          {credit.dueDate
+                            ? new Date(credit.dueDate).toLocaleDateString(
+                                'tr-TR'
+                              )
+                            : 'Belirtilmemiş'}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        {credit.minimumPayment ? formatCurrency(parseFloat(credit.minimumPayment)) : '-'}
+                        {credit.minimumPayment
+                          ? formatCurrency(parseFloat(credit.minimumPayment))
+                          : '-'}
                       </TableCell>
                       <TableCell>
                         {isOverdue ? (
@@ -388,9 +498,12 @@ export default function CreditCards () {
           ) : (
             <div className="text-center py-16">
               <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Henüz Kredi/Kart Yok</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Henüz Kredi/Kart Yok
+              </h3>
               <p className="text-muted-foreground mb-4">
-                Kredi kartlarınızı ve kredilerinizi takip etmek için kayıt ekleyin.
+                Kredi kartlarınızı ve kredilerinizi takip etmek için kayıt
+                ekleyin.
               </p>
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />

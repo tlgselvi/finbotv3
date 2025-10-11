@@ -12,12 +12,12 @@ class RealtimeService {
   private clients: Map<string, ClientConnection[]> = new Map();
   private updateInterval: NodeJS.Timeout | null = null;
 
-  constructor () {
+  constructor() {
     this.startPeriodicUpdates();
   }
 
   // Add client connection for real-time updates
-  addClient (userId: string, response: Response): void {
+  addClient(userId: string, response: Response): void {
     if (!this.clients.has(userId)) {
       this.clients.set(userId, []);
     }
@@ -47,14 +47,18 @@ class RealtimeService {
     });
 
     // Send initial connection message
-    response.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}\n\n`);
+    response.write(
+      `data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}\n\n`
+    );
   }
 
   // Remove client connection
-  private removeClient (userId: string, response: Response): void {
+  private removeClient(userId: string, response: Response): void {
     const userClients = this.clients.get(userId);
     if (userClients) {
-      const index = userClients.findIndex(client => client.response === response);
+      const index = userClients.findIndex(
+        client => client.response === response
+      );
       if (index !== -1) {
         userClients.splice(index, 1);
 
@@ -67,7 +71,7 @@ class RealtimeService {
   }
 
   // Send dashboard update to specific user
-  private async sendDashboardUpdate (userId: string): Promise<void> {
+  private async sendDashboardUpdate(userId: string): Promise<void> {
     try {
       const dashboardData = await storage.getDashboardStats();
       const data = {
@@ -99,20 +103,20 @@ class RealtimeService {
   }
 
   // Broadcast update to all connected clients
-  async broadcastUpdate (): Promise<void> {
+  async broadcastUpdate(): Promise<void> {
     const userIds = Array.from(this.clients.keys());
     await Promise.all(userIds.map(userId => this.sendDashboardUpdate(userId)));
   }
 
   // Start periodic updates (every 30 seconds)
-  private startPeriodicUpdates (): void {
+  private startPeriodicUpdates(): void {
     this.updateInterval = setInterval(() => {
       this.broadcastUpdate();
     }, 30000);
   }
 
   // Stop periodic updates
-  stop (): void {
+  stop(): void {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
@@ -120,7 +124,7 @@ class RealtimeService {
   }
 
   // Get connected clients count
-  getConnectedClientsCount (): number {
+  getConnectedClientsCount(): number {
     let count = 0;
     for (const clients of Array.from(this.clients.values())) {
       count += clients.length;
@@ -130,4 +134,3 @@ class RealtimeService {
 }
 
 export const realtimeService = new RealtimeService();
-

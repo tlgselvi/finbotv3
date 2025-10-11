@@ -2,9 +2,19 @@ import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Bell, X, AlertTriangle, Info, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +29,8 @@ const severityConfig = {
     bgColor: 'border-blue-200 dark:border-blue-800',
   },
   medium: {
-    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+    color:
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
     icon: AlertTriangle,
     bgColor: 'border-yellow-200 dark:border-yellow-800',
   },
@@ -37,7 +48,7 @@ const alertTypeLabels = {
   monthly_summary: 'Aylık Özet',
 } as const;
 
-export function AlertsNotification () {
+export function AlertsNotification() {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
@@ -48,7 +59,10 @@ export function AlertsNotification () {
 
   const dismissMutation = useMutation<unknown, Error, string>({
     mutationFn: async (alertId: string) => {
-      const response = await apiRequest('POST', `/api/alerts/${alertId}/dismiss`);
+      const response = await apiRequest(
+        'POST',
+        `/api/alerts/${alertId}/dismiss`
+      );
       return response.json();
     },
     onSuccess: () => {
@@ -67,12 +81,17 @@ export function AlertsNotification () {
     },
   });
 
-  const activeAlerts = (alerts as SystemAlert[]).filter(alert => alert.isActive && !alert.isDismissed);
+  const activeAlerts = (alerts as SystemAlert[]).filter(
+    alert => alert.isActive && !alert.isDismissed
+  );
   const alertCount = activeAlerts.length;
 
-  const handleDismiss = useCallback((alertId: string) => {
-    dismissMutation.mutate(alertId);
-  }, [dismissMutation]);
+  const handleDismiss = useCallback(
+    (alertId: string) => {
+      dismissMutation.mutate(alertId);
+    },
+    [dismissMutation]
+  );
 
   const formatDate = useCallback((date: string | Date) => {
     return new Date(date).toLocaleDateString('tr-TR', {
@@ -84,15 +103,18 @@ export function AlertsNotification () {
     });
   }, []);
 
-  const getAlertMetadata = useCallback((metadataString: string | null | undefined) => {
-    if (!metadataString) return null;
-    try {
-      return JSON.parse(metadataString);
-    } catch (e) {
-      logger.error("Failed to parse alert metadata:", e);
-      return null;
-    }
-  }, []);
+  const getAlertMetadata = useCallback(
+    (metadataString: string | null | undefined) => {
+      if (!metadataString) return null;
+      try {
+        return JSON.parse(metadataString);
+      } catch (e) {
+        logger.error('Failed to parse alert metadata:', e);
+        return null;
+      }
+    },
+    []
+  );
 
   if (isLoading) {
     return (
@@ -145,7 +167,10 @@ export function AlertsNotification () {
             <ScrollArea className="max-h-80">
               <div className="space-y-3">
                 {activeAlerts.map((alert, index) => {
-                  const config = severityConfig[alert.severity as keyof typeof severityConfig];
+                  const config =
+                    severityConfig[
+                      alert.severity as keyof typeof severityConfig
+                    ];
                   const Icon = config.icon;
                   const metadata = getAlertMetadata(alert.metadata);
 
@@ -160,7 +185,10 @@ export function AlertsNotification () {
                             <div className="flex items-center gap-2">
                               <Icon className="h-4 w-4 flex-shrink-0" />
                               <div>
-                                <CardTitle className="text-sm" data-testid={`text-alert-title-${alert.id}`}>
+                                <CardTitle
+                                  className="text-sm"
+                                  data-testid={`text-alert-title-${alert.id}`}
+                                >
                                   {alert.title}
                                 </CardTitle>
                                 <div className="flex items-center gap-2 mt-1">
@@ -169,9 +197,14 @@ export function AlertsNotification () {
                                     className={`text-xs ${config.color}`}
                                     data-testid={`badge-alert-type-${alert.id}`}
                                   >
-                                    {alertTypeLabels[alert.type as keyof typeof alertTypeLabels] || alert.type}
+                                    {alertTypeLabels[
+                                      alert.type as keyof typeof alertTypeLabels
+                                    ] || alert.type}
                                   </Badge>
-                                  <span className="text-xs text-muted-foreground" data-testid={`text-alert-date-${alert.id}`}>
+                                  <span
+                                    className="text-xs text-muted-foreground"
+                                    data-testid={`text-alert-date-${alert.id}`}
+                                  >
                                     {formatDate(alert.createdAt)}
                                   </span>
                                 </div>
@@ -182,7 +215,10 @@ export function AlertsNotification () {
                               size="sm"
                               className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/20"
                               onClick={() => handleDismiss(alert.id)}
-                              disabled={dismissMutation.isPending && dismissMutation.variables === alert.id}
+                              disabled={
+                                dismissMutation.isPending &&
+                                dismissMutation.variables === alert.id
+                              }
                               data-testid={`button-dismiss-${alert.id}`}
                             >
                               <X className="h-3 w-3" />
@@ -190,24 +226,58 @@ export function AlertsNotification () {
                           </div>
                         </CardHeader>
                         <CardContent className="pt-0">
-                          <CardDescription className="text-sm" data-testid={`text-alert-description-${alert.id}`}>
+                          <CardDescription
+                            className="text-sm"
+                            data-testid={`text-alert-description-${alert.id}`}
+                          >
                             {alert.description}
                           </CardDescription>
 
                           {metadata && (
-                            <div className="mt-2 text-xs text-muted-foreground" data-testid={`text-alert-metadata-${alert.id}`}>
-                              {alert.type === 'budget_exceeded' && metadata.category && (
-                                <span>Kategori: {metadata.category} • Harcanan: {parseFloat(metadata.spent).toLocaleString('tr-TR')} TL</span>
-                              )}
-                              {alert.type === 'low_balance' && metadata.currentBalance && (
-                                <span>Güncel Bakiye: {parseFloat(metadata.currentBalance).toLocaleString('tr-TR')} TL</span>
-                              )}
-                              {alert.type === 'recurring_payment' && metadata.amount && (
-                                <span>Tutar: {parseFloat(metadata.amount).toLocaleString('tr-TR')} TL</span>
-                              )}
-                              {alert.type === 'monthly_summary' && metadata.net && (
-                                <span>Net: {parseFloat(metadata.net).toLocaleString('tr-TR')} TL</span>
-                              )}
+                            <div
+                              className="mt-2 text-xs text-muted-foreground"
+                              data-testid={`text-alert-metadata-${alert.id}`}
+                            >
+                              {alert.type === 'budget_exceeded' &&
+                                metadata.category && (
+                                  <span>
+                                    Kategori: {metadata.category} • Harcanan:{' '}
+                                    {parseFloat(metadata.spent).toLocaleString(
+                                      'tr-TR'
+                                    )}{' '}
+                                    TL
+                                  </span>
+                                )}
+                              {alert.type === 'low_balance' &&
+                                metadata.currentBalance && (
+                                  <span>
+                                    Güncel Bakiye:{' '}
+                                    {parseFloat(
+                                      metadata.currentBalance
+                                    ).toLocaleString('tr-TR')}{' '}
+                                    TL
+                                  </span>
+                                )}
+                              {alert.type === 'recurring_payment' &&
+                                metadata.amount && (
+                                  <span>
+                                    Tutar:{' '}
+                                    {parseFloat(metadata.amount).toLocaleString(
+                                      'tr-TR'
+                                    )}{' '}
+                                    TL
+                                  </span>
+                                )}
+                              {alert.type === 'monthly_summary' &&
+                                metadata.net && (
+                                  <span>
+                                    Net:{' '}
+                                    {parseFloat(metadata.net).toLocaleString(
+                                      'tr-TR'
+                                    )}{' '}
+                                    TL
+                                  </span>
+                                )}
                             </div>
                           )}
                         </CardContent>
@@ -222,7 +292,10 @@ export function AlertsNotification () {
 
           {alertCount > 0 && (
             <div className="pt-2 border-t">
-              <p className="text-xs text-muted-foreground text-center" data-testid="text-alerts-footer">
+              <p
+                className="text-xs text-muted-foreground text-center"
+                data-testid="text-alerts-footer"
+              >
                 Uyarıları kapatmak için X butonuna tıklayın
               </p>
             </div>

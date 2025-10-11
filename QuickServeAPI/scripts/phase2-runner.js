@@ -21,7 +21,7 @@ const colors = {
   yellow: '\x1b[33m',
   cyan: '\x1b[36m',
   blue: '\x1b[34m',
-  bright: '\x1b[1m'
+  bright: '\x1b[1m',
 };
 
 function log(message, color = 'reset') {
@@ -39,7 +39,7 @@ async function runCommand(command, label) {
   try {
     const { stdout, stderr } = await execPromise(command, {
       cwd: rootDir,
-      maxBuffer: 10 * 1024 * 1024
+      maxBuffer: 10 * 1024 * 1024,
     });
     console.log(stdout);
     if (stderr && !stderr.includes('ELIFECYCLE')) {
@@ -56,26 +56,29 @@ async function runCommand(command, label) {
 
 async function main() {
   const startTime = Date.now();
-  
+
   console.clear();
-  log(`
+  log(
+    `
 ╔════════════════════════════════════════════════════════════╗
 ║           🔀 PHASE 2: GIT & CI/CD SİSTEMİ                 ║
 ║          Git Hooks • CI/CD Files • Dependencies            ║
 ╚════════════════════════════════════════════════════════════╝
-  `, 'bright');
+  `,
+    'bright'
+  );
 
   const results = {
     tests: false,
     gitHooks: false,
     cicd: false,
-    dependencies: false
+    dependencies: false,
   };
 
   // 1. Tests
   section('[1/4] 🧪 TESTLER', 'cyan');
   results.tests = await runCommand('pnpm test:critical', 'Critical Tests');
-  
+
   // 2. Git Hooks Check
   section('[2/4] 🔀 GIT HOOKS', 'cyan');
   const huskyPath = path.join(rootDir, '.husky');
@@ -88,12 +91,12 @@ async function main() {
     log('   Kurmak için: pnpm add -D husky && npx husky init', 'cyan');
     results.gitHooks = false;
   }
-  
+
   // 3. CI/CD Files Check
   section('[3/4] 🚢 CI/CD DOSYALARI', 'cyan');
   const githubPath = path.join(rootDir, '.github', 'workflows');
   const gitlabPath = path.join(rootDir, '.gitlab-ci.yml');
-  
+
   let cicdExists = false;
   if (fs.existsSync(githubPath)) {
     log('✅ GitHub Actions workflows mevcut', 'green');
@@ -112,31 +115,46 @@ async function main() {
     log('   Yakında otomatik oluşturulacak', 'cyan');
   }
   results.cicd = cicdExists;
-  
+
   // 4. Dependency Check
   section('[4/4] 📦 DEPENDENCY AUDIT', 'cyan');
-  results.dependencies = await runCommand('pnpm audit --audit-level=high', 'Dependency Audit');
-  
+  results.dependencies = await runCommand(
+    'pnpm audit --audit-level=high',
+    'Dependency Audit'
+  );
+
   // Summary
   const endTime = Date.now();
   const duration = ((endTime - startTime) / 1000).toFixed(1);
-  
+
   section('📋 PHASE 2 - SONUÇ ÖZETİ', 'blue');
-  
+
   log('Kontrol Sonuçları:', 'bright');
-  log(`  ${results.tests ? '✅' : '❌'} Tests`, results.tests ? 'green' : 'red');
-  log(`  ${results.gitHooks ? '✅' : '⚠️ '} Git Hooks`, results.gitHooks ? 'green' : 'yellow');
-  log(`  ${results.cicd ? '✅' : '⚠️ '} CI/CD Files`, results.cicd ? 'green' : 'yellow');
-  log(`  ${results.dependencies ? '✅' : '⚠️ '} Dependencies`, results.dependencies ? 'green' : 'yellow');
-  
+  log(
+    `  ${results.tests ? '✅' : '❌'} Tests`,
+    results.tests ? 'green' : 'red'
+  );
+  log(
+    `  ${results.gitHooks ? '✅' : '⚠️ '} Git Hooks`,
+    results.gitHooks ? 'green' : 'yellow'
+  );
+  log(
+    `  ${results.cicd ? '✅' : '⚠️ '} CI/CD Files`,
+    results.cicd ? 'green' : 'yellow'
+  );
+  log(
+    `  ${results.dependencies ? '✅' : '⚠️ '} Dependencies`,
+    results.dependencies ? 'green' : 'yellow'
+  );
+
   log(`\n⏱️  Toplam Süre: ${duration} saniye`, 'cyan');
-  
+
   if (results.tests) {
     log('\n✅ PHASE 2 TAMAMLANDI!', 'green');
   } else {
     log('\n⚠️  PHASE 2 TAMAMLANDI - BAZI UYARILAR VAR', 'yellow');
   }
-  
+
   process.exit(0);
 }
 
@@ -145,4 +163,3 @@ main().catch(error => {
   console.error(error);
   process.exit(1);
 });
-

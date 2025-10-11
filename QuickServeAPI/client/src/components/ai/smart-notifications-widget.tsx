@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, AlertTriangle, TrendingUp, Target, Eye, EyeOff } from 'lucide-react';
+import {
+  Bell,
+  AlertTriangle,
+  TrendingUp,
+  Target,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorDisplay } from '@/components/ui/error-display';
 import { logger } from '@/lib/logger';
@@ -23,7 +30,11 @@ interface Notification {
 }
 
 interface Anomaly {
-  type: 'expense_spike' | 'income_drop' | 'unusual_transaction' | 'balance_alert';
+  type:
+    | 'expense_spike'
+    | 'income_drop'
+    | 'unusual_transaction'
+    | 'balance_alert';
   severity: 'low' | 'medium' | 'high';
   description: string;
   impact: string;
@@ -45,13 +56,18 @@ interface SmartNotificationsWidgetProps {
   className?: string;
 }
 
-export function SmartNotificationsWidget({ userId, className }: SmartNotificationsWidgetProps) {
+export function SmartNotificationsWidget({
+  userId,
+  className,
+}: SmartNotificationsWidgetProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   const [trends, setTrends] = useState<Trend[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'notifications' | 'anomalies' | 'trends'>('notifications');
+  const [activeTab, setActiveTab] = useState<
+    'notifications' | 'anomalies' | 'trends'
+  >('notifications');
 
   useEffect(() => {
     checkNotifications();
@@ -67,7 +83,7 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -79,7 +95,7 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
       // Check for anomalies
       const anomaliesResponse = await fetch('/api/ai/anomalies', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -91,7 +107,7 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
       // Check for trends
       const trendsResponse = await fetch('/api/ai/trends', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -100,14 +116,16 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
         setTrends(trendsData.data.trends || []);
       }
 
-      logger.info('Smart notifications checked', { 
+      logger.info('Smart notifications checked', {
         notificationsCount: notifications.length,
         anomaliesCount: anomalies.length,
-        trendsCount: trends.length
+        trendsCount: trends.length,
       });
-
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Bildirimler kontrol edilirken hata oluştu';
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'Bildirimler kontrol edilirken hata oluştu';
       setError(errorMessage);
       logger.error('Smart notifications check error:', err);
     } finally {
@@ -116,9 +134,9 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
   };
 
   const markNotificationAsRead = (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === notificationId 
+    setNotifications(prev =>
+      prev.map(notification =>
+        notification.id === notificationId
           ? { ...notification, read: true }
           : notification
       )
@@ -127,39 +145,57 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'critical': return 'destructive';
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
+      case 'critical':
+        return 'destructive';
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'default';
+      case 'low':
+        return 'secondary';
+      default:
+        return 'secondary';
     }
   };
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'critical': return '🚨';
-      case 'high': return '⚠️';
-      case 'medium': return 'ℹ️';
-      case 'low': return '💡';
-      default: return '📢';
+      case 'critical':
+        return '🚨';
+      case 'high':
+        return '⚠️';
+      case 'medium':
+        return 'ℹ️';
+      case 'low':
+        return '💡';
+      default:
+        return '📢';
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'default';
+      case 'low':
+        return 'secondary';
+      default:
+        return 'secondary';
     }
   };
 
   const getTrendIcon = (type: string) => {
     switch (type) {
-      case 'positive': return '📈';
-      case 'negative': return '📉';
-      case 'neutral': return '➡️';
-      default: return '📊';
+      case 'positive':
+        return '📈';
+      case 'negative':
+        return '📉';
+      case 'neutral':
+        return '➡️';
+      default:
+        return '📊';
     }
   };
 
@@ -169,20 +205,24 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
         <div className="text-center py-8 text-muted-foreground">
           <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>Henüz bildirim yok</p>
-          <p className="text-sm">AI sistemimiz finansal aktivitelerinizi izliyor</p>
+          <p className="text-sm">
+            AI sistemimiz finansal aktivitelerinizi izliyor
+          </p>
         </div>
       );
     }
 
     return (
       <div className="space-y-3">
-        {notifications.map((notification) => (
+        {notifications.map(notification => (
           <div
             key={notification.id}
             className={`p-4 border rounded-lg ${notification.read ? 'bg-muted/50' : 'bg-background'} ${
-              notification.priority === 'critical' ? 'border-red-200 bg-red-50/50' : 
-              notification.priority === 'high' ? 'border-orange-200 bg-orange-50/50' : 
-              'border-border'
+              notification.priority === 'critical'
+                ? 'border-red-200 bg-red-50/50'
+                : notification.priority === 'high'
+                  ? 'border-orange-200 bg-orange-50/50'
+                  : 'border-border'
             }`}
           >
             <div className="flex items-start justify-between">
@@ -192,8 +232,13 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-sm">{notification.title}</h4>
-                    <Badge variant={getPriorityColor(notification.priority)} className="text-xs">
+                    <h4 className="font-medium text-sm">
+                      {notification.title}
+                    </h4>
+                    <Badge
+                      variant={getPriorityColor(notification.priority)}
+                      className="text-xs"
+                    >
                       {notification.priority}
                     </Badge>
                   </div>
@@ -201,7 +246,9 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
                     {notification.message}
                   </p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{new Date(notification.createdAt).toLocaleString('tr-TR')}</span>
+                    <span>
+                      {new Date(notification.createdAt).toLocaleString('tr-TR')}
+                    </span>
                     {notification.actionUrl && (
                       <Button
                         variant="link"
@@ -249,23 +296,32 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
           <div
             key={index}
             className={`p-4 border rounded-lg ${
-              anomaly.severity === 'high' ? 'border-red-200 bg-red-50/50' : 
-              anomaly.severity === 'medium' ? 'border-orange-200 bg-orange-50/50' : 
-              'border-yellow-200 bg-yellow-50/50'
+              anomaly.severity === 'high'
+                ? 'border-red-200 bg-red-50/50'
+                : anomaly.severity === 'medium'
+                  ? 'border-orange-200 bg-orange-50/50'
+                  : 'border-yellow-200 bg-yellow-50/50'
             }`}
           >
             <div className="flex items-start gap-3">
-              <AlertTriangle className={`h-5 w-5 mt-0.5 ${
-                anomaly.severity === 'high' ? 'text-red-600' : 
-                anomaly.severity === 'medium' ? 'text-orange-600' : 
-                'text-yellow-600'
-              }`} />
+              <AlertTriangle
+                className={`h-5 w-5 mt-0.5 ${
+                  anomaly.severity === 'high'
+                    ? 'text-red-600'
+                    : anomaly.severity === 'medium'
+                      ? 'text-orange-600'
+                      : 'text-yellow-600'
+                }`}
+              />
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-medium text-sm capitalize">
                     {anomaly.type.replace('_', ' ')}
                   </h4>
-                  <Badge variant={getSeverityColor(anomaly.severity)} className="text-xs">
+                  <Badge
+                    variant={getSeverityColor(anomaly.severity)}
+                    className="text-xs"
+                  >
                     {anomaly.severity}
                   </Badge>
                   <Badge variant="outline" className="text-xs">
@@ -303,21 +359,26 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
           <div
             key={index}
             className={`p-4 border rounded-lg ${
-              trend.type === 'positive' ? 'border-green-200 bg-green-50/50' : 
-              trend.type === 'negative' ? 'border-red-200 bg-red-50/50' : 
-              'border-blue-200 bg-blue-50/50'
+              trend.type === 'positive'
+                ? 'border-green-200 bg-green-50/50'
+                : trend.type === 'negative'
+                  ? 'border-red-200 bg-red-50/50'
+                  : 'border-blue-200 bg-blue-50/50'
             }`}
           >
             <div className="flex items-start gap-3">
-              <div className="text-lg">
-                {getTrendIcon(trend.type)}
-              </div>
+              <div className="text-lg">{getTrendIcon(trend.type)}</div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-medium text-sm capitalize">
                     {trend.metric} Trendi
                   </h4>
-                  <Badge variant={trend.significance === 'high' ? 'default' : 'secondary'} className="text-xs">
+                  <Badge
+                    variant={
+                      trend.significance === 'high' ? 'default' : 'secondary'
+                    }
+                    className="text-xs"
+                  >
                     {trend.significance} önem
                   </Badge>
                 </div>
@@ -325,7 +386,9 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
                   {trend.description}
                 </p>
                 <div className="text-xs text-muted-foreground">
-                  <span>Dönem: {trend.period} | Değişim: {trend.change.toFixed(1)}%</span>
+                  <span>
+                    Dönem: {trend.period} | Değişim: {trend.change.toFixed(1)}%
+                  </span>
                 </div>
               </div>
             </div>
@@ -337,10 +400,14 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
 
   const getTabCount = () => {
     switch (activeTab) {
-      case 'notifications': return notifications.length;
-      case 'anomalies': return anomalies.length;
-      case 'trends': return trends.length;
-      default: return 0;
+      case 'notifications':
+        return notifications.length;
+      case 'anomalies':
+        return anomalies.length;
+      case 'trends':
+        return trends.length;
+      default:
+        return 0;
     }
   };
 
@@ -416,7 +483,10 @@ export function SmartNotificationsWidget({ userId, className }: SmartNotificatio
 
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <LoadingSpinner size="lg" text="Bildirimler kontrol ediliyor..." />
+              <LoadingSpinner
+                size="lg"
+                text="Bildirimler kontrol ediliyor..."
+              />
             </div>
           ) : (
             <>

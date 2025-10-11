@@ -7,7 +7,10 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import * as schema from '../../shared/schema-sqlite';
-import { calculateRunway, calculateCashGap } from '../../server/modules/dashboard/runway-cashgap';
+import {
+  calculateRunway,
+  calculateCashGap,
+} from '../../server/modules/dashboard/runway-cashgap';
 
 // Create in-memory test database
 const sqlite = new Database(':memory:');
@@ -73,18 +76,18 @@ describe('Error Handling Tests', () => {
   describe('Invalid User ID', () => {
     it('should return empty results for non-existent user', async () => {
       const result = await calculateRunway('non-existent-user-999', 12, testDb);
-      
+
       expect(result).toBeDefined();
       expect(result.currentCash).toBe(0);
       expect(result.monthlyExpenses).toBe(0);
-      expect(result.runwayMonths).toBe(0); // Zero cash = 0 runway  
+      expect(result.runwayMonths).toBe(0); // Zero cash = 0 runway
       expect(result.status).toBe('critical');
       expect(result.recommendations).toBeDefined();
     });
 
     it('should handle empty user ID gracefully', async () => {
       const result = await calculateRunway('', 12, testDb);
-      
+
       expect(result).toBeDefined();
       expect(result.currentCash).toBe(0);
     });
@@ -92,7 +95,7 @@ describe('Error Handling Tests', () => {
     it('should handle null-like user IDs', async () => {
       const result1 = await calculateRunway('null', 12, testDb);
       const result2 = await calculateRunway('undefined', 12, testDb);
-      
+
       expect(result1.currentCash).toBe(0);
       expect(result2.currentCash).toBe(0);
     });
@@ -105,7 +108,7 @@ describe('Error Handling Tests', () => {
   describe('Invalid Parameters', () => {
     it('should handle negative months parameter', async () => {
       const result = await calculateRunway('test-user', -5, testDb);
-      
+
       // Should return something sensible or have minimum months
       expect(result).toBeDefined();
       expect(result.monthlyBreakdown).toBeDefined();
@@ -113,13 +116,13 @@ describe('Error Handling Tests', () => {
 
     it('should handle zero months parameter', async () => {
       const result = await calculateRunway('test-user', 0, testDb);
-      
+
       expect(result).toBeDefined();
     });
 
     it('should handle very large months parameter', async () => {
       const result = await calculateRunway('test-user', 1000, testDb);
-      
+
       expect(result).toBeDefined();
       expect(result.monthlyBreakdown.length).toBeGreaterThan(0);
     });
@@ -127,7 +130,7 @@ describe('Error Handling Tests', () => {
     it('should handle decimal months parameter', async () => {
       // Should probably floor or round
       const result = await calculateRunway('test-user', 6.5, testDb);
-      
+
       expect(result).toBeDefined();
     });
   });
@@ -139,7 +142,7 @@ describe('Error Handling Tests', () => {
   describe('Database Edge Cases', () => {
     it('should handle empty database gracefully', async () => {
       const result = await calculateRunway('empty-user', 12, testDb);
-      
+
       expect(result).toBeDefined();
       expect(result.currentCash).toBe(0);
       expect(result.monthlyExpenses).toBe(0);
@@ -154,7 +157,7 @@ describe('Error Handling Tests', () => {
         id: 'acc-no-trans',
         user_id: 'user-no-trans',
         name: 'Test Account',
-        balance: 50000.00,
+        balance: 50000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -162,7 +165,7 @@ describe('Error Handling Tests', () => {
       });
 
       const result = await calculateRunway('user-no-trans', 12, testDb);
-      
+
       expect(result.currentCash).toBe(50000);
       expect(result.monthlyExpenses).toBe(0);
       expect(result.runwayMonths).toBe(Infinity);
@@ -170,7 +173,7 @@ describe('Error Handling Tests', () => {
 
     it('should handle no AR/AP items for cash gap', async () => {
       const result = await calculateCashGap('empty-user', 6, testDb);
-      
+
       expect(result).toBeDefined();
       expect(result.totalAR).toBe(0);
       expect(result.totalAP).toBe(0);
@@ -190,7 +193,7 @@ describe('Error Handling Tests', () => {
         id: 'acc-string-balance',
         user_id: 'user-string',
         name: 'Test Account',
-        balance: 75000.00, // SQLite might store as number or string
+        balance: 75000.0, // SQLite might store as number or string
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -198,7 +201,7 @@ describe('Error Handling Tests', () => {
       });
 
       const result = await calculateRunway('user-string', 12, testDb);
-      
+
       expect(result.currentCash).toBeGreaterThan(0);
       expect(typeof result.currentCash).toBe('number');
     });
@@ -208,7 +211,7 @@ describe('Error Handling Tests', () => {
         id: 'acc-string-amount',
         user_id: 'user-amount',
         name: 'Test Account',
-        balance: 50000.00,
+        balance: 50000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -222,7 +225,7 @@ describe('Error Handling Tests', () => {
         id: 'trans-string-amount',
         user_id: 'user-amount',
         account_id: 'acc-string-amount',
-        amount: -5000.00,
+        amount: -5000.0,
         type: 'expense',
         category: 'operating',
         date: date.toISOString(),
@@ -230,7 +233,7 @@ describe('Error Handling Tests', () => {
       });
 
       const result = await calculateRunway('user-amount', 12, testDb);
-      
+
       expect(result.monthlyExpenses).toBeGreaterThan(0);
       expect(typeof result.monthlyExpenses).toBe('number');
     });
@@ -241,7 +244,7 @@ describe('Error Handling Tests', () => {
         user_id: 'user-mixed',
         type: 'receivable',
         customer_supplier: 'Test Customer',
-        amount: 10000.00,
+        amount: 10000.0,
         due_date: new Date().toISOString(),
         age_days: 15,
         status: 'pending',
@@ -250,7 +253,7 @@ describe('Error Handling Tests', () => {
       });
 
       const result = await calculateCashGap('user-mixed', 6, testDb);
-      
+
       expect(result.totalAR).toBeGreaterThan(0);
       expect(typeof result.totalAR).toBe('number');
     });
@@ -266,7 +269,7 @@ describe('Error Handling Tests', () => {
         id: 'acc-zero-cash',
         user_id: 'user-zero-cash',
         name: 'Empty Account',
-        balance: 0.00,
+        balance: 0.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -278,7 +281,7 @@ describe('Error Handling Tests', () => {
         id: 'trans-zero-cash',
         user_id: 'user-zero-cash',
         account_id: 'acc-zero-cash',
-        amount: -1000.00,
+        amount: -1000.0,
         type: 'expense',
         category: 'operating',
         date: date.toISOString(),
@@ -286,7 +289,7 @@ describe('Error Handling Tests', () => {
       });
 
       const result = await calculateRunway('user-zero-cash', 12, testDb);
-      
+
       expect(result.currentCash).toBe(0);
       expect(result.runwayMonths).toBe(0);
       expect(result.status).toBe('critical');
@@ -305,7 +308,7 @@ describe('Error Handling Tests', () => {
       });
 
       const result = await calculateRunway('user-small', 12, testDb);
-      
+
       expect(result.currentCash).toBe(0.01);
       expect(result.runwayMonths).toBeGreaterThanOrEqual(0);
     });
@@ -317,7 +320,7 @@ describe('Error Handling Tests', () => {
           user_id: 'user-equal',
           type: 'receivable',
           customer_supplier: 'Customer',
-          amount: 10000.00,
+          amount: 10000.0,
           due_date: new Date().toISOString(),
           age_days: 10,
           status: 'pending',
@@ -329,7 +332,7 @@ describe('Error Handling Tests', () => {
           user_id: 'user-equal',
           type: 'payable',
           customer_supplier: 'Supplier',
-          amount: 10000.00,
+          amount: 10000.0,
           due_date: new Date().toISOString(),
           age_days: 10,
           status: 'pending',
@@ -339,7 +342,7 @@ describe('Error Handling Tests', () => {
       ]);
 
       const result = await calculateCashGap('user-equal', 6, testDb);
-      
+
       expect(result.cashGap).toBe(0);
       expect(result.riskLevel).toBe('medium'); // Zero gap = medium risk
     });
@@ -353,7 +356,7 @@ describe('Error Handling Tests', () => {
         user_id: 'user-future',
         type: 'receivable',
         customer_supplier: 'Customer',
-        amount: 10000.00,
+        amount: 10000.0,
         due_date: futureDate.toISOString(),
         age_days: 365,
         status: 'pending',
@@ -362,10 +365,9 @@ describe('Error Handling Tests', () => {
       });
 
       const result = await calculateCashGap('user-future', 6, testDb);
-      
+
       expect(result).toBeDefined();
       expect(result.totalAR).toBeGreaterThan(0);
     });
   });
 });
-

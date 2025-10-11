@@ -28,14 +28,14 @@ export class EmailService {
   private initializeTransporter() {
     // Check if email is configured
     const emailConfig = this.getEmailConfig();
-    
+
     if (emailConfig) {
       this.transporter = nodemailer.createTransport(emailConfig);
       this.isConfigured = true;
     } else {
       // Use mock transporter for development
       this.transporter = nodemailer.createTransport({
-        jsonTransport: true
+        jsonTransport: true,
       });
       this.isConfigured = false;
     }
@@ -52,7 +52,7 @@ export class EmailService {
         host,
         port: parseInt(port),
         secure: port === '465',
-        auth: { user, pass }
+        auth: { user, pass },
       };
     }
 
@@ -66,7 +66,7 @@ export class EmailService {
         to,
         subject: template.subject,
         text: template.text,
-        html: template.html
+        html: template.html,
       };
 
       if (this.isConfigured) {
@@ -86,9 +86,12 @@ export class EmailService {
     }
   }
 
-  generatePasswordResetTemplate(token: string, baseUrl: string = (process.env.FRONTEND_URL || 'http://localhost:5000')): EmailTemplate {
+  generatePasswordResetTemplate(
+    token: string,
+    baseUrl: string = process.env.FRONTEND_URL || 'http://localhost:5000'
+  ): EmailTemplate {
     const resetUrl = `${baseUrl}/reset-password?token=${token}`;
-    
+
     return {
       subject: 'FinBot - Şifre Sıfırlama',
       text: `Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:\n\n${resetUrl}\n\nBu link 1 saat geçerlidir.\n\nEğer bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.`,
@@ -107,13 +110,16 @@ export class EmailService {
             Eğer bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.
           </p>
         </div>
-      `
+      `,
     };
   }
 
-  generateEmailVerificationTemplate(verificationCode: string, baseUrl: string = (process.env.FRONTEND_URL || 'http://localhost:5000')): EmailTemplate {
+  generateEmailVerificationTemplate(
+    verificationCode: string,
+    baseUrl: string = process.env.FRONTEND_URL || 'http://localhost:5000'
+  ): EmailTemplate {
     const verifyUrl = `${baseUrl}/verify-email?code=${verificationCode}`;
-    
+
     return {
       subject: 'FinBot - E-posta Doğrulama',
       text: `E-posta adresinizi doğrulamak için aşağıdaki kodu kullanın:\n\n${verificationCode}\n\nVeya aşağıdaki linke tıklayın:\n${verifyUrl}\n\nBu kod 10 dakika geçerlidir.`,
@@ -173,13 +179,18 @@ export class EmailService {
           </div>
         </body>
         </html>
-      `
+      `,
     };
   }
 
-  generateTeamInviteTemplate(teamName: string, inviteToken: string, inviterName: string = 'Takım Yöneticisi', baseUrl: string = (process.env.FRONTEND_URL || 'http://localhost:5000')): EmailTemplate {
+  generateTeamInviteTemplate(
+    teamName: string,
+    inviteToken: string,
+    inviterName: string = 'Takım Yöneticisi',
+    baseUrl: string = process.env.FRONTEND_URL || 'http://localhost:5000'
+  ): EmailTemplate {
     const inviteUrl = `${baseUrl}/accept-invite?token=${inviteToken}`;
-    
+
     return {
       subject: `FinBot - ${teamName} Takımına Davet`,
       text: `${inviterName} sizi ${teamName} takımına davet etti.\n\nDaveti kabul etmek için aşağıdaki linke tıklayın:\n\n${inviteUrl}\n\nBu link 7 gün geçerlidir.`,
@@ -244,10 +255,9 @@ export class EmailService {
           </div>
         </body>
         </html>
-      `
+      `,
     };
   }
 }
 
 export const emailService = new EmailService();
-

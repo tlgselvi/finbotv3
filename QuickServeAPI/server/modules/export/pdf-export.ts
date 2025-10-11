@@ -39,17 +39,17 @@ export async function exportToPDF(
     // Launch Puppeteer browser
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
-    
+
     const page = await browser.newPage();
-    
+
     // Generate HTML content
     const htmlContent = generateHTMLContent(data, options);
-    
+
     // Set content and generate PDF
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    
+
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -57,30 +57,33 @@ export async function exportToPDF(
         top: '20mm',
         right: '15mm',
         bottom: '20mm',
-        left: '15mm'
-      }
+        left: '15mm',
+      },
     });
-    
+
     await browser.close();
     return pdfBuffer;
   } catch (error) {
     logger.error('PDF generation failed:', error);
     // Fallback to mock PDF
-  const mockPDFContent = generateMockPDFContent(data, options);
-  return Buffer.from(mockPDFContent, 'utf-8');
+    const mockPDFContent = generateMockPDFContent(data, options);
+    return Buffer.from(mockPDFContent, 'utf-8');
   }
 }
 
 /**
  * Generate HTML content for PDF
  */
-function generateHTMLContent(data: PDFExportData, options: PDFExportOptions): string {
+function generateHTMLContent(
+  data: PDFExportData,
+  options: PDFExportOptions
+): string {
   const { locale, currency, includeLogo, companyName } = options;
   const isTurkish = locale === 'tr-TR';
-  
+
   const title = isTurkish ? 'FinBot Finansal Rapor' : 'FinBot Financial Report';
   const generatedAt = new Date().toLocaleDateString(locale);
-  
+
   return `
     <!DOCTYPE html>
     <html lang="${locale}">
@@ -207,9 +210,12 @@ function generateHTMLContent(data: PDFExportData, options: PDFExportOptions): st
 /**
  * Generate summary section HTML
  */
-function generateSummarySection(summary: any, options: PDFExportOptions): string {
+function generateSummarySection(
+  summary: any,
+  options: PDFExportOptions
+): string {
   const isTurkish = options.locale === 'tr-TR';
-  
+
   return `
     <div class="section">
       <div class="section-title">${isTurkish ? 'Özet' : 'Summary'}</div>
@@ -238,9 +244,12 @@ function generateSummarySection(summary: any, options: PDFExportOptions): string
 /**
  * Generate accounts section HTML
  */
-function generateAccountsSection(accounts: Account[], options: PDFExportOptions): string {
+function generateAccountsSection(
+  accounts: Account[],
+  options: PDFExportOptions
+): string {
   const isTurkish = options.locale === 'tr-TR';
-  
+
   return `
     <div class="section">
       <div class="section-title">${isTurkish ? 'Hesaplar' : 'Accounts'}</div>
@@ -255,7 +264,9 @@ function generateAccountsSection(accounts: Account[], options: PDFExportOptions)
           </tr>
         </thead>
         <tbody>
-          ${accounts.map(account => `
+          ${accounts
+            .map(
+              account => `
             <tr>
               <td>${account.bankName}</td>
               <td>${account.accountName}</td>
@@ -263,7 +274,9 @@ function generateAccountsSection(accounts: Account[], options: PDFExportOptions)
               <td class="currency">${formatCurrency(parseFloat(account.balance), options.currency)}</td>
               <td>${account.currency}</td>
             </tr>
-          `).join('')}
+          `
+            )
+            .join('')}
         </tbody>
       </table>
     </div>
@@ -273,10 +286,13 @@ function generateAccountsSection(accounts: Account[], options: PDFExportOptions)
 /**
  * Generate transactions section HTML
  */
-function generateTransactionsSection(transactions: Transaction[], options: PDFExportOptions): string {
+function generateTransactionsSection(
+  transactions: Transaction[],
+  options: PDFExportOptions
+): string {
   const isTurkish = options.locale === 'tr-TR';
   const limitedTransactions = transactions.slice(0, 50); // Limit to 50 transactions
-  
+
   return `
     <div class="section">
       <div class="section-title">${isTurkish ? 'İşlemler' : 'Transactions'}</div>
@@ -291,7 +307,9 @@ function generateTransactionsSection(transactions: Transaction[], options: PDFEx
           </tr>
         </thead>
         <tbody>
-          ${limitedTransactions.map(transaction => `
+          ${limitedTransactions
+            .map(
+              transaction => `
             <tr>
               <td>${new Date(transaction.createdAt).toLocaleDateString(options.locale)}</td>
               <td class="currency">${formatCurrency(parseFloat(transaction.amount), options.currency)}</td>
@@ -299,7 +317,9 @@ function generateTransactionsSection(transactions: Transaction[], options: PDFEx
               <td>${transaction.category || ''}</td>
               <td>${transaction.type}</td>
             </tr>
-          `).join('')}
+          `
+            )
+            .join('')}
         </tbody>
       </table>
     </div>
@@ -309,13 +329,16 @@ function generateTransactionsSection(transactions: Transaction[], options: PDFEx
 /**
  * Generate mock PDF content (fallback)
  */
-function generateMockPDFContent(data: PDFExportData, options: PDFExportOptions): string {
+function generateMockPDFContent(
+  data: PDFExportData,
+  options: PDFExportOptions
+): string {
   const { locale, currency, includeLogo, companyName } = options;
   const isTurkish = locale === 'tr-TR';
-  
+
   const title = isTurkish ? 'FinBot Finansal Rapor' : 'FinBot Financial Report';
   const generatedAt = new Date().toLocaleDateString(locale);
-  
+
   let content = `
 === ${title} ===
 ${companyName ? `Şirket: ${companyName}` : ''}
@@ -371,7 +394,8 @@ Para Birimi: ${account.currency}
 === ${transactionsTitle} ===
 `;
 
-    data.transactions.slice(0, 50).forEach(transaction => { // Limit to 50 transactions
+    data.transactions.slice(0, 50).forEach(transaction => {
+      // Limit to 50 transactions
       content += `
 Tarih: ${new Date(transaction.createdAt).toLocaleDateString(locale)}
 Tutar: ${formatCurrency(parseFloat(transaction.amount), currency)}
@@ -413,13 +437,14 @@ function formatCurrency(amount: number, currency: string): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  
-  const symbol = {
-    'TRY': '₺',
-    'USD': '$',
-    'EUR': '€',
-  }[currency] || currency;
-  
+
+  const symbol =
+    {
+      TRY: '₺',
+      USD: '$',
+      EUR: '€',
+    }[currency] || currency;
+
   return `${symbol} ${formatted}`;
 }
 
@@ -433,8 +458,10 @@ export function generatePDFFilename(
   const timestamp = new Date().toISOString().split('T')[0];
   const typeMap = {
     accounts: locale === 'tr-TR' ? 'hesaplar-raporu' : 'accounts-report',
-    transactions: locale === 'tr-TR' ? 'islemler-raporu' : 'transactions-report',
-    'financial-summary': locale === 'tr-TR' ? 'finansal-ozet' : 'financial-summary',
+    transactions:
+      locale === 'tr-TR' ? 'islemler-raporu' : 'transactions-report',
+    'financial-summary':
+      locale === 'tr-TR' ? 'finansal-ozet' : 'financial-summary',
     combined: locale === 'tr-TR' ? 'kapsamli-rapor' : 'comprehensive-report',
   };
 
@@ -444,9 +471,12 @@ export function generatePDFFilename(
 /**
  * Get PDF export options for user's locale
  */
-export function getPDFExportOptions(locale: string, companyName?: string): PDFExportOptions {
+export function getPDFExportOptions(
+  locale: string,
+  companyName?: string
+): PDFExportOptions {
   const isTurkish = locale.startsWith('tr');
-  
+
   return {
     locale: isTurkish ? 'tr-TR' : 'en-US',
     currency: 'TRY', // Default currency - can be overridden via options
@@ -455,4 +485,3 @@ export function getPDFExportOptions(locale: string, companyName?: string): PDFEx
     companyName,
   };
 }
-

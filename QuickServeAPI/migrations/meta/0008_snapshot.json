@@ -453,12 +453,8 @@
           "name": "ai_settings_tenant_id_tenants_id_fk",
           "tableFrom": "ai_settings",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -891,12 +887,8 @@
           "name": "bank_transactions_bank_integration_id_bank_integrations_id_fk",
           "tableFrom": "bank_transactions",
           "tableTo": "bank_integrations",
-          "columnsFrom": [
-            "bank_integration_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bank_integration_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -904,12 +896,8 @@
           "name": "bank_transactions_account_id_accounts_id_fk",
           "tableFrom": "bank_transactions",
           "tableTo": "accounts",
-          "columnsFrom": [
-            "account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1076,12 +1064,8 @@
           "name": "cashbox_audit_logs_cashbox_id_cashboxes_id_fk",
           "tableFrom": "cashbox_audit_logs",
           "tableTo": "cashboxes",
-          "columnsFrom": [
-            "cashbox_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["cashbox_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1089,12 +1073,8 @@
           "name": "cashbox_audit_logs_transaction_id_cashbox_transactions_id_fk",
           "tableFrom": "cashbox_audit_logs",
           "tableTo": "cashbox_transactions",
-          "columnsFrom": [
-            "transaction_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transaction_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1223,12 +1203,8 @@
           "name": "cashbox_transactions_cashbox_id_cashboxes_id_fk",
           "tableFrom": "cashbox_transactions",
           "tableTo": "cashboxes",
-          "columnsFrom": [
-            "cashbox_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["cashbox_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1236,12 +1212,8 @@
           "name": "cashbox_transactions_transfer_to_cashbox_id_cashboxes_id_fk",
           "tableFrom": "cashbox_transactions",
           "tableTo": "cashboxes",
-          "columnsFrom": [
-            "transfer_to_cashbox_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transfer_to_cashbox_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1249,12 +1221,8 @@
           "name": "cashbox_transactions_transfer_from_cashbox_id_cashboxes_id_fk",
           "tableFrom": "cashbox_transactions",
           "tableTo": "cashboxes",
-          "columnsFrom": [
-            "transfer_from_cashbox_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transfer_from_cashbox_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1899,12 +1867,8 @@
           "name": "import_batches_bank_integration_id_bank_integrations_id_fk",
           "tableFrom": "import_batches",
           "tableTo": "bank_integrations",
-          "columnsFrom": [
-            "bank_integration_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bank_integration_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2239,9 +2203,7 @@
         "password_reset_tokens_token_unique": {
           "name": "password_reset_tokens_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -2445,12 +2407,8 @@
           "name": "reconciliation_logs_bank_integration_id_bank_integrations_id_fk",
           "tableFrom": "reconciliation_logs",
           "tableTo": "bank_integrations",
-          "columnsFrom": [
-            "bank_integration_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bank_integration_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2458,12 +2416,8 @@
           "name": "reconciliation_logs_bank_transaction_id_bank_transactions_id_fk",
           "tableFrom": "reconciliation_logs",
           "tableTo": "bank_transactions",
-          "columnsFrom": [
-            "bank_transaction_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bank_transaction_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2471,12 +2425,8 @@
           "name": "reconciliation_logs_system_transaction_id_transactions_id_fk",
           "tableFrom": "reconciliation_logs",
           "tableTo": "transactions",
-          "columnsFrom": [
-            "system_transaction_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["system_transaction_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2932,9 +2882,7 @@
         "tenants_domain_unique": {
           "name": "tenants_domain_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "domain"
-          ]
+          "columns": ["domain"]
         }
       },
       "policies": {},
@@ -3183,9 +3131,7 @@
         "user_profiles_user_id_unique": {
           "name": "user_profiles_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -3269,9 +3215,7 @@
         "user_two_factor_auth_user_id_unique": {
           "name": "user_two_factor_auth_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -3360,16 +3304,12 @@
         "users_username_unique": {
           "name": "users_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},

@@ -6,7 +6,7 @@ const UserRoleV2 = {
   ADMIN: 'ADMIN' as UserRoleV2Type,
   FINANCE: 'FINANCE' as UserRoleV2Type,
   VIEWER: 'VIEWER' as UserRoleV2Type,
-  AUDITOR: 'AUDITOR' as UserRoleV2Type
+  AUDITOR: 'AUDITOR' as UserRoleV2Type,
 };
 
 const PermissionV2 = {
@@ -17,68 +17,74 @@ const PermissionV2 = {
   VIEW_USERS: 'VIEW_USERS' as PermissionV2Type,
   MANAGE_SETTINGS: 'MANAGE_SETTINGS' as PermissionV2Type,
   VIEW_SYSTEM_STATUS: 'VIEW_SYSTEM_STATUS' as PermissionV2Type,
-  
+
   // Cashbox
   MANAGE_CASHBOXES: 'MANAGE_CASHBOXES' as PermissionV2Type,
   TRANSFER_CASHBOX: 'TRANSFER_CASHBOX' as PermissionV2Type,
   VIEW_CASHBOXES: 'VIEW_CASHBOXES' as PermissionV2Type,
-  
+
   // Bank Integration
   MANAGE_BANK_INTEGRATIONS: 'MANAGE_BANK_INTEGRATIONS' as PermissionV2Type,
   VIEW_BANK_INTEGRATIONS: 'VIEW_BANK_INTEGRATIONS' as PermissionV2Type,
   IMPORT_BANK_DATA: 'IMPORT_BANK_DATA' as PermissionV2Type,
-  
+
   // Reports
   VIEW_REPORTS: 'VIEW_REPORTS' as PermissionV2Type,
   EXPORT_REPORTS: 'EXPORT_REPORTS' as PermissionV2Type,
   GENERATE_REPORTS: 'GENERATE_REPORTS' as PermissionV2Type,
-  
+
   // Dashboard
   VIEW_DASHBOARD: 'VIEW_DASHBOARD' as PermissionV2Type,
-  
+
   // Other
-  MANAGE_BUDGET: 'MANAGE_BUDGET' as PermissionV2Type
+  MANAGE_BUDGET: 'MANAGE_BUDGET' as PermissionV2Type,
 };
 
 const rolePermissionsV2: Record<UserRoleV2Type, PermissionV2Type[]> = {
   ADMIN: Object.values(PermissionV2),
   FINANCE: [
-    'MANAGE_CASHBOXES', 
-    'TRANSFER_CASHBOX', 
+    'MANAGE_CASHBOXES',
+    'TRANSFER_CASHBOX',
     'VIEW_CASHBOXES',
     'MANAGE_BANK_INTEGRATIONS',
     'IMPORT_BANK_DATA',
     'VIEW_BANK_INTEGRATIONS',
-    'VIEW_REPORTS', 
+    'VIEW_REPORTS',
     'EXPORT_REPORTS',
     'GENERATE_REPORTS',
     'VIEW_DASHBOARD',
-    'MANAGE_BUDGET'
+    'MANAGE_BUDGET',
   ] as PermissionV2Type[],
   VIEWER: [
-    'VIEW_DASHBOARD', 
-    'VIEW_CASHBOXES', 
+    'VIEW_DASHBOARD',
+    'VIEW_CASHBOXES',
     'VIEW_BANK_INTEGRATIONS',
     'VIEW_REPORTS',
-    'EXPORT_REPORTS'
+    'EXPORT_REPORTS',
   ] as PermissionV2Type[],
   AUDITOR: [
-    'VIEW_DASHBOARD', 
-    'VIEW_CASHBOXES', 
+    'VIEW_DASHBOARD',
+    'VIEW_CASHBOXES',
     'VIEW_BANK_INTEGRATIONS',
-    'VIEW_REPORTS', 
+    'VIEW_REPORTS',
     'EXPORT_REPORTS',
-    'VIEW_AUDIT_LOGS', 
-    'VIEW_USERS'
-  ] as PermissionV2Type[]
+    'VIEW_AUDIT_LOGS',
+    'VIEW_USERS',
+  ] as PermissionV2Type[],
 };
 
-function hasPermissionV2(userRole: UserRoleV2Type, permission: PermissionV2Type): boolean {
+function hasPermissionV2(
+  userRole: UserRoleV2Type,
+  permission: PermissionV2Type
+): boolean {
   const permissions = rolePermissionsV2[userRole];
   return permissions.includes(permission);
 }
 
-function hasAnyPermissionV2(userRole: UserRoleV2Type, permissions: PermissionV2Type[]): boolean {
+function hasAnyPermissionV2(
+  userRole: UserRoleV2Type,
+  permissions: PermissionV2Type[]
+): boolean {
   const userPermissions = rolePermissionsV2[userRole];
   return permissions.some(permission => userPermissions.includes(permission));
 }
@@ -93,40 +99,81 @@ describe('User Permissions V2', () => {
     });
 
     it('should return true for finance role with finance permissions', () => {
-      expect(hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.MANAGE_CASHBOXES)).toBe(true);
-      expect(hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.TRANSFER_CASHBOX)).toBe(true);
-      expect(hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.VIEW_REPORTS)).toBe(true);
-      expect(hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.EXPORT_REPORTS)).toBe(true);
+      expect(
+        hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.MANAGE_CASHBOXES)
+      ).toBe(true);
+      expect(
+        hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.TRANSFER_CASHBOX)
+      ).toBe(true);
+      expect(
+        hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.VIEW_REPORTS)
+      ).toBe(true);
+      expect(
+        hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.EXPORT_REPORTS)
+      ).toBe(true);
     });
 
     it('should return false for finance role with admin permissions', () => {
-      expect(hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.MANAGE_USERS)).toBe(false);
-      expect(hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.ASSIGN_ROLES)).toBe(false);
-      expect(hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.VIEW_AUDIT_LOGS)).toBe(false);
+      expect(
+        hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.MANAGE_USERS)
+      ).toBe(false);
+      expect(
+        hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.ASSIGN_ROLES)
+      ).toBe(false);
+      expect(
+        hasPermissionV2(UserRoleV2.FINANCE, PermissionV2.VIEW_AUDIT_LOGS)
+      ).toBe(false);
     });
 
     it('should return true for viewer role with view permissions', () => {
-      expect(hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.VIEW_DASHBOARD)).toBe(true);
-      expect(hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.VIEW_CASHBOXES)).toBe(true);
-      expect(hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.VIEW_REPORTS)).toBe(true);
+      expect(
+        hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.VIEW_DASHBOARD)
+      ).toBe(true);
+      expect(
+        hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.VIEW_CASHBOXES)
+      ).toBe(true);
+      expect(
+        hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.VIEW_REPORTS)
+      ).toBe(true);
     });
 
     it('should return false for viewer role with manage permissions', () => {
-      expect(hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.MANAGE_CASHBOXES)).toBe(false);
-      expect(hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.MANAGE_BANK_INTEGRATIONS)).toBe(false);
-      expect(hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.MANAGE_USERS)).toBe(false);
+      expect(
+        hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.MANAGE_CASHBOXES)
+      ).toBe(false);
+      expect(
+        hasPermissionV2(
+          UserRoleV2.VIEWER,
+          PermissionV2.MANAGE_BANK_INTEGRATIONS
+        )
+      ).toBe(false);
+      expect(
+        hasPermissionV2(UserRoleV2.VIEWER, PermissionV2.MANAGE_USERS)
+      ).toBe(false);
     });
 
     it('should return true for auditor role with audit permissions', () => {
-      expect(hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.VIEW_AUDIT_LOGS)).toBe(true);
-      expect(hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.VIEW_USERS)).toBe(true);
-      expect(hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.VIEW_REPORTS)).toBe(true);
+      expect(
+        hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.VIEW_AUDIT_LOGS)
+      ).toBe(true);
+      expect(hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.VIEW_USERS)).toBe(
+        true
+      );
+      expect(
+        hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.VIEW_REPORTS)
+      ).toBe(true);
     });
 
     it('should return false for auditor role with manage permissions', () => {
-      expect(hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.MANAGE_USERS)).toBe(false);
-      expect(hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.MANAGE_CASHBOXES)).toBe(false);
-      expect(hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.TRANSFER_CASHBOX)).toBe(false);
+      expect(
+        hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.MANAGE_USERS)
+      ).toBe(false);
+      expect(
+        hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.MANAGE_CASHBOXES)
+      ).toBe(false);
+      expect(
+        hasPermissionV2(UserRoleV2.AUDITOR, PermissionV2.TRANSFER_CASHBOX)
+      ).toBe(false);
     });
   });
 
@@ -135,7 +182,7 @@ describe('User Permissions V2', () => {
       const permissions = [
         PermissionV2.MANAGE_USERS,
         PermissionV2.VIEW_CASHBOXES,
-        PermissionV2.MANAGE_CASHBOXES
+        PermissionV2.MANAGE_CASHBOXES,
       ];
 
       // Admin should have all permissions
@@ -155,7 +202,7 @@ describe('User Permissions V2', () => {
       const permissions = [
         PermissionV2.MANAGE_USERS,
         PermissionV2.ASSIGN_ROLES,
-        PermissionV2.VIEW_SYSTEM_STATUS
+        PermissionV2.VIEW_SYSTEM_STATUS,
       ];
 
       // Only admin should have these permissions
@@ -176,7 +223,7 @@ describe('User Permissions V2', () => {
   describe('Role Permission Mapping', () => {
     it('should have correct permissions for ADMIN role', () => {
       const adminPermissions = rolePermissionsV2[UserRoleV2.ADMIN];
-      
+
       expect(adminPermissions).toContain(PermissionV2.MANAGE_USERS);
       expect(adminPermissions).toContain(PermissionV2.ASSIGN_ROLES);
       expect(adminPermissions).toContain(PermissionV2.VIEW_AUDIT_LOGS);
@@ -188,13 +235,15 @@ describe('User Permissions V2', () => {
 
     it('should have correct permissions for FINANCE role', () => {
       const financePermissions = rolePermissionsV2[UserRoleV2.FINANCE];
-      
+
       expect(financePermissions).toContain(PermissionV2.MANAGE_CASHBOXES);
       expect(financePermissions).toContain(PermissionV2.TRANSFER_CASHBOX);
-      expect(financePermissions).toContain(PermissionV2.MANAGE_BANK_INTEGRATIONS);
+      expect(financePermissions).toContain(
+        PermissionV2.MANAGE_BANK_INTEGRATIONS
+      );
       expect(financePermissions).toContain(PermissionV2.IMPORT_BANK_DATA);
       expect(financePermissions).toContain(PermissionV2.EXPORT_REPORTS);
-      
+
       expect(financePermissions).not.toContain(PermissionV2.MANAGE_USERS);
       expect(financePermissions).not.toContain(PermissionV2.ASSIGN_ROLES);
       expect(financePermissions).not.toContain(PermissionV2.VIEW_AUDIT_LOGS);
@@ -202,22 +251,24 @@ describe('User Permissions V2', () => {
 
     it('should have correct permissions for VIEWER role', () => {
       const viewerPermissions = rolePermissionsV2[UserRoleV2.VIEWER];
-      
+
       expect(viewerPermissions).toContain(PermissionV2.VIEW_DASHBOARD);
       expect(viewerPermissions).toContain(PermissionV2.VIEW_CASHBOXES);
       expect(viewerPermissions).toContain(PermissionV2.VIEW_BANK_INTEGRATIONS);
       expect(viewerPermissions).toContain(PermissionV2.VIEW_REPORTS);
       expect(viewerPermissions).toContain(PermissionV2.EXPORT_REPORTS);
-      
+
       expect(viewerPermissions).not.toContain(PermissionV2.MANAGE_CASHBOXES);
       expect(viewerPermissions).not.toContain(PermissionV2.TRANSFER_CASHBOX);
-      expect(viewerPermissions).not.toContain(PermissionV2.MANAGE_BANK_INTEGRATIONS);
+      expect(viewerPermissions).not.toContain(
+        PermissionV2.MANAGE_BANK_INTEGRATIONS
+      );
       expect(viewerPermissions).not.toContain(PermissionV2.MANAGE_USERS);
     });
 
     it('should have correct permissions for AUDITOR role', () => {
       const auditorPermissions = rolePermissionsV2[UserRoleV2.AUDITOR];
-      
+
       expect(auditorPermissions).toContain(PermissionV2.VIEW_DASHBOARD);
       expect(auditorPermissions).toContain(PermissionV2.VIEW_CASHBOXES);
       expect(auditorPermissions).toContain(PermissionV2.VIEW_BANK_INTEGRATIONS);
@@ -225,11 +276,13 @@ describe('User Permissions V2', () => {
       expect(auditorPermissions).toContain(PermissionV2.EXPORT_REPORTS);
       expect(auditorPermissions).toContain(PermissionV2.VIEW_AUDIT_LOGS);
       expect(auditorPermissions).toContain(PermissionV2.VIEW_USERS);
-      
+
       expect(auditorPermissions).not.toContain(PermissionV2.MANAGE_USERS);
       expect(auditorPermissions).not.toContain(PermissionV2.MANAGE_CASHBOXES);
       expect(auditorPermissions).not.toContain(PermissionV2.TRANSFER_CASHBOX);
-      expect(auditorPermissions).not.toContain(PermissionV2.MANAGE_BANK_INTEGRATIONS);
+      expect(auditorPermissions).not.toContain(
+        PermissionV2.MANAGE_BANK_INTEGRATIONS
+      );
     });
   });
 

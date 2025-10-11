@@ -1,8 +1,22 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Download, Upload, FileCheck, Calendar, BarChart3, AlertCircle, CheckCircle } from 'lucide-react';
+import {
+  Download,
+  Upload,
+  FileCheck,
+  Calendar,
+  BarChart3,
+  AlertCircle,
+  CheckCircle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -18,7 +32,7 @@ interface JsonStatus {
   lastExport?: string;
 }
 
-export function TransactionJsonManager () {
+export function TransactionJsonManager() {
   const [overwriteExisting, setOverwriteExisting] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: '',
@@ -34,10 +48,13 @@ export function TransactionJsonManager () {
   // JSON'a dışa aktarma
   const exportMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/transactions/export-json');
+      const response = await apiRequest(
+        'POST',
+        '/api/transactions/export-json'
+      );
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       refetchStatus();
       toast({
         title: 'Dışa aktarma başarılı',
@@ -56,12 +73,16 @@ export function TransactionJsonManager () {
   // JSON'dan içe aktarma
   const importMutation = useMutation({
     mutationFn: async (overwrite: boolean) => {
-      const response = await apiRequest('POST', '/api/transactions/import-json', {
-        overwriteExisting: overwrite,
-      });
+      const response = await apiRequest(
+        'POST',
+        '/api/transactions/import-json',
+        {
+          overwriteExisting: overwrite,
+        }
+      );
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       refetchStatus();
@@ -82,13 +103,17 @@ export function TransactionJsonManager () {
   // Tarih aralığına göre dışa aktarma
   const exportByDateMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/transactions/export-json-by-date', {
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
-      });
+      const response = await apiRequest(
+        'POST',
+        '/api/transactions/export-json-by-date',
+        {
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+        }
+      );
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast({
         title: 'Tarihli dışa aktarma başarılı',
         description: data.message,
@@ -106,10 +131,13 @@ export function TransactionJsonManager () {
   // Kategori analizi dışa aktarma
   const exportCategoryAnalysisMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/transactions/export-category-analysis');
+      const response = await apiRequest(
+        'POST',
+        '/api/transactions/export-category-analysis'
+      );
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast({
         title: 'Kategori analizi başarılı',
         description: data.message,
@@ -161,10 +189,16 @@ export function TransactionJsonManager () {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2" data-testid="json-manager-title">
+        <h2
+          className="text-2xl font-bold mb-2"
+          data-testid="json-manager-title"
+        >
           İşlem Takibi (transactions.json)
         </h2>
-        <p className="text-muted-foreground" data-testid="json-manager-description">
+        <p
+          className="text-muted-foreground"
+          data-testid="json-manager-description"
+        >
           İşlem verilerinizi JSON formatında yedekleyin ve geri yükleyin
         </p>
       </div>
@@ -211,7 +245,10 @@ export function TransactionJsonManager () {
             )}
 
             {jsonStatus?.lastExport && (
-              <span className="text-sm text-muted-foreground" data-testid="text-last-export">
+              <span
+                className="text-sm text-muted-foreground"
+                data-testid="text-last-export"
+              >
                 Son Dışa Aktarma: {formatDate(jsonStatus.lastExport)}
               </span>
             )}
@@ -224,7 +261,8 @@ export function TransactionJsonManager () {
         <CardHeader>
           <CardTitle>Temel İşlemler</CardTitle>
           <CardDescription>
-            Tüm işlem verilerinizi dışa aktarın veya mevcut JSON dosyasından içe aktarın
+            Tüm işlem verilerinizi dışa aktarın veya mevcut JSON dosyasından içe
+            aktarın
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -235,7 +273,9 @@ export function TransactionJsonManager () {
               data-testid="button-export-json"
             >
               <Download className="h-4 w-4 mr-2" />
-              {exportMutation.isPending ? 'Dışa Aktarılıyor...' : "JSON'a Dışa Aktar"}
+              {exportMutation.isPending
+                ? 'Dışa Aktarılıyor...'
+                : "JSON'a Dışa Aktar"}
             </Button>
 
             <Button
@@ -245,7 +285,9 @@ export function TransactionJsonManager () {
               data-testid="button-import-json"
             >
               <Upload className="h-4 w-4 mr-2" />
-              {importMutation.isPending ? 'İçe Aktarılıyor...' : "JSON'dan İçe Aktar"}
+              {importMutation.isPending
+                ? 'İçe Aktarılıyor...'
+                : "JSON'dan İçe Aktar"}
             </Button>
           </div>
 
@@ -271,7 +313,8 @@ export function TransactionJsonManager () {
             Tarih Aralığına Göre Dışa Aktarma
           </CardTitle>
           <CardDescription>
-            Belirli bir tarih aralığındaki işlemleri ayrı bir JSON dosyasına aktarın
+            Belirli bir tarih aralığındaki işlemleri ayrı bir JSON dosyasına
+            aktarın
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -282,7 +325,9 @@ export function TransactionJsonManager () {
                 id="start-date"
                 type="date"
                 value={dateRange.startDate}
-                onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                onChange={e =>
+                  setDateRange(prev => ({ ...prev, startDate: e.target.value }))
+                }
                 data-testid="input-start-date"
               />
             </div>
@@ -292,7 +337,9 @@ export function TransactionJsonManager () {
                 id="end-date"
                 type="date"
                 value={dateRange.endDate}
-                onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                onChange={e =>
+                  setDateRange(prev => ({ ...prev, endDate: e.target.value }))
+                }
                 data-testid="input-end-date"
               />
             </div>
@@ -300,11 +347,17 @@ export function TransactionJsonManager () {
 
           <Button
             onClick={handleExportByDate}
-            disabled={exportByDateMutation.isPending || !dateRange.startDate || !dateRange.endDate}
+            disabled={
+              exportByDateMutation.isPending ||
+              !dateRange.startDate ||
+              !dateRange.endDate
+            }
             data-testid="button-export-by-date"
           >
             <Calendar className="h-4 w-4 mr-2" />
-            {exportByDateMutation.isPending ? 'Dışa Aktarılıyor...' : 'Tarihli Dışa Aktarma'}
+            {exportByDateMutation.isPending
+              ? 'Dışa Aktarılıyor...'
+              : 'Tarihli Dışa Aktarma'}
           </Button>
         </CardContent>
       </Card>
@@ -319,7 +372,8 @@ export function TransactionJsonManager () {
             Kategori Analizi
           </CardTitle>
           <CardDescription>
-            İşlemlerinizi kategorilere göre analiz edin ve detaylı rapor oluşturun
+            İşlemlerinizi kategorilere göre analiz edin ve detaylı rapor
+            oluşturun
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -330,7 +384,9 @@ export function TransactionJsonManager () {
             data-testid="button-export-category-analysis"
           >
             <BarChart3 className="h-4 w-4 mr-2" />
-            {exportCategoryAnalysisMutation.isPending ? 'Analiz Ediliyor...' : 'Kategori Analizi Oluştur'}
+            {exportCategoryAnalysisMutation.isPending
+              ? 'Analiz Ediliyor...'
+              : 'Kategori Analizi Oluştur'}
           </Button>
         </CardContent>
       </Card>
@@ -342,11 +398,24 @@ export function TransactionJsonManager () {
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm text-muted-foreground">
-            <p>• JSON dışa aktarma işlemi tüm işlem verilerinizi ve hesap bilgilerini içerir</p>
-            <p>• İçe aktarma sırasında eksik hesaplar atlanır ve hata raporlanır</p>
-            <p>• Tarihli dışa aktarma ile belirli dönemler için yedek alabilirsiniz</p>
-            <p>• Kategori analizi harcama alışkanlıklarınız hakkında detaylı bilgi sunar</p>
-            <p>• JSON dosyaları manuel olarak düzenlenebilir ancak dikkatli olun</p>
+            <p>
+              • JSON dışa aktarma işlemi tüm işlem verilerinizi ve hesap
+              bilgilerini içerir
+            </p>
+            <p>
+              • İçe aktarma sırasında eksik hesaplar atlanır ve hata raporlanır
+            </p>
+            <p>
+              • Tarihli dışa aktarma ile belirli dönemler için yedek
+              alabilirsiniz
+            </p>
+            <p>
+              • Kategori analizi harcama alışkanlıklarınız hakkında detaylı
+              bilgi sunar
+            </p>
+            <p>
+              • JSON dosyaları manuel olarak düzenlenebilir ancak dikkatli olun
+            </p>
           </div>
         </CardContent>
       </Card>

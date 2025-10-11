@@ -11,7 +11,7 @@ export enum LogLevel {
   INFO = 'info',
   WARN = 'warn',
   ERROR = 'error',
-  FATAL = 'fatal'
+  FATAL = 'fatal',
 }
 
 // Log context interface
@@ -26,19 +26,22 @@ export interface LogContext {
 // Logger configuration
 const loggerConfig = {
   level: process.env.LOG_LEVEL || 'info',
-  transport: process.env.NODE_ENV === 'development' ? {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: 'SYS:standard',
-      ignore: 'pid,hostname',
-      messageFormat: '{msg}'
-    }
-  } : undefined,
+  transport:
+    process.env.NODE_ENV === 'development'
+      ? {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            ignore: 'pid,hostname',
+            messageFormat: '{msg}',
+          },
+        }
+      : undefined,
   formatters: {
     level: (label: string) => {
       return { level: label.toUpperCase() };
-    }
+    },
   },
   timestamp: pino.stdTimeFunctions.isoTime,
   redact: {
@@ -53,10 +56,10 @@ const loggerConfig = {
       'res.headers["set-cookie"]',
       '*.password',
       '*.token',
-      '*.secret'
+      '*.secret',
     ],
-    censor: '[REDACTED]'
-  }
+    censor: '[REDACTED]',
+  },
 };
 
 // Create logger instance
@@ -106,7 +109,7 @@ export class Logger {
       ...context,
       operation,
       duration,
-      type: 'performance'
+      type: 'performance',
     });
   }
 
@@ -115,7 +118,7 @@ export class Logger {
     this.warn(`Security: ${event}`, {
       ...context,
       type: 'security',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -124,41 +127,57 @@ export class Logger {
     this.info(`Business: ${event}`, {
       ...context,
       type: 'business',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
   // API request logging
-  apiRequest(method: string, url: string, statusCode: number, duration: number, context?: LogContext): void {
+  apiRequest(
+    method: string,
+    url: string,
+    statusCode: number,
+    duration: number,
+    context?: LogContext
+  ): void {
     this.info(`API Request: ${method} ${url}`, {
       ...context,
       method,
       url,
       statusCode,
       duration,
-      type: 'api_request'
+      type: 'api_request',
     });
   }
 
   // Database operation logging
-  database(operation: string, table: string, duration: number, context?: LogContext): void {
+  database(
+    operation: string,
+    table: string,
+    duration: number,
+    context?: LogContext
+  ): void {
     this.debug(`Database: ${operation} on ${table}`, {
       ...context,
       operation,
       table,
       duration,
-      type: 'database'
+      type: 'database',
     });
   }
 
   // Email operation logging
-  email(operation: string, recipient: string, status: string, context?: LogContext): void {
+  email(
+    operation: string,
+    recipient: string,
+    status: string,
+    context?: LogContext
+  ): void {
     this.info(`Email: ${operation} to ${recipient}`, {
       ...context,
       operation,
       recipient: recipient.replace(/(.{2}).*(@.*)/, '$1***$2'), // Mask email
       status,
-      type: 'email'
+      type: 'email',
     });
   }
 
@@ -169,8 +188,8 @@ export class Logger {
       error: {
         name: error.name,
         message: error.message,
-        stack: error.stack
-      }
+        stack: error.stack,
+      },
     });
   }
 }
@@ -186,18 +205,20 @@ export const createLogger = (context: LogContext = {}): Logger => {
 // Request logger middleware
 export const requestLogger = (req: any, res: any, next: any) => {
   const start = Date.now();
-  const requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+  const requestId =
+    req.headers['x-request-id'] ||
+    `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
   // Add request ID to request object
   req.requestId = requestId;
-  
+
   // Create request logger
   const requestLogger = createLogger({
     requestId,
     method: req.method,
     url: req.url,
     userAgent: req.headers['user-agent'],
-    ip: req.ip || req.connection.remoteAddress
+    ip: req.ip || req.connection.remoteAddress,
   });
 
   // Log request start
@@ -205,15 +226,10 @@ export const requestLogger = (req: any, res: any, next: any) => {
 
   // Override res.end to log response
   const originalEnd = res.end;
-  res.end = function(chunk: any, encoding: any) {
+  res.end = function (chunk: any, encoding: any) {
     const duration = Date.now() - start;
-    
-    requestLogger.apiRequest(
-      req.method,
-      req.url,
-      res.statusCode,
-      duration
-    );
+
+    requestLogger.apiRequest(req.method, req.url, res.statusCode, duration);
 
     originalEnd.call(this, chunk, encoding);
   };
@@ -226,7 +242,7 @@ export const errorLogger = (error: Error, req: any, res: any, next: any) => {
   const requestLogger = createLogger({
     requestId: req.requestId,
     method: req.method,
-    url: req.url
+    url: req.url,
   });
 
   requestLogger.errorWithStack('Request error', error);
@@ -236,22 +252,30 @@ export const errorLogger = (error: Error, req: any, res: any, next: any) => {
 
 // Performance monitoring
 export const performanceMonitor = (operation: string) => {
-  return (target: any, propertyName: string, descriptor: PropertyDescriptor) => {
+  return (
+    target: any,
+    propertyName: string,
+    descriptor: PropertyDescriptor
+  ) => {
     const method = descriptor.value;
 
     descriptor.value = async function (...args: any[]) {
       const start = Date.now();
       const logger = createLogger({ operation });
-      
+
       try {
         const result = await method.apply(this, args);
         const duration = Date.now() - start;
-        
+
         logger.performance(operation, duration);
         return result;
       } catch (error) {
         const duration = Date.now() - start;
-        logger.errorWithStack(`Performance error in ${operation}`, error as Error, { duration });
+        logger.errorWithStack(
+          `Performance error in ${operation}`,
+          error as Error,
+          { duration }
+        );
         throw error;
       }
     };

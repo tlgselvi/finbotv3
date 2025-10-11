@@ -3,7 +3,17 @@
  * Implements Open Banking API standards (PSD2, UK Open Banking, etc.)
  */
 
-import { BaseBankProvider, BankCredentials, BankApiResponse, BankAccount, BankTransaction, BankTransfer, BankCard, SyncResult, BankProviderConfig } from './base-provider.ts';
+import {
+  BaseBankProvider,
+  BankCredentials,
+  BankApiResponse,
+  BankAccount,
+  BankTransaction,
+  BankTransfer,
+  BankCard,
+  SyncResult,
+  BankProviderConfig,
+} from './base-provider.ts';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
@@ -23,18 +33,18 @@ export class OpenBankingProvider extends BaseBankProvider {
         'balance',
         'statements',
         'webhooks',
-        'oauth'
+        'oauth',
       ],
       rateLimits: {
         requestsPerMinute: 100,
         requestsPerHour: 1000,
-        requestsPerDay: 10000
+        requestsPerDay: 10000,
       },
       supportedCurrencies: ['TRY', 'USD', 'EUR', 'GBP'],
       supportedAccountTypes: ['checking', 'savings', 'credit', 'loan'],
       webhookSupported: true,
       oauthSupported: true,
-      sandboxSupported: true
+      sandboxSupported: true,
     };
   }
 
@@ -46,8 +56,9 @@ export class OpenBankingProvider extends BaseBankProvider {
           success: false,
           error: {
             code: 'INVALID_CREDENTIALS',
-            message: 'Client ID and Client Secret are required for Open Banking'
-          }
+            message:
+              'Client ID and Client Secret are required for Open Banking',
+          },
         };
       }
 
@@ -56,15 +67,15 @@ export class OpenBankingProvider extends BaseBankProvider {
       return {
         success: authResult.success,
         data: authResult.success,
-        error: authResult.error
+        error: authResult.error,
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -82,33 +93,35 @@ export class OpenBankingProvider extends BaseBankProvider {
         return response;
       }
 
-      const accounts: BankAccount[] = response.data.accounts.map((account: any) => ({
-        id: account.AccountId,
-        name: account.Nickname || account.Name,
-        type: this.mapAccountType(account.AccountType),
-        balance: parseFloat(account.Balance?.Amount || '0'),
-        currency: account.Currency || 'TRY',
-        accountNumber: account.Identification?.AccountNumber,
-        iban: account.Identification?.IBAN,
-        lastUpdated: new Date(account.LastUpdateTime || new Date()),
-        metadata: {
-          accountSubType: account.AccountSubType,
-          openingDate: account.OpeningDate,
-          maturityDate: account.MaturityDate
-        }
-      }));
+      const accounts: BankAccount[] = response.data.accounts.map(
+        (account: any) => ({
+          id: account.AccountId,
+          name: account.Nickname || account.Name,
+          type: this.mapAccountType(account.AccountType),
+          balance: parseFloat(account.Balance?.Amount || '0'),
+          currency: account.Currency || 'TRY',
+          accountNumber: account.Identification?.AccountNumber,
+          iban: account.Identification?.IBAN,
+          lastUpdated: new Date(account.LastUpdateTime || new Date()),
+          metadata: {
+            accountSubType: account.AccountSubType,
+            openingDate: account.OpeningDate,
+            maturityDate: account.MaturityDate,
+          },
+        })
+      );
 
       return {
         success: true,
-        data: accounts
+        data: accounts,
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'GET_ACCOUNTS_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -139,21 +152,21 @@ export class OpenBankingProvider extends BaseBankProvider {
         metadata: {
           accountSubType: account.AccountSubType,
           openingDate: account.OpeningDate,
-          maturityDate: account.MaturityDate
-        }
+          maturityDate: account.MaturityDate,
+        },
       };
 
       return {
         success: true,
-        data: bankAccount
+        data: bankAccount,
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'GET_ACCOUNT_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -172,7 +185,10 @@ export class OpenBankingProvider extends BaseBankProvider {
 
       const queryParams = new URLSearchParams();
       if (options?.startDate) {
-        queryParams.append('fromBookingDateTime', options.startDate.toISOString());
+        queryParams.append(
+          'fromBookingDateTime',
+          options.startDate.toISOString()
+        );
       }
       if (options?.endDate) {
         queryParams.append('toBookingDateTime', options.endDate.toISOString());
@@ -185,7 +201,7 @@ export class OpenBankingProvider extends BaseBankProvider {
       }
 
       const endpoint = `/open-banking/v3.1/accounts/${accountId}/transactions${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-      
+
       const response = await this.makeRequest<{ transactions: any[] }>(
         'GET',
         endpoint
@@ -195,42 +211,48 @@ export class OpenBankingProvider extends BaseBankProvider {
         return response;
       }
 
-      const transactions: BankTransaction[] = response.data.transactions.map((txn: any) => ({
-        id: txn.TransactionId,
-        accountId: accountId,
-        date: new Date(txn.BookingDateTime),
-        amount: Math.abs(parseFloat(txn.Amount?.Amount || '0')),
-        currency: txn.Amount?.Currency || 'TRY',
-        description: txn.TransactionInformation || txn.ProprietaryBankTransactionCode?.Code,
-        reference: txn.TransactionReference,
-        category: txn.BankTransactionCode?.Code,
-        balance: parseFloat(txn.Balance?.Amount || '0'),
-        type: parseFloat(txn.Amount?.Amount || '0') >= 0 ? 'credit' : 'debit',
-        status: this.mapTransactionStatus(txn.Status),
-        merchant: txn.MerchantDetails ? {
-          name: txn.MerchantDetails.MerchantName,
-          category: txn.MerchantDetails.MerchantCategoryCode,
-          location: txn.MerchantDetails.MerchantAddress
-        } : undefined,
-        metadata: {
-          bookingDateTime: txn.BookingDateTime,
-          valueDateTime: txn.ValueDateTime,
-          bankTransactionCode: txn.BankTransactionCode,
-          proprietaryBankTransactionCode: txn.ProprietaryBankTransactionCode
-        }
-      }));
+      const transactions: BankTransaction[] = response.data.transactions.map(
+        (txn: any) => ({
+          id: txn.TransactionId,
+          accountId: accountId,
+          date: new Date(txn.BookingDateTime),
+          amount: Math.abs(parseFloat(txn.Amount?.Amount || '0')),
+          currency: txn.Amount?.Currency || 'TRY',
+          description:
+            txn.TransactionInformation ||
+            txn.ProprietaryBankTransactionCode?.Code,
+          reference: txn.TransactionReference,
+          category: txn.BankTransactionCode?.Code,
+          balance: parseFloat(txn.Balance?.Amount || '0'),
+          type: parseFloat(txn.Amount?.Amount || '0') >= 0 ? 'credit' : 'debit',
+          status: this.mapTransactionStatus(txn.Status),
+          merchant: txn.MerchantDetails
+            ? {
+                name: txn.MerchantDetails.MerchantName,
+                category: txn.MerchantDetails.MerchantCategoryCode,
+                location: txn.MerchantDetails.MerchantAddress,
+              }
+            : undefined,
+          metadata: {
+            bookingDateTime: txn.BookingDateTime,
+            valueDateTime: txn.ValueDateTime,
+            bankTransactionCode: txn.BankTransactionCode,
+            proprietaryBankTransactionCode: txn.ProprietaryBankTransactionCode,
+          },
+        })
+      );
 
       return {
         success: true,
-        data: transactions
+        data: transactions,
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'GET_TRANSACTIONS_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -258,36 +280,40 @@ export class OpenBankingProvider extends BaseBankProvider {
         date: new Date(txn.BookingDateTime),
         amount: Math.abs(parseFloat(txn.Amount?.Amount || '0')),
         currency: txn.Amount?.Currency || 'TRY',
-        description: txn.TransactionInformation || txn.ProprietaryBankTransactionCode?.Code,
+        description:
+          txn.TransactionInformation ||
+          txn.ProprietaryBankTransactionCode?.Code,
         reference: txn.TransactionReference,
         category: txn.BankTransactionCode?.Code,
         balance: parseFloat(txn.Balance?.Amount || '0'),
         type: parseFloat(txn.Amount?.Amount || '0') >= 0 ? 'credit' : 'debit',
         status: this.mapTransactionStatus(txn.Status),
-        merchant: txn.MerchantDetails ? {
-          name: txn.MerchantDetails.MerchantName,
-          category: txn.MerchantDetails.MerchantCategoryCode,
-          location: txn.MerchantDetails.MerchantAddress
-        } : undefined,
+        merchant: txn.MerchantDetails
+          ? {
+              name: txn.MerchantDetails.MerchantName,
+              category: txn.MerchantDetails.MerchantCategoryCode,
+              location: txn.MerchantDetails.MerchantAddress,
+            }
+          : undefined,
         metadata: {
           bookingDateTime: txn.BookingDateTime,
           valueDateTime: txn.ValueDateTime,
           bankTransactionCode: txn.BankTransactionCode,
-          proprietaryBankTransactionCode: txn.ProprietaryBankTransactionCode
-        }
+          proprietaryBankTransactionCode: txn.ProprietaryBankTransactionCode,
+        },
       };
 
       return {
         success: true,
-        data: transaction
+        data: transaction,
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'GET_TRANSACTION_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -300,8 +326,9 @@ export class OpenBankingProvider extends BaseBankProvider {
     try {
       await this.ensureAuthenticated();
 
-      const { includeTransactions = true, transactionDaysBack = 90 } = options || {};
-      
+      const { includeTransactions = true, transactionDaysBack = 90 } =
+        options || {};
+
       // Get accounts
       const accountsResponse = await this.getAccounts();
       if (!accountsResponse.success) {
@@ -318,19 +345,26 @@ export class OpenBankingProvider extends BaseBankProvider {
 
         for (const account of accountsResponse.data) {
           try {
-            const transactionsResponse = await this.getTransactions(account.id, {
-              startDate,
-              endDate,
-              limit: 1000
-            });
+            const transactionsResponse = await this.getTransactions(
+              account.id,
+              {
+                startDate,
+                endDate,
+                limit: 1000,
+              }
+            );
 
             if (transactionsResponse.success && transactionsResponse.data) {
               transactionsCount += transactionsResponse.data.length;
             } else if (transactionsResponse.error) {
-              errors.push(`Failed to sync transactions for account ${account.id}: ${transactionsResponse.error.message}`);
+              errors.push(
+                `Failed to sync transactions for account ${account.id}: ${transactionsResponse.error.message}`
+              );
             }
           } catch (error) {
-            errors.push(`Error syncing transactions for account ${account.id}: ${this.getErrorMessage(error)}`);
+            errors.push(
+              `Error syncing transactions for account ${account.id}: ${this.getErrorMessage(error)}`
+            );
           }
         }
       }
@@ -342,16 +376,16 @@ export class OpenBankingProvider extends BaseBankProvider {
           accountsUpdated: accountsResponse.data?.length || 0,
           transactionsCount,
           lastSyncDate: new Date(),
-          errors: errors.length > 0 ? errors : undefined
-        }
+          errors: errors.length > 0 ? errors : undefined,
+        },
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'SYNC_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -373,21 +407,21 @@ export class OpenBankingProvider extends BaseBankProvider {
             EndToEndIdentification: crypto.randomUUID(),
             InstructedAmount: {
               Amount: amount.toString(),
-              Currency: 'TRY'
+              Currency: 'TRY',
             },
             DebtorAccount: {
               SchemeName: 'IBAN',
-              Identification: fromAccountId
+              Identification: fromAccountId,
             },
             CreditorAccount: {
               SchemeName: 'IBAN',
-              Identification: toAccountId
+              Identification: toAccountId,
             },
             RemittanceInformation: {
-              Unstructured: description
-            }
-          }
-        }
+              Unstructured: description,
+            },
+          },
+        },
       };
 
       const response = await this.makeRequest<{ transfer: any }>(
@@ -410,32 +444,36 @@ export class OpenBankingProvider extends BaseBankProvider {
         description,
         status: this.mapTransferStatus(transfer.Status),
         initiatedAt: new Date(transfer.CreationDateTime),
-        completedAt: transfer.StatusUpdateDateTime ? new Date(transfer.StatusUpdateDateTime) : undefined,
+        completedAt: transfer.StatusUpdateDateTime
+          ? new Date(transfer.StatusUpdateDateTime)
+          : undefined,
         reference: transfer.EndToEndIdentification,
         metadata: {
           ...metadata,
           instructionIdentification: transfer.InstructionIdentification,
           statusUpdateDateTime: transfer.StatusUpdateDateTime,
-          charge: transfer.Charge
-        }
+          charge: transfer.Charge,
+        },
       };
 
       return {
         success: true,
-        data: bankTransfer
+        data: bankTransfer,
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'CREATE_TRANSFER_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
 
-  async getTransfer(transferId: string): Promise<BankApiResponse<BankTransfer>> {
+  async getTransfer(
+    transferId: string
+  ): Promise<BankApiResponse<BankTransfer>> {
     try {
       await this.ensureAuthenticated();
 
@@ -453,27 +491,33 @@ export class OpenBankingProvider extends BaseBankProvider {
         id: transfer.DomesticPaymentId,
         fromAccountId: transfer.Data?.Initiation?.DebtorAccount?.Identification,
         toAccountId: transfer.Data?.Initiation?.CreditorAccount?.Identification,
-        amount: parseFloat(transfer.Data?.Initiation?.InstructedAmount?.Amount || '0'),
-        currency: transfer.Data?.Initiation?.InstructedAmount?.Currency || 'TRY',
-        description: transfer.Data?.Initiation?.RemittanceInformation?.Unstructured,
+        amount: parseFloat(
+          transfer.Data?.Initiation?.InstructedAmount?.Amount || '0'
+        ),
+        currency:
+          transfer.Data?.Initiation?.InstructedAmount?.Currency || 'TRY',
+        description:
+          transfer.Data?.Initiation?.RemittanceInformation?.Unstructured,
         status: this.mapTransferStatus(transfer.Status),
         initiatedAt: new Date(transfer.CreationDateTime),
-        completedAt: transfer.StatusUpdateDateTime ? new Date(transfer.StatusUpdateDateTime) : undefined,
+        completedAt: transfer.StatusUpdateDateTime
+          ? new Date(transfer.StatusUpdateDateTime)
+          : undefined,
         reference: transfer.Data?.Initiation?.EndToEndIdentification,
-        metadata: transfer.Data
+        metadata: transfer.Data,
       };
 
       return {
         success: true,
-        data: bankTransfer
+        data: bankTransfer,
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'GET_TRANSFER_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -484,8 +528,8 @@ export class OpenBankingProvider extends BaseBankProvider {
       success: false,
       error: {
         code: 'NOT_SUPPORTED',
-        message: 'Card information is not available through Open Banking API'
-      }
+        message: 'Card information is not available through Open Banking API',
+      },
     };
   }
 
@@ -497,8 +541,8 @@ export class OpenBankingProvider extends BaseBankProvider {
       success: false,
       error: {
         code: 'NOT_SUPPORTED',
-        message: 'Card management is not available through Open Banking API'
-      }
+        message: 'Card management is not available through Open Banking API',
+      },
     };
   }
 
@@ -511,15 +555,15 @@ export class OpenBankingProvider extends BaseBankProvider {
 
       return {
         success: true,
-        data: accountResponse.data.balance
+        data: accountResponse.data.balance,
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'GET_BALANCE_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -542,7 +586,7 @@ export class OpenBankingProvider extends BaseBankProvider {
         'GET',
         `/open-banking/v3.1/accounts/${accountId}/statements?${queryParams.toString()}`,
         undefined,
-        { 'Accept': `application/${format}` }
+        { Accept: `application/${format}` }
       );
 
       return response;
@@ -551,8 +595,8 @@ export class OpenBankingProvider extends BaseBankProvider {
         success: false,
         error: {
           code: 'GET_STATEMENT_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -567,14 +611,13 @@ export class OpenBankingProvider extends BaseBankProvider {
       const webhookData = {
         webhookUrl,
         events,
-        isActive: true
+        isActive: true,
       };
 
-      const response = await this.makeRequest<{ webhookId: string; secret: string }>(
-        'POST',
-        '/open-banking/v3.1/webhooks',
-        webhookData
-      );
+      const response = await this.makeRequest<{
+        webhookId: string;
+        secret: string;
+      }>('POST', '/open-banking/v3.1/webhooks', webhookData);
 
       return response;
     } catch (error) {
@@ -582,8 +625,8 @@ export class OpenBankingProvider extends BaseBankProvider {
         success: false,
         error: {
           code: 'SETUP_WEBHOOK_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -615,18 +658,24 @@ export class OpenBankingProvider extends BaseBankProvider {
     try {
       switch (eventType) {
         case 'account.update':
-          return { success: true, data: { message: 'Account update processed' } };
+          return {
+            success: true,
+            data: { message: 'Account update processed' },
+          };
         case 'transaction.create':
           return { success: true, data: { message: 'Transaction created' } };
         case 'transfer.update':
-          return { success: true, data: { message: 'Transfer status updated' } };
+          return {
+            success: true,
+            data: { message: 'Transfer status updated' },
+          };
         default:
           return {
             success: false,
             error: {
               code: 'UNKNOWN_EVENT_TYPE',
-              message: `Unknown webhook event type: ${eventType}`
-            }
+              message: `Unknown webhook event type: ${eventType}`,
+            },
           };
       }
     } catch (error) {
@@ -634,21 +683,23 @@ export class OpenBankingProvider extends BaseBankProvider {
         success: false,
         error: {
           code: 'WEBHOOK_HANDLER_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
 
-  async refreshToken(): Promise<BankApiResponse<{ token: string; expiresAt: Date }>> {
+  async refreshToken(): Promise<
+    BankApiResponse<{ token: string; expiresAt: Date }>
+  > {
     try {
       if (!this.refreshToken) {
         return {
           success: false,
           error: {
             code: 'NO_REFRESH_TOKEN',
-            message: 'No refresh token available'
-          }
+            message: 'No refresh token available',
+          },
         };
       }
 
@@ -660,7 +711,7 @@ export class OpenBankingProvider extends BaseBankProvider {
         grant_type: 'refresh_token',
         refresh_token: this.refreshToken,
         client_id: this.credentials.clientId,
-        client_secret: this.credentials.clientSecret
+        client_secret: this.credentials.clientSecret,
       });
 
       if (!tokenResponse.success || !tokenResponse.data) {
@@ -668,8 +719,10 @@ export class OpenBankingProvider extends BaseBankProvider {
       }
 
       this.accessToken = tokenResponse.data.access_token;
-      this.tokenExpiresAt = new Date(Date.now() + tokenResponse.data.expires_in * 1000);
-      
+      this.tokenExpiresAt = new Date(
+        Date.now() + tokenResponse.data.expires_in * 1000
+      );
+
       if (tokenResponse.data.refresh_token) {
         this.refreshToken = tokenResponse.data.refresh_token;
       }
@@ -678,16 +731,16 @@ export class OpenBankingProvider extends BaseBankProvider {
         success: true,
         data: {
           token: this.accessToken,
-          expiresAt: this.tokenExpiresAt
-        }
+          expiresAt: this.tokenExpiresAt,
+        },
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'REFRESH_TOKEN_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -697,7 +750,7 @@ export class OpenBankingProvider extends BaseBankProvider {
       await this.makeRequest('POST', '/oauth2/revoke', {
         token: this.accessToken,
         client_id: this.credentials.clientId,
-        client_secret: this.credentials.clientSecret
+        client_secret: this.credentials.clientSecret,
       });
 
       this.accessToken = undefined;
@@ -710,8 +763,8 @@ export class OpenBankingProvider extends BaseBankProvider {
         success: false,
         error: {
           code: 'REVOKE_AUTH_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
@@ -736,13 +789,14 @@ export class OpenBankingProvider extends BaseBankProvider {
     headers?: Record<string, string>
   ): Promise<BankApiResponse<T>> {
     try {
-      const baseUrl = this.credentials.baseUrl || 'https://api.openbanking.org.uk';
+      const baseUrl =
+        this.credentials.baseUrl || 'https://api.openbanking.org.uk';
       const url = `${baseUrl}${endpoint}`;
 
       const requestHeaders: Record<string, string> = {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        ...headers
+        Accept: 'application/json',
+        ...headers,
       };
 
       if (this.accessToken) {
@@ -751,7 +805,7 @@ export class OpenBankingProvider extends BaseBankProvider {
 
       const fetchOptions: RequestInit = {
         method,
-        headers: requestHeaders
+        headers: requestHeaders,
       };
 
       if (data && (method === 'POST' || method === 'PUT')) {
@@ -766,9 +820,12 @@ export class OpenBankingProvider extends BaseBankProvider {
           success: false,
           error: {
             code: `HTTP_${response.status}`,
-            message: responseData.error_description || responseData.error || `HTTP ${response.status}`,
-            details: responseData
-          }
+            message:
+              responseData.error_description ||
+              responseData.error ||
+              `HTTP ${response.status}`,
+            details: responseData,
+          },
         };
       }
 
@@ -776,30 +833,42 @@ export class OpenBankingProvider extends BaseBankProvider {
         success: true,
         data: responseData,
         metadata: {
-          requestId: response.headers.get('x-request-id') || crypto.randomUUID(),
+          requestId:
+            response.headers.get('x-request-id') || crypto.randomUUID(),
           timestamp: new Date(),
-          rateLimitRemaining: parseInt(response.headers.get('x-ratelimit-remaining') || '0'),
-          rateLimitReset: response.headers.get('x-ratelimit-reset') ? 
-            new Date(parseInt(response.headers.get('x-ratelimit-reset')!) * 1000) : undefined
-        }
+          rateLimitRemaining: parseInt(
+            response.headers.get('x-ratelimit-remaining') || '0'
+          ),
+          rateLimitReset: response.headers.get('x-ratelimit-reset')
+            ? new Date(
+                parseInt(response.headers.get('x-ratelimit-reset')!) * 1000
+              )
+            : undefined,
+        },
       };
     } catch (error) {
       return {
         success: false,
         error: {
           code: 'NETWORK_ERROR',
-          message: this.getErrorMessage(error)
-        }
+          message: this.getErrorMessage(error),
+        },
       };
     }
   }
 
-  private async authenticate(): Promise<BankApiResponse<{ access_token: string; expires_in: number; refresh_token: string }>> {
+  private async authenticate(): Promise<
+    BankApiResponse<{
+      access_token: string;
+      expires_in: number;
+      refresh_token: string;
+    }>
+  > {
     const tokenData = {
       grant_type: 'client_credentials',
       client_id: this.credentials.clientId,
       client_secret: this.credentials.clientSecret,
-      scope: 'accounts transactions payments'
+      scope: 'accounts transactions payments',
     };
 
     const response = await this.makeRequest<{
@@ -810,7 +879,9 @@ export class OpenBankingProvider extends BaseBankProvider {
 
     if (response.success && response.data) {
       this.accessToken = response.data.access_token;
-      this.tokenExpiresAt = new Date(Date.now() + response.data.expires_in * 1000);
+      this.tokenExpiresAt = new Date(
+        Date.now() + response.data.expires_in * 1000
+      );
       this.refreshToken = response.data.refresh_token;
     }
 
@@ -818,7 +889,11 @@ export class OpenBankingProvider extends BaseBankProvider {
   }
 
   private async ensureAuthenticated(): Promise<void> {
-    if (!this.accessToken || !this.tokenExpiresAt || this.tokenExpiresAt <= new Date()) {
+    if (
+      !this.accessToken ||
+      !this.tokenExpiresAt ||
+      this.tokenExpiresAt <= new Date()
+    ) {
       const authResult = await this.authenticate();
       if (!authResult.success) {
         throw new Error(authResult.error?.message || 'Authentication failed');
@@ -826,37 +901,52 @@ export class OpenBankingProvider extends BaseBankProvider {
     }
   }
 
-  private mapAccountType(accountType: string): 'checking' | 'savings' | 'credit' | 'loan' | 'investment' {
-    const typeMap: Record<string, 'checking' | 'savings' | 'credit' | 'loan' | 'investment'> = {
-      'PersonalCurrentAccount': 'checking',
-      'BusinessCurrentAccount': 'checking',
-      'SavingsAccount': 'savings',
-      'CreditCard': 'credit',
-      'Loan': 'loan',
-      'Investment': 'investment'
+  private mapAccountType(
+    accountType: string
+  ): 'checking' | 'savings' | 'credit' | 'loan' | 'investment' {
+    const typeMap: Record<
+      string,
+      'checking' | 'savings' | 'credit' | 'loan' | 'investment'
+    > = {
+      PersonalCurrentAccount: 'checking',
+      BusinessCurrentAccount: 'checking',
+      SavingsAccount: 'savings',
+      CreditCard: 'credit',
+      Loan: 'loan',
+      Investment: 'investment',
     };
 
     return typeMap[accountType] || 'checking';
   }
 
-  private mapTransactionStatus(status: string): 'pending' | 'completed' | 'failed' | 'cancelled' {
-    const statusMap: Record<string, 'pending' | 'completed' | 'failed' | 'cancelled'> = {
-      'Booked': 'completed',
-      'Pending': 'pending',
-      'Failed': 'failed',
-      'Cancelled': 'cancelled'
+  private mapTransactionStatus(
+    status: string
+  ): 'pending' | 'completed' | 'failed' | 'cancelled' {
+    const statusMap: Record<
+      string,
+      'pending' | 'completed' | 'failed' | 'cancelled'
+    > = {
+      Booked: 'completed',
+      Pending: 'pending',
+      Failed: 'failed',
+      Cancelled: 'cancelled',
     };
 
     return statusMap[status] || 'pending';
   }
 
-  private mapTransferStatus(status: string): 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' {
-    const statusMap: Record<string, 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'> = {
-      'AcceptedSettlementInProcess': 'processing',
-      'AcceptedSettlementCompleted': 'completed',
-      'Rejected': 'failed',
-      'Cancelled': 'cancelled',
-      'Pending': 'pending'
+  private mapTransferStatus(
+    status: string
+  ): 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' {
+    const statusMap: Record<
+      string,
+      'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
+    > = {
+      AcceptedSettlementInProcess: 'processing',
+      AcceptedSettlementCompleted: 'completed',
+      Rejected: 'failed',
+      Cancelled: 'cancelled',
+      Pending: 'pending',
     };
 
     return statusMap[status] || 'pending';

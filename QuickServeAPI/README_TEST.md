@@ -12,34 +12,38 @@ pnpm test:deploy     # Deploy kontrol (5 dk) 🚀
 
 ## 📊 PHASE SİSTEMİ
 
-| Komut | Ne Yapar | Süre | Ne Zaman |
-|-------|----------|------|----------|
-| `test1` | Critical + Coverage + Perf + README | 4 dk | Deploy öncesi ⭐ |
-| `test2` | Git Hooks + CI/CD + Dependencies | 5 dk | PR öncesi |
-| `test3` | Auto-Fix + Smart Selection + Data | 15 dk | Release öncesi |
-| `test4` | Dashboard + AI + Notifications | 20 dk | Sprint sonu |
+| Komut   | Ne Yapar                            | Süre  | Ne Zaman         |
+| ------- | ----------------------------------- | ----- | ---------------- |
+| `test1` | Critical + Coverage + Perf + README | 4 dk  | Deploy öncesi ⭐ |
+| `test2` | Git Hooks + CI/CD + Dependencies    | 5 dk  | PR öncesi        |
+| `test3` | Auto-Fix + Smart Selection + Data   | 15 dk | Release öncesi   |
+| `test4` | Dashboard + AI + Notifications      | 20 dk | Sprint sonu      |
 
 ---
 
 ## 🎯 GÜNLÜK KULLANIM
 
 ### Sabah (Başlamadan Önce)
+
 ```bash
 pnpm test:quick
 ```
 
 ### Kod Yazarken
+
 ```bash
 # Her önemli değişiklikten sonra
 pnpm test:quick
 ```
 
 ### Commit Öncesi
+
 ```bash
 pnpm test1
 ```
 
 ### Deploy Öncesi
+
 ```bash
 pnpm test1
 pnpm test:deploy
@@ -78,4 +82,3 @@ pnpm test1        # En çok kullanılan! ⭐
 ```
 
 **Deploy öncesi MUTLAKA çalıştır!** 🚀
-

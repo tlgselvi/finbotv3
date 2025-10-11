@@ -22,9 +22,9 @@ describe('BankProviderFactory', () => {
         credentials: {
           clientId: 'test-client-id',
           clientSecret: 'test-client-secret',
-          baseUrl: 'https://api.openbanking.org.uk'
+          baseUrl: 'https://api.openbanking.org.uk',
         },
-        isActive: true
+        isActive: true,
       };
 
       const provider = await BankProviderFactory.createProvider(config);
@@ -42,9 +42,9 @@ describe('BankProviderFactory', () => {
         credentials: {
           username: 'test-username',
           password: 'test-password',
-          baseUrl: 'https://api.turkishbank.com'
+          baseUrl: 'https://api.turkishbank.com',
         },
-        isActive: true
+        isActive: true,
       };
 
       const provider = await BankProviderFactory.createProvider(config);
@@ -60,7 +60,7 @@ describe('BankProviderFactory', () => {
         type: 'mock' as const,
         name: 'Mock Provider',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       const provider = await BankProviderFactory.createProvider(config);
@@ -74,7 +74,7 @@ describe('BankProviderFactory', () => {
         type: 'mock' as const,
         name: 'Mock Provider',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       const provider1 = await BankProviderFactory.createProvider(config);
@@ -88,7 +88,7 @@ describe('BankProviderFactory', () => {
         type: 'unsupported' as any,
         name: 'Unsupported Provider',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       await expect(BankProviderFactory.createProvider(config)).rejects.toThrow(
@@ -102,12 +102,14 @@ describe('BankProviderFactory', () => {
         name: 'Open Banking Provider',
         credentials: {
           // Missing required clientId and clientSecret
-          baseUrl: 'https://api.openbanking.org.uk'
+          baseUrl: 'https://api.openbanking.org.uk',
         },
-        isActive: true
+        isActive: true,
       };
 
-      await expect(BankProviderFactory.createProvider(config)).rejects.toThrow();
+      await expect(
+        BankProviderFactory.createProvider(config)
+      ).rejects.toThrow();
     });
   });
 
@@ -117,7 +119,7 @@ describe('BankProviderFactory', () => {
         type: 'mock' as const,
         name: 'Mock Provider',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       await BankProviderFactory.createProvider(config);
@@ -139,12 +141,12 @@ describe('BankProviderFactory', () => {
         type: 'mock' as const,
         name: 'Mock Provider',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       await BankProviderFactory.createProvider(config);
       const providerKey = `${config.type}:${config.name}:${config.credentials.clientId || config.credentials.username}`;
-      
+
       const removed = BankProviderFactory.removeProvider(providerKey);
       expect(removed).toBe(true);
 
@@ -164,14 +166,14 @@ describe('BankProviderFactory', () => {
         type: 'mock' as const,
         name: 'Mock Provider 1',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       const config2 = {
         type: 'mock' as const,
         name: 'Mock Provider 2',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       await BankProviderFactory.createProvider(config1);
@@ -179,8 +181,12 @@ describe('BankProviderFactory', () => {
 
       BankProviderFactory.clearProviders();
 
-      const provider1 = BankProviderFactory.getProvider(`${config1.type}:${config1.name}:`);
-      const provider2 = BankProviderFactory.getProvider(`${config2.type}:${config2.name}:`);
+      const provider1 = BankProviderFactory.getProvider(
+        `${config1.type}:${config1.name}:`
+      );
+      const provider2 = BankProviderFactory.getProvider(
+        `${config2.type}:${config2.name}:`
+      );
 
       expect(provider1).toBeUndefined();
       expect(provider2).toBeUndefined();
@@ -215,9 +221,9 @@ describe('BankProviderFactory', () => {
         name: 'Open Banking Provider',
         credentials: {
           clientId: 'test-client-id',
-          clientSecret: 'test-client-secret'
+          clientSecret: 'test-client-secret',
         },
-        isActive: true
+        isActive: true,
       };
 
       const validation = BankProviderFactory.validateProviderConfig(config);
@@ -231,9 +237,9 @@ describe('BankProviderFactory', () => {
         name: 'Turkish Bank Provider',
         credentials: {
           username: 'test-username',
-          password: 'test-password'
+          password: 'test-password',
         },
-        isActive: true
+        isActive: true,
       };
 
       const validation = BankProviderFactory.validateProviderConfig(config);
@@ -246,7 +252,7 @@ describe('BankProviderFactory', () => {
         type: 'mock' as const,
         name: 'Mock Provider',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       const validation = BankProviderFactory.validateProviderConfig(config);
@@ -258,7 +264,7 @@ describe('BankProviderFactory', () => {
       const config = {
         name: 'Test Provider',
         credentials: {},
-        isActive: true
+        isActive: true,
       } as any;
 
       const validation = BankProviderFactory.validateProviderConfig(config);
@@ -270,7 +276,7 @@ describe('BankProviderFactory', () => {
       const config = {
         type: 'mock' as const,
         credentials: {},
-        isActive: true
+        isActive: true,
       } as any;
 
       const validation = BankProviderFactory.validateProviderConfig(config);
@@ -282,7 +288,7 @@ describe('BankProviderFactory', () => {
       const config = {
         type: 'mock' as const,
         name: 'Test Provider',
-        isActive: true
+        isActive: true,
       } as any;
 
       const validation = BankProviderFactory.validateProviderConfig(config);
@@ -295,14 +301,16 @@ describe('BankProviderFactory', () => {
         type: 'open-banking' as const,
         name: 'Open Banking Provider',
         credentials: {
-          clientSecret: 'test-client-secret'
+          clientSecret: 'test-client-secret',
         },
-        isActive: true
+        isActive: true,
       };
 
       const validation = BankProviderFactory.validateProviderConfig(config);
       expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Client ID is required for Open Banking provider');
+      expect(validation.errors).toContain(
+        'Client ID is required for Open Banking provider'
+      );
     });
 
     it('should reject Open Banking configuration without clientSecret', () => {
@@ -310,14 +318,16 @@ describe('BankProviderFactory', () => {
         type: 'open-banking' as const,
         name: 'Open Banking Provider',
         credentials: {
-          clientId: 'test-client-id'
+          clientId: 'test-client-id',
         },
-        isActive: true
+        isActive: true,
       };
 
       const validation = BankProviderFactory.validateProviderConfig(config);
       expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Client Secret is required for Open Banking provider');
+      expect(validation.errors).toContain(
+        'Client Secret is required for Open Banking provider'
+      );
     });
 
     it('should reject Turkish Bank configuration without username', () => {
@@ -325,14 +335,16 @@ describe('BankProviderFactory', () => {
         type: 'turkish-bank' as const,
         name: 'Turkish Bank Provider',
         credentials: {
-          password: 'test-password'
+          password: 'test-password',
         },
-        isActive: true
+        isActive: true,
       };
 
       const validation = BankProviderFactory.validateProviderConfig(config);
       expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Username is required for Turkish Bank provider');
+      expect(validation.errors).toContain(
+        'Username is required for Turkish Bank provider'
+      );
     });
 
     it('should reject Turkish Bank configuration without password', () => {
@@ -340,14 +352,16 @@ describe('BankProviderFactory', () => {
         type: 'turkish-bank' as const,
         name: 'Turkish Bank Provider',
         credentials: {
-          username: 'test-username'
+          username: 'test-username',
         },
-        isActive: true
+        isActive: true,
       };
 
       const validation = BankProviderFactory.validateProviderConfig(config);
       expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Password is required for Turkish Bank provider');
+      expect(validation.errors).toContain(
+        'Password is required for Turkish Bank provider'
+      );
     });
 
     it('should reject unsupported provider type', () => {
@@ -355,12 +369,14 @@ describe('BankProviderFactory', () => {
         type: 'unsupported' as any,
         name: 'Unsupported Provider',
         credentials: {},
-        isActive: true
+        isActive: true,
       };
 
       const validation = BankProviderFactory.validateProviderConfig(config);
       expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Unsupported provider type: unsupported');
+      expect(validation.errors).toContain(
+        'Unsupported provider type: unsupported'
+      );
     });
   });
 });

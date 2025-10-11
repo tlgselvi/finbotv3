@@ -10,23 +10,23 @@ interface LoadingSpinnerProps {
 
 const sizeClasses = {
   sm: 'h-4 w-4',
-  md: 'h-6 w-6', 
+  md: 'h-6 w-6',
   lg: 'h-8 w-8',
-  xl: 'h-12 w-12'
+  xl: 'h-12 w-12',
 };
 
 const textSizeClasses = {
   sm: 'text-xs',
   md: 'text-sm',
   lg: 'text-base',
-  xl: 'text-lg'
+  xl: 'text-lg',
 };
 
-export function LoadingSpinner({ 
-  size = 'md', 
+export function LoadingSpinner({
+  size = 'md',
   className,
   text,
-  variant = 'default'
+  variant = 'default',
 }: LoadingSpinnerProps) {
   if (variant === 'minimal') {
     return (
@@ -44,13 +44,24 @@ export function LoadingSpinner({
           <div className="h-2 w-2 animate-bounce rounded-full bg-blue-600 [animation-delay:-0.15s]"></div>
           <div className="h-2 w-2 animate-bounce rounded-full bg-blue-600"></div>
         </div>
-        {text && <span className={cn('ml-2 text-muted-foreground', textSizeClasses[size])}>{text}</span>}
+        {text && (
+          <span
+            className={cn('ml-2 text-muted-foreground', textSizeClasses[size])}
+          >
+            {text}
+          </span>
+        )}
       </div>
     );
   }
 
   return (
-    <div className={cn('flex flex-col items-center justify-center gap-2', className)}>
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center gap-2',
+        className
+      )}
+    >
       <div className={cn('animate-spin', sizeClasses[size])}>
         <Loader2 className="h-full w-full text-blue-600" />
       </div>
@@ -71,27 +82,29 @@ interface SkeletonProps {
   height?: string | number;
 }
 
-export function Skeleton({ 
-  className, 
+export function Skeleton({
+  className,
   variant = 'rectangular',
   width,
-  height 
+  height,
 }: SkeletonProps) {
   const baseClasses = 'animate-pulse bg-muted';
-  
+
   const variantClasses = {
     text: 'h-4 w-full rounded',
     rectangular: 'rounded-md',
-    circular: 'rounded-full'
+    circular: 'rounded-full',
   };
 
   const style = {
     ...(width && { width: typeof width === 'number' ? `${width}px` : width }),
-    ...(height && { height: typeof height === 'number' ? `${height}px` : height })
+    ...(height && {
+      height: typeof height === 'number' ? `${height}px` : height,
+    }),
   };
 
   return (
-    <div 
+    <div
       className={cn(baseClasses, variantClasses[variant], className)}
       style={style}
     />

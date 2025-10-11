@@ -44,7 +44,7 @@ type User = {
   lastLogin: string | null;
 };
 
-export function UserManagement () {
+export function UserManagement() {
   const { toast } = useToast();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -58,7 +58,7 @@ export function UserManagement () {
     mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
       return apiRequest('PUT', `/api/admin/users/${userId}/role`, { role });
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
       toast({
         title: 'Başarılı',
@@ -76,10 +76,18 @@ export function UserManagement () {
 
   // Status change mutation
   const statusChangeMutation = useMutation({
-    mutationFn: async ({ userId, isActive }: { userId: string; isActive: boolean }) => {
-      return apiRequest('PUT', `/api/admin/users/${userId}/status`, { isActive });
+    mutationFn: async ({
+      userId,
+      isActive,
+    }: {
+      userId: string;
+      isActive: boolean;
+    }) => {
+      return apiRequest('PUT', `/api/admin/users/${userId}/status`, {
+        isActive,
+      });
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
       toast({
         title: 'Başarılı',
@@ -128,7 +136,9 @@ export function UserManagement () {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Kullanıcılar yükleniyor...</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Kullanıcılar yükleniyor...
+          </p>
         </div>
       </div>
     );
@@ -143,31 +153,43 @@ export function UserManagement () {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Kullanıcı</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Toplam Kullanıcı
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-total-users">{users.length}</div>
+            <div className="text-2xl font-bold" data-testid="text-total-users">
+              {users.length}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aktif Kullanıcı</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Aktif Kullanıcı
+            </CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-active-users">{activeUsers}</div>
+            <div className="text-2xl font-bold" data-testid="text-active-users">
+              {activeUsers}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Admin Kullanıcı</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Admin Kullanıcı
+            </CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="text-admin-users">{adminUsers}</div>
+            <div className="text-2xl font-bold" data-testid="text-admin-users">
+              {adminUsers}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -191,40 +213,57 @@ export function UserManagement () {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {users.map(user => (
                 <TableRow key={user.id} data-testid={`row-user-${user.id}`}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
-                      <span data-testid={`text-username-${user.id}`}>{user.username}</span>
+                      <span data-testid={`text-username-${user.id}`}>
+                        {user.username}
+                      </span>
                     </div>
                   </TableCell>
-                  <TableCell data-testid={`text-email-${user.id}`}>{user.email}</TableCell>
+                  <TableCell data-testid={`text-email-${user.id}`}>
+                    {user.email}
+                  </TableCell>
                   <TableCell>
                     <Select
                       value={user.role}
-                      onValueChange={(value) => handleRoleChange(user, value)}
+                      onValueChange={value => handleRoleChange(user, value)}
                       disabled={roleChangeMutation.isPending}
                     >
-                      <SelectTrigger className="w-40" data-testid={`select-role-${user.id}`}>
+                      <SelectTrigger
+                        className="w-40"
+                        data-testid={`select-role-${user.id}`}
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="company_user">Şirket Kullanıcısı</SelectItem>
-                        <SelectItem value="personal_user">Kişisel Kullanıcı</SelectItem>
+                        <SelectItem value="company_user">
+                          Şirket Kullanıcısı
+                        </SelectItem>
+                        <SelectItem value="personal_user">
+                          Kişisel Kullanıcı
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {user.isActive ? (
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        <Badge
+                          variant="secondary"
+                          className="bg-green-100 text-green-800"
+                        >
                           <UserCheck className="h-3 w-3 mr-1" />
                           Aktif
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="bg-red-100 text-red-800">
+                        <Badge
+                          variant="outline"
+                          className="bg-red-100 text-red-800"
+                        >
                           <UserX className="h-3 w-3 mr-1" />
                           Pasif
                         </Badge>
@@ -232,7 +271,9 @@ export function UserManagement () {
                     </div>
                   </TableCell>
                   <TableCell data-testid={`text-lastlogin-${user.id}`}>
-                    {user.lastLogin ? new Date(user.lastLogin).toLocaleString('tr-TR') : 'Hiç girmemiş'}
+                    {user.lastLogin
+                      ? new Date(user.lastLogin).toLocaleString('tr-TR')
+                      : 'Hiç girmemiş'}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -251,10 +292,13 @@ export function UserManagement () {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Kullanıcıyı Pasifleştir</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Kullanıcıyı Pasifleştir
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                {user.username} kullanıcısını pasif hale getirmek istediğinizden emin misiniz?
-                                Bu işlem geri alınabilir.
+                                {user.username} kullanıcısını pasif hale
+                                getirmek istediğinizden emin misiniz? Bu işlem
+                                geri alınabilir.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

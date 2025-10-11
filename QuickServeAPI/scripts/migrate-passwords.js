@@ -28,12 +28,12 @@ const ARGON2_CONFIG = {
   timeCost: 3, // 3 iterations
   parallelism: 1,
   hashLength: 32,
-  saltLength: 16
+  saltLength: 16,
 };
 
 async function migratePasswords() {
   let sqlClient = null;
-  
+
   try {
     logger.info('🔄 Starting password migration from bcrypt to Argon2id...');
 
@@ -42,7 +42,7 @@ async function migratePasswords() {
 
     // Use appropriate driver based on URL
     let db;
-    
+
     if (DATABASE_URL.includes('neon.tech')) {
       // Neon database with HTTP connection
       sqlClient = neon(DATABASE_URL);
@@ -64,7 +64,9 @@ async function migratePasswords() {
       WHERE password LIKE '$2b$%' OR password LIKE '$2a$%'
     `;
 
-    logger.info(`📊 Found ${usersWithBcrypt.length} users with bcrypt passwords`);
+    logger.info(
+      `📊 Found ${usersWithBcrypt.length} users with bcrypt passwords`
+    );
 
     if (usersWithBcrypt.length === 0) {
       logger.info('✅ No bcrypt passwords found to migrate');
@@ -89,19 +91,22 @@ async function migratePasswords() {
         const argon2Hash = await argon2.hash(tempPassword, ARGON2_CONFIG);
 
         // Update the user's password in the database
-        await db.update(schema.users)
-          .set({ 
+        await db
+          .update(schema.users)
+          .set({
             password: argon2Hash,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where(eq(schema.users.id, user.id));
 
         migrated++;
         logger.info(`✅ Migrated password for user: ${user.email}`);
-
       } catch (error) {
         failed++;
-        logger.error(`❌ Failed to migrate password for user ${user.email}:`, error.message);
+        logger.error(
+          `❌ Failed to migrate password for user ${user.email}:`,
+          error.message
+        );
       }
     }
 
@@ -112,7 +117,6 @@ async function migratePasswords() {
     if (failed > 0) {
       logger.info('⚠️  Some migrations failed. Please check the logs above.');
     }
-
   } catch (error) {
     logger.error('❌ Password migration failed:', error.message);
     logger.error('📋 Error details:', error.stack);

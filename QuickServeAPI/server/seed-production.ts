@@ -1,5 +1,10 @@
 import { db } from './db.ts';
-import { users, accounts, transactions, budgetLines } from '../shared/schema.ts';
+import {
+  users,
+  accounts,
+  transactions,
+  budgetLines,
+} from '../shared/schema.ts';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { logger } from './utils/logger.ts';
@@ -33,14 +38,17 @@ export async function seedProductionData() {
     // Create demo user
     if (existingDemoUser.length === 0) {
       const hashedPassword = await bcrypt.hash('demo123', 10);
-      const [demoUser] = await db.insert(users).values({
-        username: 'demo',
-        email: 'demo@finbot.com',
-        password: hashedPassword,
-        role: 'admin',
-        isActive: true,
-        isEmailVerified: true,
-      }).returning();
+      const [demoUser] = await db
+        .insert(users)
+        .values({
+          username: 'demo',
+          email: 'demo@finbot.com',
+          password: hashedPassword,
+          role: 'admin',
+          isActive: true,
+          isEmailVerified: true,
+        })
+        .returning();
 
       logger.info('✅ Demo user created:', demoUser.email);
     }
@@ -48,25 +56,30 @@ export async function seedProductionData() {
     // Create admin user
     if (existingAdminUser.length === 0) {
       const hashedAdminPassword = await bcrypt.hash('admin123', 10);
-      const [adminUser] = await db.insert(users).values({
-        username: 'admin',
-        email: 'admin@finbot.com',
-        password: hashedAdminPassword,
-        role: 'admin',
-        isActive: true,
-        isEmailVerified: true,
-      }).returning();
+      const [adminUser] = await db
+        .insert(users)
+        .values({
+          username: 'admin',
+          email: 'admin@finbot.com',
+          password: hashedAdminPassword,
+          role: 'admin',
+          isActive: true,
+          isEmailVerified: true,
+        })
+        .returning();
 
       logger.info('✅ Admin user created:', adminUser.email);
     }
 
     // Create demo accounts
-    const demoUserForAccounts = existingDemoUser[0] || await db
-      .select()
-      .from(users)
-      .where(eq(users.email, 'demo@finbot.com'))
-      .limit(1)
-      .then(users => users[0]);
+    const demoUserForAccounts =
+      existingDemoUser[0] ||
+      (await db
+        .select()
+        .from(users)
+        .where(eq(users.email, 'demo@finbot.com'))
+        .limit(1)
+        .then(users => users[0]));
 
     const demoAccounts = [
       {
@@ -122,7 +135,10 @@ export async function seedProductionData() {
       },
     ];
 
-    const createdAccounts = await db.insert(accounts).values(demoAccounts).returning();
+    const createdAccounts = await db
+      .insert(accounts)
+      .values(demoAccounts)
+      .returning();
     logger.info('✅ Demo accounts created:', createdAccounts.length);
 
     // Create demo transactions
@@ -169,7 +185,10 @@ export async function seedProductionData() {
       },
     ];
 
-    const createdTransactions = await db.insert(transactions).values(demoTransactions).returning();
+    const createdTransactions = await db
+      .insert(transactions)
+      .values(demoTransactions)
+      .returning();
     logger.info('✅ Demo transactions created:', createdTransactions.length);
 
     // Create demo budget lines
@@ -197,13 +216,15 @@ export async function seedProductionData() {
       },
     ];
 
-    const createdBudgetLines = await db.insert(budgetLines).values(demoBudgetLines).returning();
+    const createdBudgetLines = await db
+      .insert(budgetLines)
+      .values(demoBudgetLines)
+      .returning();
     logger.info('✅ Demo budget lines created:', createdBudgetLines.length);
 
     logger.info('🎉 Production seed data created successfully!');
     logger.info('📧 Demo login: demo@finbot.com');
     logger.info('🔑 Demo password: demo123');
-
   } catch (error) {
     logger.error('❌ Seed data creation failed:', error);
     throw error;
@@ -222,7 +243,7 @@ export function validateProductionEnvironment(): boolean {
   ];
 
   const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-  
+
   if (missingVars.length > 0) {
     logger.error('❌ Missing required environment variables:', missingVars);
     return false;
@@ -253,4 +274,3 @@ export async function initializeProduction() {
 
   logger.info('✅ Production initialization completed');
 }
-

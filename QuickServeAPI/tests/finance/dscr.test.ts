@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { calculateDSCR, mapDSCRStatus } from '../../server/src/modules/finance/dscr';
+import {
+  calculateDSCR,
+  mapDSCRStatus,
+} from '../../server/src/modules/finance/dscr';
 
 describe('DSCR Calculations', () => {
   test('operatingCF=200, debtService=100 → dscr=2.0, status=ok', () => {
@@ -25,4 +28,3 @@ describe('DSCR Calculations', () => {
     expect(dscr).toBe(Infinity);
   });
 });
-

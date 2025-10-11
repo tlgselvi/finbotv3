@@ -12,7 +12,8 @@ class MemoryCache {
   private maxSize: number;
   private defaultTTL: number;
 
-  constructor (maxSize: number = 1000, defaultTTL: number = 300000) { // 5 minutes default
+  constructor(maxSize: number = 1000, defaultTTL: number = 300000) {
+    // 5 minutes default
     this.maxSize = maxSize;
     this.defaultTTL = defaultTTL;
 
@@ -20,7 +21,7 @@ class MemoryCache {
     setInterval(() => this.cleanup(), 60000);
   }
 
-  set<T> (key: string, value: T, ttl?: number): void {
+  set<T>(key: string, value: T, ttl?: number): void {
     const now = Date.now();
     const expires = now + (ttl || this.defaultTTL);
 
@@ -37,7 +38,7 @@ class MemoryCache {
     });
   }
 
-  get<T> (key: string): T | null {
+  get<T>(key: string): T | null {
     const item = this.cache.get(key);
 
     if (!item) {
@@ -53,7 +54,7 @@ class MemoryCache {
     return item.value;
   }
 
-  has (key: string): boolean {
+  has(key: string): boolean {
     const item = this.cache.get(key);
 
     if (!item) {
@@ -69,23 +70,23 @@ class MemoryCache {
     return true;
   }
 
-  delete (key: string): boolean {
+  delete(key: string): boolean {
     return this.cache.delete(key);
   }
 
-  clear (): void {
+  clear(): void {
     this.cache.clear();
   }
 
-  size (): number {
+  size(): number {
     return this.cache.size;
   }
 
-  keys (): string[] {
+  keys(): string[] {
     return Array.from(this.cache.keys());
   }
 
-  private cleanup (): void {
+  private cleanup(): void {
     const now = Date.now();
 
     for (const [key, item] of Array.from(this.cache.entries())) {
@@ -96,13 +97,13 @@ class MemoryCache {
   }
 
   // Get cache statistics
-  getStats (): {
+  getStats(): {
     size: number;
     maxSize: number;
     hitRate: number;
     oldestItem: number;
     newestItem: number;
-    } {
+  } {
     const now = Date.now();
     let oldestItem = now;
     let newestItem = 0;
@@ -130,12 +131,21 @@ class MemoryCache {
 export const cache = new MemoryCache(1000, 300000); // 1000 items, 5 minutes TTL
 
 // Cache decorator for functions
-export function cached (ttl?: number, keyGenerator?: (...args: any[]) => string) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
+export function cached(
+  ttl?: number,
+  keyGenerator?: (...args: any[]) => string
+) {
+  return function (
+    target: any,
+    propertyName: string,
+    descriptor: PropertyDescriptor
+  ) {
     const method = descriptor.value;
 
     descriptor.value = async function (...args: any[]) {
-      const key = keyGenerator ? keyGenerator(...args) : `${propertyName}:${JSON.stringify(args)}`;
+      const key = keyGenerator
+        ? keyGenerator(...args)
+        : `${propertyName}:${JSON.stringify(args)}`;
 
       // Try to get from cache
       const cached = cache.get(key);
@@ -155,7 +165,7 @@ export function cached (ttl?: number, keyGenerator?: (...args: any[]) => string)
 }
 
 // Cache middleware for Express routes
-export function cacheMiddleware (ttl: number = 300000) {
+export function cacheMiddleware(ttl: number = 300000) {
   return (req: any, res: any, next: any) => {
     // Only cache GET requests
     if (req.method !== 'GET') {
@@ -189,7 +199,7 @@ export function cacheMiddleware (ttl: number = 300000) {
 
 // Cache invalidation utilities
 export class CacheInvalidator {
-  static invalidatePattern (pattern: string): void {
+  static invalidatePattern(pattern: string): void {
     const regex = new RegExp(pattern);
 
     for (const key of cache.keys()) {
@@ -199,22 +209,22 @@ export class CacheInvalidator {
     }
   }
 
-  static invalidateUser (userId: string): void {
+  static invalidateUser(userId: string): void {
     this.invalidatePattern(`.*:${userId}:.*`);
   }
 
-  static invalidateRoute (route: string): void {
+  static invalidateRoute(route: string): void {
     this.invalidatePattern(`route:.*:${route}:.*`);
   }
 
-  static invalidateAll (): void {
+  static invalidateAll(): void {
     cache.clear();
   }
 }
 
 // Cache warming utilities
 export class CacheWarmer {
-  static async warmUserData (userId: string, userService: any): Promise<void> {
+  static async warmUserData(userId: string, userService: any): Promise<void> {
     try {
       const userData = await userService.getUserById(userId);
       cache.set(`user:${userId}`, userData, 600000); // 10 minutes
@@ -223,7 +233,10 @@ export class CacheWarmer {
     }
   }
 
-  static async warmDashboardData (userId: string, dashboardService: any): Promise<void> {
+  static async warmDashboardData(
+    userId: string,
+    dashboardService: any
+  ): Promise<void> {
     try {
       const dashboardData = await dashboardService.getDashboardData(userId);
       cache.set(`dashboard:${userId}`, dashboardData, 300000); // 5 minutes
@@ -234,11 +247,11 @@ export class CacheWarmer {
 }
 
 // Cache health check
-export function getCacheHealth (): {
+export function getCacheHealth(): {
   healthy: boolean;
   stats: any;
   memoryUsage: NodeJS.MemoryUsage;
-  } {
+} {
   const stats = cache.getStats();
   const memoryUsage = process.memoryUsage();
 

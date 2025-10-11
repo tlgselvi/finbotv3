@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { eq, and, gt } from 'drizzle-orm';
 import { db } from '../db';
-import { 
-  hasPermissionV2, 
+import {
+  hasPermissionV2,
   hasAnyPermissionV2,
   PermissionV2,
-  UserRoleV2Type
+  UserRoleV2Type,
 } from '@shared/schema';
 import { z } from 'zod';
 import { logger } from '../utils/logger';
@@ -36,25 +36,28 @@ export const requirePermission = (permission: PermissionV2Type) => {
 
       // Check if user has the required permission
       const hasPermission = hasPermissionV2(req.user.role, permission);
-      
+
       if (!hasPermission) {
         // Log unauthorized access attempt
-        await logUserActivity({
-          userId: req.user.id,
-          action: 'unauthorized_access_attempt',
-          resource: req.route?.path || req.path,
-          metadata: {
-            permission,
-            userRole: req.user.role,
-            endpoint: req.path,
-            method: req.method
-          }
-        }, req);
+        await logUserActivity(
+          {
+            userId: req.user.id,
+            action: 'unauthorized_access_attempt',
+            resource: req.route?.path || req.path,
+            metadata: {
+              permission,
+              userRole: req.user.role,
+              endpoint: req.path,
+              method: req.method,
+            },
+          },
+          req
+        );
 
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'Insufficient permissions',
           required: permission,
-          current: req.user.role
+          current: req.user.role,
         });
       }
 
@@ -75,24 +78,27 @@ export const requireAnyPermission = (permissions: PermissionV2Type[]) => {
       }
 
       const hasAnyPermission = hasAnyPermissionV2(req.user.role, permissions);
-      
-      if (!hasAnyPermission) {
-        await logUserActivity({
-          userId: req.user.id,
-          action: 'unauthorized_access_attempt',
-          resource: req.route?.path || req.path,
-          metadata: {
-            permissions,
-            userRole: req.user.role,
-            endpoint: req.path,
-            method: req.method
-          }
-        }, req);
 
-        return res.status(403).json({ 
+      if (!hasAnyPermission) {
+        await logUserActivity(
+          {
+            userId: req.user.id,
+            action: 'unauthorized_access_attempt',
+            resource: req.route?.path || req.path,
+            metadata: {
+              permissions,
+              userRole: req.user.role,
+              endpoint: req.path,
+              method: req.method,
+            },
+          },
+          req
+        );
+
+        return res.status(403).json({
           error: 'Insufficient permissions',
           required: permissions,
-          current: req.user.role
+          current: req.user.role,
         });
       }
 
@@ -113,22 +119,25 @@ export const requireRole = (roles: UserRoleV2Type[]) => {
       }
 
       if (!roles.includes(req.user.role)) {
-        await logUserActivity({
-          userId: req.user.id,
-          action: 'unauthorized_role_access',
-          resource: req.route?.path || req.path,
-          metadata: {
-            requiredRoles: roles,
-            userRole: req.user.role,
-            endpoint: req.path,
-            method: req.method
-          }
-        }, req);
+        await logUserActivity(
+          {
+            userId: req.user.id,
+            action: 'unauthorized_role_access',
+            resource: req.route?.path || req.path,
+            metadata: {
+              requiredRoles: roles,
+              userRole: req.user.role,
+              endpoint: req.path,
+              method: req.method,
+            },
+          },
+          req
+        );
 
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'Insufficient role privileges',
           required: roles,
-          current: req.user.role
+          current: req.user.role,
         });
       }
 
@@ -141,7 +150,11 @@ export const requireRole = (roles: UserRoleV2Type[]) => {
 };
 
 // Account lockout check
-export const checkAccountLockout = async (req: SecurityRequest, res: Response, next: NextFunction) => {
+export const checkAccountLockout = async (
+  req: SecurityRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     if (!req.user) {
       return next();
@@ -153,10 +166,14 @@ export const checkAccountLockout = async (req: SecurityRequest, res: Response, n
       .where(eq(userProfiles.userId, req.user.id))
       .limit(1);
 
-    if (profile.length > 0 && profile[0].lockedUntil && new Date() < new Date(profile[0].lockedUntil)) {
-      return res.status(423).json({ 
+    if (
+      profile.length > 0 &&
+      profile[0].lockedUntil &&
+      new Date() < new Date(profile[0].lockedUntil)
+    ) {
+      return res.status(423).json({
         error: 'Account is locked',
-        lockedUntil: profile[0].lockedUntil
+        lockedUntil: profile[0].lockedUntil,
       });
     }
 
@@ -168,7 +185,11 @@ export const checkAccountLockout = async (req: SecurityRequest, res: Response, n
 };
 
 // Session timeout check
-export const checkSessionTimeout = async (req: SecurityRequest, res: Response, next: NextFunction) => {
+export const checkSessionTimeout = async (
+  req: SecurityRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     if (!req.user) {
       return next();
@@ -186,19 +207,22 @@ export const checkSessionTimeout = async (req: SecurityRequest, res: Response, n
       const now = new Date();
 
       if (now.getTime() - lastLogin.getTime() > sessionTimeout) {
-        await logUserActivity({
-          userId: req.user.id,
-          action: 'session_timeout',
-          resource: 'session',
-          metadata: {
-            sessionTimeout: profile[0].sessionTimeout,
-            lastLogin: profile[0].lastLogin
-          }
-        }, req);
+        await logUserActivity(
+          {
+            userId: req.user.id,
+            action: 'session_timeout',
+            resource: 'session',
+            metadata: {
+              sessionTimeout: profile[0].sessionTimeout,
+              lastLogin: profile[0].lastLogin,
+            },
+          },
+          req
+        );
 
-        return res.status(401).json({ 
+        return res.status(401).json({
           error: 'Session expired',
-          message: 'Please log in again'
+          message: 'Please log in again',
         });
       }
     }
@@ -215,17 +239,20 @@ export const logActivity = (action: string, resource?: string) => {
   return async (req: SecurityRequest, res: Response, next: NextFunction) => {
     try {
       if (req.user) {
-        await logUserActivity({
-          userId: req.user.id,
-          action,
-          resource,
-          metadata: {
-            endpoint: req.path,
-            method: req.method,
-            statusCode: res.statusCode,
-            timestamp: new Date().toISOString()
-          }
-        }, req);
+        await logUserActivity(
+          {
+            userId: req.user.id,
+            action,
+            resource,
+            metadata: {
+              endpoint: req.path,
+              method: req.method,
+              statusCode: res.statusCode,
+              timestamp: new Date().toISOString(),
+            },
+          },
+          req
+        );
       }
       next();
     } catch (error) {
@@ -236,16 +263,20 @@ export const logActivity = (action: string, resource?: string) => {
 };
 
 // Enhanced security context middleware
-export const securityContext = async (req: SecurityRequest, res: Response, next: NextFunction) => {
+export const securityContext = async (
+  req: SecurityRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Extract security context from request
     const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
-    
+
     req.securityContext = {
       ipAddress,
       userAgent,
-      sessionId: req.sessionID
+      sessionId: req.sessionID,
     };
 
     // Load user profile if user is authenticated
@@ -282,7 +313,7 @@ export const logUserActivity = async (
       method: req.method,
       ipAddress: req.securityContext?.ipAddress,
       userAgent: req.securityContext?.userAgent,
-      statusCode: req.res?.statusCode
+      statusCode: req.res?.statusCode,
     });
 
     await db.insert(userActivityLogs).values(logData);
@@ -292,7 +323,9 @@ export const logUserActivity = async (
 };
 
 // Rate limiting by user role
-export const rateLimitByRole = (limits: Record<UserRoleV2Type, { windowMs: number; max: number }>) => {
+export const rateLimitByRole = (
+  limits: Record<UserRoleV2Type, { windowMs: number; max: number }>
+) => {
   return async (req: SecurityRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
@@ -311,7 +344,7 @@ export const rateLimitByRole = (limits: Record<UserRoleV2Type, { windowMs: numbe
 
       // This is a simplified implementation
       // In production, implement proper rate limiting with Redis
-      
+
       next();
     } catch (error) {
       logger.error('Rate limiting error:', error);
@@ -321,25 +354,33 @@ export const rateLimitByRole = (limits: Record<UserRoleV2Type, { windowMs: numbe
 };
 
 // Security headers middleware
-export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
+export const securityHeaders = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // Security headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-  
+  res.setHeader(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=()'
+  );
+
   // CSP header
-  res.setHeader('Content-Security-Policy', 
+  res.setHeader(
+    'Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline'; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "img-src 'self' data: https:; " +
-    "connect-src 'self'; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "object-src 'none'; " +
-    "base-uri 'self'; " +
-    "form-action 'self'"
+      "script-src 'self' 'unsafe-inline'; " +
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+      "img-src 'self' data: https:; " +
+      "connect-src 'self'; " +
+      "font-src 'self' https://fonts.gstatic.com; " +
+      "object-src 'none'; " +
+      "base-uri 'self'; " +
+      "form-action 'self'"
   );
 
   next();
@@ -356,5 +397,5 @@ export const securityMiddleware = {
   securityContext,
   rateLimitByRole,
   securityHeaders,
-  logUserActivity
+  logUserActivity,
 };

@@ -4,26 +4,29 @@ import { formatCurrency } from '../../../lib/utils/formatCurrency';
 export type SupportedLocale = 'tr-TR' | 'en-US' | 'de-DE';
 
 // Locale ayarları
-const localeSettings: Record<SupportedLocale, {
-  currency: 'TRY' | 'USD' | 'EUR';
-  headers: {
-    id: string;
-    description: string;
-    category: string;
-    amount: string;
-    type: string;
-    date: string;
-    bankName: string;
-    accountName: string;
-    balance: string;
-    summary: string;
-    totalBalance: string;
-    totalCash: string;
-    totalDebt: string;
-    totalIncome: string;
-    totalExpense: string;
-  };
-}> = {
+const localeSettings: Record<
+  SupportedLocale,
+  {
+    currency: 'TRY' | 'USD' | 'EUR';
+    headers: {
+      id: string;
+      description: string;
+      category: string;
+      amount: string;
+      type: string;
+      date: string;
+      bankName: string;
+      accountName: string;
+      balance: string;
+      summary: string;
+      totalBalance: string;
+      totalCash: string;
+      totalDebt: string;
+      totalIncome: string;
+      totalExpense: string;
+    };
+  }
+> = {
   'tr-TR': {
     currency: 'TRY',
     headers: {
@@ -41,8 +44,8 @@ const localeSettings: Record<SupportedLocale, {
       totalCash: 'Toplam Nakit',
       totalDebt: 'Toplam Borç',
       totalIncome: 'Toplam Gelir',
-      totalExpense: 'Toplam Gider'
-    }
+      totalExpense: 'Toplam Gider',
+    },
   },
   'en-US': {
     currency: 'USD',
@@ -61,8 +64,8 @@ const localeSettings: Record<SupportedLocale, {
       totalCash: 'Total Cash',
       totalDebt: 'Total Debt',
       totalIncome: 'Total Income',
-      totalExpense: 'Total Expense'
-    }
+      totalExpense: 'Total Expense',
+    },
   },
   'de-DE': {
     currency: 'EUR',
@@ -81,9 +84,9 @@ const localeSettings: Record<SupportedLocale, {
       totalCash: 'Gesamtbargeld',
       totalDebt: 'Gesamtschulden',
       totalIncome: 'Gesamteinkommen',
-      totalExpense: 'Gesamtausgaben'
-    }
-  }
+      totalExpense: 'Gesamtausgaben',
+    },
+  },
 };
 
 interface Transaction {
@@ -106,7 +109,10 @@ export class CSVExporter {
   /**
    * Locale desteği ile transaction export
    */
-  static exportTransactions(transactions: Transaction[], locale: SupportedLocale = 'tr-TR'): string {
+  static exportTransactions(
+    transactions: Transaction[],
+    locale: SupportedLocale = 'tr-TR'
+  ): string {
     const settings = localeSettings[locale];
     const headers = [
       settings.headers.id,
@@ -114,7 +120,7 @@ export class CSVExporter {
       settings.headers.category,
       settings.headers.amount,
       settings.headers.type,
-      settings.headers.date
+      settings.headers.date,
     ];
     const csvRows = [headers.join(',')];
 
@@ -125,7 +131,7 @@ export class CSVExporter {
         `"${transaction.category}"`,
         formatCurrency(transaction.amount, settings.currency, locale),
         `"${transaction.type}"`,
-        new Date(transaction.date).toLocaleDateString(locale)
+        new Date(transaction.date).toLocaleDateString(locale),
       ];
       csvRows.push(row.join(','));
     });
@@ -136,13 +142,16 @@ export class CSVExporter {
   /**
    * Locale desteği ile account export
    */
-  static exportAccounts(accounts: Account[], locale: SupportedLocale = 'tr-TR'): string {
+  static exportAccounts(
+    accounts: Account[],
+    locale: SupportedLocale = 'tr-TR'
+  ): string {
     const settings = localeSettings[locale];
     const headers = [
       settings.headers.id,
       settings.headers.bankName,
       settings.headers.accountName,
-      settings.headers.balance
+      settings.headers.balance,
     ];
     const csvRows = [headers.join(',')];
 
@@ -151,7 +160,7 @@ export class CSVExporter {
         account.id,
         `"${account.bankName}"`,
         `"${account.accountName}"`,
-        formatCurrency(account.balance, settings.currency, locale)
+        formatCurrency(account.balance, settings.currency, locale),
       ];
       csvRows.push(row.join(','));
     });
@@ -177,11 +186,26 @@ export class CSVExporter {
     const csvRows = [headers.join(',')];
 
     const summaryData = [
-      [settings.headers.totalBalance, formatCurrency(data.totalBalance, settings.currency, locale)],
-      [settings.headers.totalCash, formatCurrency(data.totalCash, settings.currency, locale)],
-      [settings.headers.totalDebt, formatCurrency(data.totalDebt, settings.currency, locale)],
-      [settings.headers.totalIncome, formatCurrency(data.totalIncome, settings.currency, locale)],
-      [settings.headers.totalExpense, formatCurrency(data.totalExpense, settings.currency, locale)]
+      [
+        settings.headers.totalBalance,
+        formatCurrency(data.totalBalance, settings.currency, locale),
+      ],
+      [
+        settings.headers.totalCash,
+        formatCurrency(data.totalCash, settings.currency, locale),
+      ],
+      [
+        settings.headers.totalDebt,
+        formatCurrency(data.totalDebt, settings.currency, locale),
+      ],
+      [
+        settings.headers.totalIncome,
+        formatCurrency(data.totalIncome, settings.currency, locale),
+      ],
+      [
+        settings.headers.totalExpense,
+        formatCurrency(data.totalExpense, settings.currency, locale),
+      ],
     ];
 
     summaryData.forEach(([label, value]) => {
@@ -196,17 +220,23 @@ export class CSVExporter {
    */
   static validateLocale(locale: string): SupportedLocale {
     const supportedLocales: SupportedLocale[] = ['tr-TR', 'en-US', 'de-DE'];
-    return supportedLocales.includes(locale as SupportedLocale) ? locale as SupportedLocale : 'tr-TR';
+    return supportedLocales.includes(locale as SupportedLocale)
+      ? (locale as SupportedLocale)
+      : 'tr-TR';
   }
 
   /**
    * Desteklenen locale'leri listeler
    */
-  static getSupportedLocales(): Array<{ code: SupportedLocale; name: string; currency: string }> {
+  static getSupportedLocales(): Array<{
+    code: SupportedLocale;
+    name: string;
+    currency: string;
+  }> {
     return [
       { code: 'tr-TR', name: 'Türkçe', currency: 'TRY' },
       { code: 'en-US', name: 'English', currency: 'USD' },
-      { code: 'de-DE', name: 'Deutsch', currency: 'EUR' }
+      { code: 'de-DE', name: 'Deutsch', currency: 'EUR' },
     ];
   }
 }

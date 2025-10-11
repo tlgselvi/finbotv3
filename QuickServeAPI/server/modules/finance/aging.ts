@@ -35,22 +35,26 @@ export async function calculateAgingBuckets(
   asOfDate?: Date
 ): Promise<AgingSummary> {
   const date = asOfDate || new Date();
-  
+
   // Get all outstanding items
   const items = await db
     .select()
     .from(agingTable)
-    .where(and(
-      eq(agingTable.userId, userId),
-      eq(agingTable.type, type),
-      eq(agingTable.status, 'outstanding')
-    ));
+    .where(
+      and(
+        eq(agingTable.userId, userId),
+        eq(agingTable.type, type),
+        eq(agingTable.status, 'outstanding')
+      )
+    );
 
   // Calculate days outstanding for each item
   const itemsWithDays = items.map(item => {
-    const daysOutstanding = Math.floor((date.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysOutstanding = Math.floor(
+      (date.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
     const agingBucket = getAgingBucket(daysOutstanding);
-    
+
     return {
       ...item,
       daysOutstanding,
@@ -68,19 +72,22 @@ export async function calculateAgingBuckets(
     if (!buckets[bucket]) {
       buckets[bucket] = { amount: 0, count: 0 };
     }
-    
+
     buckets[bucket].amount += parseFloat(item.currentAmount);
     buckets[bucket].count += 1;
     totalOutstanding += parseFloat(item.currentAmount);
   });
 
   // Format buckets with percentages
-  const formattedBuckets: AgingBucket[] = Object.entries(buckets).map(([bucket, data]) => ({
-    bucket,
-    amount: data.amount,
-    count: data.count,
-    percentage: totalOutstanding > 0 ? (data.amount / totalOutstanding) * 100 : 0,
-  }));
+  const formattedBuckets: AgingBucket[] = Object.entries(buckets).map(
+    ([bucket, data]) => ({
+      bucket,
+      amount: data.amount,
+      count: data.count,
+      percentage:
+        totalOutstanding > 0 ? (data.amount / totalOutstanding) * 100 : 0,
+    })
+  );
 
   return {
     totalOutstanding,
@@ -104,12 +111,14 @@ export async function calculateDSO(
   const receivables = await db
     .select()
     .from(agingTable)
-    .where(and(
-      eq(agingTable.userId, userId),
-      eq(agingTable.type, 'receivable'),
-      gte(agingTable.invoiceDate, startDate),
-      lte(agingTable.invoiceDate, endDate)
-    ));
+    .where(
+      and(
+        eq(agingTable.userId, userId),
+        eq(agingTable.type, 'receivable'),
+        gte(agingTable.invoiceDate, startDate),
+        lte(agingTable.invoiceDate, endDate)
+      )
+    );
 
   if (receivables.length === 0) {
     return 0;
@@ -117,7 +126,9 @@ export async function calculateDSO(
 
   // Calculate average days outstanding
   const totalDays = receivables.reduce((sum, item) => {
-    const days = Math.floor((endDate.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    const days = Math.floor(
+      (endDate.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
     return sum + days;
   }, 0);
 
@@ -139,12 +150,14 @@ export async function calculateDPO(
   const payables = await db
     .select()
     .from(agingTable)
-    .where(and(
-      eq(agingTable.userId, userId),
-      eq(agingTable.type, 'payable'),
-      gte(agingTable.invoiceDate, startDate),
-      lte(agingTable.invoiceDate, endDate)
-    ));
+    .where(
+      and(
+        eq(agingTable.userId, userId),
+        eq(agingTable.type, 'payable'),
+        gte(agingTable.invoiceDate, startDate),
+        lte(agingTable.invoiceDate, endDate)
+      )
+    );
 
   if (payables.length === 0) {
     return 0;
@@ -152,7 +165,9 @@ export async function calculateDPO(
 
   // Calculate average days outstanding
   const totalDays = payables.reduce((sum, item) => {
-    const days = Math.floor((endDate.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    const days = Math.floor(
+      (endDate.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
     return sum + days;
   }, 0);
 
@@ -169,16 +184,20 @@ export async function getCollectionPriorities(
   const items = await db
     .select()
     .from(agingTable)
-    .where(and(
-      eq(agingTable.userId, userId),
-      eq(agingTable.type, type),
-      eq(agingTable.status, 'outstanding')
-    ));
+    .where(
+      and(
+        eq(agingTable.userId, userId),
+        eq(agingTable.type, type),
+        eq(agingTable.status, 'outstanding')
+      )
+    );
 
   const priorities: CollectionPriority[] = items.map(item => {
-    const daysOutstanding = Math.floor((new Date().getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysOutstanding = Math.floor(
+      (new Date().getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
     const amount = parseFloat(item.currentAmount);
-    
+
     let priority: 'high' | 'medium' | 'low';
     let recommendedAction: string;
 
@@ -233,9 +252,11 @@ export async function updateAgingData(userId: string): Promise<void> {
     .where(eq(agingTable.userId, userId));
 
   const now = new Date();
-  
+
   for (const item of items) {
-    const daysOutstanding = Math.floor((now.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysOutstanding = Math.floor(
+      (now.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
     const agingBucket = getAgingBucket(daysOutstanding);
     const status = daysOutstanding > 0 ? 'overdue' : 'outstanding';
 
@@ -250,4 +271,3 @@ export async function updateAgingData(userId: string): Promise<void> {
       .where(eq(agingTable.id, item.id));
   }
 }
-

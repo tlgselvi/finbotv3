@@ -19,17 +19,21 @@ export interface AuditContext {
 
 // Audit middleware factory
 export const createAuditMiddleware = (context: Partial<AuditContext>) => {
-  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  return async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
     const originalJson = res.json;
     const originalStatus = res.status;
 
     // Override response methods to capture the response
-    res.status = function(code: number) {
+    res.status = function (code: number) {
       this.statusCode = code;
       return this;
     };
 
-    res.json = async function(body: any) {
+    res.json = async function (body: any) {
       // Only log successful operations
       if (this.statusCode >= 200 && this.statusCode < 300) {
         try {
@@ -66,14 +70,18 @@ export const logAuditEvent = async (
       userId: req.user?.id,
       userEmail: req.user?.email,
       userRole: req.user?.role,
-      ipAddress: req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown',
+      ipAddress:
+        req.ip ||
+        req.connection.remoteAddress ||
+        req.headers['x-forwarded-for'] ||
+        'unknown',
       userAgent: req.get('User-Agent') || 'unknown',
       oldValues: context.oldValues,
       newValues: context.newValues,
       changedFields: context.changedFields,
       reason: context.reason,
       sessionId: req.sessionID,
-      requestId: req.headers['x-request-id'] as string || randomUUID(),
+      requestId: (req.headers['x-request-id'] as string) || randomUUID(),
       metadata: {
         ...context.metadata,
         method: req.method,
@@ -102,7 +110,7 @@ export const auditDecorator = <T extends (...args: any[]) => any>(
 ): T => {
   return (async (...args: any[]) => {
     const result = await fn(...args);
-    
+
     // Log audit event if we have a request context
     if (args[0] && typeof args[0] === 'object' && args[0].user) {
       try {
@@ -141,10 +149,7 @@ export const getAuditLogs = async (
 };
 
 // Get audit logs for a user
-export const getUserAuditLogs = async (
-  userId: string,
-  limit: number = 50
-) => {
+export const getUserAuditLogs = async (userId: string, limit: number = 50) => {
   try {
     return await db
       .select()

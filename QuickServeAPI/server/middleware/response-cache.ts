@@ -27,7 +27,7 @@ const defaultConfig: Required<CacheConfig> = {
     const userId = req.user?.id || 'anonymous';
     const query = req.query ? JSON.stringify(req.query) : '';
     const varyHeaders = req.headers['accept'] || '';
-    
+
     return crypto
       .createHash('sha256')
       .update(`${req.method}:${url}:${userId}:${query}:${varyHeaders}`)
@@ -37,16 +37,13 @@ const defaultConfig: Required<CacheConfig> = {
     // Only cache GET requests with 200 status
     return req.method === 'GET' && res.statusCode === 200;
   },
-  vary: ['accept', 'accept-language']
+  vary: ['accept', 'accept-language'],
 };
 
 // Generate ETag for response data
 function generateETag(data: any): string {
   const content = JSON.stringify(data);
-  return crypto
-    .createHash('md5')
-    .update(content)
-    .digest('hex');
+  return crypto.createHash('md5').update(content).digest('hex');
 }
 
 // Check if request has conditional headers
@@ -84,7 +81,10 @@ export function responseCache(config: CacheConfig = {}) {
       logger.info(`📋 Cache hit: ${req.method} ${req.url}`);
       res.setHeader('ETag', cachedEntry.etag);
       res.setHeader('X-Cache', 'HIT');
-      res.setHeader('X-Cache-Timestamp', new Date(cachedEntry.timestamp).toISOString());
+      res.setHeader(
+        'X-Cache-Timestamp',
+        new Date(cachedEntry.timestamp).toISOString()
+      );
       return res.json(cachedEntry.data);
     }
 
@@ -96,10 +96,10 @@ export function responseCache(config: CacheConfig = {}) {
     let statusCode = 200;
 
     // Override res.json to capture response data
-    res.json = function(data: any) {
+    res.json = function (data: any) {
       responseData = data;
       statusCode = res.statusCode;
-      
+
       // Check if we should cache this response
       if (finalConfig.shouldCache(req, res)) {
         const etag = generateETag(data);
@@ -107,16 +107,19 @@ export function responseCache(config: CacheConfig = {}) {
           data,
           timestamp: Date.now(),
           ttl: finalConfig.ttl,
-          etag
+          etag,
         };
 
         cache.set(cacheKey, entry);
-        
+
         // Set cache headers
         res.setHeader('ETag', etag);
         res.setHeader('X-Cache', 'MISS');
-        res.setHeader('Cache-Control', `public, max-age=${Math.floor(finalConfig.ttl / 1000)}`);
-        
+        res.setHeader(
+          'Cache-Control',
+          `public, max-age=${Math.floor(finalConfig.ttl / 1000)}`
+        );
+
         logger.info(`📋 Cache miss (stored): ${req.method} ${req.url}`);
       } else {
         res.setHeader('X-Cache', 'SKIP');
@@ -131,7 +134,7 @@ export function responseCache(config: CacheConfig = {}) {
     };
 
     // Override res.status to capture status code
-    res.status = function(code: number) {
+    res.status = function (code: number) {
       statusCode = code;
       return originalStatus(code);
     };
@@ -178,7 +181,7 @@ export function getCacheStats() {
     validEntries,
     expiredEntries,
     totalSize,
-    memoryUsage: process.memoryUsage()
+    memoryUsage: process.memoryUsage(),
   };
 }
 
@@ -198,19 +201,23 @@ export function clearCache(pattern?: string) {
     }
   }
 
-  logger.info(`🗑️ Cleared ${clearedCount} cache entries matching pattern: ${pattern}`);
+  logger.info(
+    `🗑️ Cleared ${clearedCount} cache entries matching pattern: ${pattern}`
+  );
   return clearedCount;
 }
 
 // Warm up cache with common queries
-export async function warmupCache(queries: Array<{
-  url: string;
-  method?: string;
-  headers?: Record<string, string>;
-  query?: Record<string, any>;
-}>) {
+export async function warmupCache(
+  queries: Array<{
+    url: string;
+    method?: string;
+    headers?: Record<string, string>;
+    query?: Record<string, any>;
+  }>
+) {
   logger.info(`🔥 Starting cache warmup with ${queries.length} queries`);
-  
+
   for (const query of queries) {
     try {
       // This would need to be implemented with actual HTTP requests
@@ -229,5 +236,5 @@ export default {
   responseCache,
   getCacheStats,
   clearCache,
-  warmupCache
+  warmupCache,
 };

@@ -7,7 +7,12 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../server/routes.js';
 import { db } from '../../server/db.js';
-import { users, userProfiles, refreshTokens, revokedTokens } from '../../shared/schema.js';
+import {
+  users,
+  userProfiles,
+  refreshTokens,
+  revokedTokens,
+} from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 import argon2 from 'argon2';
 
@@ -42,7 +47,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
       name: 'Test User',
       role: 'USER',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     // Create test user profile
@@ -51,7 +56,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
       role: 'USER',
       permissions: ['READ', 'WRITE'],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     // Set up auth headers (will be populated after login)
@@ -61,8 +66,12 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
   afterEach(async () => {
     // Clean up test data
     try {
-      await db.delete(refreshTokens).where(eq(refreshTokens.userId, testUserId));
-      await db.delete(revokedTokens).where(eq(revokedTokens.userId, testUserId));
+      await db
+        .delete(refreshTokens)
+        .where(eq(refreshTokens.userId, testUserId));
+      await db
+        .delete(revokedTokens)
+        .where(eq(revokedTokens.userId, testUserId));
       await db.delete(userProfiles).where(eq(userProfiles.userId, testUserId));
       await db.delete(users).where(eq(users.id, testUserId));
     } catch (error) {
@@ -76,7 +85,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         })
         .expect(200);
 
@@ -91,7 +100,8 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
       authHeaders.Authorization = `Bearer ${response.body.accessToken}`;
 
       // Verify refresh token is stored in database
-      const storedTokens = await db.select()
+      const storedTokens = await db
+        .select()
         .from(refreshTokens)
         .where(eq(refreshTokens.userId, testUserId));
 
@@ -104,7 +114,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: 'wrong-password'
+          password: 'wrong-password',
         })
         .expect(401);
 
@@ -117,7 +127,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: 'nonexistent@example.com',
-          password: 'any-password'
+          password: 'any-password',
         })
         .expect(401);
 
@@ -132,11 +142,12 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .set('User-Agent', 'Mozilla/5.0 (Test Browser)')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         })
         .expect(200);
 
-      const storedTokens = await db.select()
+      const storedTokens = await db
+        .select()
         .from(refreshTokens)
         .where(eq(refreshTokens.userId, testUserId));
 
@@ -153,7 +164,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         });
 
       authHeaders.Authorization = `Bearer ${loginResponse.body.accessToken}`;
@@ -165,13 +176,13 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         });
 
       const refreshResponse = await request(app)
         .post('/api/auth/jwt/refresh')
         .send({
-          refreshToken: loginResponse.body.refreshToken
+          refreshToken: loginResponse.body.refreshToken,
         })
         .expect(200);
 
@@ -179,14 +190,16 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
       expect(refreshResponse.body).toHaveProperty('accessToken');
       expect(refreshResponse.body).toHaveProperty('refreshToken');
       expect(refreshResponse.body).toHaveProperty('expiresIn');
-      expect(refreshResponse.body.accessToken).not.toBe(loginResponse.body.accessToken);
+      expect(refreshResponse.body.accessToken).not.toBe(
+        loginResponse.body.accessToken
+      );
     });
 
     it('should reject refresh with invalid refresh token', async () => {
       const response = await request(app)
         .post('/api/auth/jwt/refresh')
         .send({
-          refreshToken: 'invalid-refresh-token'
+          refreshToken: 'invalid-refresh-token',
         })
         .expect(401);
 
@@ -200,18 +213,19 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         });
 
       // Manually expire the refresh token
-      await db.update(refreshTokens)
+      await db
+        .update(refreshTokens)
         .set({ expiresAt: new Date(Date.now() - 1000) })
         .where(eq(refreshTokens.token, loginResponse.body.refreshToken));
 
       const response = await request(app)
         .post('/api/auth/jwt/refresh')
         .send({
-          refreshToken: loginResponse.body.refreshToken
+          refreshToken: loginResponse.body.refreshToken,
         })
         .expect(401);
 
@@ -227,7 +241,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         });
 
       authHeaders.Authorization = `Bearer ${loginResponse.body.accessToken}`;
@@ -238,21 +252,22 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         });
 
       const logoutResponse = await request(app)
         .post('/api/auth/jwt/logout')
         .set('Authorization', `Bearer ${loginResponse.body.accessToken}`)
         .send({
-          refreshToken: loginResponse.body.refreshToken
+          refreshToken: loginResponse.body.refreshToken,
         })
         .expect(200);
 
       expect(logoutResponse.body).toHaveProperty('success', true);
 
       // Verify refresh token is revoked
-      const revokedTokens = await db.select()
+      const revokedTokens = await db
+        .select()
         .from(revokedTokens)
         .where(eq(revokedTokens.token, loginResponse.body.refreshToken));
 
@@ -265,7 +280,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/logout')
         .set('Authorization', 'Bearer invalid-token')
         .send({
-          refreshToken: 'any-refresh-token'
+          refreshToken: 'any-refresh-token',
         })
         .expect(401);
 
@@ -281,7 +296,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         });
 
       authHeaders.Authorization = `Bearer ${loginResponse.body.accessToken}`;
@@ -297,9 +312,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
     });
 
     it('should reject access to protected endpoint without token', async () => {
-      const response = await request(app)
-        .get('/api/user/profile')
-        .expect(401);
+      const response = await request(app).get('/api/user/profile').expect(401);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('error');
@@ -317,7 +330,8 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
 
     it('should reject access to protected endpoint with expired token', async () => {
       // Create an expired token
-      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ0ZXN0IiwiZXhwIjoxNjAwMDAwMDAwLCJ0eXBlIjoiYWNjZXNzIn0.invalid';
+      const expiredToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ0ZXN0IiwiZXhwIjoxNjAwMDAwMDAwLCJ0eXBlIjoiYWNjZXNzIn0.invalid';
 
       const response = await request(app)
         .get('/api/user/profile')
@@ -335,7 +349,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         });
 
       const originalRefreshToken = loginResponse.body.refreshToken;
@@ -344,7 +358,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
       const refreshResponse = await request(app)
         .post('/api/auth/jwt/refresh')
         .send({
-          refreshToken: originalRefreshToken
+          refreshToken: originalRefreshToken,
         })
         .expect(200);
 
@@ -352,7 +366,9 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
       expect(refreshResponse.body.refreshToken).toBe(originalRefreshToken);
 
       // But access token should be different
-      expect(refreshResponse.body.accessToken).not.toBe(loginResponse.body.accessToken);
+      expect(refreshResponse.body.accessToken).not.toBe(
+        loginResponse.body.accessToken
+      );
     });
   });
 
@@ -362,7 +378,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
         .post('/api/auth/jwt/login')
         .send({
           email: testUserEmail,
-          password: testUserPassword
+          password: testUserPassword,
         })
         .expect(200);
 
@@ -377,12 +393,10 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
     it('should apply rate limiting to login endpoint', async () => {
       // This test would require multiple rapid requests
       // For now, we'll just verify the endpoint exists
-      const response = await request(app)
-        .post('/api/auth/jwt/login')
-        .send({
-          email: testUserEmail,
-          password: testUserPassword
-        });
+      const response = await request(app).post('/api/auth/jwt/login').send({
+        email: testUserEmail,
+        password: testUserPassword,
+      });
 
       expect(response.status).toBe(200);
     });
@@ -403,7 +417,7 @@ describe.skipIf(!process.env.DATABASE_URL)('JWT API Endpoints', () => {
       const response = await request(app)
         .post('/api/auth/jwt/login')
         .send({
-          email: testUserEmail
+          email: testUserEmail,
           // Missing password
         })
         .expect(400);

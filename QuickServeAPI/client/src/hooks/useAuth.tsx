@@ -24,11 +24,15 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider ({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [, setLocation] = useLocation();
 
   // Query current user - only if token exists
-  const { data: userResponse, isLoading, error } = useQuery({
+  const {
+    data: userResponse,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['/api/auth/me'],
     enabled: !!localStorage.getItem('token'), // Only fetch if token exists
     retry: false, // Don't retry on 401
@@ -112,7 +116,7 @@ export function AuthProvider ({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAuth () {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -121,7 +125,7 @@ export function useAuth () {
 }
 
 // Auth guard component for protecting routes
-export function AuthGuard ({ children }: { children: React.ReactNode }) {
+export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
@@ -147,7 +151,7 @@ export function AuthGuard ({ children }: { children: React.ReactNode }) {
 }
 
 // Role guard component for role-based access
-export function RoleGuard ({
+export function RoleGuard({
   allowedRoles,
   children,
   fallback,
@@ -181,7 +185,7 @@ export function RoleGuard ({
 }
 
 // Route guard component
-export function RouteGuard ({
+export function RouteGuard({
   route,
   children,
 }: {

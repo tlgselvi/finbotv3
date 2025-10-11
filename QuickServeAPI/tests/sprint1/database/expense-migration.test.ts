@@ -15,7 +15,7 @@ describe.skip('Expense Tables Migration Tests', () => {
         FROM information_schema.tables 
         WHERE table_name = 'opex'
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
     });
@@ -27,10 +27,10 @@ describe.skip('Expense Tables Migration Tests', () => {
         WHERE table_name = 'opex' 
         ORDER BY ordinal_position
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
-      
+
       const columns = result.rows.map((row: any) => row.column_name);
       expect(columns).toContain('id');
       expect(columns).toContain('category');
@@ -45,20 +45,23 @@ describe.skip('Expense Tables Migration Tests', () => {
         amount: '500.00',
         description: 'Test OPEX expense',
         date: new Date('2024-01-15'),
-        created_at: new Date()
+        created_at: new Date(),
       };
 
-      const [insertedOpex] = await db.execute(`
+      const [insertedOpex] = await db.execute(
+        `
         INSERT INTO opex (category, amount, description, date, created_at)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *
-      `, [
-        testOpex.category,
-        testOpex.amount,
-        testOpex.description,
-        testOpex.date,
-        testOpex.created_at
-      ]);
+      `,
+        [
+          testOpex.category,
+          testOpex.amount,
+          testOpex.description,
+          testOpex.date,
+          testOpex.created_at,
+        ]
+      );
 
       expect(insertedOpex.rows).toBeDefined();
       expect(insertedOpex.rows.length).toBe(1);
@@ -67,9 +70,12 @@ describe.skip('Expense Tables Migration Tests', () => {
       expect(insertedOpex.rows[0].description).toBe(testOpex.description);
 
       // Test verisini temizle
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM opex WHERE description = $1
-      `, [testOpex.description]);
+      `,
+        [testOpex.description]
+      );
     });
 
     test('OPEX CRUD operasyonları çalışmalı', async () => {
@@ -78,52 +84,65 @@ describe.skip('Expense Tables Migration Tests', () => {
         category: 'utilities',
         amount: '1200.00',
         description: 'Test OPEX CRUD',
-        date: new Date('2024-01-20')
+        date: new Date('2024-01-20'),
       };
 
-      const [createdOpex] = await db.execute(`
+      const [createdOpex] = await db.execute(
+        `
         INSERT INTO opex (category, amount, description, date)
         VALUES ($1, $2, $3, $4)
         RETURNING *
-      `, [
-        newOpex.category,
-        newOpex.amount,
-        newOpex.description,
-        newOpex.date
-      ]);
+      `,
+        [newOpex.category, newOpex.amount, newOpex.description, newOpex.date]
+      );
 
       expect(createdOpex.rows[0].id).toBeDefined();
       const opexId = createdOpex.rows[0].id;
 
       // Read
-      const [readOpex] = await db.execute(`
+      const [readOpex] = await db.execute(
+        `
         SELECT * FROM opex WHERE id = $1
-      `, [opexId]);
+      `,
+        [opexId]
+      );
 
       expect(readOpex.rows[0].category).toBe(newOpex.category);
 
       // Update
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE opex 
         SET amount = $1, description = $2
         WHERE id = $3
-      `, ['1500.00', 'Updated OPEX', opexId]);
+      `,
+        ['1500.00', 'Updated OPEX', opexId]
+      );
 
-      const [updatedOpex] = await db.execute(`
+      const [updatedOpex] = await db.execute(
+        `
         SELECT * FROM opex WHERE id = $1
-      `, [opexId]);
+      `,
+        [opexId]
+      );
 
       expect(updatedOpex.rows[0].amount).toBe('1500.00');
       expect(updatedOpex.rows[0].description).toBe('Updated OPEX');
 
       // Delete
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM opex WHERE id = $1
-      `, [opexId]);
+      `,
+        [opexId]
+      );
 
-      const [deletedOpex] = await db.execute(`
+      const [deletedOpex] = await db.execute(
+        `
         SELECT * FROM opex WHERE id = $1
-      `, [opexId]);
+      `,
+        [opexId]
+      );
 
       expect(deletedOpex.rows.length).toBe(0);
     });
@@ -136,7 +155,7 @@ describe.skip('Expense Tables Migration Tests', () => {
         FROM information_schema.tables 
         WHERE table_name = 'capex'
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
     });
@@ -148,10 +167,10 @@ describe.skip('Expense Tables Migration Tests', () => {
         WHERE table_name = 'capex' 
         ORDER BY ordinal_position
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
-      
+
       const columns = result.rows.map((row: any) => row.column_name);
       expect(columns).toContain('id');
       expect(columns).toContain('asset_name');
@@ -167,32 +186,40 @@ describe.skip('Expense Tables Migration Tests', () => {
         purchase_date: new Date('2024-01-01'),
         depreciation_method: 'straight_line',
         description: 'Test CAPEX asset',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
-      const [insertedCapex] = await db.execute(`
+      const [insertedCapex] = await db.execute(
+        `
         INSERT INTO capex (asset_name, amount, purchase_date, depreciation_method, description, created_at)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
-      `, [
-        testCapex.asset_name,
-        testCapex.amount,
-        testCapex.purchase_date,
-        testCapex.depreciation_method,
-        testCapex.description,
-        testCapex.created_at
-      ]);
+      `,
+        [
+          testCapex.asset_name,
+          testCapex.amount,
+          testCapex.purchase_date,
+          testCapex.depreciation_method,
+          testCapex.description,
+          testCapex.created_at,
+        ]
+      );
 
       expect(insertedCapex.rows).toBeDefined();
       expect(insertedCapex.rows.length).toBe(1);
       expect(insertedCapex.rows[0].asset_name).toBe(testCapex.asset_name);
       expect(insertedCapex.rows[0].amount).toBe(testCapex.amount);
-      expect(insertedCapex.rows[0].depreciation_method).toBe(testCapex.depreciation_method);
+      expect(insertedCapex.rows[0].depreciation_method).toBe(
+        testCapex.depreciation_method
+      );
 
       // Test verisini temizle
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM capex WHERE description = $1
-      `, [testCapex.description]);
+      `,
+        [testCapex.description]
+      );
     });
 
     test('CAPEX CRUD operasyonları çalışmalı', async () => {
@@ -202,53 +229,71 @@ describe.skip('Expense Tables Migration Tests', () => {
         amount: '10000.00',
         purchase_date: new Date('2024-02-01'),
         depreciation_method: 'declining_balance',
-        description: 'Test CAPEX CRUD'
+        description: 'Test CAPEX CRUD',
       };
 
-      const [createdCapex] = await db.execute(`
+      const [createdCapex] = await db.execute(
+        `
         INSERT INTO capex (asset_name, amount, purchase_date, depreciation_method, description)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *
-      `, [
-        newCapex.asset_name,
-        newCapex.amount,
-        newCapex.purchase_date,
-        newCapex.depreciation_method,
-        newCapex.description
-      ]);
+      `,
+        [
+          newCapex.asset_name,
+          newCapex.amount,
+          newCapex.purchase_date,
+          newCapex.depreciation_method,
+          newCapex.description,
+        ]
+      );
 
       expect(createdCapex.rows[0].id).toBeDefined();
       const capexId = createdCapex.rows[0].id;
 
       // Read
-      const [readCapex] = await db.execute(`
+      const [readCapex] = await db.execute(
+        `
         SELECT * FROM capex WHERE id = $1
-      `, [capexId]);
+      `,
+        [capexId]
+      );
 
       expect(readCapex.rows[0].asset_name).toBe(newCapex.asset_name);
 
       // Update
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE capex 
         SET amount = $1, description = $2
         WHERE id = $3
-      `, ['12000.00', 'Updated CAPEX', capexId]);
+      `,
+        ['12000.00', 'Updated CAPEX', capexId]
+      );
 
-      const [updatedCapex] = await db.execute(`
+      const [updatedCapex] = await db.execute(
+        `
         SELECT * FROM capex WHERE id = $1
-      `, [capexId]);
+      `,
+        [capexId]
+      );
 
       expect(updatedCapex.rows[0].amount).toBe('12000.00');
       expect(updatedCapex.rows[0].description).toBe('Updated CAPEX');
 
       // Delete
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM capex WHERE id = $1
-      `, [capexId]);
+      `,
+        [capexId]
+      );
 
-      const [deletedCapex] = await db.execute(`
+      const [deletedCapex] = await db.execute(
+        `
         SELECT * FROM capex WHERE id = $1
-      `, [capexId]);
+      `,
+        [capexId]
+      );
 
       expect(deletedCapex.rows.length).toBe(0);
     });
@@ -261,7 +306,7 @@ describe.skip('Expense Tables Migration Tests', () => {
         FROM information_schema.tables 
         WHERE table_name = 'payroll'
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
     });
@@ -273,10 +318,10 @@ describe.skip('Expense Tables Migration Tests', () => {
         WHERE table_name = 'payroll' 
         ORDER BY ordinal_position
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
-      
+
       const columns = result.rows.map((row: any) => row.column_name);
       expect(columns).toContain('id');
       expect(columns).toContain('employee_name');
@@ -292,32 +337,40 @@ describe.skip('Expense Tables Migration Tests', () => {
         pay_period: 'monthly',
         pay_date: new Date('2024-01-31'),
         department: 'IT',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
-      const [insertedPayroll] = await db.execute(`
+      const [insertedPayroll] = await db.execute(
+        `
         INSERT INTO payroll (employee_name, salary, pay_period, pay_date, department, created_at)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
-      `, [
-        testPayroll.employee_name,
-        testPayroll.salary,
-        testPayroll.pay_period,
-        testPayroll.pay_date,
-        testPayroll.department,
-        testPayroll.created_at
-      ]);
+      `,
+        [
+          testPayroll.employee_name,
+          testPayroll.salary,
+          testPayroll.pay_period,
+          testPayroll.pay_date,
+          testPayroll.department,
+          testPayroll.created_at,
+        ]
+      );
 
       expect(insertedPayroll.rows).toBeDefined();
       expect(insertedPayroll.rows.length).toBe(1);
-      expect(insertedPayroll.rows[0].employee_name).toBe(testPayroll.employee_name);
+      expect(insertedPayroll.rows[0].employee_name).toBe(
+        testPayroll.employee_name
+      );
       expect(insertedPayroll.rows[0].salary).toBe(testPayroll.salary);
       expect(insertedPayroll.rows[0].pay_period).toBe(testPayroll.pay_period);
 
       // Test verisini temizle
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM payroll WHERE employee_name = $1
-      `, [testPayroll.employee_name]);
+      `,
+        [testPayroll.employee_name]
+      );
     });
 
     test('Payroll CRUD operasyonları çalışmalı', async () => {
@@ -327,53 +380,71 @@ describe.skip('Expense Tables Migration Tests', () => {
         salary: '6000.00',
         pay_period: 'monthly',
         pay_date: new Date('2024-02-29'),
-        department: 'Finance'
+        department: 'Finance',
       };
 
-      const [createdPayroll] = await db.execute(`
+      const [createdPayroll] = await db.execute(
+        `
         INSERT INTO payroll (employee_name, salary, pay_period, pay_date, department)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *
-      `, [
-        newPayroll.employee_name,
-        newPayroll.salary,
-        newPayroll.pay_period,
-        newPayroll.pay_date,
-        newPayroll.department
-      ]);
+      `,
+        [
+          newPayroll.employee_name,
+          newPayroll.salary,
+          newPayroll.pay_period,
+          newPayroll.pay_date,
+          newPayroll.department,
+        ]
+      );
 
       expect(createdPayroll.rows[0].id).toBeDefined();
       const payrollId = createdPayroll.rows[0].id;
 
       // Read
-      const [readPayroll] = await db.execute(`
+      const [readPayroll] = await db.execute(
+        `
         SELECT * FROM payroll WHERE id = $1
-      `, [payrollId]);
+      `,
+        [payrollId]
+      );
 
       expect(readPayroll.rows[0].employee_name).toBe(newPayroll.employee_name);
 
       // Update
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE payroll 
         SET salary = $1, department = $2
         WHERE id = $3
-      `, ['7000.00', 'Updated Department', payrollId]);
+      `,
+        ['7000.00', 'Updated Department', payrollId]
+      );
 
-      const [updatedPayroll] = await db.execute(`
+      const [updatedPayroll] = await db.execute(
+        `
         SELECT * FROM payroll WHERE id = $1
-      `, [payrollId]);
+      `,
+        [payrollId]
+      );
 
       expect(updatedPayroll.rows[0].salary).toBe('7000.00');
       expect(updatedPayroll.rows[0].department).toBe('Updated Department');
 
       // Delete
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM payroll WHERE id = $1
-      `, [payrollId]);
+      `,
+        [payrollId]
+      );
 
-      const [deletedPayroll] = await db.execute(`
+      const [deletedPayroll] = await db.execute(
+        `
         SELECT * FROM payroll WHERE id = $1
-      `, [payrollId]);
+      `,
+        [payrollId]
+      );
 
       expect(deletedPayroll.rows.length).toBe(0);
     });
@@ -386,7 +457,7 @@ describe.skip('Expense Tables Migration Tests', () => {
         FROM information_schema.tables 
         WHERE table_name = 'tax_accrual'
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
     });
@@ -398,10 +469,10 @@ describe.skip('Expense Tables Migration Tests', () => {
         WHERE table_name = 'tax_accrual' 
         ORDER BY ordinal_position
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
-      
+
       const columns = result.rows.map((row: any) => row.column_name);
       expect(columns).toContain('id');
       expect(columns).toContain('tax_type');
@@ -417,21 +488,24 @@ describe.skip('Expense Tables Migration Tests', () => {
         accrual_date: new Date('2024-01-31'),
         due_date: new Date('2024-02-15'),
         description: 'Test tax accrual',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
-      const [insertedTaxAccrual] = await db.execute(`
+      const [insertedTaxAccrual] = await db.execute(
+        `
         INSERT INTO tax_accrual (tax_type, amount, accrual_date, due_date, description, created_at)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
-      `, [
-        testTaxAccrual.tax_type,
-        testTaxAccrual.amount,
-        testTaxAccrual.accrual_date,
-        testTaxAccrual.due_date,
-        testTaxAccrual.description,
-        testTaxAccrual.created_at
-      ]);
+      `,
+        [
+          testTaxAccrual.tax_type,
+          testTaxAccrual.amount,
+          testTaxAccrual.accrual_date,
+          testTaxAccrual.due_date,
+          testTaxAccrual.description,
+          testTaxAccrual.created_at,
+        ]
+      );
 
       expect(insertedTaxAccrual.rows).toBeDefined();
       expect(insertedTaxAccrual.rows.length).toBe(1);
@@ -440,9 +514,12 @@ describe.skip('Expense Tables Migration Tests', () => {
       expect(insertedTaxAccrual.rows[0].due_date).toBeDefined();
 
       // Test verisini temizle
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM tax_accrual WHERE description = $1
-      `, [testTaxAccrual.description]);
+      `,
+        [testTaxAccrual.description]
+      );
     });
 
     test('TaxAccrual CRUD operasyonları çalışmalı', async () => {
@@ -452,53 +529,71 @@ describe.skip('Expense Tables Migration Tests', () => {
         amount: '1500.00',
         accrual_date: new Date('2024-02-29'),
         due_date: new Date('2024-03-15'),
-        description: 'Test TaxAccrual CRUD'
+        description: 'Test TaxAccrual CRUD',
       };
 
-      const [createdTaxAccrual] = await db.execute(`
+      const [createdTaxAccrual] = await db.execute(
+        `
         INSERT INTO tax_accrual (tax_type, amount, accrual_date, due_date, description)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *
-      `, [
-        newTaxAccrual.tax_type,
-        newTaxAccrual.amount,
-        newTaxAccrual.accrual_date,
-        newTaxAccrual.due_date,
-        newTaxAccrual.description
-      ]);
+      `,
+        [
+          newTaxAccrual.tax_type,
+          newTaxAccrual.amount,
+          newTaxAccrual.accrual_date,
+          newTaxAccrual.due_date,
+          newTaxAccrual.description,
+        ]
+      );
 
       expect(createdTaxAccrual.rows[0].id).toBeDefined();
       const taxAccrualId = createdTaxAccrual.rows[0].id;
 
       // Read
-      const [readTaxAccrual] = await db.execute(`
+      const [readTaxAccrual] = await db.execute(
+        `
         SELECT * FROM tax_accrual WHERE id = $1
-      `, [taxAccrualId]);
+      `,
+        [taxAccrualId]
+      );
 
       expect(readTaxAccrual.rows[0].tax_type).toBe(newTaxAccrual.tax_type);
 
       // Update
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE tax_accrual 
         SET amount = $1, description = $2
         WHERE id = $3
-      `, ['1800.00', 'Updated TaxAccrual', taxAccrualId]);
+      `,
+        ['1800.00', 'Updated TaxAccrual', taxAccrualId]
+      );
 
-      const [updatedTaxAccrual] = await db.execute(`
+      const [updatedTaxAccrual] = await db.execute(
+        `
         SELECT * FROM tax_accrual WHERE id = $1
-      `, [taxAccrualId]);
+      `,
+        [taxAccrualId]
+      );
 
       expect(updatedTaxAccrual.rows[0].amount).toBe('1800.00');
       expect(updatedTaxAccrual.rows[0].description).toBe('Updated TaxAccrual');
 
       // Delete
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM tax_accrual WHERE id = $1
-      `, [taxAccrualId]);
+      `,
+        [taxAccrualId]
+      );
 
-      const [deletedTaxAccrual] = await db.execute(`
+      const [deletedTaxAccrual] = await db.execute(
+        `
         SELECT * FROM tax_accrual WHERE id = $1
-      `, [taxAccrualId]);
+      `,
+        [taxAccrualId]
+      );
 
       expect(deletedTaxAccrual.rows.length).toBe(0);
     });
@@ -507,22 +602,28 @@ describe.skip('Expense Tables Migration Tests', () => {
   describe('Expense Tables Data Validation', () => {
     test('Amount alanları decimal precision doğru olmalı', async () => {
       const testAmount = '12345.67';
-      
+
       // OPEX amount test
-      const [opexResult] = await db.execute(`
+      const [opexResult] = await db.execute(
+        `
         INSERT INTO opex (category, amount, description, date)
         VALUES ($1, $2, $3, $4)
         RETURNING amount
-      `, ['test', testAmount, 'Test amount', new Date()]);
+      `,
+        ['test', testAmount, 'Test amount', new Date()]
+      );
 
       expect(opexResult.rows[0].amount).toBe(testAmount);
 
       // CAPEX amount test
-      const [capexResult] = await db.execute(`
+      const [capexResult] = await db.execute(
+        `
         INSERT INTO capex (asset_name, amount, purchase_date, depreciation_method)
         VALUES ($1, $2, $3, $4)
         RETURNING amount
-      `, ['Test Asset', testAmount, new Date(), 'straight_line']);
+      `,
+        ['Test Asset', testAmount, new Date(), 'straight_line']
+      );
 
       expect(capexResult.rows[0].amount).toBe(testAmount);
 
@@ -533,13 +634,16 @@ describe.skip('Expense Tables Migration Tests', () => {
 
     test('Tarih alanları doğru format kabul etmeli', async () => {
       const testDate = new Date('2024-12-31');
-      
+
       // OPEX date test
-      const [opexResult] = await db.execute(`
+      const [opexResult] = await db.execute(
+        `
         INSERT INTO opex (category, amount, description, date)
         VALUES ($1, $2, $3, $4)
         RETURNING date
-      `, ['test', '1000.00', 'Test date', testDate]);
+      `,
+        ['test', '1000.00', 'Test date', testDate]
+      );
 
       expect(new Date(opexResult.rows[0].date)).toEqual(testDate);
 
@@ -557,26 +661,32 @@ describe.skip('Expense Tables Migration Tests', () => {
         `category_${i % 10}`,
         (Math.random() * 1000).toFixed(2),
         `Test OPEX ${i}`,
-        new Date()
+        new Date(),
       ]);
 
-      await db.execute(`
+      await db.execute(
+        `
         INSERT INTO opex (category, amount, description, date)
         VALUES ${opexData.map((_, i) => `($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`).join(', ')}
-      `, opexData.flat());
+      `,
+        opexData.flat()
+      );
 
       // 500 CAPEX kaydı oluştur
       const capexData = Array.from({ length: 500 }, (_, i) => [
         `Asset ${i}`,
         (Math.random() * 10000).toFixed(2),
         new Date(),
-        'straight_line'
+        'straight_line',
       ]);
 
-      await db.execute(`
+      await db.execute(
+        `
         INSERT INTO capex (asset_name, amount, purchase_date, depreciation_method)
         VALUES ${capexData.map((_, i) => `($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`).join(', ')}
-      `, capexData.flat());
+      `,
+        capexData.flat()
+      );
 
       const endTime = Date.now();
       const duration = endTime - startTime;
@@ -593,10 +703,18 @@ describe.skip('Expense Tables Migration Tests', () => {
       const startTime = Date.now();
 
       // Tüm expense tablolarını sorgula
-      const [opexCount] = await db.execute(`SELECT COUNT(*) as count FROM opex`);
-      const [capexCount] = await db.execute(`SELECT COUNT(*) as count FROM capex`);
-      const [payrollCount] = await db.execute(`SELECT COUNT(*) as count FROM payroll`);
-      const [taxAccrualCount] = await db.execute(`SELECT COUNT(*) as count FROM tax_accrual`);
+      const [opexCount] = await db.execute(
+        `SELECT COUNT(*) as count FROM opex`
+      );
+      const [capexCount] = await db.execute(
+        `SELECT COUNT(*) as count FROM capex`
+      );
+      const [payrollCount] = await db.execute(
+        `SELECT COUNT(*) as count FROM payroll`
+      );
+      const [taxAccrualCount] = await db.execute(
+        `SELECT COUNT(*) as count FROM tax_accrual`
+      );
 
       const endTime = Date.now();
       const duration = endTime - startTime;

@@ -1,17 +1,13 @@
 import { Router } from 'express';
 import { eq, desc } from 'drizzle-orm';
 import { db } from '../db';
-import { 
+import {
   userProfiles,
   userActivityLogs,
   userTwoFactorAuth,
-  passwordResetTokens
+  passwordResetTokens,
 } from '../db/schema';
-import {
-  hasPermissionV2,
-  PermissionV2,
-  UserRoleV2
-} from '@shared/schema';
+import { hasPermissionV2, PermissionV2, UserRoleV2 } from '@shared/schema';
 import { securityMiddleware } from '../middleware/security-v2';
 import { twoFactorAuthService } from '../services/auth/two-factor-auth';
 import { passwordService } from '../services/auth/password-service';
@@ -26,7 +22,8 @@ const router = Router();
 // =====================
 
 // Get user profile
-router.get('/profile', 
+router.get(
+  '/profile',
   securityMiddleware.securityContext,
   securityMiddleware.requirePermission(PermissionV2.VIEW_USERS),
   async (req: any, res) => {
@@ -43,7 +40,7 @@ router.get('/profile',
 
       res.json({
         success: true,
-        profile: profile[0]
+        profile: profile[0],
       });
     } catch (error) {
       logger.error('Error getting user profile:', error);
@@ -53,7 +50,8 @@ router.get('/profile',
 );
 
 // Update user profile
-router.put('/profile',
+router.put(
+  '/profile',
   securityMiddleware.securityContext,
   securityMiddleware.requirePermission(PermissionV2.MANAGE_USERS),
   async (req: any, res) => {
@@ -62,18 +60,21 @@ router.put('/profile',
 
       await db
         .update(userProfiles)
-        .set({ 
+        .set({
           ...updateData,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, req.user.id));
 
-      await securityMiddleware.logUserActivity({
-        userId: req.user.id,
-        action: 'profile_updated',
-        resource: 'user_profile',
-        metadata: { updates: Object.keys(updateData) }
-      }, req);
+      await securityMiddleware.logUserActivity(
+        {
+          userId: req.user.id,
+          action: 'profile_updated',
+          resource: 'user_profile',
+          metadata: { updates: Object.keys(updateData) },
+        },
+        req
+      );
 
       res.json({ success: true, message: 'Profile updated successfully' });
     } catch (error) {
@@ -84,25 +85,31 @@ router.put('/profile',
 );
 
 // Change password
-router.post('/change-password',
+router.post(
+  '/change-password',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
       const changeData = changePasswordSchema.parse(req.body);
-      
+
       await passwordService.changePassword(req.user.id, changeData);
 
-      await securityMiddleware.logUserActivity({
-        userId: req.user.id,
-        action: 'password_changed',
-        resource: 'user_account',
-        metadata: { timestamp: new Date().toISOString() }
-      }, req);
+      await securityMiddleware.logUserActivity(
+        {
+          userId: req.user.id,
+          action: 'password_changed',
+          resource: 'user_account',
+          metadata: { timestamp: new Date().toISOString() },
+        },
+        req
+      );
 
       res.json({ success: true, message: 'Password changed successfully' });
     } catch (error) {
       logger.error('Error changing password:', error);
-      res.status(400).json({ error: error.message || 'Failed to change password' });
+      res
+        .status(400)
+        .json({ error: error.message || 'Failed to change password' });
     }
   }
 );
@@ -112,65 +119,72 @@ router.post('/change-password',
 // =====================
 
 // Request password reset
-router.post('/request-password-reset',
-  async (req, res) => {
-    try {
-      const requestData = requestPasswordResetSchema.parse(req.body);
-      
-      await passwordService.requestPasswordReset(requestData);
+router.post('/request-password-reset', async (req, res) => {
+  try {
+    const requestData = requestPasswordResetSchema.parse(req.body);
 
-      res.json({ 
-        success: true, 
-        message: 'Password reset email sent if account exists' 
-      });
-    } catch (error) {
-      logger.error('Error requesting password reset:', error);
-      res.status(400).json({ error: error.message || 'Failed to request password reset' });
-    }
+    await passwordService.requestPasswordReset(requestData);
+
+    res.json({
+      success: true,
+      message: 'Password reset email sent if account exists',
+    });
+  } catch (error) {
+    logger.error('Error requesting password reset:', error);
+    res
+      .status(400)
+      .json({ error: error.message || 'Failed to request password reset' });
   }
-);
+});
 
 // Reset password with token
-router.post('/reset-password',
-  async (req, res) => {
-    try {
-      const resetData = resetPasswordV2Schema.parse(req.body);
-      
-      await passwordService.resetPassword(resetData);
+router.post('/reset-password', async (req, res) => {
+  try {
+    const resetData = resetPasswordV2Schema.parse(req.body);
 
-      res.json({ success: true, message: 'Password reset successfully' });
-    } catch (error) {
-      logger.error('Error resetting password:', error);
-      res.status(400).json({ error: error.message || 'Failed to reset password' });
-    }
+    await passwordService.resetPassword(resetData);
+
+    res.json({ success: true, message: 'Password reset successfully' });
+  } catch (error) {
+    logger.error('Error resetting password:', error);
+    res
+      .status(400)
+      .json({ error: error.message || 'Failed to reset password' });
   }
-);
+});
 
 // =====================
 // TWO-FACTOR AUTHENTICATION
 // =====================
 
 // Setup 2FA
-router.post('/2fa/setup',
+router.post(
+  '/2fa/setup',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
       const setupData = req.body;
-      
-      const result = await twoFactorAuthService.setupTwoFactorAuth(req.user.id, setupData);
 
-      await securityMiddleware.logUserActivity({
-        userId: req.user.id,
-        action: '2fa_setup_initiated',
-        resource: 'two_factor_auth',
-        metadata: { timestamp: new Date().toISOString() }
-      }, req);
+      const result = await twoFactorAuthService.setupTwoFactorAuth(
+        req.user.id,
+        setupData
+      );
+
+      await securityMiddleware.logUserActivity(
+        {
+          userId: req.user.id,
+          action: '2fa_setup_initiated',
+          resource: 'two_factor_auth',
+          metadata: { timestamp: new Date().toISOString() },
+        },
+        req
+      );
 
       res.json({
         success: true,
         secret: result.secret,
         qrCodeUrl: result.qrCodeUrl,
-        backupCodes: result.backupCodes
+        backupCodes: result.backupCodes,
       });
     } catch (error) {
       logger.error('Error setting up 2FA:', error);
@@ -180,20 +194,24 @@ router.post('/2fa/setup',
 );
 
 // Enable 2FA
-router.post('/2fa/enable',
+router.post(
+  '/2fa/enable',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
       const enableData = req.body;
-      
+
       await twoFactorAuthService.enableTwoFactorAuth(req.user.id, enableData);
 
-      await securityMiddleware.logUserActivity({
-        userId: req.user.id,
-        action: '2fa_enabled',
-        resource: 'two_factor_auth',
-        metadata: { timestamp: new Date().toISOString() }
-      }, req);
+      await securityMiddleware.logUserActivity(
+        {
+          userId: req.user.id,
+          action: '2fa_enabled',
+          resource: 'two_factor_auth',
+          metadata: { timestamp: new Date().toISOString() },
+        },
+        req
+      );
 
       res.json({ success: true, message: '2FA enabled successfully' });
     } catch (error) {
@@ -204,20 +222,24 @@ router.post('/2fa/enable',
 );
 
 // Disable 2FA
-router.post('/2fa/disable',
+router.post(
+  '/2fa/disable',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
       const disableData = req.body;
-      
+
       await twoFactorAuthService.disableTwoFactorAuth(req.user.id, disableData);
 
-      await securityMiddleware.logUserActivity({
-        userId: req.user.id,
-        action: '2fa_disabled',
-        resource: 'two_factor_auth',
-        metadata: { timestamp: new Date().toISOString() }
-      }, req);
+      await securityMiddleware.logUserActivity(
+        {
+          userId: req.user.id,
+          action: '2fa_disabled',
+          resource: 'two_factor_auth',
+          metadata: { timestamp: new Date().toISOString() },
+        },
+        req
+      );
 
       res.json({ success: true, message: '2FA disabled successfully' });
     } catch (error) {
@@ -228,21 +250,28 @@ router.post('/2fa/disable',
 );
 
 // Verify 2FA token
-router.post('/2fa/verify',
+router.post(
+  '/2fa/verify',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
       const verifyData = req.body;
-      
-      const isValid = await twoFactorAuthService.verifyTwoFactorAuth(req.user.id, verifyData);
+
+      const isValid = await twoFactorAuthService.verifyTwoFactorAuth(
+        req.user.id,
+        verifyData
+      );
 
       if (isValid) {
-        await securityMiddleware.logUserActivity({
-          userId: req.user.id,
-          action: '2fa_verified',
-          resource: 'two_factor_auth',
-          metadata: { timestamp: new Date().toISOString() }
-        }, req);
+        await securityMiddleware.logUserActivity(
+          {
+            userId: req.user.id,
+            action: '2fa_verified',
+            resource: 'two_factor_auth',
+            metadata: { timestamp: new Date().toISOString() },
+          },
+          req
+        );
 
         res.json({ success: true, message: '2FA verified successfully' });
       } else {
@@ -256,7 +285,8 @@ router.post('/2fa/verify',
 );
 
 // Get 2FA status
-router.get('/2fa/status',
+router.get(
+  '/2fa/status',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
@@ -264,7 +294,7 @@ router.get('/2fa/status',
 
       res.json({
         success: true,
-        status
+        status,
       });
     } catch (error) {
       logger.error('Error getting 2FA status:', error);
@@ -274,22 +304,28 @@ router.get('/2fa/status',
 );
 
 // Regenerate backup codes
-router.post('/2fa/regenerate-backup-codes',
+router.post(
+  '/2fa/regenerate-backup-codes',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
-      const backupCodes = await twoFactorAuthService.regenerateBackupCodes(req.user.id);
+      const backupCodes = await twoFactorAuthService.regenerateBackupCodes(
+        req.user.id
+      );
 
-      await securityMiddleware.logUserActivity({
-        userId: req.user.id,
-        action: '2fa_backup_codes_regenerated',
-        resource: 'two_factor_auth',
-        metadata: { timestamp: new Date().toISOString() }
-      }, req);
+      await securityMiddleware.logUserActivity(
+        {
+          userId: req.user.id,
+          action: '2fa_backup_codes_regenerated',
+          resource: 'two_factor_auth',
+          metadata: { timestamp: new Date().toISOString() },
+        },
+        req
+      );
 
       res.json({
         success: true,
-        backupCodes
+        backupCodes,
       });
     } catch (error) {
       logger.error('Error regenerating backup codes:', error);
@@ -303,19 +339,23 @@ router.post('/2fa/regenerate-backup-codes',
 // =====================
 
 // Check permission
-router.post('/check-permission',
+router.post(
+  '/check-permission',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
       const checkData = checkPermissionSchema.parse(req.body);
-      
-      const hasPermission = hasPermissionV2(req.user.role, checkData.permission as PermissionV2);
+
+      const hasPermission = hasPermissionV2(
+        req.user.role,
+        checkData.permission as PermissionV2
+      );
 
       res.json({
         success: true,
         hasPermission,
         permission: checkData.permission,
-        userRole: req.user.role
+        userRole: req.user.role,
       });
     } catch (error) {
       logger.error('Error checking permission:', error);
@@ -325,7 +365,8 @@ router.post('/check-permission',
 );
 
 // Get user permissions
-router.get('/permissions',
+router.get(
+  '/permissions',
   securityMiddleware.securityContext,
   async (req: any, res) => {
     try {
@@ -340,15 +381,18 @@ router.get('/permissions',
       }
 
       const userRole = profile[0].role as keyof typeof UserRoleV2;
-      const rolePermissions = Object.keys(PermissionV2).filter(permission => 
-        hasPermissionV2(userRole, PermissionV2[permission as keyof typeof PermissionV2])
+      const rolePermissions = Object.keys(PermissionV2).filter(permission =>
+        hasPermissionV2(
+          userRole,
+          PermissionV2[permission as keyof typeof PermissionV2]
+        )
       );
 
       res.json({
         success: true,
         role: userRole,
         permissions: rolePermissions,
-        customPermissions: profile[0].permissions || []
+        customPermissions: profile[0].permissions || [],
       });
     } catch (error) {
       logger.error('Error getting user permissions:', error);
@@ -362,7 +406,8 @@ router.get('/permissions',
 // =====================
 
 // Get user activity logs
-router.get('/activity-logs',
+router.get(
+  '/activity-logs',
   securityMiddleware.securityContext,
   securityMiddleware.requirePermission(PermissionV2.VIEW_AUDIT_LOGS),
   async (req: any, res) => {
@@ -394,8 +439,8 @@ router.get('/activity-logs',
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
-          total: logs.length
-        }
+          total: logs.length,
+        },
       });
     } catch (error) {
       logger.error('Error getting activity logs:', error);
@@ -405,7 +450,8 @@ router.get('/activity-logs',
 );
 
 // Get all activity logs (admin only)
-router.get('/activity-logs/all',
+router.get(
+  '/activity-logs/all',
   securityMiddleware.securityContext,
   securityMiddleware.requireRole([UserRoleV2.ADMIN]),
   async (req: any, res) => {
@@ -434,15 +480,18 @@ router.get('/activity-logs/all',
 
       const logs = await query;
 
-      await securityMiddleware.logUserActivity({
-        userId: req.user.id,
-        action: 'viewed_all_activity_logs',
-        resource: 'audit_logs',
-        metadata: { 
-          filters: { userId, action, resource },
-          timestamp: new Date().toISOString()
-        }
-      }, req);
+      await securityMiddleware.logUserActivity(
+        {
+          userId: req.user.id,
+          action: 'viewed_all_activity_logs',
+          resource: 'audit_logs',
+          metadata: {
+            filters: { userId, action, resource },
+            timestamp: new Date().toISOString(),
+          },
+        },
+        req
+      );
 
       res.json({
         success: true,
@@ -450,8 +499,8 @@ router.get('/activity-logs/all',
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
-          total: logs.length
-        }
+          total: logs.length,
+        },
       });
     } catch (error) {
       logger.error('Error getting all activity logs:', error);
@@ -465,7 +514,8 @@ router.get('/activity-logs/all',
 // =====================
 
 // Get security status
-router.get('/status',
+router.get(
+  '/status',
   securityMiddleware.securityContext,
   securityMiddleware.requirePermission(PermissionV2.VIEW_SYSTEM_STATUS),
   async (req: any, res) => {
@@ -480,19 +530,25 @@ router.get('/status',
         return res.status(404).json({ error: 'User profile not found' });
       }
 
-      const twoFactorStatus = await twoFactorAuthService.getTwoFactorStatus(req.user.id);
-      const isPasswordExpired = await passwordService.isPasswordExpired(req.user.id);
+      const twoFactorStatus = await twoFactorAuthService.getTwoFactorStatus(
+        req.user.id
+      );
+      const isPasswordExpired = await passwordService.isPasswordExpired(
+        req.user.id
+      );
 
       res.json({
         success: true,
         status: {
-          accountLocked: profile[0].lockedUntil && new Date() < new Date(profile[0].lockedUntil),
+          accountLocked:
+            profile[0].lockedUntil &&
+            new Date() < new Date(profile[0].lockedUntil),
           failedLoginAttempts: profile[0].failedLoginAttempts,
           passwordExpired: isPasswordExpired,
           twoFactorEnabled: twoFactorStatus.isEnabled,
           lastLogin: profile[0].lastLogin,
-          sessionTimeout: profile[0].sessionTimeout
-        }
+          sessionTimeout: profile[0].sessionTimeout,
+        },
       });
     } catch (error) {
       logger.error('Error getting security status:', error);
@@ -506,19 +562,28 @@ router.get('/status',
 // ===================================
 
 // Get audit data for user (GDPR Data Portability)
-router.get('/audit-data/:userId', 
+router.get(
+  '/audit-data/:userId',
   securityMiddleware.requirePermission(PermissionV2.VIEW_AUDIT_LOGS),
   async (req, res) => {
     try {
       const { userId } = req.params;
-      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
-      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+      const startDate = req.query.startDate
+        ? new Date(req.query.startDate as string)
+        : undefined;
+      const endDate = req.query.endDate
+        ? new Date(req.query.endDate as string)
+        : undefined;
 
-      const auditData = await auditComplianceManager.exportAuditData(userId, startDate, endDate);
+      const auditData = await auditComplianceManager.exportAuditData(
+        userId,
+        startDate,
+        endDate
+      );
 
       res.json({
         success: true,
-        data: auditData
+        data: auditData,
       });
     } catch (error) {
       logger.error('Error exporting audit data:', error);
@@ -528,12 +593,13 @@ router.get('/audit-data/:userId',
 );
 
 // Purge user data (GDPR Right to Erasure)
-router.delete('/purge-user-data/:userId',
+router.delete(
+  '/purge-user-data/:userId',
   securityMiddleware.requirePermission(PermissionV2.SYSTEM_ADMIN),
   async (req, res) => {
     try {
       const { userId } = req.params;
-      
+
       const result = await auditComplianceManager.purgeUserData(userId);
 
       // Log the purge action
@@ -544,18 +610,18 @@ router.delete('/purge-user-data/:userId',
         details: {
           purgedUserId: userId,
           deletedRecords: result.deletedRecords,
-          affectedTables: result.tables
+          affectedTables: result.tables,
         },
         ipAddress: req.ip,
         userAgent: req.get('User-Agent'),
-        sessionId: req.sessionID
+        sessionId: req.sessionID,
       });
 
       res.json({
         success: true,
         message: 'User data purged successfully',
         deletedRecords: result.deletedRecords,
-        tables: result.tables
+        tables: result.tables,
       });
     } catch (error) {
       logger.error('Error purging user data:', error);
@@ -565,7 +631,8 @@ router.delete('/purge-user-data/:userId',
 );
 
 // Get compliance metrics
-router.get('/compliance-metrics',
+router.get(
+  '/compliance-metrics',
   securityMiddleware.requirePermission(PermissionV2.VIEW_AUDIT_LOGS),
   async (req, res) => {
     try {
@@ -573,7 +640,7 @@ router.get('/compliance-metrics',
 
       res.json({
         success: true,
-        metrics
+        metrics,
       });
     } catch (error) {
       logger.error('Error getting compliance metrics:', error);
@@ -583,7 +650,8 @@ router.get('/compliance-metrics',
 );
 
 // Manual retention job trigger
-router.post('/trigger-retention',
+router.post(
+  '/trigger-retention',
   securityMiddleware.requirePermission(PermissionV2.SYSTEM_ADMIN),
   async (req, res) => {
     try {
@@ -591,7 +659,7 @@ router.post('/trigger-retention',
       // In a real implementation, you might want to queue this job
       res.json({
         success: true,
-        message: 'Retention job triggered successfully'
+        message: 'Retention job triggered successfully',
       });
     } catch (error) {
       logger.error('Error triggering retention job:', error);
@@ -601,11 +669,14 @@ router.post('/trigger-retention',
 );
 
 // Get security headers status
-router.get('/security-headers-status',
+router.get(
+  '/security-headers-status',
   securityMiddleware.requirePermission(PermissionV2.VIEW_SYSTEM_STATUS),
   async (req, res) => {
     try {
-      const { advancedSecurityHeaders } = await import('../middleware/security-headers-advanced');
+      const { advancedSecurityHeaders } = await import(
+        '../middleware/security-headers-advanced'
+      );
       const metrics = advancedSecurityHeaders.getMetrics();
 
       res.json({
@@ -613,8 +684,8 @@ router.get('/security-headers-status',
         securityHeaders: {
           status: 'active',
           metrics,
-          lastChecked: new Date()
-        }
+          lastChecked: new Date(),
+        },
       });
     } catch (error) {
       logger.error('Error getting security headers status:', error);

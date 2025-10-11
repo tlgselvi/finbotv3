@@ -4,7 +4,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
   AlertTriangle,
   X,
@@ -16,7 +20,7 @@ import {
   TrendingUp,
   Zap,
   Shield,
-  Info
+  Info,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useFormatCurrency } from '@/lib/utils/formatCurrency';
@@ -24,7 +28,12 @@ import { logger } from '@/lib/logger';
 
 export interface FutureRiskAlert {
   id: string;
-  type: 'futureRisk' | 'liquidityRisk' | 'cashDeficit' | 'highRisk' | 'inflationRisk';
+  type:
+    | 'futureRisk'
+    | 'liquidityRisk'
+    | 'cashDeficit'
+    | 'highRisk'
+    | 'inflationRisk';
   severity: 'low' | 'medium' | 'high' | 'critical';
   title: string;
   message: string;
@@ -42,7 +51,9 @@ interface NotificationBarProps {
 
 export default function NotificationBar({ className }: NotificationBarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(
+    new Set()
+  );
   const formatCurrency = useFormatCurrency();
 
   // Simülasyon verilerinden gelecek risk uyarıları
@@ -54,7 +65,7 @@ export default function NotificationBar({ className }: NotificationBarProps) {
         const response = await apiRequest('/api/simulation/history?limit=1');
         const data = await response.json();
         const lastRun = data.runs?.[0];
-        
+
         if (!lastRun) return [];
 
         const alerts: FutureRiskAlert[] = [];
@@ -64,24 +75,36 @@ export default function NotificationBar({ className }: NotificationBarProps) {
           alerts.push({
             id: `cash-deficit-${lastRun.id}`,
             type: 'cashDeficit',
-            severity: lastRun.results.cashDeficitMonth <= 2 ? 'critical' : 
-                     lastRun.results.cashDeficitMonth <= 4 ? 'high' : 'medium',
+            severity:
+              lastRun.results.cashDeficitMonth <= 2
+                ? 'critical'
+                : lastRun.results.cashDeficitMonth <= 4
+                  ? 'high'
+                  : 'medium',
             title: 'Nakit Açığı Riski',
             message: `${lastRun.results.cashDeficitMonth} ay içinde nakit açığı oluşabilir`,
-            probability: lastRun.results.cashDeficitMonth <= 2 ? 85 : 
-                        lastRun.results.cashDeficitMonth <= 4 ? 65 : 45,
+            probability:
+              lastRun.results.cashDeficitMonth <= 2
+                ? 85
+                : lastRun.results.cashDeficitMonth <= 4
+                  ? 65
+                  : 45,
             timeHorizon: lastRun.results.cashDeficitMonth,
             impact: 80,
-            recommendedAction: 'Nakit pozisyonunu güçlendirin veya kısa vadeli borçlanma seçeneklerini değerlendirin',
+            recommendedAction:
+              'Nakit pozisyonunu güçlendirin veya kısa vadeli borçlanma seçeneklerini değerlendirin',
             source: 'simulation',
-            createdAt: lastRun.createdAt
+            createdAt: lastRun.createdAt,
           });
         }
 
         // Risk parametrelerine göre uyarılar
         const params = lastRun.parameters;
-        const totalRisk = Math.abs(params.fxDelta) + Math.abs(params.rateDelta) + Math.abs(params.inflationDelta);
-        
+        const totalRisk =
+          Math.abs(params.fxDelta) +
+          Math.abs(params.rateDelta) +
+          Math.abs(params.inflationDelta);
+
         if (totalRisk > 20) {
           alerts.push({
             id: `high-risk-${lastRun.id}`,
@@ -92,9 +115,10 @@ export default function NotificationBar({ className }: NotificationBarProps) {
             probability: Math.min(totalRisk * 2, 90),
             timeHorizon: params.horizonMonths,
             impact: 70,
-            recommendedAction: 'Risk yönetimi stratejilerini gözden geçirin ve hedge pozisyonları değerlendirin',
+            recommendedAction:
+              'Risk yönetimi stratejilerini gözden geçirin ve hedge pozisyonları değerlendirin',
             source: 'simulation',
-            createdAt: lastRun.createdAt
+            createdAt: lastRun.createdAt,
           });
         }
 
@@ -129,7 +153,7 @@ export default function NotificationBar({ className }: NotificationBarProps) {
             impact: 60,
             recommendedAction: 'Portföy yeniden dengelemesi yapın',
             source: 'risk',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
           });
         }
 
@@ -143,13 +167,14 @@ export default function NotificationBar({ className }: NotificationBarProps) {
   });
 
   // Tüm uyarıları birleştir
-  const allAlerts = [
-    ...(simulationAlerts || []),
-    ...(riskAlerts || [])
-  ].filter(alert => !dismissedAlerts.has(alert.id));
+  const allAlerts = [...(simulationAlerts || []), ...(riskAlerts || [])].filter(
+    alert => !dismissedAlerts.has(alert.id)
+  );
 
   // Kritik uyarıları ayır
-  const criticalAlerts = allAlerts.filter(alert => alert.severity === 'critical');
+  const criticalAlerts = allAlerts.filter(
+    alert => alert.severity === 'critical'
+  );
   const otherAlerts = allAlerts.filter(alert => alert.severity !== 'critical');
 
   // Uyarı kapatma
@@ -160,33 +185,48 @@ export default function NotificationBar({ className }: NotificationBarProps) {
   // Severity rengi
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'destructive';
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
+      case 'critical':
+        return 'destructive';
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'default';
+      case 'low':
+        return 'secondary';
+      default:
+        return 'secondary';
     }
   };
 
   // Severity ikonu
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
-      case 'critical': return <AlertTriangle className="w-4 h-4" />;
-      case 'high': return <TrendingDown className="w-4 h-4" />;
-      case 'medium': return <Info className="w-4 h-4" />;
-      case 'low': return <Shield className="w-4 h-4" />;
-      default: return <Info className="w-4 h-4" />;
+      case 'critical':
+        return <AlertTriangle className="w-4 h-4" />;
+      case 'high':
+        return <TrendingDown className="w-4 h-4" />;
+      case 'medium':
+        return <Info className="w-4 h-4" />;
+      case 'low':
+        return <Shield className="w-4 h-4" />;
+      default:
+        return <Info className="w-4 h-4" />;
     }
   };
 
   // Alert tipi ikonu
   const getAlertTypeIcon = (type: string) => {
     switch (type) {
-      case 'cashDeficit': return <DollarSign className="w-4 h-4" />;
-      case 'liquidityRisk': return <TrendingDown className="w-4 h-4" />;
-      case 'highRisk': return <AlertTriangle className="w-4 h-4" />;
-      case 'inflationRisk': return <TrendingUp className="w-4 h-4" />;
-      default: return <Zap className="w-4 h-4" />;
+      case 'cashDeficit':
+        return <DollarSign className="w-4 h-4" />;
+      case 'liquidityRisk':
+        return <TrendingDown className="w-4 h-4" />;
+      case 'highRisk':
+        return <AlertTriangle className="w-4 h-4" />;
+      case 'inflationRisk':
+        return <TrendingUp className="w-4 h-4" />;
+      default:
+        return <Zap className="w-4 h-4" />;
     }
   };
 
@@ -204,7 +244,9 @@ export default function NotificationBar({ className }: NotificationBarProps) {
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-orange-600" />
                   <span className="font-semibold text-orange-900">
-                    {criticalAlerts.length > 0 ? 'Kritik Uyarılar' : 'Finansal Uyarılar'}
+                    {criticalAlerts.length > 0
+                      ? 'Kritik Uyarılar'
+                      : 'Finansal Uyarılar'}
                   </span>
                 </div>
                 <Badge variant="destructive" className="ml-2">
@@ -224,7 +266,7 @@ export default function NotificationBar({ className }: NotificationBarProps) {
                 )}
               </div>
             </div>
-            
+
             {!isExpanded && (
               <div className="mt-2 text-sm text-orange-800">
                 {criticalAlerts.length > 0 ? (
@@ -245,14 +287,20 @@ export default function NotificationBar({ className }: NotificationBarProps) {
           <CardContent className="pt-0">
             <div className="space-y-3">
               {/* Kritik uyarılar */}
-              {criticalAlerts.map((alert) => (
-                <Alert key={alert.id} variant="destructive" className="border-red-200 bg-red-50">
+              {criticalAlerts.map(alert => (
+                <Alert
+                  key={alert.id}
+                  variant="destructive"
+                  className="border-red-200 bg-red-50"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 flex-1">
                       {getAlertTypeIcon(alert.type)}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-red-900">{alert.title}</span>
+                          <span className="font-semibold text-red-900">
+                            {alert.title}
+                          </span>
                           <Badge variant="destructive" className="text-xs">
                             Kritik
                           </Badge>
@@ -265,7 +313,8 @@ export default function NotificationBar({ className }: NotificationBarProps) {
                         </AlertDescription>
                         {alert.recommendedAction && (
                           <div className="mt-2 p-2 bg-red-100 rounded text-sm text-red-700">
-                            <strong>Önerilen Aksiyon:</strong> {alert.recommendedAction}
+                            <strong>Önerilen Aksiyon:</strong>{' '}
+                            {alert.recommendedAction}
                           </div>
                         )}
                         <div className="flex items-center gap-4 mt-2 text-xs text-red-600">
@@ -291,11 +340,17 @@ export default function NotificationBar({ className }: NotificationBarProps) {
               ))}
 
               {/* Diğer uyarılar */}
-              {otherAlerts.map((alert) => (
-                <Alert 
-                  key={alert.id} 
-                  variant={alert.severity === 'high' ? 'destructive' : 'default'}
-                  className={alert.severity === 'high' ? 'border-orange-200 bg-orange-50' : ''}
+              {otherAlerts.map(alert => (
+                <Alert
+                  key={alert.id}
+                  variant={
+                    alert.severity === 'high' ? 'destructive' : 'default'
+                  }
+                  className={
+                    alert.severity === 'high'
+                      ? 'border-orange-200 bg-orange-50'
+                      : ''
+                  }
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 flex-1">
@@ -303,20 +358,25 @@ export default function NotificationBar({ className }: NotificationBarProps) {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">{alert.title}</span>
-                          <Badge variant={getSeverityColor(alert.severity)} className="text-xs">
-                            {alert.severity === 'high' ? 'Yüksek' : 
-                             alert.severity === 'medium' ? 'Orta' : 'Düşük'}
+                          <Badge
+                            variant={getSeverityColor(alert.severity)}
+                            className="text-xs"
+                          >
+                            {alert.severity === 'high'
+                              ? 'Yüksek'
+                              : alert.severity === 'medium'
+                                ? 'Orta'
+                                : 'Düşük'}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             %{alert.probability} olasılık
                           </Badge>
                         </div>
-                        <AlertDescription>
-                          {alert.message}
-                        </AlertDescription>
+                        <AlertDescription>{alert.message}</AlertDescription>
                         {alert.recommendedAction && (
                           <div className="mt-2 p-2 bg-gray-100 rounded text-sm text-gray-700">
-                            <strong>Önerilen Aksiyon:</strong> {alert.recommendedAction}
+                            <strong>Önerilen Aksiyon:</strong>{' '}
+                            {alert.recommendedAction}
                           </div>
                         )}
                         <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
@@ -346,8 +406,7 @@ export default function NotificationBar({ className }: NotificationBarProps) {
             <div className="mt-4 pt-3 border-t border-gray-200">
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>
-                  {allAlerts.length} uyarı • 
-                  {criticalAlerts.length} kritik • 
+                  {allAlerts.length} uyarı •{criticalAlerts.length} kritik •
                   {otherAlerts.filter(a => a.severity === 'high').length} yüksek
                 </span>
                 <span className="text-xs">

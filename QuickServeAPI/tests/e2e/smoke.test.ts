@@ -2,7 +2,8 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { apiRequest } from '../../client/src/lib/queryClient';
 
 // E2E tests require a running backend server
-const BACKEND_AVAILABLE = !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
+const BACKEND_AVAILABLE =
+  !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
 
 describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
   const baseUrl = process.env.TEST_BASE_URL || 'http://localhost:5000';
@@ -16,7 +17,9 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
 
   beforeAll(async () => {
     if (!BACKEND_AVAILABLE) {
-      console.warn('Skipping E2E tests - Backend server not available. Set TEST_BASE_URL or E2E_TEST_ENABLED to run E2E tests.');
+      console.warn(
+        'Skipping E2E tests - Backend server not available. Set TEST_BASE_URL or E2E_TEST_ENABLED to run E2E tests.'
+      );
       return;
     }
     // Clean up any existing test data
@@ -39,7 +42,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
   describe('Health Check', () => {
     it('should respond to health check endpoint', async () => {
       const response = await apiRequest('GET', '/api/health');
-      
+
       expect(response.status).toBe(200);
       const data = await response.json();
       expect(data.status).toBe('ok');
@@ -68,7 +71,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
     beforeAll(async () => {
       // Register and login test user
       await apiRequest('POST', '/api/auth/register', testUser);
-      
+
       const loginResponse = await apiRequest('POST', '/api/auth/login', {
         email: testUser.email,
         password: testUser.password,
@@ -83,7 +86,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
     it('should fetch accounts list', async () => {
       const response = await apiRequest('GET', '/api/accounts', undefined, {
         headers: {
-          'Cookie': authCookie,
+          Cookie: authCookie,
         },
       });
 
@@ -103,7 +106,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
 
       const response = await apiRequest('POST', '/api/accounts', accountData, {
         headers: {
-          'Cookie': authCookie,
+          Cookie: authCookie,
         },
       });
 
@@ -116,7 +119,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
     it('should fetch transactions', async () => {
       const response = await apiRequest('GET', '/api/transactions', undefined, {
         headers: {
-          'Cookie': authCookie,
+          Cookie: authCookie,
         },
       });
 
@@ -130,7 +133,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
     it('should access budget lines endpoint', async () => {
       const response = await apiRequest('GET', '/api/budget-lines', undefined, {
         headers: {
-          'Cookie': authCookie,
+          Cookie: authCookie,
         },
       });
 
@@ -148,11 +151,16 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
         month: new Date('2024-01-01').toISOString(),
       };
 
-      const response = await apiRequest('POST', '/api/budget-lines', budgetData, {
-        headers: {
-          'Cookie': authCookie,
-        },
-      });
+      const response = await apiRequest(
+        'POST',
+        '/api/budget-lines',
+        budgetData,
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       expect(response.status).toBe(201);
       const data = await response.json();
@@ -163,33 +171,48 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
 
   describe('Export Functionality', () => {
     it('should export accounts to CSV', async () => {
-      const response = await apiRequest('GET', '/api/export/accounts/csv', undefined, {
-        headers: {
-          'Cookie': authCookie,
-        },
-      });
+      const response = await apiRequest(
+        'GET',
+        '/api/export/accounts/csv',
+        undefined,
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       expect(response.status).toBe(200);
       expect(response.headers.get('content-type')).toContain('text/csv');
     });
 
     it('should export transactions to CSV', async () => {
-      const response = await apiRequest('GET', '/api/export/transactions/csv', undefined, {
-        headers: {
-          'Cookie': authCookie,
-        },
-      });
+      const response = await apiRequest(
+        'GET',
+        '/api/export/transactions/csv',
+        undefined,
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       expect(response.status).toBe(200);
       expect(response.headers.get('content-type')).toContain('text/csv');
     });
 
     it('should get export periods', async () => {
-      const response = await apiRequest('GET', '/api/export/periods', undefined, {
-        headers: {
-          'Cookie': authCookie,
-        },
-      });
+      const response = await apiRequest(
+        'GET',
+        '/api/export/periods',
+        undefined,
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -201,18 +224,23 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
 
   describe('AI Services', () => {
     it('should access AI generate endpoint', async () => {
-      const response = await apiRequest('POST', '/api/ai/generate', {
-        query: 'Test query',
-        persona: 'default',
-      }, {
-        headers: {
-          'Cookie': authCookie,
+      const response = await apiRequest(
+        'POST',
+        '/api/ai/generate',
+        {
+          query: 'Test query',
+          persona: 'default',
         },
-      });
+        {
+          headers: {
+            Cookie: authCookie,
+          },
+        }
+      );
 
       // Should not return 500 error (service should be available)
       expect(response.status).not.toBe(500);
-      
+
       if (response.status === 200) {
         const data = await response.json();
         expect(data.response).toBeDefined();
@@ -224,7 +252,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
     it('should load dashboard data', async () => {
       const response = await apiRequest('GET', '/api/dashboard', undefined, {
         headers: {
-          'Cookie': authCookie,
+          Cookie: authCookie,
         },
       });
 
@@ -257,9 +285,9 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
   describe('Performance', () => {
     it('should respond to health check within reasonable time', async () => {
       const startTime = Date.now();
-      
+
       const response = await apiRequest('GET', '/api/health');
-      
+
       const endTime = Date.now();
       const responseTime = endTime - startTime;
 
@@ -280,4 +308,3 @@ describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
     });
   });
 });
-

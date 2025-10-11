@@ -1,15 +1,39 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Edit, Save, X, TrendingUp, TrendingDown, ArrowUpDown, Receipt } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  CalendarIcon,
+  Edit,
+  Save,
+  X,
+  TrendingUp,
+  TrendingDown,
+  ArrowUpDown,
+  Receipt,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { logger } from '@/lib/logger';
@@ -47,13 +71,13 @@ interface EditTransactionDialogProps {
   isLoading: boolean;
 }
 
-export default function EditTransactionDialog({ 
-  open, 
-  onOpenChange, 
-  onUpdateTransaction, 
-  transaction, 
+export default function EditTransactionDialog({
+  open,
+  onOpenChange,
+  onUpdateTransaction,
+  transaction,
   accounts,
-  isLoading 
+  isLoading,
 }: EditTransactionDialogProps) {
   const [formData, setFormData] = useState({
     accountId: '',
@@ -65,7 +89,7 @@ export default function EditTransactionDialog({
     reference: '',
     status: 'completed' as const,
     tags: '',
-    notes: ''
+    notes: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -84,7 +108,7 @@ export default function EditTransactionDialog({
         reference: transaction.reference || '',
         status: transaction.status || 'completed',
         tags: transaction.tags?.join(', ') || '',
-        notes: transaction.notes || ''
+        notes: transaction.notes || '',
       });
       setErrors({});
     }
@@ -140,8 +164,13 @@ export default function EditTransactionDialog({
         date: formData.date.toISOString(),
         reference: formData.reference.trim() || undefined,
         status: formData.status,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : undefined,
-        notes: formData.notes.trim() || undefined
+        tags: formData.tags
+          ? formData.tags
+              .split(',')
+              .map(tag => tag.trim())
+              .filter(Boolean)
+          : undefined,
+        notes: formData.notes.trim() || undefined,
       };
 
       await onUpdateTransaction(transaction.id, updateData);
@@ -225,7 +254,7 @@ export default function EditTransactionDialog({
     'Sağlık',
     'Diğer Gider',
     'Transfer',
-    'Yatırım'
+    'Yatırım',
   ];
 
   return (
@@ -246,31 +275,45 @@ export default function EditTransactionDialog({
                 {getTransactionTypeIcon(formData.type)}
                 Temel Bilgiler
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="accountId">Hesap *</Label>
-                  <Select value={formData.accountId} onValueChange={(value) => handleInputChange('accountId', value)}>
-                    <SelectTrigger className={errors.accountId ? 'border-red-500' : ''}>
+                  <Select
+                    value={formData.accountId}
+                    onValueChange={value =>
+                      handleInputChange('accountId', value)
+                    }
+                  >
+                    <SelectTrigger
+                      className={errors.accountId ? 'border-red-500' : ''}
+                    >
                       <SelectValue placeholder="Hesap seçiniz" />
                     </SelectTrigger>
                     <SelectContent>
-                      {accounts.map((account) => (
+                      {accounts.map(account => (
                         <SelectItem key={account.id} value={account.id}>
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{account.name}</span>
-                            <span className="text-sm text-muted-foreground">({account.bankName})</span>
+                            <span className="text-sm text-muted-foreground">
+                              ({account.bankName})
+                            </span>
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.accountId && <p className="text-sm text-red-500">{errors.accountId}</p>}
+                  {errors.accountId && (
+                    <p className="text-sm text-red-500">{errors.accountId}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="type">İşlem Türü *</Label>
-                  <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
+                  <Select
+                    value={formData.type}
+                    onValueChange={value => handleInputChange('type', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -304,28 +347,39 @@ export default function EditTransactionDialog({
                     type="number"
                     step="0.01"
                     value={formData.amount}
-                    onChange={(e) => handleInputChange('amount', e.target.value)}
+                    onChange={e => handleInputChange('amount', e.target.value)}
                     placeholder="0.00"
                     className={errors.amount ? 'border-red-500' : ''}
                   />
-                  {errors.amount && <p className="text-sm text-red-500">{errors.amount}</p>}
+                  {errors.amount && (
+                    <p className="text-sm text-red-500">{errors.amount}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="category">Kategori *</Label>
-                  <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                    <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
+                  <Select
+                    value={formData.category}
+                    onValueChange={value =>
+                      handleInputChange('category', value)
+                    }
+                  >
+                    <SelectTrigger
+                      className={errors.category ? 'border-red-500' : ''}
+                    >
                       <SelectValue placeholder="Kategori seçiniz" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((category) => (
+                      {categories.map(category => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
+                  {errors.category && (
+                    <p className="text-sm text-red-500">{errors.category}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -344,7 +398,7 @@ export default function EditTransactionDialog({
                       <Calendar
                         mode="single"
                         selected={formData.date}
-                        onSelect={(date) => {
+                        onSelect={date => {
                           if (date) {
                             handleInputChange('date', date);
                             setCalendarOpen(false);
@@ -358,7 +412,10 @@ export default function EditTransactionDialog({
 
                 <div className="space-y-2">
                   <Label htmlFor="status">Durum</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={value => handleInputChange('status', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -391,11 +448,15 @@ export default function EditTransactionDialog({
                 <Input
                   id="description"
                   value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={e =>
+                    handleInputChange('description', e.target.value)
+                  }
                   placeholder="İşlem açıklaması..."
                   className={errors.description ? 'border-red-500' : ''}
                 />
-                {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
+                {errors.description && (
+                  <p className="text-sm text-red-500">{errors.description}</p>
+                )}
               </div>
 
               <div className="mt-4 space-y-2">
@@ -403,7 +464,7 @@ export default function EditTransactionDialog({
                 <Input
                   id="reference"
                   value={formData.reference}
-                  onChange={(e) => handleInputChange('reference', e.target.value)}
+                  onChange={e => handleInputChange('reference', e.target.value)}
                   placeholder="Örn: INV-2024-001"
                 />
               </div>
@@ -413,10 +474,12 @@ export default function EditTransactionDialog({
                 <Input
                   id="tags"
                   value={formData.tags}
-                  onChange={(e) => handleInputChange('tags', e.target.value)}
+                  onChange={e => handleInputChange('tags', e.target.value)}
                   placeholder="Örn: acil, önemli, takip (virgülle ayırın)"
                 />
-                <p className="text-xs text-muted-foreground">Etiketleri virgülle ayırarak giriniz</p>
+                <p className="text-xs text-muted-foreground">
+                  Etiketleri virgülle ayırarak giriniz
+                </p>
               </div>
 
               <div className="mt-4 space-y-2">
@@ -424,7 +487,7 @@ export default function EditTransactionDialog({
                 <Textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  onChange={e => handleInputChange('notes', e.target.value)}
                   placeholder="İşlem hakkında ek notlar..."
                   rows={3}
                 />
@@ -435,7 +498,9 @@ export default function EditTransactionDialog({
           {/* Error Message */}
           {errors.submit && (
             <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
-              <p className="text-red-700 dark:text-red-300 text-sm">{errors.submit}</p>
+              <p className="text-red-700 dark:text-red-300 text-sm">
+                {errors.submit}
+              </p>
             </div>
           )}
 

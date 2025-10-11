@@ -15,20 +15,26 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Download, 
-  FileText, 
-  FileSpreadsheet, 
+import {
+  Download,
+  FileText,
+  FileSpreadsheet,
   Globe,
   CheckCircle,
   Loader2,
   AlertCircle,
   Clock,
   TrendingDown,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
@@ -95,11 +101,11 @@ const getDataTypeDescription = (type: string): string => {
   }
 };
 
-export function ExportDialog({ 
-  trigger, 
-  dataType, 
-  title, 
-  description 
+export function ExportDialog({
+  trigger,
+  dataType,
+  title,
+  description,
 }: ExportDialogProps) {
   const [open, setOpen] = useState(false);
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
@@ -109,7 +115,9 @@ export function ExportDialog({
     includeSummary: true,
   });
   const [exporting, setExporting] = useState(false);
-  const [exportStatus, setExportStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [exportStatus, setExportStatus] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleExport = async () => {
@@ -136,33 +144,34 @@ export function ExportDialog({
       }
 
       const blob = await response.blob();
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      
+
       // Generate filename
       const timestamp = new Date().toISOString().split('T')[0];
       const filename = `${dataType}_export_${timestamp}.${exportOptions.format}`;
       a.download = filename;
-      
+
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
       setExportStatus('success');
-      
+
       // Auto close after success
       setTimeout(() => {
         setOpen(false);
         setExportStatus('idle');
       }, 2000);
-
     } catch (error) {
       setExportStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Bilinmeyen hata');
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Bilinmeyen hata'
+      );
       logger.error('Export error:', error);
     } finally {
       setExporting(false);
@@ -183,16 +192,14 @@ export function ExportDialog({
           </Button>
         )}
       </DialogTrigger>
-      
+
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {getDataTypeIcon(dataType)}
             {title}
           </DialogTitle>
-          <DialogDescription>
-            {description}
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -220,13 +227,15 @@ export function ExportDialog({
           {/* Export Options */}
           <div className="space-y-4">
             <h4 className="text-sm font-medium">Dışa Aktarım Seçenekleri</h4>
-            
+
             {/* Format Selection */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Dosya Formatı</label>
-              <Select 
-                value={exportOptions.format} 
-                onValueChange={(value: 'csv' | 'pdf') => handleOptionChange('format', value)}
+              <Select
+                value={exportOptions.format}
+                onValueChange={(value: 'csv' | 'pdf') =>
+                  handleOptionChange('format', value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -251,9 +260,11 @@ export function ExportDialog({
             {/* Language Selection */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Dil</label>
-              <Select 
-                value={exportOptions.language} 
-                onValueChange={(value: 'tr' | 'en') => handleOptionChange('language', value)}
+              <Select
+                value={exportOptions.language}
+                onValueChange={(value: 'tr' | 'en') =>
+                  handleOptionChange('language', value)
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -286,7 +297,9 @@ export function ExportDialog({
                     <input
                       type="checkbox"
                       checked={exportOptions.includeSummary}
-                      onChange={(e) => handleOptionChange('includeSummary', e.target.checked)}
+                      onChange={e =>
+                        handleOptionChange('includeSummary', e.target.checked)
+                      }
                       className="rounded"
                     />
                   </div>
@@ -296,7 +309,9 @@ export function ExportDialog({
                       <input
                         type="checkbox"
                         checked={exportOptions.includeCharts}
-                        onChange={(e) => handleOptionChange('includeCharts', e.target.checked)}
+                        onChange={e =>
+                          handleOptionChange('includeCharts', e.target.checked)
+                        }
                         className="rounded"
                       />
                     </div>
@@ -337,8 +352,8 @@ export function ExportDialog({
             <Button variant="outline" onClick={() => setOpen(false)}>
               İptal
             </Button>
-            <Button 
-              onClick={handleExport} 
+            <Button
+              onClick={handleExport}
               disabled={exporting}
               className="gap-2"
             >

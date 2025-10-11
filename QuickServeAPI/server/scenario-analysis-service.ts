@@ -50,12 +50,14 @@ export class ScenarioAnalysisService {
 
     for (let month = 1; month <= monthsToProject; month++) {
       // Apply growth to income and inflation to expenses
-      const adjustedIncome = monthlyIncome * Math.pow(1 + monthlyGrowthRate, month - 1);
-      const adjustedExpenses = monthlyExpenses * Math.pow(1 + monthlyInflationRate, month - 1);
-      
+      const adjustedIncome =
+        monthlyIncome * Math.pow(1 + monthlyGrowthRate, month - 1);
+      const adjustedExpenses =
+        monthlyExpenses * Math.pow(1 + monthlyInflationRate, month - 1);
+
       const monthlyCashFlow = adjustedIncome - adjustedExpenses;
       projectedBalance += monthlyCashFlow;
-      
+
       totalIncome += adjustedIncome;
       totalExpenses += adjustedExpenses;
     }
@@ -70,7 +72,9 @@ export class ScenarioAnalysisService {
       type: 'scenario',
       scenario: scenarioName.toLowerCase().replace(/\s+/g, '_'),
       forecastDate: new Date(),
-      targetDate: new Date(Date.now() + parameters.monthsToProject * 30 * 24 * 60 * 60 * 1000),
+      targetDate: new Date(
+        Date.now() + parameters.monthsToProject * 30 * 24 * 60 * 60 * 1000
+      ),
       predictedValue: projectedBalance.toString(),
       confidenceInterval: '85', // Scenario analysis confidence
       lowerBound: (projectedBalance * 0.85).toString(),
@@ -103,14 +107,19 @@ export class ScenarioAnalysisService {
 
     for (const scenario of scenarios) {
       const mergedParameters = { ...baseParameters, ...scenario.parameters };
-      const result = await this.analyzeScenario(mergedParameters, scenario.name);
+      const result = await this.analyzeScenario(
+        mergedParameters,
+        scenario.name
+      );
       results.push(result);
     }
 
     return results;
   }
 
-  async getOptimisticScenario(parameters: ScenarioParameters): Promise<ScenarioResult> {
+  async getOptimisticScenario(
+    parameters: ScenarioParameters
+  ): Promise<ScenarioResult> {
     return this.analyzeScenario(
       {
         ...parameters,
@@ -121,7 +130,9 @@ export class ScenarioAnalysisService {
     );
   }
 
-  async getPessimisticScenario(parameters: ScenarioParameters): Promise<ScenarioResult> {
+  async getPessimisticScenario(
+    parameters: ScenarioParameters
+  ): Promise<ScenarioResult> {
     return this.analyzeScenario(
       {
         ...parameters,
@@ -132,7 +143,9 @@ export class ScenarioAnalysisService {
     );
   }
 
-  async getRealisticScenario(parameters: ScenarioParameters): Promise<ScenarioResult> {
+  async getRealisticScenario(
+    parameters: ScenarioParameters
+  ): Promise<ScenarioResult> {
     return this.analyzeScenario(parameters, 'Realistic Scenario');
   }
 
@@ -170,16 +183,19 @@ export class ScenarioAnalysisService {
     expectedValue: number;
   } {
     const balances = scenarios.map(s => s.projectedBalance);
-    const mean = balances.reduce((sum, balance) => sum + balance, 0) / balances.length;
-    
+    const mean =
+      balances.reduce((sum, balance) => sum + balance, 0) / balances.length;
+
     // Calculate volatility (standard deviation)
-    const variance = balances.reduce((sum, balance) => sum + Math.pow(balance - mean, 2), 0) / balances.length;
+    const variance =
+      balances.reduce((sum, balance) => sum + Math.pow(balance - mean, 2), 0) /
+      balances.length;
     const volatility = Math.sqrt(variance);
-    
+
     // Calculate max drawdown
     let maxDrawdown = 0;
     let peak = balances[0];
-    
+
     for (const balance of balances) {
       if (balance > peak) {
         peak = balance;
@@ -189,11 +205,11 @@ export class ScenarioAnalysisService {
         maxDrawdown = drawdown;
       }
     }
-    
+
     // Calculate probability of loss
     const lossCount = balances.filter(balance => balance < 0).length;
     const probabilityOfLoss = lossCount / balances.length;
-    
+
     return {
       volatility,
       maxDrawdown,
@@ -206,24 +222,34 @@ export class ScenarioAnalysisService {
   generateRecommendations(scenarios: ScenarioResult[]): string[] {
     const recommendations: string[] = [];
     const riskMetrics = this.calculateRiskMetrics(scenarios);
-    
+
     if (riskMetrics.probabilityOfLoss > 0.3) {
-      recommendations.push('Yüksek kayıp riski var. Daha konservatif bir yaklaşım düşünün.');
+      recommendations.push(
+        'Yüksek kayıp riski var. Daha konservatif bir yaklaşım düşünün.'
+      );
     }
-    
+
     if (riskMetrics.volatility > 10000) {
-      recommendations.push('Yüksek volatilite var. Portföyünüzü çeşitlendirin.');
+      recommendations.push(
+        'Yüksek volatilite var. Portföyünüzü çeşitlendirin.'
+      );
     }
-    
+
     if (riskMetrics.maxDrawdown > 0.2) {
-      recommendations.push('Maksimum düşüş %20\'nin üzerinde. Risk yönetimi stratejileri uygulayın.');
+      recommendations.push(
+        "Maksimum düşüş %20'nin üzerinde. Risk yönetimi stratejileri uygulayın."
+      );
     }
-    
-    const avgBalance = scenarios.reduce((sum, s) => sum + s.projectedBalance, 0) / scenarios.length;
+
+    const avgBalance =
+      scenarios.reduce((sum, s) => sum + s.projectedBalance, 0) /
+      scenarios.length;
     if (avgBalance < 0) {
-      recommendations.push('Tüm senaryolarda negatif bakiye var. Harcamalarınızı gözden geçirin.');
+      recommendations.push(
+        'Tüm senaryolarda negatif bakiye var. Harcamalarınızı gözden geçirin.'
+      );
     }
-    
+
     return recommendations;
   }
 }

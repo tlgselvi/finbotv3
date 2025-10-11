@@ -6,7 +6,12 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { TokenService } from '../../server/services/auth/token-service.js';
 import { db } from '../../server/db.js';
-import { users, userProfiles, refreshTokens, revokedTokens } from '../../shared/schema.js';
+import {
+  users,
+  userProfiles,
+  refreshTokens,
+  revokedTokens,
+} from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 import argon2 from 'argon2';
 
@@ -18,7 +23,6 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
   let testUserIds: string[] = [];
 
   beforeAll(async () => {
-
     // Set JWT secret for tests
     process.env.JWT_SECRET = 'test-jwt-secret-for-performance-tests';
 
@@ -42,7 +46,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         name: `Performance Test User ${i}`,
         role: 'USER',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       // Create test user profile
@@ -51,7 +55,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         role: 'USER',
         permissions: ['READ', 'WRITE'],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       testUserIds.push(userId);
@@ -82,7 +86,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         const metadata = {
           userId,
           ipAddress: `192.168.1.${i % 255}`,
-          userAgent: `Mozilla/5.0 (Test Browser ${i})`
+          userAgent: `Mozilla/5.0 (Test Browser ${i})`,
         };
 
         await tokenService.generateTokenPair(metadata);
@@ -92,7 +96,9 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
       const totalTime = endTime - startTime;
       const averageTime = totalTime / iterations;
 
-      console.info(`Generated ${iterations} token pairs in ${totalTime}ms (avg: ${averageTime}ms)`);
+      console.info(
+        `Generated ${iterations} token pairs in ${totalTime}ms (avg: ${averageTime}ms)`
+      );
 
       // Should complete within reasonable time (5 seconds for 100 tokens)
       expect(totalTime).toBeLessThan(5000);
@@ -104,15 +110,17 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
       const concurrentRequests = 20;
       const startTime = Date.now();
 
-      const promises = testUserIds.slice(0, concurrentRequests).map(async (userId, index) => {
-        const metadata = {
-          userId,
-          ipAddress: `192.168.1.${index + 1}`,
-          userAgent: `Mozilla/5.0 (Concurrent Test ${index})`
-        };
+      const promises = testUserIds
+        .slice(0, concurrentRequests)
+        .map(async (userId, index) => {
+          const metadata = {
+            userId,
+            ipAddress: `192.168.1.${index + 1}`,
+            userAgent: `Mozilla/5.0 (Concurrent Test ${index})`,
+          };
 
-        return tokenService.generateTokenPair(metadata);
-      });
+          return tokenService.generateTokenPair(metadata);
+        });
 
       const results = await Promise.all(promises);
       const endTime = Date.now();
@@ -139,7 +147,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         const metadata = {
           userId,
           ipAddress: `192.168.1.${i + 1}`,
-          userAgent: `Mozilla/5.0 (Refresh Test ${i})`
+          userAgent: `Mozilla/5.0 (Refresh Test ${i})`,
         };
 
         const tokenPair = await tokenService.generateTokenPair(metadata);
@@ -155,7 +163,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         const refreshToken = refreshTokens[i % refreshTokens.length];
         const metadata = {
           ipAddress: `192.168.1.${(i % 255) + 1}`,
-          userAgent: `Mozilla/5.0 (Refresh Test ${i})`
+          userAgent: `Mozilla/5.0 (Refresh Test ${i})`,
         };
 
         await tokenService.refreshAccessToken(refreshToken, metadata);
@@ -165,7 +173,9 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
       const totalTime = endTime - startTime;
       const averageTime = totalTime / iterations;
 
-      console.info(`Refreshed ${iterations} tokens in ${totalTime}ms (avg: ${averageTime}ms)`);
+      console.info(
+        `Refreshed ${iterations} tokens in ${totalTime}ms (avg: ${averageTime}ms)`
+      );
 
       // Should complete within reasonable time (3 seconds for 50 refreshes)
       expect(totalTime).toBeLessThan(3000);
@@ -177,14 +187,16 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
       const concurrentRequests = 15;
       const startTime = Date.now();
 
-      const promises = refreshTokens.slice(0, concurrentRequests).map(async (refreshToken, index) => {
-        const metadata = {
-          ipAddress: `192.168.1.${index + 1}`,
-          userAgent: `Mozilla/5.0 (Concurrent Refresh ${index})`
-        };
+      const promises = refreshTokens
+        .slice(0, concurrentRequests)
+        .map(async (refreshToken, index) => {
+          const metadata = {
+            ipAddress: `192.168.1.${index + 1}`,
+            userAgent: `Mozilla/5.0 (Concurrent Refresh ${index})`,
+          };
 
-        return tokenService.refreshAccessToken(refreshToken, metadata);
-      });
+          return tokenService.refreshAccessToken(refreshToken, metadata);
+        });
 
       const results = await Promise.all(promises);
       const endTime = Date.now();
@@ -211,7 +223,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         const metadata = {
           userId,
           ipAddress: `192.168.1.${i + 1}`,
-          userAgent: `Mozilla/5.0 (Revoke Test ${i})`
+          userAgent: `Mozilla/5.0 (Revoke Test ${i})`,
         };
 
         const tokenPair = await tokenService.generateTokenPair(metadata);
@@ -224,14 +236,20 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
 
       for (let i = 0; i < tokensToRevoke.length; i++) {
         const userId = testUserIds[i % testUserIds.length];
-        await tokenService.revokeRefreshToken(tokensToRevoke[i], userId, 'performance_test');
+        await tokenService.revokeRefreshToken(
+          tokensToRevoke[i],
+          userId,
+          'performance_test'
+        );
       }
 
       const endTime = Date.now();
       const totalTime = endTime - startTime;
       const averageTime = totalTime / tokensToRevoke.length;
 
-      console.info(`Revoked ${tokensToRevoke.length} tokens in ${totalTime}ms (avg: ${averageTime}ms)`);
+      console.info(
+        `Revoked ${tokensToRevoke.length} tokens in ${totalTime}ms (avg: ${averageTime}ms)`
+      );
 
       // Should complete within reasonable time (2 seconds for 20 revocations)
       expect(totalTime).toBeLessThan(2000);
@@ -267,7 +285,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         const metadata = {
           userId,
           ipAddress: `192.168.1.${i + 1}`,
-          userAgent: `Mozilla/5.0 (Verify Test ${i})`
+          userAgent: `Mozilla/5.0 (Verify Test ${i})`,
         };
 
         const tokenPair = await tokenService.generateTokenPair(metadata);
@@ -288,7 +306,9 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
       const totalTime = endTime - startTime;
       const averageTime = totalTime / iterations;
 
-      console.info(`Verified ${iterations} tokens in ${totalTime}ms (avg: ${averageTime}ms)`);
+      console.info(
+        `Verified ${iterations} tokens in ${totalTime}ms (avg: ${averageTime}ms)`
+      );
 
       // Should complete within reasonable time (1 second for 200 verifications)
       expect(totalTime).toBeLessThan(1000);
@@ -300,9 +320,11 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
       const concurrentRequests = 50;
       const startTime = Date.now();
 
-      const promises = accessTokens.slice(0, concurrentRequests).map(async (token) => {
-        return tokenService.verifyAccessToken(token);
-      });
+      const promises = accessTokens
+        .slice(0, concurrentRequests)
+        .map(async token => {
+          return tokenService.verifyAccessToken(token);
+        });
 
       const results = await Promise.all(promises);
       const endTime = Date.now();
@@ -328,7 +350,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         const metadata = {
           userId,
           ipAddress: `192.168.1.${i + 1}`,
-          userAgent: `Mozilla/5.0 (Cleanup Test ${i})`
+          userAgent: `Mozilla/5.0 (Cleanup Test ${i})`,
         };
 
         const tokenPair = await tokenService.generateTokenPair(metadata);
@@ -337,7 +359,8 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
 
       // Manually expire all tokens
       for (const token of expiredTokens) {
-        await db.update(refreshTokens)
+        await db
+          .update(refreshTokens)
           .set({ expiresAt: new Date(Date.now() - 1000) })
           .where(eq(refreshTokens.token, token));
       }
@@ -346,7 +369,9 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
       const result = await tokenService.cleanupExpiredTokens();
       const endTime = Date.now();
 
-      console.info(`Cleaned up ${result.deleted} expired tokens in ${endTime - startTime}ms`);
+      console.info(
+        `Cleaned up ${result.deleted} expired tokens in ${endTime - startTime}ms`
+      );
 
       // Should complete within reasonable time (2 seconds for cleanup)
       expect(endTime - startTime).toBeLessThan(2000);
@@ -365,18 +390,24 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         const metadata = {
           userId,
           ipAddress: `192.168.1.${i % 255}`,
-          userAgent: `Mozilla/5.0 (Memory Test ${i})`
+          userAgent: `Mozilla/5.0 (Memory Test ${i})`,
         };
 
         const tokenPair = await tokenService.generateTokenPair(metadata);
         const decoded = tokenService.verifyAccessToken(tokenPair.accessToken);
-        await tokenService.revokeRefreshToken(tokenPair.refreshToken, userId, 'memory_test');
+        await tokenService.revokeRefreshToken(
+          tokenPair.refreshToken,
+          userId,
+          'memory_test'
+        );
       }
 
       const finalMemory = process.memoryUsage();
       const memoryIncrease = finalMemory.heapUsed - initialMemory.heapUsed;
 
-      console.info(`Memory increase after ${iterations} operations: ${memoryIncrease} bytes`);
+      console.info(
+        `Memory increase after ${iterations} operations: ${memoryIncrease} bytes`
+      );
 
       // Memory increase should be reasonable (less than 50MB)
       expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024);
@@ -396,7 +427,7 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
         const metadata = {
           userId,
           ipAddress: `192.168.1.${i % 255}`,
-          userAgent: `Mozilla/5.0 (Scale Test ${i})`
+          userAgent: `Mozilla/5.0 (Scale Test ${i})`,
         };
 
         const tokenPair = await tokenService.generateTokenPair(metadata);
@@ -417,7 +448,11 @@ describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
       // Clean up
       for (const token of tokens) {
         const userId = testUserIds[0]; // Use first user for cleanup
-        await tokenService.revokeRefreshToken(token.refreshToken, userId, 'cleanup');
+        await tokenService.revokeRefreshToken(
+          token.refreshToken,
+          userId,
+          'cleanup'
+        );
       }
     });
   });

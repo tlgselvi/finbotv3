@@ -1,11 +1,23 @@
 import { useState } from 'react';
 import { useFormatCurrency } from '@/lib/utils/formatCurrency';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
@@ -19,12 +31,21 @@ import {
   Info,
   Calendar,
   Target,
-  Zap
+  Zap,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { formatCurrency } from '@/lib/utils/formatCurrency';
 import { toast } from '@/hooks/use-toast';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 interface SimulationParameters {
   fxDelta: number;
@@ -73,7 +94,7 @@ export default function SimulationPanel() {
     fxDelta: 0,
     rateDelta: 0,
     inflationDelta: 0,
-    horizonMonths: 6
+    horizonMonths: 6,
   });
 
   const [lastResult, setLastResult] = useState<SimulationResult | null>(null);
@@ -88,15 +109,15 @@ export default function SimulationPanel() {
     onSuccess: (data: SimulationResult) => {
       setLastResult(data);
       toast({
-        title: "Simülasyon tamamlandı",
+        title: 'Simülasyon tamamlandı',
         description: data.summary.formattedSummary,
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Simülasyon hatası",
-        description: error.message || "Simülasyon çalıştırılırken hata oluştu",
-        variant: "destructive",
+        title: 'Simülasyon hatası',
+        description: error.message || 'Simülasyon çalıştırılırken hata oluştu',
+        variant: 'destructive',
       });
     },
   });
@@ -115,7 +136,7 @@ export default function SimulationPanel() {
   const updateParameter = (key: keyof SimulationParameters, value: any) => {
     setParameters(prev => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -133,13 +154,16 @@ export default function SimulationPanel() {
       netDeğer: proj.netWorth,
       formattedNakit: proj.formattedCash,
       formattedBorç: proj.formattedDebt,
-      formattedNetDeğer: proj.formattedNetWorth
+      formattedNetDeğer: proj.formattedNetWorth,
     }));
   };
 
   // Risk seviyesi belirleme
   const getRiskLevel = (params: SimulationParameters) => {
-    const totalImpact = Math.abs(params.fxDelta) + Math.abs(params.rateDelta) + Math.abs(params.inflationDelta);
+    const totalImpact =
+      Math.abs(params.fxDelta) +
+      Math.abs(params.rateDelta) +
+      Math.abs(params.inflationDelta);
     if (totalImpact > 20) return { level: 'Yüksek', color: 'destructive' };
     if (totalImpact > 10) return { level: 'Orta', color: 'default' };
     return { level: 'Düşük', color: 'secondary' };
@@ -170,7 +194,9 @@ export default function SimulationPanel() {
                   id="fxDelta"
                   type="number"
                   value={parameters.fxDelta}
-                  onChange={(e) => updateParameter('fxDelta', Number(e.target.value))}
+                  onChange={e =>
+                    updateParameter('fxDelta', Number(e.target.value))
+                  }
                   placeholder="0"
                   className="pr-8"
                 />
@@ -191,7 +217,9 @@ export default function SimulationPanel() {
                   id="rateDelta"
                   type="number"
                   value={parameters.rateDelta}
-                  onChange={(e) => updateParameter('rateDelta', Number(e.target.value))}
+                  onChange={e =>
+                    updateParameter('rateDelta', Number(e.target.value))
+                  }
                   placeholder="0"
                   className="pr-8"
                 />
@@ -212,7 +240,9 @@ export default function SimulationPanel() {
                   id="inflationDelta"
                   type="number"
                   value={parameters.inflationDelta}
-                  onChange={(e) => updateParameter('inflationDelta', Number(e.target.value))}
+                  onChange={e =>
+                    updateParameter('inflationDelta', Number(e.target.value))
+                  }
                   placeholder="0"
                   className="pr-8"
                 />
@@ -230,7 +260,9 @@ export default function SimulationPanel() {
               <Label htmlFor="horizonMonths">Simülasyon Süresi</Label>
               <Select
                 value={parameters.horizonMonths.toString()}
-                onValueChange={(value) => updateParameter('horizonMonths', Number(value) as 3 | 6 | 12)}
+                onValueChange={value =>
+                  updateParameter('horizonMonths', Number(value) as 3 | 6 | 12)
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Süre seçin" />
@@ -254,11 +286,15 @@ export default function SimulationPanel() {
                 Risk Seviyesi: {riskLevel.level}
               </Badge>
               <span className="text-sm text-muted-foreground">
-                Toplam etki: {Math.abs(parameters.fxDelta) + Math.abs(parameters.rateDelta) + Math.abs(parameters.inflationDelta)}%
+                Toplam etki:{' '}
+                {Math.abs(parameters.fxDelta) +
+                  Math.abs(parameters.rateDelta) +
+                  Math.abs(parameters.inflationDelta)}
+                %
               </span>
             </div>
-            
-            <Button 
+
+            <Button
               onClick={handleRunSimulation}
               disabled={runSimulationMutation.isPending}
               className="flex items-center gap-2"
@@ -268,7 +304,9 @@ export default function SimulationPanel() {
               ) : (
                 <Play className="w-4 h-4" />
               )}
-              {runSimulationMutation.isPending ? 'Çalıştırılıyor...' : 'Simülasyonu Çalıştır'}
+              {runSimulationMutation.isPending
+                ? 'Çalıştırılıyor...'
+                : 'Simülasyonu Çalıştır'}
             </Button>
           </div>
         </CardContent>
@@ -296,15 +334,21 @@ export default function SimulationPanel() {
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span>Nakit:</span>
-                      <span className="font-medium">{lastResult.currentState.formattedCash}</span>
+                      <span className="font-medium">
+                        {lastResult.currentState.formattedCash}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Borç:</span>
-                      <span className="font-medium">{lastResult.currentState.formattedDebt}</span>
+                      <span className="font-medium">
+                        {lastResult.currentState.formattedDebt}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Net Değer:</span>
-                      <span className="font-medium">{lastResult.currentState.formattedNetWorth}</span>
+                      <span className="font-medium">
+                        {lastResult.currentState.formattedNetWorth}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -315,19 +359,25 @@ export default function SimulationPanel() {
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span>Nakit:</span>
-                      <span className={`font-medium ${lastResult.summary.totalCashChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <span
+                        className={`font-medium ${lastResult.summary.totalCashChange >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                      >
                         {lastResult.summary.formattedCashChange}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Borç:</span>
-                      <span className={`font-medium ${lastResult.summary.totalDebtChange >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      <span
+                        className={`font-medium ${lastResult.summary.totalDebtChange >= 0 ? 'text-red-600' : 'text-green-600'}`}
+                      >
                         {lastResult.summary.formattedDebtChange}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Net Değer:</span>
-                      <span className={`font-medium ${lastResult.summary.totalNetWorthChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <span
+                        className={`font-medium ${lastResult.summary.totalNetWorthChange >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                      >
                         {lastResult.summary.formattedNetWorthChange}
                       </span>
                     </div>
@@ -341,7 +391,8 @@ export default function SimulationPanel() {
                     <Alert variant="destructive">
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
-                        {lastResult.summary.cashDeficitMonth}. ayda nakit açığı riski
+                        {lastResult.summary.cashDeficitMonth}. ayda nakit açığı
+                        riski
                       </AlertDescription>
                     </Alert>
                   ) : (
@@ -365,7 +416,8 @@ export default function SimulationPanel() {
                 Projeksiyon Grafiği
               </CardTitle>
               <CardDescription>
-                {parameters.horizonMonths} aylık nakit, borç ve net değer projeksiyonu
+                {parameters.horizonMonths} aylık nakit, borç ve net değer
+                projeksiyonu
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -375,31 +427,35 @@ export default function SimulationPanel() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value: number, name: string) => [
                         formatCurrency(value),
-                        name === 'nakit' ? 'Nakit' : name === 'borç' ? 'Borç' : 'Net Değer'
+                        name === 'nakit'
+                          ? 'Nakit'
+                          : name === 'borç'
+                            ? 'Borç'
+                            : 'Net Değer',
                       ]}
                     />
                     <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="nakit" 
-                      stroke="#10B981" 
+                    <Line
+                      type="monotone"
+                      dataKey="nakit"
+                      stroke="#10B981"
                       strokeWidth={2}
                       name="Nakit"
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="borç" 
-                      stroke="#EF4444" 
+                    <Line
+                      type="monotone"
+                      dataKey="borç"
+                      stroke="#EF4444"
                       strokeWidth={2}
                       name="Borç"
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="netDeğer" 
-                      stroke="#3B82F6" 
+                    <Line
+                      type="monotone"
+                      dataKey="netDeğer"
+                      stroke="#3B82F6"
                       strokeWidth={2}
                       name="Net Değer"
                     />
@@ -419,14 +475,15 @@ export default function SimulationPanel() {
               <Calendar className="w-5 h-5" />
               Simülasyon Geçmişi
             </CardTitle>
-            <CardDescription>
-              Son simülasyon çalıştırmalarınız
-            </CardDescription>
+            <CardDescription>Son simülasyon çalıştırmalarınız</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {history.slice(0, 5).map((run: any) => (
-                <div key={run.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={run.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="space-y-1">
                     <p className="text-sm font-medium">{run.summary}</p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">

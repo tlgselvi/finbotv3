@@ -1,6 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,7 +33,7 @@ interface AIChatProps {
   placeholder?: string;
 }
 
-export function AIChat ({
+export function AIChat({
   persona = 'default',
   title = 'AI Asistan',
   description = 'Finansal konularda size yardımcı olabilirim',
@@ -43,7 +49,9 @@ export function AIChat ({
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      const scrollElement = scrollAreaRef.current.querySelector(
+        '[data-radix-scroll-area-viewport]'
+      );
       if (scrollElement) {
         scrollElement.scrollTop = scrollElement.scrollHeight;
       }
@@ -117,7 +125,7 @@ export function AIChat ({
             }
 
             if (accountInfo !== `${account.bankName} ${account.accountName}:`) {
-              paymentInfo += `${accountInfo  } `;
+              paymentInfo += `${accountInfo} `;
             }
           });
 
@@ -141,7 +149,7 @@ export function AIChat ({
     },
     onSuccess: (data, query) => {
       const aiMessage: Message = {
-        id: `${Date.now().toString()  }_ai`,
+        id: `${Date.now().toString()}_ai`,
         type: 'ai',
         content: data.response,
         timestamp: new Date(),
@@ -154,7 +162,7 @@ export function AIChat ({
     },
     onError: (error: Error) => {
       const errorMessage: Message = {
-        id: `${Date.now().toString()  }_error`,
+        id: `${Date.now().toString()}_error`,
         type: 'ai',
         content: `Üzgünüm, bir hata oluştu: ${error.message}`,
         timestamp: new Date(),
@@ -178,7 +186,7 @@ export function AIChat ({
     }
 
     const userMessage: Message = {
-      id: `${Date.now().toString()  }_user`,
+      id: `${Date.now().toString()}_user`,
       type: 'user',
       content: input.trim(),
       timestamp: new Date(),
@@ -203,20 +211,29 @@ export function AIChat ({
     const personas = {
       personal: { label: 'Kişisel Finans', color: 'bg-blue-100 text-blue-800' },
       business: { label: 'İş Finansı', color: 'bg-green-100 text-green-800' },
-      admin: { label: 'Sistem Yöneticisi', color: 'bg-purple-100 text-purple-800' },
-      accountant: { label: 'Muhasebe Uzmanı', color: 'bg-orange-100 text-orange-800' },
+      admin: {
+        label: 'Sistem Yöneticisi',
+        color: 'bg-purple-100 text-purple-800',
+      },
+      accountant: {
+        label: 'Muhasebe Uzmanı',
+        color: 'bg-orange-100 text-orange-800',
+      },
       ceo: { label: 'CEO Danışmanı', color: 'bg-red-100 text-red-800' },
-      investor: { label: 'Yatırım Uzmanı', color: 'bg-yellow-100 text-yellow-800' },
-      default: { label: 'Finansal Asistan', color: 'bg-gray-100 text-gray-800' },
+      investor: {
+        label: 'Yatırım Uzmanı',
+        color: 'bg-yellow-100 text-yellow-800',
+      },
+      default: {
+        label: 'Finansal Asistan',
+        color: 'bg-gray-100 text-gray-800',
+      },
     };
 
-    const personaInfo = personas[persona as keyof typeof personas] || personas['default'];
+    const personaInfo =
+      personas[persona as keyof typeof personas] || personas['default'];
 
-    return (
-      <Badge className={personaInfo.color}>
-        {personaInfo.label}
-      </Badge>
-    );
+    return <Badge className={personaInfo.color}>{personaInfo.label}</Badge>;
   };
 
   return (
@@ -234,11 +251,7 @@ export function AIChat ({
             </CardDescription>
           </div>
           {messages.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setMessages([])}
-            >
+            <Button variant="outline" size="sm" onClick={() => setMessages([])}>
               Temizle
             </Button>
           )}
@@ -252,7 +265,9 @@ export function AIChat ({
             {messages.length === 0 ? (
               <div className="text-center py-12">
                 <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">AI Asistanınız Hazır</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  AI Asistanınız Hazır
+                </h3>
                 <p className="text-muted-foreground mb-4">
                   Finansal konularda sorularınızı sorabilirsiniz. Örneğin:
                 </p>
@@ -263,7 +278,7 @@ export function AIChat ({
                 </div>
               </div>
             ) : (
-              messages.map((message) => (
+              messages.map(message => (
                 <div
                   key={message.id}
                   className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -274,7 +289,9 @@ export function AIChat ({
                     </div>
                   )}
 
-                  <div className={`max-w-[80%] ${message.type === 'user' ? 'order-first' : ''}`}>
+                  <div
+                    className={`max-w-[80%] ${message.type === 'user' ? 'order-first' : ''}`}
+                  >
                     <div
                       className={`rounded-lg px-4 py-2 ${
                         message.type === 'user'
@@ -286,7 +303,9 @@ export function AIChat ({
                     </div>
 
                     <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                      <span>{message.timestamp.toLocaleTimeString('tr-TR')}</span>
+                      <span>
+                        {message.timestamp.toLocaleTimeString('tr-TR')}
+                      </span>
                       {message.type === 'ai' && message.model && (
                         <>
                           <span>•</span>
@@ -324,7 +343,9 @@ export function AIChat ({
                 <div className="bg-muted rounded-lg px-4 py-2">
                   <div className="flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm text-muted-foreground">Düşünüyor...</span>
+                    <span className="text-sm text-muted-foreground">
+                      Düşünüyor...
+                    </span>
                   </div>
                 </div>
               </div>
@@ -337,7 +358,7 @@ export function AIChat ({
           <div className="flex gap-2">
             <Textarea
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={placeholder}
               className="min-h-[40px] max-h-[80px] resize-none"

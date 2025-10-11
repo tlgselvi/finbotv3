@@ -20,11 +20,11 @@ export interface ApiResponse<T = any> {
 }
 
 // Success response helper
-export function sendSuccess<T> (
+export function sendSuccess<T>(
   res: Response,
   data: T,
   message?: string,
-  statusCode: number = 200,
+  statusCode: number = 200
 ): void {
   const response: ApiResponse<T> = {
     success: true,
@@ -38,11 +38,11 @@ export function sendSuccess<T> (
 }
 
 // Error response helper
-export function sendError (
+export function sendError(
   res: Response,
   error: string,
   statusCode: number = 500,
-  code?: string,
+  code?: string
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -56,10 +56,10 @@ export function sendError (
 }
 
 // Validation error response helper
-export function sendValidationError (
+export function sendValidationError(
   res: Response,
   errors: any[],
-  message: string = 'Validation failed',
+  message: string = 'Validation failed'
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -74,9 +74,9 @@ export function sendValidationError (
 }
 
 // Not found response helper
-export function sendNotFound (
+export function sendNotFound(
   res: Response,
-  resource: string = 'Resource',
+  resource: string = 'Resource'
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -90,9 +90,9 @@ export function sendNotFound (
 }
 
 // Unauthorized response helper
-export function sendUnauthorized (
+export function sendUnauthorized(
   res: Response,
-  message: string = 'Unauthorized access',
+  message: string = 'Unauthorized access'
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -106,9 +106,9 @@ export function sendUnauthorized (
 }
 
 // Forbidden response helper
-export function sendForbidden (
+export function sendForbidden(
   res: Response,
-  message: string = 'Access forbidden',
+  message: string = 'Access forbidden'
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -122,7 +122,7 @@ export function sendForbidden (
 }
 
 // Paginated response helper
-export function sendPaginated<T> (
+export function sendPaginated<T>(
   res: Response,
   data: T[],
   pagination: {
@@ -133,7 +133,7 @@ export function sendPaginated<T> (
     hasNext: boolean;
     hasPrev: boolean;
   },
-  message?: string,
+  message?: string
 ): void {
   const response: ApiResponse<T[]> = {
     success: true,
@@ -148,10 +148,10 @@ export function sendPaginated<T> (
 }
 
 // Created response helper
-export function sendCreated<T> (
+export function sendCreated<T>(
   res: Response,
   data: T,
-  message: string = 'Resource created successfully',
+  message: string = 'Resource created successfully'
 ): void {
   const response: ApiResponse<T> = {
     success: true,
@@ -165,9 +165,9 @@ export function sendCreated<T> (
 }
 
 // No content response helper
-export function sendNoContent (
+export function sendNoContent(
   res: Response,
-  message: string = 'Operation completed successfully',
+  message: string = 'Operation completed successfully'
 ): void {
   const response: ApiResponse = {
     success: true,
@@ -180,10 +180,10 @@ export function sendNoContent (
 }
 
 // Rate limit response helper
-export function sendRateLimit (
+export function sendRateLimit(
   res: Response,
   retryAfter: number,
-  message: string = 'Too many requests',
+  message: string = 'Too many requests'
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -198,9 +198,9 @@ export function sendRateLimit (
 }
 
 // Service unavailable response helper
-export function sendServiceUnavailable (
+export function sendServiceUnavailable(
   res: Response,
-  message: string = 'Service temporarily unavailable',
+  message: string = 'Service temporarily unavailable'
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -214,9 +214,9 @@ export function sendServiceUnavailable (
 }
 
 // Conflict response helper
-export function sendConflict (
+export function sendConflict(
   res: Response,
-  message: string = 'Resource conflict',
+  message: string = 'Resource conflict'
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -230,10 +230,10 @@ export function sendConflict (
 }
 
 // Bad request response helper
-export function sendBadRequest (
+export function sendBadRequest(
   res: Response,
   message: string = 'Bad request',
-  code?: string,
+  code?: string
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -247,9 +247,9 @@ export function sendBadRequest (
 }
 
 // Internal server error response helper
-export function sendInternalError (
+export function sendInternalError(
   res: Response,
-  message: string = 'Internal server error',
+  message: string = 'Internal server error'
 ): void {
   const response: ApiResponse = {
     success: false,
@@ -263,7 +263,7 @@ export function sendInternalError (
 }
 
 // Response middleware to standardize all responses
-export function responseMiddleware (req: any, res: Response, next: any) {
+export function responseMiddleware(req: any, res: Response, next: any) {
   // Store original json method
   const originalJson = res.json;
 

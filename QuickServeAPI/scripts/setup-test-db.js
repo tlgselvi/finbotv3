@@ -38,21 +38,20 @@ try {
 
   // Run migrations
   logger.info('🔄 Running database migrations...');
-  execSync('npx drizzle-kit push', { 
+  execSync('npx drizzle-kit push', {
     cwd: path.join(__dirname, '..'),
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
 
   // Seed test data
   logger.info('🌱 Seeding test data...');
   execSync('node scripts/seed-database.js', {
     cwd: path.join(__dirname, '..'),
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
 
   logger.info('✅ Test database setup completed!');
   logger.info('🚀 You can now run: npm test');
-
 } catch (error) {
   logger.error('❌ Test database setup failed:', error.message);
   process.exit(1);

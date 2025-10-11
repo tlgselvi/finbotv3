@@ -1,4 +1,11 @@
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import {
+  describe,
+  test,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from 'vitest';
 import { db } from '../../../server/db';
 import { accounts, transactions, systemAlerts } from '../../../shared/schema';
 import { eq } from 'drizzle-orm';
@@ -8,7 +15,7 @@ const checkClosingCashAlert = (accountId: string, daysAhead: number = 30) => {
   // Mock implementation
   const closingCash = 5000; // Mock nakit durumu
   const threshold = 0;
-  
+
   if (closingCash < threshold) {
     return {
       triggered: true,
@@ -16,17 +23,17 @@ const checkClosingCashAlert = (accountId: string, daysAhead: number = 30) => {
       title: 'Düşük Nakit Uyarısı',
       description: `${daysAhead} gün içinde nakit durumu ${closingCash} TL'ye düşecek`,
       severity: 'high',
-      triggerDate: new Date(Date.now() + daysAhead * 24 * 60 * 60 * 1000)
+      triggerDate: new Date(Date.now() + daysAhead * 24 * 60 * 60 * 1000),
     };
   }
-  
+
   return { triggered: false };
 };
 
 const checkARAlert = (accountId: string, daysThreshold: number = 45) => {
   // Mock implementation
   const oldestAR = 60; // Mock en eski alacak günü
-  
+
   if (oldestAR > daysThreshold) {
     return {
       triggered: true,
@@ -34,17 +41,17 @@ const checkARAlert = (accountId: string, daysThreshold: number = 45) => {
       title: 'Geciken Alacak Uyarısı',
       description: `${oldestAR} günlük geciken alacak tespit edildi`,
       severity: 'medium',
-      triggerDate: new Date()
+      triggerDate: new Date(),
     };
   }
-  
+
   return { triggered: false };
 };
 
 const checkAPAlert = (accountId: string, daysThreshold: number = 15) => {
   // Mock implementation
   const oldestAP = 10; // Mock en eski borç günü
-  
+
   if (oldestAP < daysThreshold) {
     return {
       triggered: true,
@@ -52,10 +59,10 @@ const checkAPAlert = (accountId: string, daysThreshold: number = 15) => {
       title: 'Acil Ödeme Uyarısı',
       description: `${oldestAP} günlük borç ${daysThreshold} gün altında`,
       severity: 'high',
-      triggerDate: new Date()
+      triggerDate: new Date(),
     };
   }
-  
+
   return { triggered: false };
 };
 
@@ -70,7 +77,7 @@ const generateAlert = (alertData: any) => {
     isActive: true,
     isDismissed: false,
     accountId: 'test-account',
-    createdAt: new Date()
+    createdAt: new Date(),
   };
 };
 
@@ -80,7 +87,7 @@ describe.skip('Alert Engine Tests', () => {
 
   beforeAll(async () => {
     if (!process.env.DATABASE_URL) return;
-    
+
     // Test account oluştur
     const testAccount = {
       userId: testUserId,
@@ -88,33 +95,42 @@ describe.skip('Alert Engine Tests', () => {
       bankName: 'Test Bank Alerts',
       accountName: 'Test Cash Account Alerts',
       balance: '10000.00',
-      currency: 'TRY'
+      currency: 'TRY',
     };
 
-    const [insertedAccount] = await db.insert(accounts).values(testAccount).returning();
+    const [insertedAccount] = await db
+      .insert(accounts)
+      .values(testAccount)
+      .returning();
     testAccountId = insertedAccount.id;
   });
 
   afterAll(async () => {
     if (!process.env.DATABASE_URL) return;
-    
+
     // Test verilerini temizle
-    await db.delete(systemAlerts).where(eq(systemAlerts.accountId, testAccountId));
-    await db.delete(transactions).where(eq(transactions.accountId, testAccountId));
+    await db
+      .delete(systemAlerts)
+      .where(eq(systemAlerts.accountId, testAccountId));
+    await db
+      .delete(transactions)
+      .where(eq(transactions.accountId, testAccountId));
     await db.delete(accounts).where(eq(accounts.id, testAccountId));
   });
 
   beforeEach(async () => {
     if (!process.env.DATABASE_URL) return;
-    
+
     // Her test öncesi alert verilerini temizle
-    await db.delete(systemAlerts).where(eq(systemAlerts.accountId, testAccountId));
+    await db
+      .delete(systemAlerts)
+      .where(eq(systemAlerts.accountId, testAccountId));
   });
 
   describe('ClosingCash<0 (T−30) Alert', () => {
     test('ClosingCash<0 (T−30) uyarısı üretilmeli', () => {
       const alertResult = checkClosingCashAlert(testAccountId, 30);
-      
+
       expect(alertResult.triggered).toBe(true);
       expect(alertResult.type).toBe('low_balance');
       expect(alertResult.title).toContain('Düşük Nakit');
@@ -125,7 +141,7 @@ describe.skip('Alert Engine Tests', () => {
 
     test('Uyarı mesajı doğru format olmalı', () => {
       const alertResult = checkClosingCashAlert(testAccountId, 30);
-      
+
       if (alertResult.triggered) {
         expect(alertResult.title).toBe('Düşük Nakit Uyarısı');
         expect(alertResult.description).toMatch(/\d+ gün içinde nakit durumu/);
@@ -135,10 +151,10 @@ describe.skip('Alert Engine Tests', () => {
 
     test('Farklı gün değerleri ile çalışmalı', () => {
       const daysValues = [15, 30, 45, 60];
-      
+
       daysValues.forEach(days => {
         const alertResult = checkClosingCashAlert(testAccountId, days);
-        
+
         if (alertResult.triggered) {
           expect(alertResult.description).toContain(`${days} gün`);
           expect(alertResult.triggerDate).toBeDefined();
@@ -148,19 +164,22 @@ describe.skip('Alert Engine Tests', () => {
 
     test('Uyarı veritabanına kaydedilmeli', async () => {
       const alertResult = checkClosingCashAlert(testAccountId, 30);
-      
+
       if (alertResult.triggered) {
         const alert = generateAlert(alertResult);
-        
-        const [insertedAlert] = await db.insert(systemAlerts).values({
-          type: alert.type,
-          title: alert.title,
-          description: alert.description,
-          severity: alert.severity,
-          triggerDate: alert.triggerDate,
-          accountId: testAccountId
-        }).returning();
-        
+
+        const [insertedAlert] = await db
+          .insert(systemAlerts)
+          .values({
+            type: alert.type,
+            title: alert.title,
+            description: alert.description,
+            severity: alert.severity,
+            triggerDate: alert.triggerDate,
+            accountId: testAccountId,
+          })
+          .returning();
+
         expect(insertedAlert).toBeDefined();
         expect(insertedAlert.type).toBe('low_balance');
         expect(insertedAlert.accountId).toBe(testAccountId);
@@ -172,7 +191,7 @@ describe.skip('Alert Engine Tests', () => {
   describe('AR>45 Alert', () => {
     test('AR>45 uyarısı üretilmeli', () => {
       const alertResult = checkARAlert(testAccountId, 45);
-      
+
       expect(alertResult.triggered).toBe(true);
       expect(alertResult.type).toBe('overdue_receivable');
       expect(alertResult.title).toContain('Geciken Alacak');
@@ -182,7 +201,7 @@ describe.skip('Alert Engine Tests', () => {
 
     test('AR uyarı mesajı doğru format olmalı', () => {
       const alertResult = checkARAlert(testAccountId, 45);
-      
+
       if (alertResult.triggered) {
         expect(alertResult.title).toBe('Geciken Alacak Uyarısı');
         expect(alertResult.description).toMatch(/\d+ günlük geciken alacak/);
@@ -192,10 +211,10 @@ describe.skip('Alert Engine Tests', () => {
 
     test('Farklı AR threshold değerleri ile çalışmalı', () => {
       const thresholds = [30, 45, 60, 90];
-      
+
       thresholds.forEach(threshold => {
         const alertResult = checkARAlert(testAccountId, threshold);
-        
+
         if (alertResult.triggered) {
           expect(alertResult.description).toContain(`${threshold} günlük`);
         }
@@ -204,19 +223,22 @@ describe.skip('Alert Engine Tests', () => {
 
     test('AR uyarısı veritabanına kaydedilmeli', async () => {
       const alertResult = checkARAlert(testAccountId, 45);
-      
+
       if (alertResult.triggered) {
         const alert = generateAlert(alertResult);
-        
-        const [insertedAlert] = await db.insert(systemAlerts).values({
-          type: alert.type,
-          title: alert.title,
-          description: alert.description,
-          severity: alert.severity,
-          triggerDate: alert.triggerDate,
-          accountId: testAccountId
-        }).returning();
-        
+
+        const [insertedAlert] = await db
+          .insert(systemAlerts)
+          .values({
+            type: alert.type,
+            title: alert.title,
+            description: alert.description,
+            severity: alert.severity,
+            triggerDate: alert.triggerDate,
+            accountId: testAccountId,
+          })
+          .returning();
+
         expect(insertedAlert).toBeDefined();
         expect(insertedAlert.type).toBe('overdue_receivable');
         expect(insertedAlert.accountId).toBe(testAccountId);
@@ -227,7 +249,7 @@ describe.skip('Alert Engine Tests', () => {
   describe('AP<15 Alert', () => {
     test('AP<15 uyarısı üretilmeli', () => {
       const alertResult = checkAPAlert(testAccountId, 15);
-      
+
       expect(alertResult.triggered).toBe(true);
       expect(alertResult.type).toBe('urgent_payable');
       expect(alertResult.title).toContain('Acil Ödeme');
@@ -237,7 +259,7 @@ describe.skip('Alert Engine Tests', () => {
 
     test('AP uyarı mesajı doğru format olmalı', () => {
       const alertResult = checkAPAlert(testAccountId, 15);
-      
+
       if (alertResult.triggered) {
         expect(alertResult.title).toBe('Acil Ödeme Uyarısı');
         expect(alertResult.description).toMatch(/\d+ günlük borç/);
@@ -247,10 +269,10 @@ describe.skip('Alert Engine Tests', () => {
 
     test('Farklı AP threshold değerleri ile çalışmalı', () => {
       const thresholds = [7, 15, 30, 45];
-      
+
       thresholds.forEach(threshold => {
         const alertResult = checkAPAlert(testAccountId, threshold);
-        
+
         if (alertResult.triggered) {
           expect(alertResult.description).toContain(`${threshold} gün altında`);
         }
@@ -259,19 +281,22 @@ describe.skip('Alert Engine Tests', () => {
 
     test('AP uyarısı veritabanına kaydedilmeli', async () => {
       const alertResult = checkAPAlert(testAccountId, 15);
-      
+
       if (alertResult.triggered) {
         const alert = generateAlert(alertResult);
-        
-        const [insertedAlert] = await db.insert(systemAlerts).values({
-          type: alert.type,
-          title: alert.title,
-          description: alert.description,
-          severity: alert.severity,
-          triggerDate: alert.triggerDate,
-          accountId: testAccountId
-        }).returning();
-        
+
+        const [insertedAlert] = await db
+          .insert(systemAlerts)
+          .values({
+            type: alert.type,
+            title: alert.title,
+            description: alert.description,
+            severity: alert.severity,
+            triggerDate: alert.triggerDate,
+            accountId: testAccountId,
+          })
+          .returning();
+
         expect(insertedAlert).toBeDefined();
         expect(insertedAlert.type).toBe('urgent_payable');
         expect(insertedAlert.accountId).toBe(testAccountId);
@@ -284,11 +309,11 @@ describe.skip('Alert Engine Tests', () => {
       const closingCashAlert = checkClosingCashAlert(testAccountId, 30);
       const arAlert = checkARAlert(testAccountId, 45);
       const apAlert = checkAPAlert(testAccountId, 15);
-      
+
       expect(closingCashAlert.triggered).toBe(true);
       expect(arAlert.triggered).toBe(true);
       expect(apAlert.triggered).toBe(true);
-      
+
       // Her uyarı farklı tipte olmalı
       expect(closingCashAlert.type).not.toBe(arAlert.type);
       expect(arAlert.type).not.toBe(apAlert.type);
@@ -299,17 +324,17 @@ describe.skip('Alert Engine Tests', () => {
       const alerts = [
         checkClosingCashAlert(testAccountId, 30),
         checkARAlert(testAccountId, 45),
-        checkAPAlert(testAccountId, 15)
+        checkAPAlert(testAccountId, 15),
       ];
-      
+
       const triggeredAlerts = alerts.filter(alert => alert.triggered);
-      
+
       // Severity sıralaması: high > medium > low
-      const severityOrder = { 'critical': 4, 'high': 3, 'medium': 2, 'low': 1 };
-      const sortedAlerts = triggeredAlerts.sort((a, b) => 
-        severityOrder[b.severity] - severityOrder[a.severity]
+      const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+      const sortedAlerts = triggeredAlerts.sort(
+        (a, b) => severityOrder[b.severity] - severityOrder[a.severity]
       );
-      
+
       expect(sortedAlerts[0].severity).toBe('high'); // AP alert
       expect(sortedAlerts[1].severity).toBe('high'); // ClosingCash alert
       expect(sortedAlerts[2].severity).toBe('medium'); // AR alert
@@ -317,7 +342,7 @@ describe.skip('Alert Engine Tests', () => {
 
     test('Uyarı durumu kontrolü', () => {
       const alertResult = checkClosingCashAlert(testAccountId, 30);
-      
+
       if (alertResult.triggered) {
         expect(alertResult.triggered).toBe(true);
         expect(alertResult.type).toBeDefined();
@@ -339,11 +364,14 @@ describe.skip('Alert Engine Tests', () => {
         description: 'Test alert description',
         severity: 'medium',
         triggerDate: new Date(),
-        accountId: testAccountId
+        accountId: testAccountId,
       };
 
-      const [insertedAlert] = await db.insert(systemAlerts).values(alertData).returning();
-      
+      const [insertedAlert] = await db
+        .insert(systemAlerts)
+        .values(alertData)
+        .returning();
+
       expect(insertedAlert).toBeDefined();
       expect(insertedAlert.type).toBe(alertData.type);
       expect(insertedAlert.title).toBe(alertData.title);
@@ -361,15 +389,19 @@ describe.skip('Alert Engine Tests', () => {
         description: 'Test read alert description',
         severity: 'low',
         triggerDate: new Date(),
-        accountId: testAccountId
+        accountId: testAccountId,
       };
 
-      const [insertedAlert] = await db.insert(systemAlerts).values(alertData).returning();
-      
-      const [readAlert] = await db.select()
+      const [insertedAlert] = await db
+        .insert(systemAlerts)
+        .values(alertData)
+        .returning();
+
+      const [readAlert] = await db
+        .select()
         .from(systemAlerts)
         .where(eq(systemAlerts.id, insertedAlert.id));
-      
+
       expect(readAlert).toBeDefined();
       expect(readAlert.type).toBe(alertData.type);
       expect(readAlert.title).toBe(alertData.title);
@@ -382,20 +414,25 @@ describe.skip('Alert Engine Tests', () => {
         description: 'Test update alert description',
         severity: 'medium',
         triggerDate: new Date(),
-        accountId: testAccountId
+        accountId: testAccountId,
       };
 
-      const [insertedAlert] = await db.insert(systemAlerts).values(alertData).returning();
-      
+      const [insertedAlert] = await db
+        .insert(systemAlerts)
+        .values(alertData)
+        .returning();
+
       // Uyarıyı dismiss et
-      await db.update(systemAlerts)
+      await db
+        .update(systemAlerts)
         .set({ isDismissed: true, dismissedAt: new Date() })
         .where(eq(systemAlerts.id, insertedAlert.id));
-      
-      const [updatedAlert] = await db.select()
+
+      const [updatedAlert] = await db
+        .select()
         .from(systemAlerts)
         .where(eq(systemAlerts.id, insertedAlert.id));
-      
+
       expect(updatedAlert.isDismissed).toBe(true);
       expect(updatedAlert.dismissedAt).toBeDefined();
     });
@@ -407,17 +444,23 @@ describe.skip('Alert Engine Tests', () => {
         description: 'Test delete alert description',
         severity: 'low',
         triggerDate: new Date(),
-        accountId: testAccountId
+        accountId: testAccountId,
       };
 
-      const [insertedAlert] = await db.insert(systemAlerts).values(alertData).returning();
-      
-      await db.delete(systemAlerts).where(eq(systemAlerts.id, insertedAlert.id));
-      
-      const [deletedAlert] = await db.select()
+      const [insertedAlert] = await db
+        .insert(systemAlerts)
+        .values(alertData)
+        .returning();
+
+      await db
+        .delete(systemAlerts)
+        .where(eq(systemAlerts.id, insertedAlert.id));
+
+      const [deletedAlert] = await db
+        .select()
         .from(systemAlerts)
         .where(eq(systemAlerts.id, insertedAlert.id));
-      
+
       expect(deletedAlert).toBeUndefined();
     });
   });
@@ -425,35 +468,45 @@ describe.skip('Alert Engine Tests', () => {
   describe('Alert Performance Tests', () => {
     test('Büyük veri seti ile performans', async () => {
       const startTime = Date.now();
-      
+
       // 1000 uyarı oluştur
       const alerts = Array.from({ length: 1000 }, (_, i) => ({
         type: `test_alert_${i}`,
         title: `Test Alert ${i}`,
         description: `Test alert description ${i}`,
-        severity: i % 4 === 0 ? 'critical' : i % 4 === 1 ? 'high' : i % 4 === 2 ? 'medium' : 'low',
+        severity:
+          i % 4 === 0
+            ? 'critical'
+            : i % 4 === 1
+              ? 'high'
+              : i % 4 === 2
+                ? 'medium'
+                : 'low',
         triggerDate: new Date(),
-        accountId: testAccountId
+        accountId: testAccountId,
       }));
 
       await db.insert(systemAlerts).values(alerts);
-      
+
       const endTime = Date.now();
       const duration = endTime - startTime;
-      
+
       // 1000 kayıt 5 saniyeden az sürmeli
       expect(duration).toBeLessThan(5000);
     });
 
     test('Uyarı sorgulama performansı', async () => {
       const startTime = Date.now();
-      
+
       // Tüm uyarıları getir
-      const allAlerts = await db.select().from(systemAlerts).where(eq(systemAlerts.accountId, testAccountId));
-      
+      const allAlerts = await db
+        .select()
+        .from(systemAlerts)
+        .where(eq(systemAlerts.accountId, testAccountId));
+
       const endTime = Date.now();
       const duration = endTime - startTime;
-      
+
       // Sorgu 1 saniyeden az sürmeli
       expect(duration).toBeLessThan(1000);
       expect(allAlerts.length).toBeGreaterThan(0);
@@ -463,7 +516,7 @@ describe.skip('Alert Engine Tests', () => {
   describe('Alert Edge Cases', () => {
     test('Geçersiz account ID ile hata', () => {
       const invalidAccountId = 'invalid-account-id';
-      
+
       expect(() => {
         checkClosingCashAlert(invalidAccountId, 30);
       }).toThrow();
@@ -477,7 +530,7 @@ describe.skip('Alert Engine Tests', () => {
 
     test('Sıfır gün değeri ile çalışma', () => {
       const alertResult = checkClosingCashAlert(testAccountId, 0);
-      
+
       if (alertResult.triggered) {
         expect(alertResult.description).toContain('0 gün');
       }
@@ -485,7 +538,7 @@ describe.skip('Alert Engine Tests', () => {
 
     test('Çok büyük gün değeri ile çalışma', () => {
       const alertResult = checkClosingCashAlert(testAccountId, 365);
-      
+
       if (alertResult.triggered) {
         expect(alertResult.description).toContain('365 gün');
       }

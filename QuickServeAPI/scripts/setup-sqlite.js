@@ -15,7 +15,7 @@ import * as schema from '../shared/schema-sqlite.js';
 const logger = {
   info: (msg, ...args) => console.log(`[INFO] ${msg}`, ...args),
   error: (msg, ...args) => console.error(`[ERROR] ${msg}`, ...args),
-  warn: (msg, ...args) => console.warn(`[WARN] ${msg}`, ...args)
+  warn: (msg, ...args) => console.warn(`[WARN] ${msg}`, ...args),
 };
 
 async function setupSQLiteDatabase() {
@@ -46,10 +46,12 @@ async function setupSQLiteDatabase() {
         isActive: true,
         emailVerified: false,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
 
-      logger.info('✅ Admin user created - Email: admin@finbot.com, Password: admin123');
+      logger.info(
+        '✅ Admin user created - Email: admin@finbot.com, Password: admin123'
+      );
     } catch (error) {
       if (error.message.includes('UNIQUE constraint failed')) {
         logger.info('ℹ️  Admin user already exists: admin@finbot.com');
@@ -68,7 +70,7 @@ async function setupSQLiteDatabase() {
         balance: 750000,
         currency: 'TRY',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -78,8 +80,8 @@ async function setupSQLiteDatabase() {
         balance: 250000,
         currency: 'TRY',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      },
     ];
 
     for (const account of demoAccounts) {
@@ -104,7 +106,7 @@ async function setupSQLiteDatabase() {
         category: 'revenue',
         date: new Date().toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -115,8 +117,8 @@ async function setupSQLiteDatabase() {
         category: 'rent',
         date: new Date().toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      },
     ];
 
     for (const transaction of demoTransactions) {
@@ -132,7 +134,6 @@ async function setupSQLiteDatabase() {
 
     logger.info('🎉 SQLite database setup completed successfully!');
     sqlite.close();
-
   } catch (error) {
     logger.error('❌ Database setup failed:', error.message);
     process.exit(1);

@@ -1,6 +1,10 @@
 import { eq, and, gt } from 'drizzle-orm';
 import { db } from '../db';
-import { userProfiles, emailVerificationCodes, teamInvitations } from '../db/schema';
+import {
+  userProfiles,
+  emailVerificationCodes,
+  teamInvitations,
+} from '../db/schema';
 import { z } from 'zod';
 import * as crypto from 'crypto';
 import { emailService } from './email-service';
@@ -8,22 +12,22 @@ import { logger } from '../utils/logger';
 
 // Email verification schemas
 export const requestEmailVerificationSchema = z.object({
-  email: z.string().email('Geçerli bir e-posta adresi giriniz')
+  email: z.string().email('Geçerli bir e-posta adresi giriniz'),
 });
 
 export const verifyEmailSchema = z.object({
-  code: z.string().min(6, 'Doğrulama kodu en az 6 karakter olmalı')
+  code: z.string().min(6, 'Doğrulama kodu en az 6 karakter olmalı'),
 });
 
 export const createTeamInviteSchema = z.object({
   teamId: z.string().uuid('Geçerli bir takım ID giriniz'),
   email: z.string().email('Geçerli bir e-posta adresi giriniz'),
   inviterName: z.string().min(1, 'Davet eden kişi adı gerekli'),
-  teamName: z.string().min(1, 'Takım adı gerekli')
+  teamName: z.string().min(1, 'Takım adı gerekli'),
 });
 
 export const acceptTeamInviteSchema = z.object({
-  token: z.string().min(1, 'Davet token gerekli')
+  token: z.string().min(1, 'Davet token gerekli'),
 });
 
 // Email Verification Service
@@ -39,7 +43,9 @@ export class EmailVerificationService {
   }
 
   // Request email verification
-  async requestEmailVerification(requestData: z.infer<typeof requestEmailVerificationSchema>): Promise<void> {
+  async requestEmailVerification(
+    requestData: z.infer<typeof requestEmailVerificationSchema>
+  ): Promise<void> {
     try {
       // Check if email is already verified
       const existingUser = await db
@@ -61,7 +67,7 @@ export class EmailVerificationService {
         email: requestData.email,
         code,
         expiresAt,
-        used: false
+        used: false,
       });
 
       // Send verification email
@@ -69,7 +75,6 @@ export class EmailVerificationService {
       await emailService.sendEmail(requestData.email, template);
 
       logger.info(`Email verification code sent to ${requestData.email}`);
-
     } catch (error) {
       logger.error('Error requesting email verification:', error);
       throw new Error('E-posta doğrulama talebi oluşturulamadı');
@@ -77,7 +82,9 @@ export class EmailVerificationService {
   }
 
   // Verify email with code
-  async verifyEmail(verifyData: z.infer<typeof verifyEmailSchema>): Promise<void> {
+  async verifyEmail(
+    verifyData: z.infer<typeof verifyEmailSchema>
+  ): Promise<void> {
     try {
       // Find valid verification code
       const verificationCode = await db
@@ -99,24 +106,23 @@ export class EmailVerificationService {
       // Mark code as used
       await db
         .update(emailVerificationCodes)
-        .set({ 
+        .set({
           used: true,
-          usedAt: new Date()
+          usedAt: new Date(),
         })
         .where(eq(emailVerificationCodes.id, verificationCode[0].id));
 
       // Update user email as verified
       await db
         .update(userProfiles)
-        .set({ 
+        .set({
           emailVerified: true,
           emailVerifiedAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.email, verificationCode[0].email));
 
       logger.info(`Email verified for: ${verificationCode[0].email}`);
-
     } catch (error) {
       logger.error('Error verifying email:', error);
       throw new Error('E-posta doğrulanamadı');
@@ -124,7 +130,9 @@ export class EmailVerificationService {
   }
 
   // Create team invitation
-  async createTeamInvite(inviteData: z.infer<typeof createTeamInviteSchema>): Promise<void> {
+  async createTeamInvite(
+    inviteData: z.infer<typeof createTeamInviteSchema>
+  ): Promise<void> {
     try {
       // Check if user is already in team
       const existingInvite = await db
@@ -154,7 +162,7 @@ export class EmailVerificationService {
         token,
         expiresAt,
         inviterName: inviteData.inviterName,
-        accepted: false
+        accepted: false,
       });
 
       // Send invitation email
@@ -165,8 +173,9 @@ export class EmailVerificationService {
       );
       await emailService.sendEmail(inviteData.email, template);
 
-      logger.info(`Team invitation sent to ${inviteData.email} for team ${inviteData.teamName}`);
-
+      logger.info(
+        `Team invitation sent to ${inviteData.email} for team ${inviteData.teamName}`
+      );
     } catch (error) {
       logger.error('Error creating team invite:', error);
       throw new Error('Takım daveti oluşturulamadı');
@@ -174,7 +183,9 @@ export class EmailVerificationService {
   }
 
   // Accept team invitation
-  async acceptTeamInvite(acceptData: z.infer<typeof acceptTeamInviteSchema>): Promise<void> {
+  async acceptTeamInvite(
+    acceptData: z.infer<typeof acceptTeamInviteSchema>
+  ): Promise<void> {
     try {
       // Find valid invitation
       const invitation = await db
@@ -196,16 +207,17 @@ export class EmailVerificationService {
       // Mark invitation as accepted
       await db
         .update(teamInvitations)
-        .set({ 
+        .set({
           accepted: true,
-          acceptedAt: new Date()
+          acceptedAt: new Date(),
         })
         .where(eq(teamInvitations.id, invitation[0].id));
 
       // Add user to team (this would need to be implemented based on your team structure)
       // For now, we'll just log the acceptance
-      logger.info(`Team invitation accepted by ${invitation[0].email} for team ${invitation[0].teamId}`);
-
+      logger.info(
+        `Team invitation accepted by ${invitation[0].email} for team ${invitation[0].teamId}`
+      );
     } catch (error) {
       logger.error('Error accepting team invite:', error);
       throw new Error('Takım daveti kabul edilemedi');
@@ -236,7 +248,6 @@ export class EmailVerificationService {
         );
 
       logger.info('Expired verification codes and invitations cleaned up');
-
     } catch (error) {
       logger.error('Error cleaning up expired items:', error);
     }

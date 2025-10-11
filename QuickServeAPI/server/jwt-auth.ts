@@ -2,7 +2,8 @@ import jwt from 'jsonwebtoken';
 import type { User } from './db/schema';
 import { logger } from './utils/logger.ts';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-key-change-in-production';
+const JWT_SECRET =
+  process.env.JWT_SECRET || 'your-jwt-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 export interface JWTPayload {
@@ -16,7 +17,7 @@ export interface JWTPayload {
 
 export class JWTAuthService {
   // Generate JWT token
-  static generateToken (user: User): string {
+  static generateToken(user: User): string {
     const payload: JWTPayload = {
       userId: user.id,
       email: user.email,
@@ -24,11 +25,15 @@ export class JWTAuthService {
       role: user.role,
     };
 
-    return jwt.sign(payload, JWT_SECRET as string, { expiresIn: JWT_EXPIRES_IN as string } as jwt.SignOptions);
+    return jwt.sign(
+      payload,
+      JWT_SECRET as string,
+      { expiresIn: JWT_EXPIRES_IN as string } as jwt.SignOptions
+    );
   }
 
   // Verify JWT token
-  static verifyToken (token: string): JWTPayload | null {
+  static verifyToken(token: string): JWTPayload | null {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
       return decoded;
@@ -39,7 +44,7 @@ export class JWTAuthService {
   }
 
   // Extract token from Authorization header
-  static extractTokenFromHeader (authHeader: string | undefined): string | null {
+  static extractTokenFromHeader(authHeader: string | undefined): string | null {
     if (!authHeader?.startsWith('Bearer ')) {
       return null;
     }
@@ -47,12 +52,12 @@ export class JWTAuthService {
   }
 
   // Generate refresh token (2 days expiry for security)
-  static generateRefreshToken (userId: string): string {
+  static generateRefreshToken(userId: string): string {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '2d' });
   }
 
   // Verify refresh token
-  static verifyRefreshToken (token: string): { userId: string } | null {
+  static verifyRefreshToken(token: string): { userId: string } | null {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
       return decoded;
@@ -67,20 +72,20 @@ export class JWTAuthService {
 class TokenBlacklist {
   private static blacklistedTokens = new Set<string>();
 
-  static addToBlacklist (token: string): void {
+  static addToBlacklist(token: string): void {
     this.blacklistedTokens.add(token);
   }
 
-  static isBlacklisted (token: string): boolean {
+  static isBlacklisted(token: string): boolean {
     return this.blacklistedTokens.has(token);
   }
 
-  static removeFromBlacklist (token: string): void {
+  static removeFromBlacklist(token: string): void {
     this.blacklistedTokens.delete(token);
   }
 
   // Clean up expired tokens periodically (in production, use Redis or database)
-  static cleanupExpiredTokens (): void {
+  static cleanupExpiredTokens(): void {
     // This is a simple implementation - in production, you'd want to
     // decode tokens and check their expiry dates
     if (this.blacklistedTokens.size > 1000) {
@@ -90,4 +95,3 @@ class TokenBlacklist {
 }
 
 export { TokenBlacklist };
-

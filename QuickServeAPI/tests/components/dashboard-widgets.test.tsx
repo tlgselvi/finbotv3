@@ -14,9 +14,9 @@ describe('Dashboard Widget Components', () => {
         runway: 6,
         currentCash: 50000,
         monthlyBurn: 8333,
-        riskLevel: 'medium' as const
+        riskLevel: 'medium' as const,
       };
-      
+
       // This is a placeholder - actual component import would be needed
       expect(runwayData.runway).toBe(6);
       expect(runwayData.riskLevel).toBe('medium');
@@ -28,11 +28,13 @@ describe('Dashboard Widget Components', () => {
         low: 'green',
         medium: 'yellow',
         high: 'orange',
-        critical: 'red'
+        critical: 'red',
       };
-      
+
       riskLevels.forEach(level => {
-        expect(expectedColors[level as keyof typeof expectedColors]).toBeDefined();
+        expect(
+          expectedColors[level as keyof typeof expectedColors]
+        ).toBeDefined();
       });
     });
 
@@ -40,9 +42,9 @@ describe('Dashboard Widget Components', () => {
       const amounts = [
         { value: 50000, expected: '50,000' },
         { value: 1000000, expected: '1,000,000' },
-        { value: 500.50, expected: '500.50' }
+        { value: 500.5, expected: '500.50' },
       ];
-      
+
       amounts.forEach(({ value, expected }) => {
         const formatted = value.toLocaleString('tr-TR');
         expect(formatted).toBeDefined();
@@ -67,11 +69,13 @@ describe('Dashboard Widget Components', () => {
         gap: 15000,
         receivables: 50000,
         payables: 35000,
-        riskLevel: 'low' as const
+        riskLevel: 'low' as const,
       };
-      
+
       expect(cashGapData.gap).toBe(15000);
-      expect(cashGapData.gap).toBe(cashGapData.receivables - cashGapData.payables);
+      expect(cashGapData.gap).toBe(
+        cashGapData.receivables - cashGapData.payables
+      );
     });
 
     it('should handle negative gap', () => {
@@ -79,9 +83,9 @@ describe('Dashboard Widget Components', () => {
         gap: -10000,
         receivables: 20000,
         payables: 30000,
-        riskLevel: 'high' as const
+        riskLevel: 'high' as const,
       };
-      
+
       expect(negativeGap.gap).toBeLessThan(0);
       expect(negativeGap.riskLevel).toBe('high');
     });
@@ -90,12 +94,12 @@ describe('Dashboard Widget Components', () => {
       const data = {
         receivables: 60000,
         payables: 40000,
-        total: 100000
+        total: 100000,
       };
-      
+
       const receivablesPercent = (data.receivables / data.total) * 100;
       const payablesPercent = (data.payables / data.total) * 100;
-      
+
       expect(receivablesPercent).toBe(60);
       expect(payablesPercent).toBe(40);
     });
@@ -106,9 +110,9 @@ describe('Dashboard Widget Components', () => {
       const projections = [
         { month: 1, cash: 50000, burn: 8000 },
         { month: 2, cash: 42000, burn: 8000 },
-        { month: 3, cash: 34000, burn: 8000 }
+        { month: 3, cash: 34000, burn: 8000 },
       ];
-      
+
       expect(projections).toHaveLength(3);
       expect(projections[0].cash).toBe(50000);
       expect(projections[2].cash).toBe(34000);
@@ -118,9 +122,9 @@ describe('Dashboard Widget Components', () => {
       const monthlyData = [
         { month: 'Jan', receivables: 40000, payables: 30000, gap: 10000 },
         { month: 'Feb', receivables: 45000, payables: 32000, gap: 13000 },
-        { month: 'Mar', receivables: 50000, payables: 35000, gap: 15000 }
+        { month: 'Mar', receivables: 50000, payables: 35000, gap: 15000 },
       ];
-      
+
       expect(monthlyData).toHaveLength(3);
       monthlyData.forEach(data => {
         expect(data.gap).toBe(data.receivables - data.payables);
@@ -129,7 +133,7 @@ describe('Dashboard Widget Components', () => {
 
     it('should handle empty data for charts', () => {
       const emptyData: any[] = [];
-      
+
       expect(emptyData).toHaveLength(0);
       expect(emptyData).toEqual([]);
     });
@@ -145,7 +149,7 @@ describe('Dashboard Widget Components', () => {
     it('should implement retry logic for failed requests', () => {
       let attempts = 0;
       const maxRetries = 3;
-      
+
       const fetchWithRetry = async () => {
         attempts++;
         if (attempts < maxRetries) {
@@ -153,7 +157,7 @@ describe('Dashboard Widget Components', () => {
         }
         return { success: true };
       };
-      
+
       expect(maxRetries).toBe(3);
     });
 
@@ -188,9 +192,9 @@ describe('Dashboard Widget Components', () => {
       const viewports = {
         mobile: { width: 375, height: 667 },
         tablet: { width: 768, height: 1024 },
-        desktop: { width: 1920, height: 1080 }
+        desktop: { width: 1920, height: 1080 },
       };
-      
+
       expect(viewports.mobile.width).toBeLessThan(viewports.tablet.width);
       expect(viewports.tablet.width).toBeLessThan(viewports.desktop.width);
     });
@@ -201,4 +205,3 @@ describe('Dashboard Widget Components', () => {
     });
   });
 });
-

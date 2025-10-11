@@ -6,7 +6,8 @@ import { AgingTable } from '../../client/src/components/aging-table';
 
 // Mock the currency context
 vi.mock('../../client/src/contexts/CurrencyContext', () => ({
-  useFormatCurrency: () => (amount: number) => `₺${amount.toLocaleString('tr-TR')}`,
+  useFormatCurrency: () => (amount: number) =>
+    `₺${amount.toLocaleString('tr-TR')}`,
 }));
 
 // Mock fetch
@@ -54,17 +55,17 @@ describe('AgingTable Component', () => {
 
   test('renders loading state initially', () => {
     vi.mocked(fetch).mockImplementation(() => new Promise(() => {}));
-    
+
     render(<AgingTable {...mockProps} />);
-    
+
     expect(screen.getByText('Yükleniyor...')).toBeInTheDocument();
   });
 
   test('renders error state when fetch fails', async () => {
     vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
-    
+
     render(<AgingTable {...mockProps} />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Network error')).toBeInTheDocument();
     });
@@ -78,9 +79,9 @@ describe('AgingTable Component', () => {
         data: mockData,
       }),
     });
-    
+
     render(<AgingTable {...mockProps} />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Test Müşteri A')).toBeInTheDocument();
       expect(screen.getByText('Test Müşteri B')).toBeInTheDocument();
@@ -97,9 +98,9 @@ describe('AgingTable Component', () => {
         data: mockData,
       }),
     });
-    
+
     render(<AgingTable {...mockProps} />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('₺35.000')).toBeInTheDocument(); // Total amount
       expect(screen.getByText('2')).toBeInTheDocument(); // Total count
@@ -114,13 +115,13 @@ describe('AgingTable Component', () => {
         data: mockData,
       }),
     });
-    
+
     render(<AgingTable {...mockProps} />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Test Müşteri A')).toBeInTheDocument();
     });
-    
+
     // Test status filter button exists
     const statusFilter = screen.getByText('Tüm Durumlar');
     expect(statusFilter).toBeInTheDocument();
@@ -135,9 +136,9 @@ describe('AgingTable Component', () => {
         data: mockData,
       }),
     });
-    
+
     render(<AgingTable {...mockProps} />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('0-30 gün')).toBeInTheDocument();
       expect(screen.getByText('30-60 gün')).toBeInTheDocument();

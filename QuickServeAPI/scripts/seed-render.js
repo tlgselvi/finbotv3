@@ -32,12 +32,12 @@ async function seedDatabase() {
       name: 'Admin User',
       role: 'ADMIN',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     // User'ı kontrol et ve ekle
     const existingUser = await db.query.users.findFirst({
-      where: eq(schema.users.email, adminUser.email)
+      where: eq(schema.users.email, adminUser.email),
     });
 
     if (!existingUser) {
@@ -56,11 +56,11 @@ async function seedDatabase() {
       phone: '+90 212 555 0123',
       email: 'info@demosirket.com',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     const existingCompany = await db.query.companies.findFirst({
-      where: eq(schema.companies.name, companyData.name)
+      where: eq(schema.companies.name, companyData.name),
     });
 
     if (!existingCompany) {
@@ -83,7 +83,7 @@ async function seedDatabase() {
         accountType: 'CHECKING',
         isActive: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         id: crypto.randomUUID(),
@@ -96,7 +96,7 @@ async function seedDatabase() {
         accountType: 'CHECKING',
         isActive: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         id: crypto.randomUUID(),
@@ -109,13 +109,13 @@ async function seedDatabase() {
         accountType: 'SAVINGS',
         isActive: true,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ];
 
     for (const account of bankAccounts) {
       const existingAccount = await db.query.bankAccounts.findFirst({
-        where: eq(schema.bankAccounts.accountNumber, account.accountNumber)
+        where: eq(schema.bankAccounts.accountNumber, account.accountNumber),
       });
 
       if (!existingAccount) {
@@ -139,7 +139,7 @@ async function seedDatabase() {
         category: 'SALES',
         date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 gün önce
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         id: crypto.randomUUID(),
@@ -152,7 +152,7 @@ async function seedDatabase() {
         category: 'RENT',
         date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 gün önce
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         id: crypto.randomUUID(),
@@ -165,8 +165,8 @@ async function seedDatabase() {
         category: 'SALES',
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 gün önce
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ];
 
     for (const transaction of transactions) {
@@ -177,7 +177,6 @@ async function seedDatabase() {
     logger.info('🎉 Database seeding completed successfully!');
     logger.info('📧 Admin login: admin@finbot.com');
     logger.info('🔑 Admin password: admin123');
-
   } catch (error) {
     logger.error('❌ Error seeding database:', error);
     process.exit(1);

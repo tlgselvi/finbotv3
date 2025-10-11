@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Brain, TrendingUp, AlertTriangle, Target, Heart, BarChart3 } from 'lucide-react';
+import {
+  Brain,
+  TrendingUp,
+  AlertTriangle,
+  Target,
+  Heart,
+  BarChart3,
+} from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ErrorDisplay } from '@/components/ui/error-display';
 import { logger } from '@/lib/logger';
@@ -31,8 +44,18 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
 
   const analysisTypes = [
     { value: 'trend', label: 'Trend Analizi', icon: TrendingUp, color: 'blue' },
-    { value: 'risk', label: 'Risk Değerlendirmesi', icon: AlertTriangle, color: 'red' },
-    { value: 'recommendation', label: 'Öneriler', icon: Target, color: 'green' },
+    {
+      value: 'risk',
+      label: 'Risk Değerlendirmesi',
+      icon: AlertTriangle,
+      color: 'red',
+    },
+    {
+      value: 'recommendation',
+      label: 'Öneriler',
+      icon: Target,
+      color: 'green',
+    },
     { value: 'health', label: 'Finansal Sağlık', icon: Heart, color: 'purple' },
     { value: 'forecast', label: 'Tahmin', icon: BarChart3, color: 'orange' },
   ];
@@ -59,7 +82,7 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           analysisType: selectedAnalysis,
@@ -75,10 +98,13 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
       }
 
       setResult(data.data);
-      logger.info('AI analysis completed', { analysisType: selectedAnalysis, timeframe: selectedTimeframe });
-
+      logger.info('AI analysis completed', {
+        analysisType: selectedAnalysis,
+        timeframe: selectedTimeframe,
+      });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Bilinmeyen hata';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Bilinmeyen hata';
       setError(errorMessage);
       logger.error('AI analysis error:', err);
     } finally {
@@ -89,7 +115,9 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
   const renderAnalysisResult = () => {
     if (!result) return null;
 
-    const analysisType = analysisTypes.find(type => type.value === selectedAnalysis);
+    const analysisType = analysisTypes.find(
+      type => type.value === selectedAnalysis
+    );
     const IconComponent = analysisType?.icon || Brain;
 
     switch (selectedAnalysis) {
@@ -100,25 +128,33 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
               <IconComponent className="h-5 w-5 text-blue-600" />
               <h3 className="text-lg font-semibold">Trend Analizi</h3>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
                   ${result.data.totalIncome?.toLocaleString() || '0'}
                 </div>
-                <div className="text-sm text-muted-foreground">Toplam Gelir</div>
+                <div className="text-sm text-muted-foreground">
+                  Toplam Gelir
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">
                   ${result.data.totalExpenses?.toLocaleString() || '0'}
                 </div>
-                <div className="text-sm text-muted-foreground">Toplam Gider</div>
+                <div className="text-sm text-muted-foreground">
+                  Toplam Gider
+                </div>
               </div>
               <div className="text-center">
-                <div className={`text-2xl font-bold ${(result.data.netCashFlow || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div
+                  className={`text-2xl font-bold ${(result.data.netCashFlow || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                >
                   ${result.data.netCashFlow?.toLocaleString() || '0'}
                 </div>
-                <div className="text-sm text-muted-foreground">Net Nakit Akışı</div>
+                <div className="text-sm text-muted-foreground">
+                  Net Nakit Akışı
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">
@@ -132,17 +168,47 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
               <div className="space-y-2">
                 <h4 className="font-medium">Trendler:</h4>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant={result.data.trends.income === 'increasing' ? 'default' : 'secondary'}>
-                    Gelir: {result.data.trends.income === 'increasing' ? '📈 Artıyor' : 
-                           result.data.trends.income === 'decreasing' ? '📉 Azalıyor' : '➡️ Sabit'}
+                  <Badge
+                    variant={
+                      result.data.trends.income === 'increasing'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                  >
+                    Gelir:{' '}
+                    {result.data.trends.income === 'increasing'
+                      ? '📈 Artıyor'
+                      : result.data.trends.income === 'decreasing'
+                        ? '📉 Azalıyor'
+                        : '➡️ Sabit'}
                   </Badge>
-                  <Badge variant={result.data.trends.expenses === 'decreasing' ? 'default' : 'secondary'}>
-                    Gider: {result.data.trends.expenses === 'increasing' ? '📈 Artıyor' : 
-                           result.data.trends.expenses === 'decreasing' ? '📉 Azalıyor' : '➡️ Sabit'}
+                  <Badge
+                    variant={
+                      result.data.trends.expenses === 'decreasing'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                  >
+                    Gider:{' '}
+                    {result.data.trends.expenses === 'increasing'
+                      ? '📈 Artıyor'
+                      : result.data.trends.expenses === 'decreasing'
+                        ? '📉 Azalıyor'
+                        : '➡️ Sabit'}
                   </Badge>
-                  <Badge variant={result.data.trends.savings === 'increasing' ? 'default' : 'secondary'}>
-                    Tasarruf: {result.data.trends.savings === 'increasing' ? '📈 Artıyor' : 
-                              result.data.trends.savings === 'decreasing' ? '📉 Azalıyor' : '➡️ Sabit'}
+                  <Badge
+                    variant={
+                      result.data.trends.savings === 'increasing'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                  >
+                    Tasarruf:{' '}
+                    {result.data.trends.savings === 'increasing'
+                      ? '📈 Artıyor'
+                      : result.data.trends.savings === 'decreasing'
+                        ? '📉 Azalıyor'
+                        : '➡️ Sabit'}
                   </Badge>
                 </div>
               </div>
@@ -152,23 +218,32 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
               <div className="space-y-2">
                 <h4 className="font-medium">Öngörüler:</h4>
                 <ul className="space-y-1">
-                  {result.data.insights.map((insight: string, index: number) => (
-                    <li key={index} className="text-sm text-muted-foreground">• {insight}</li>
-                  ))}
+                  {result.data.insights.map(
+                    (insight: string, index: number) => (
+                      <li key={index} className="text-sm text-muted-foreground">
+                        • {insight}
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
             )}
 
-            {result.data.recommendations && result.data.recommendations.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium">Öneriler:</h4>
-                <ul className="space-y-1">
-                  {result.data.recommendations.map((rec: string, index: number) => (
-                    <li key={index} className="text-sm">• {rec}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {result.data.recommendations &&
+              result.data.recommendations.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-medium">Öneriler:</h4>
+                  <ul className="space-y-1">
+                    {result.data.recommendations.map(
+                      (rec: string, index: number) => (
+                        <li key={index} className="text-sm">
+                          • {rec}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              )}
           </div>
         );
 
@@ -181,36 +256,69 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
             </div>
 
             <div className="text-center">
-              <div className={`text-4xl font-bold ${result.data.riskScore <= 3 ? 'text-green-600' : 
-                                                      result.data.riskScore <= 6 ? 'text-yellow-600' : 
-                                                      result.data.riskScore <= 8 ? 'text-orange-600' : 'text-red-600'}`}>
+              <div
+                className={`text-4xl font-bold ${
+                  result.data.riskScore <= 3
+                    ? 'text-green-600'
+                    : result.data.riskScore <= 6
+                      ? 'text-yellow-600'
+                      : result.data.riskScore <= 8
+                        ? 'text-orange-600'
+                        : 'text-red-600'
+                }`}
+              >
                 {result.data.riskScore || 0}/10
               </div>
               <div className="text-sm text-muted-foreground">Risk Skoru</div>
-              <Badge variant={result.data.riskLevel === 'low' ? 'default' : 
-                             result.data.riskLevel === 'medium' ? 'secondary' : 'destructive'}>
-                {result.data.riskLevel === 'low' ? 'Düşük Risk' :
-                 result.data.riskLevel === 'medium' ? 'Orta Risk' :
-                 result.data.riskLevel === 'high' ? 'Yüksek Risk' : 'Kritik Risk'}
+              <Badge
+                variant={
+                  result.data.riskLevel === 'low'
+                    ? 'default'
+                    : result.data.riskLevel === 'medium'
+                      ? 'secondary'
+                      : 'destructive'
+                }
+              >
+                {result.data.riskLevel === 'low'
+                  ? 'Düşük Risk'
+                  : result.data.riskLevel === 'medium'
+                    ? 'Orta Risk'
+                    : result.data.riskLevel === 'high'
+                      ? 'Yüksek Risk'
+                      : 'Kritik Risk'}
               </Badge>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-xl font-bold">{result.data.liquidityRisk || 0}/10</div>
-                <div className="text-sm text-muted-foreground">Likidite Riski</div>
+                <div className="text-xl font-bold">
+                  {result.data.liquidityRisk || 0}/10
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Likidite Riski
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold">{result.data.creditRisk || 0}/10</div>
+                <div className="text-xl font-bold">
+                  {result.data.creditRisk || 0}/10
+                </div>
                 <div className="text-sm text-muted-foreground">Kredi Riski</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold">{result.data.marketRisk || 0}/10</div>
-                <div className="text-sm text-muted-foreground">Piyasa Riski</div>
+                <div className="text-xl font-bold">
+                  {result.data.marketRisk || 0}/10
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Piyasa Riski
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold">{result.data.operationalRisk || 0}/10</div>
-                <div className="text-sm text-muted-foreground">Operasyonel Risk</div>
+                <div className="text-xl font-bold">
+                  {result.data.operationalRisk || 0}/10
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Operasyonel Risk
+                </div>
               </div>
             </div>
 
@@ -218,23 +326,32 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
               <div className="space-y-2">
                 <h4 className="font-medium">Risk Faktörleri:</h4>
                 <ul className="space-y-1">
-                  {result.data.riskFactors.map((factor: string, index: number) => (
-                    <li key={index} className="text-sm text-muted-foreground">• {factor}</li>
-                  ))}
+                  {result.data.riskFactors.map(
+                    (factor: string, index: number) => (
+                      <li key={index} className="text-sm text-muted-foreground">
+                        • {factor}
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
             )}
 
-            {result.data.mitigationStrategies && result.data.mitigationStrategies.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium">Risk Azaltma Stratejileri:</h4>
-                <ul className="space-y-1">
-                  {result.data.mitigationStrategies.map((strategy: string, index: number) => (
-                    <li key={index} className="text-sm">• {strategy}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {result.data.mitigationStrategies &&
+              result.data.mitigationStrategies.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-medium">Risk Azaltma Stratejileri:</h4>
+                  <ul className="space-y-1">
+                    {result.data.mitigationStrategies.map(
+                      (strategy: string, index: number) => (
+                        <li key={index} className="text-sm">
+                          • {strategy}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              )}
           </div>
         );
 
@@ -247,38 +364,72 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
             </div>
 
             <div className="text-center">
-              <div className={`text-4xl font-bold ${result.data.overallScore >= 80 ? 'text-green-600' : 
-                                                      result.data.overallScore >= 60 ? 'text-yellow-600' : 
-                                                      result.data.overallScore >= 40 ? 'text-orange-600' : 'text-red-600'}`}>
+              <div
+                className={`text-4xl font-bold ${
+                  result.data.overallScore >= 80
+                    ? 'text-green-600'
+                    : result.data.overallScore >= 60
+                      ? 'text-yellow-600'
+                      : result.data.overallScore >= 40
+                        ? 'text-orange-600'
+                        : 'text-red-600'
+                }`}
+              >
                 {result.data.overallScore || 0}/100
               </div>
-              <div className="text-sm text-muted-foreground">Genel Sağlık Skoru</div>
-              <Badge variant={result.data.healthLevel === 'excellent' ? 'default' : 
-                             result.data.healthLevel === 'good' ? 'secondary' : 'destructive'}>
-                {result.data.healthLevel === 'excellent' ? 'Mükemmel' :
-                 result.data.healthLevel === 'good' ? 'İyi' :
-                 result.data.healthLevel === 'fair' ? 'Orta' :
-                 result.data.healthLevel === 'poor' ? 'Zayıf' : 'Kritik'}
+              <div className="text-sm text-muted-foreground">
+                Genel Sağlık Skoru
+              </div>
+              <Badge
+                variant={
+                  result.data.healthLevel === 'excellent'
+                    ? 'default'
+                    : result.data.healthLevel === 'good'
+                      ? 'secondary'
+                      : 'destructive'
+                }
+              >
+                {result.data.healthLevel === 'excellent'
+                  ? 'Mükemmel'
+                  : result.data.healthLevel === 'good'
+                    ? 'İyi'
+                    : result.data.healthLevel === 'fair'
+                      ? 'Orta'
+                      : result.data.healthLevel === 'poor'
+                        ? 'Zayıf'
+                        : 'Kritik'}
               </Badge>
             </div>
 
             {result.data.components && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-xl font-bold">{result.data.components.liquidity || 0}/100</div>
+                  <div className="text-xl font-bold">
+                    {result.data.components.liquidity || 0}/100
+                  </div>
                   <div className="text-sm text-muted-foreground">Likidite</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold">{result.data.components.solvency || 0}/100</div>
-                  <div className="text-sm text-muted-foreground">Ödeme Gücü</div>
+                  <div className="text-xl font-bold">
+                    {result.data.components.solvency || 0}/100
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Ödeme Gücü
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold">{result.data.components.profitability || 0}/100</div>
+                  <div className="text-xl font-bold">
+                    {result.data.components.profitability || 0}/100
+                  </div>
                   <div className="text-sm text-muted-foreground">Karlılık</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold">{result.data.components.efficiency || 0}/100</div>
-                  <div className="text-sm text-muted-foreground">Verimlilik</div>
+                  <div className="text-xl font-bold">
+                    {result.data.components.efficiency || 0}/100
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Verimlilik
+                  </div>
                 </div>
               </div>
             )}
@@ -287,9 +438,13 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
               <div className="space-y-2">
                 <h4 className="font-medium text-green-600">Güçlü Yönler:</h4>
                 <ul className="space-y-1">
-                  {result.data.strengths.map((strength: string, index: number) => (
-                    <li key={index} className="text-sm text-green-700">• {strength}</li>
-                  ))}
+                  {result.data.strengths.map(
+                    (strength: string, index: number) => (
+                      <li key={index} className="text-sm text-green-700">
+                        • {strength}
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
             )}
@@ -298,23 +453,34 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
               <div className="space-y-2">
                 <h4 className="font-medium text-red-600">Zayıf Yönler:</h4>
                 <ul className="space-y-1">
-                  {result.data.weaknesses.map((weakness: string, index: number) => (
-                    <li key={index} className="text-sm text-red-700">• {weakness}</li>
-                  ))}
+                  {result.data.weaknesses.map(
+                    (weakness: string, index: number) => (
+                      <li key={index} className="text-sm text-red-700">
+                        • {weakness}
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
             )}
 
-            {result.data.improvementAreas && result.data.improvementAreas.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-blue-600">İyileştirme Alanları:</h4>
-                <ul className="space-y-1">
-                  {result.data.improvementAreas.map((area: string, index: number) => (
-                    <li key={index} className="text-sm text-blue-700">• {area}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {result.data.improvementAreas &&
+              result.data.improvementAreas.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-blue-600">
+                    İyileştirme Alanları:
+                  </h4>
+                  <ul className="space-y-1">
+                    {result.data.improvementAreas.map(
+                      (area: string, index: number) => (
+                        <li key={index} className="text-sm text-blue-700">
+                          • {area}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              )}
           </div>
         );
 
@@ -352,7 +518,7 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
               <SelectValue placeholder="Analiz türü seçin" />
             </SelectTrigger>
             <SelectContent>
-              {analysisTypes.map((type) => {
+              {analysisTypes.map(type => {
                 const IconComponent = type.icon;
                 return (
                   <SelectItem key={type.value} value={type.value}>
@@ -370,12 +536,15 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
         {/* Timeframe Selection */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Zaman Aralığı:</label>
-          <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
+          <Select
+            value={selectedTimeframe}
+            onValueChange={setSelectedTimeframe}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Zaman aralığı seçin" />
             </SelectTrigger>
             <SelectContent>
-              {timeframes.map((timeframe) => (
+              {timeframes.map(timeframe => (
                 <SelectItem key={timeframe.value} value={timeframe.value}>
                   {timeframe.label}
                 </SelectItem>
@@ -385,8 +554,8 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
         </div>
 
         {/* Analyze Button */}
-        <Button 
-          onClick={handleAnalysis} 
+        <Button
+          onClick={handleAnalysis}
           disabled={loading || !selectedAnalysis}
           className="w-full"
         >
@@ -417,10 +586,10 @@ export function AIAnalysisWidget({ userId, className }: AIAnalysisWidgetProps) {
         {result && (
           <div className="mt-6 p-4 bg-muted rounded-lg">
             {renderAnalysisResult()}
-            
+
             <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
-              Analiz: {result.metadata.timeframe} | 
-              Oluşturulma: {new Date(result.metadata.generatedAt).toLocaleString('tr-TR')}
+              Analiz: {result.metadata.timeframe} | Oluşturulma:{' '}
+              {new Date(result.metadata.generatedAt).toLocaleString('tr-TR')}
             </div>
           </div>
         )}

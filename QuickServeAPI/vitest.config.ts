@@ -14,8 +14,8 @@ export default defineConfig({
       forks: {
         singleFork: true,
         maxForks: 1,
-        minForks: 1
-      }
+        minForks: 1,
+      },
     },
     // Increase memory limit
     maxWorkers: 1,
@@ -41,7 +41,7 @@ export default defineConfig({
       'tests/services/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'tests/setup/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'tests/simulation/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      'tests/transactions/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+      'tests/transactions/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
     exclude: [
       'node_modules',
@@ -53,7 +53,7 @@ export default defineConfig({
       'backup_*/**',
       '**/node_modules/**',
       'tests/sprint1/ux-improvements.test.ts',
-      'tests/sprint2/dashboard-improvements.test.ts'
+      'tests/sprint2/dashboard-improvements.test.ts',
     ],
     coverage: {
       provider: 'v8',
@@ -70,16 +70,16 @@ export default defineConfig({
         '**/*.test.*',
         '**/*.spec.*',
         'mobile/**',
-        'backup_*/**'
+        'backup_*/**',
       ],
       thresholds: {
         global: {
           branches: 70,
           functions: 70,
           lines: 70,
-          statements: 70
-        }
-      }
+          statements: 70,
+        },
+      },
     },
     // Test timeout
     testTimeout: 30000,
@@ -89,16 +89,22 @@ export default defineConfig({
     maxConcurrency: 1,
     // Environment variables for tests
     env: {
-      NODE_ENV: 'test'
-    }
+      NODE_ENV: 'test',
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './client/src'),
       '@shared': path.resolve(__dirname, './shared'),
       // Use SQLite schema for tests
-      '../../shared/schema.js': path.resolve(__dirname, './shared/schema-sqlite.ts'),
-      '../../shared/schema': path.resolve(__dirname, './shared/schema-sqlite.ts')
-    }
-  }
+      '../../shared/schema.js': path.resolve(
+        __dirname,
+        './shared/schema-sqlite.ts'
+      ),
+      '../../shared/schema': path.resolve(
+        __dirname,
+        './shared/schema-sqlite.ts'
+      ),
+    },
+  },
 });

@@ -4,11 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { TransactionJsonManager } from '@/components/TransactionJsonManager';
-import { Download, FileText, FileSpreadsheet, Calendar, AlertTriangle } from 'lucide-react';
+import {
+  Download,
+  FileText,
+  FileSpreadsheet,
+  Calendar,
+  AlertTriangle,
+} from 'lucide-react';
 import { logger } from '@/lib/logger';
 
-export default function Reports () {
-  const [exportLoading, setExportLoading] = useState<{ csv: boolean; pdf: boolean; sheets: boolean }>({
+export default function Reports() {
+  const [exportLoading, setExportLoading] = useState<{
+    csv: boolean;
+    pdf: boolean;
+    sheets: boolean;
+  }>({
     csv: false,
     pdf: false,
     sheets: false,
@@ -17,7 +27,11 @@ export default function Reports () {
   const { toast } = useToast();
 
   // Function to handle file download
-  const downloadFile = async (url: string, filename: string, type: 'csv' | 'pdf' | 'sheets') => {
+  const downloadFile = async (
+    url: string,
+    filename: string,
+    type: 'csv' | 'pdf' | 'sheets'
+  ) => {
     try {
       setExportLoading(prev => ({ ...prev, [type]: true }));
 
@@ -27,7 +41,9 @@ export default function Reports () {
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Bilinmeyen hata' }));
+        const error = await response
+          .json()
+          .catch(() => ({ error: 'Bilinmeyen hata' }));
         throw new Error(error.error || `HTTP ${response.status}`);
       }
 
@@ -50,7 +66,10 @@ export default function Reports () {
       logger.error(`${type} export error:`, error);
       toast({
         title: 'Hata',
-        description: error instanceof Error ? error.message : `${type.toUpperCase()} raporu indirilemedi`,
+        description:
+          error instanceof Error
+            ? error.message
+            : `${type.toUpperCase()} raporu indirilemedi`,
         variant: 'destructive',
       });
     } finally {
@@ -81,7 +100,9 @@ export default function Reports () {
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Bilinmeyen hata' }));
+        const error = await response
+          .json()
+          .catch(() => ({ error: 'Bilinmeyen hata' }));
         throw new Error(error.error || `HTTP ${response.status}`);
       }
 
@@ -100,7 +121,10 @@ export default function Reports () {
       logger.error('Google Sheets export error:', error);
       toast({
         title: 'Hata',
-        description: error instanceof Error ? error.message : 'Google Sheets export başarısız',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Google Sheets export başarısız',
         variant: 'destructive',
       });
     } finally {
@@ -111,7 +135,9 @@ export default function Reports () {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="page-title">Raporlar</h1>
+        <h1 className="text-3xl font-bold" data-testid="page-title">
+          Raporlar
+        </h1>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
           Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
@@ -138,7 +164,9 @@ export default function Reports () {
                   <FileSpreadsheet className="h-12 w-12 text-green-600 mx-auto" />
                   <div>
                     <h3 className="font-semibold">CSV Formatında</h3>
-                    <p className="text-sm text-muted-foreground">Excel uyumlu veri dosyası</p>
+                    <p className="text-sm text-muted-foreground">
+                      Excel uyumlu veri dosyası
+                    </p>
                   </div>
                   <Button
                     onClick={exportCsv}
@@ -169,7 +197,9 @@ export default function Reports () {
                   <FileText className="h-12 w-12 text-red-600 mx-auto" />
                   <div>
                     <h3 className="font-semibold">PDF Raporu</h3>
-                    <p className="text-sm text-muted-foreground">Detaylı finansal rapor</p>
+                    <p className="text-sm text-muted-foreground">
+                      Detaylı finansal rapor
+                    </p>
                   </div>
                   <Button
                     onClick={exportPdf}
@@ -200,7 +230,9 @@ export default function Reports () {
                   <FileSpreadsheet className="h-12 w-12 text-blue-600 mx-auto" />
                   <div>
                     <h3 className="font-semibold">Google Sheets</h3>
-                    <p className="text-sm text-muted-foreground">Bulut tabanlı çalışma sayfası</p>
+                    <p className="text-sm text-muted-foreground">
+                      Bulut tabanlı çalışma sayfası
+                    </p>
                   </div>
                   <Button
                     onClick={exportGoogleSheets}
@@ -228,7 +260,10 @@ export default function Reports () {
           <Separator />
 
           <div className="text-sm text-muted-foreground space-y-2">
-            <p><strong>Not:</strong> Dışa aktarılan veriler, kullanıcı rolünüze göre filtrelenir.</p>
+            <p>
+              <strong>Not:</strong> Dışa aktarılan veriler, kullanıcı rolünüze
+              göre filtrelenir.
+            </p>
             <ul className="list-disc list-inside space-y-1 ml-4">
               <li>CSV dosyası Excel'de açılabilir ve düzenlenebilir</li>
               <li>PDF raporu yazdırılmaya hazır formattadır</li>

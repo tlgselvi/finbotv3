@@ -15,7 +15,11 @@ export interface AuthenticatedRequest extends Request {
 }
 
 // JWT Refresh Token middleware
-export const requireJWTAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const requireJWTAuth = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   const token = req.headers.authorization?.startsWith('Bearer ')
     ? req.headers.authorization.substring(7)
     : null;
@@ -29,7 +33,7 @@ export const requireJWTAuth = async (req: AuthenticatedRequest, res: Response, n
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-    
+
     // Load fresh user data
     const { storage } = await import('../storage');
     const currentUser = await storage.getUser(decoded.userId);
@@ -59,12 +63,16 @@ export const requireJWTAuth = async (req: AuthenticatedRequest, res: Response, n
 };
 
 // Authentication middleware - ensures user is logged in and active (supports both JWT and session)
-export const requireAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const requireAuth = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   // Try JWT token from header or query parameter (for EventSource)
   let token = req.headers.authorization?.startsWith('Bearer ')
     ? req.headers.authorization.substring(7)
     : null;
-  
+
   // Fallback to query parameter for EventSource connections
   if (!token && req.query.token) {
     token = req.query.token as string;
@@ -115,7 +123,7 @@ export const requireAuth = async (req: AuthenticatedRequest, res: Response, next
 
     if (!currentUser) {
       // User no longer exists - destroy session
-      req.session.destroy((err) => {});
+      req.session.destroy(err => {});
       return res.status(401).json({
         error: 'Kullanıcı hesabı bulunamadı',
         code: 'USER_NOT_FOUND',
@@ -124,7 +132,7 @@ export const requireAuth = async (req: AuthenticatedRequest, res: Response, next
 
     // Check if user account is active (authoritative check)
     if (!currentUser.isActive) {
-      req.session.destroy((err) => {});
+      req.session.destroy(err => {});
       return res.status(403).json({
         error: 'Hesabınız pasif durumda. Lütfen yönetici ile iletişime geçin',
         code: 'ACCOUNT_INACTIVE',
@@ -183,7 +191,10 @@ export const requirePermission = (...requiredPermissions: PermissionType[]) => {
       });
     }
 
-    const userHasPermission = hasAnyPermission(req.user.role, requiredPermissions);
+    const userHasPermission = hasAnyPermission(
+      req.user.role,
+      requiredPermissions
+    );
 
     if (!userHasPermission) {
       return res.status(403).json({
@@ -199,7 +210,10 @@ export const requirePermission = (...requiredPermissions: PermissionType[]) => {
 };
 
 // Check specific permission without blocking request
-export const checkPermission = (req: AuthenticatedRequest, permission: PermissionType): boolean => {
+export const checkPermission = (
+  req: AuthenticatedRequest,
+  permission: PermissionType
+): boolean => {
   if (!req.user) {
     return false;
   }
@@ -207,7 +221,9 @@ export const checkPermission = (req: AuthenticatedRequest, permission: Permissio
 };
 
 // Account type access middleware
-export const requireAccountTypeAccess = (accountType: 'personal' | 'company') => {
+export const requireAccountTypeAccess = (
+  accountType: 'personal' | 'company'
+) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
@@ -241,7 +257,11 @@ export const requireAccountTypeAccess = (accountType: 'personal' | 'company') =>
 };
 
 // Optional auth middleware - attaches user if logged in but doesn't require it
-export const optionalAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const optionalAuth = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (req.session?.user) {
     req.user = req.session.user as any;
   }
@@ -254,13 +274,19 @@ export const requireAdmin = requireRole('admin');
 // Log access attempts for security audit
 export const logAccess = (action: string) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    logger.info(`🔐 [AUTH] ${action} - User: ${req.user?.username || 'anonymous'} (${req.user?.role || 'no-role'}) - IP: ${req.ip}`);
+    logger.info(
+      `🔐 [AUTH] ${action} - User: ${req.user?.username || 'anonymous'} (${req.user?.role || 'no-role'}) - IP: ${req.ip}`
+    );
     next();
   };
 };
 
 // Admin Protection Middleware - Check if this is the last admin
-export const lastAdminCheck = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const lastAdminCheck = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (!req.user) {
     return res.status(401).json({
       error: 'Oturum açmanız gerekiyor',
@@ -270,15 +296,19 @@ export const lastAdminCheck = async (req: AuthenticatedRequest, res: Response, n
 
   try {
     const { storage } = await import('../storage');
-    
+
     // Get all users with admin role
     const adminUsers = await storage.getUsersByRole('admin');
     const activeAdminUsers = adminUsers.filter(user => user.isActive);
 
     // If this is the last active admin, prevent certain operations
-    if (activeAdminUsers.length === 1 && activeAdminUsers[0].id === req.user.id) {
+    if (
+      activeAdminUsers.length === 1 &&
+      activeAdminUsers[0].id === req.user.id
+    ) {
       return res.status(403).json({
-        error: 'Bu işlem gerçekleştirilemez çünkü sistemde sadece siz aktif admin olarak bulunuyorsunuz',
+        error:
+          'Bu işlem gerçekleştirilemez çünkü sistemde sadece siz aktif admin olarak bulunuyorsunuz',
         code: 'LAST_ADMIN_PROTECTION',
         message: 'En az bir aktif admin hesabının bulunması gerekmektedir',
       });
@@ -295,7 +325,11 @@ export const lastAdminCheck = async (req: AuthenticatedRequest, res: Response, n
 };
 
 // Admin Role Change Guard - Prevent admin role changes without proper authorization
-export const adminRoleChangeGuard = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const adminRoleChangeGuard = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (!req.user) {
     return res.status(401).json({
       error: 'Oturum açmanız gerekiyor',
@@ -305,11 +339,11 @@ export const adminRoleChangeGuard = async (req: AuthenticatedRequest, res: Respo
 
   try {
     const { storage } = await import('../storage');
-    
+
     // Check if this is a role change operation
     const { role, userId } = req.body;
     const targetUserId = userId || req.params.userId;
-    
+
     if (!role || !targetUserId) {
       return next(); // Not a role change operation
     }
@@ -330,7 +364,10 @@ export const adminRoleChangeGuard = async (req: AuthenticatedRequest, res: Respo
       const activeAdminUsers = adminUsers.filter(user => user.isActive);
 
       // If this is the last active admin, prevent role change
-      if (activeAdminUsers.length === 1 && activeAdminUsers[0].id === targetUserId) {
+      if (
+        activeAdminUsers.length === 1 &&
+        activeAdminUsers[0].id === targetUserId
+      ) {
         return res.status(403).json({
           error: 'Son aktif admin kullanıcısının rolü değiştirilemez',
           code: 'LAST_ADMIN_ROLE_CHANGE_DENIED',
@@ -350,7 +387,11 @@ export const adminRoleChangeGuard = async (req: AuthenticatedRequest, res: Respo
 };
 
 // System Account Guard - Protect system accounts from modification
-export const systemAccountGuard = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const systemAccountGuard = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (!req.user) {
     return res.status(401).json({
       error: 'Oturum açmanız gerekiyor',
@@ -360,10 +401,10 @@ export const systemAccountGuard = async (req: AuthenticatedRequest, res: Respons
 
   try {
     const { storage } = await import('../storage');
-    
+
     // Check if this is a user modification operation
     const targetUserId = req.params.userId || req.body.userId;
-    
+
     if (!targetUserId) {
       return next(); // Not a user modification operation
     }
@@ -378,7 +419,10 @@ export const systemAccountGuard = async (req: AuthenticatedRequest, res: Respons
     }
 
     // Check if target user is a system account
-    if (targetUser.email === 'system@finbot.com' || targetUser.username === 'system') {
+    if (
+      targetUser.email === 'system@finbot.com' ||
+      targetUser.username === 'system'
+    ) {
       return res.status(403).json({
         error: 'Sistem hesapları değiştirilemez',
         code: 'SYSTEM_ACCOUNT_PROTECTION',

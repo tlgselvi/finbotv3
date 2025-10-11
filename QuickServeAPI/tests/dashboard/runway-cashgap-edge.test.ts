@@ -8,7 +8,10 @@ import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import * as schema from '../../shared/schema-sqlite';
 import { eq } from 'drizzle-orm';
-import { calculateRunway, calculateCashGap } from '../../server/modules/dashboard/runway-cashgap';
+import {
+  calculateRunway,
+  calculateCashGap,
+} from '../../server/modules/dashboard/runway-cashgap';
 
 // Create in-memory test database
 const sqlite = new Database(':memory:');
@@ -71,16 +74,28 @@ beforeAll(() => {
 describe('Edge Case Tests', () => {
   beforeEach(async () => {
     // Clean up test data
-    await testDb.delete(schema.transactions).where(eq(schema.transactions.user_id, testUserId));
-    await testDb.delete(schema.accounts).where(eq(schema.accounts.user_id, testUserId));
-    await testDb.delete(schema.arApItems).where(eq(schema.arApItems.user_id, testUserId));
+    await testDb
+      .delete(schema.transactions)
+      .where(eq(schema.transactions.user_id, testUserId));
+    await testDb
+      .delete(schema.accounts)
+      .where(eq(schema.accounts.user_id, testUserId));
+    await testDb
+      .delete(schema.arApItems)
+      .where(eq(schema.arApItems.user_id, testUserId));
   });
 
   afterEach(async () => {
     // Clean up test data
-    await testDb.delete(schema.transactions).where(eq(schema.transactions.user_id, testUserId));
-    await testDb.delete(schema.accounts).where(eq(schema.accounts.user_id, testUserId));
-    await testDb.delete(schema.arApItems).where(eq(schema.arApItems.user_id, testUserId));
+    await testDb
+      .delete(schema.transactions)
+      .where(eq(schema.transactions.user_id, testUserId));
+    await testDb
+      .delete(schema.accounts)
+      .where(eq(schema.accounts.user_id, testUserId));
+    await testDb
+      .delete(schema.arApItems)
+      .where(eq(schema.arApItems.user_id, testUserId));
   });
 
   /**
@@ -90,7 +105,7 @@ describe('Edge Case Tests', () => {
   describe('Empty Database Scenario', () => {
     it('should return sensible defaults for empty database', async () => {
       const runwayResult = await calculateRunway(testUserId, 12, testDb);
-      
+
       expect(runwayResult).toBeDefined();
       expect(runwayResult.currentCash).toBe(0);
       expect(runwayResult.monthlyExpenses).toBe(0);
@@ -103,7 +118,7 @@ describe('Edge Case Tests', () => {
 
     it('should return empty AR/AP for empty database', async () => {
       const cashGapResult = await calculateCashGap(testUserId, 6, testDb);
-      
+
       expect(cashGapResult).toBeDefined();
       expect(cashGapResult.totalAR).toBe(0);
       expect(cashGapResult.totalAP).toBe(0);
@@ -123,7 +138,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-negative',
         user_id: testUserId,
         name: 'Overdrawn Account',
-        balance: -5000.00,
+        balance: -5000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -131,7 +146,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       expect(result.currentCash).toBe(-5000);
       expect(result.runwayMonths).toBeLessThanOrEqual(0);
       expect(['critical', 'warning']).toContain(result.status);
@@ -144,7 +159,7 @@ describe('Edge Case Tests', () => {
           id: 'acc-positive',
           user_id: testUserId,
           name: 'Positive Account',
-          balance: 10000.00,
+          balance: 10000.0,
           type: 'bank',
           currency: 'TRY',
           created_at: new Date().toISOString(),
@@ -154,7 +169,7 @@ describe('Edge Case Tests', () => {
           id: 'acc-negative-2',
           user_id: testUserId,
           name: 'Negative Account',
-          balance: -3000.00,
+          balance: -3000.0,
           type: 'credit_card',
           currency: 'TRY',
           created_at: new Date().toISOString(),
@@ -163,7 +178,7 @@ describe('Edge Case Tests', () => {
       ]);
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       expect(result.currentCash).toBe(7000); // 10000 - 3000
       expect(result.runwayMonths).toBeGreaterThan(0);
     });
@@ -173,7 +188,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-deep-negative',
         user_id: testUserId,
         name: 'Deep Overdraft',
-        balance: -50000.00,
+        balance: -50000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -181,7 +196,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       expect(['critical', 'warning']).toContain(result.status);
       expect(result.runwayMonths).toBeLessThanOrEqual(0);
     });
@@ -205,7 +220,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       expect(result.currentCash).toBeLessThan(Number.MAX_SAFE_INTEGER);
       expect(result.currentCash).toBe(999999999.99);
       // With no expenses, runway is Infinity - this is expected
@@ -217,7 +232,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-large-trans',
         user_id: testUserId,
         name: 'Test Account',
-        balance: 1000000000.00,
+        balance: 1000000000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -231,7 +246,7 @@ describe('Edge Case Tests', () => {
         id: 'trans-large',
         user_id: testUserId,
         account_id: 'acc-large-trans',
-        amount: -100000000.00, // 100 million expense
+        amount: -100000000.0, // 100 million expense
         type: 'expense',
         category: 'operating',
         date: date.toISOString(),
@@ -239,7 +254,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       expect(Number.isFinite(result.monthlyExpenses)).toBe(true);
       expect(Number.isFinite(result.runwayMonths)).toBe(true);
     });
@@ -251,7 +266,7 @@ describe('Edge Case Tests', () => {
           user_id: testUserId,
           type: 'receivable',
           customer_supplier: 'Large Customer',
-          amount: 500000000.00,
+          amount: 500000000.0,
           due_date: new Date().toISOString(),
           age_days: 10,
           status: 'pending',
@@ -263,7 +278,7 @@ describe('Edge Case Tests', () => {
           user_id: testUserId,
           type: 'payable',
           customer_supplier: 'Large Supplier',
-          amount: 400000000.00,
+          amount: 400000000.0,
           due_date: new Date().toISOString(),
           age_days: 5,
           status: 'pending',
@@ -273,7 +288,7 @@ describe('Edge Case Tests', () => {
       ]);
 
       const result = await calculateCashGap(testUserId, 6, testDb);
-      
+
       expect(result.totalAR).toBe(500000000);
       expect(result.totalAP).toBe(400000000);
       expect(result.cashGap).toBe(100000000);
@@ -292,7 +307,7 @@ describe('Edge Case Tests', () => {
           id: 'acc-try',
           user_id: testUserId,
           name: 'TRY Account',
-          balance: 10000.00,
+          balance: 10000.0,
           type: 'bank',
           currency: 'TRY',
           created_at: new Date().toISOString(),
@@ -302,7 +317,7 @@ describe('Edge Case Tests', () => {
           id: 'acc-usd',
           user_id: testUserId,
           name: 'USD Account',
-          balance: 5000.00,
+          balance: 5000.0,
           type: 'bank',
           currency: 'USD',
           created_at: new Date().toISOString(),
@@ -312,7 +327,7 @@ describe('Edge Case Tests', () => {
           id: 'acc-eur',
           user_id: testUserId,
           name: 'EUR Account',
-          balance: 3000.00,
+          balance: 3000.0,
           type: 'bank',
           currency: 'EUR',
           created_at: new Date().toISOString(),
@@ -321,7 +336,7 @@ describe('Edge Case Tests', () => {
       ]);
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       // Currently sums all currencies without conversion
       // TODO: Future enhancement - exchange rate conversion
       expect(result.currentCash).toBe(18000); // 10000 + 5000 + 3000
@@ -335,7 +350,7 @@ describe('Edge Case Tests', () => {
           user_id: testUserId,
           type: 'receivable',
           customer_supplier: 'TRY Customer',
-          amount: 10000.00,
+          amount: 10000.0,
           due_date: new Date().toISOString(),
           age_days: 10,
           status: 'pending',
@@ -348,7 +363,7 @@ describe('Edge Case Tests', () => {
           user_id: testUserId,
           type: 'payable',
           customer_supplier: 'USD Supplier',
-          amount: 5000.00,
+          amount: 5000.0,
           due_date: new Date().toISOString(),
           age_days: 5,
           status: 'pending',
@@ -359,7 +374,7 @@ describe('Edge Case Tests', () => {
       ]);
 
       const result = await calculateCashGap(testUserId, 6, testDb);
-      
+
       // Currently no currency conversion
       expect(result.totalAR).toBe(10000);
       expect(result.totalAP).toBe(5000);
@@ -377,7 +392,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-boundary',
         user_id: testUserId,
         name: 'Boundary Account',
-        balance: 30000.00,
+        balance: 30000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -388,12 +403,12 @@ describe('Edge Case Tests', () => {
       for (let i = 0; i < 6; i++) {
         const date = new Date();
         date.setMonth(date.getMonth() - i);
-        
+
         await testDb.insert(schema.transactions).values({
           id: `trans-boundary-${i}`,
           user_id: testUserId,
           account_id: 'acc-boundary',
-          amount: -10000.00,
+          amount: -10000.0,
           type: 'expense',
           category: 'operating',
           date: date.toISOString(),
@@ -402,7 +417,7 @@ describe('Edge Case Tests', () => {
       }
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       // 30k balance / 10k per month = 3 months (boundary)
       expect(result.runwayMonths).toBeCloseTo(3, 1);
       expect(['warning', 'critical']).toContain(result.status);
@@ -413,7 +428,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-boundary-6',
         user_id: testUserId,
         name: 'Six Month Account',
-        balance: 60000.00,
+        balance: 60000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -423,12 +438,12 @@ describe('Edge Case Tests', () => {
       for (let i = 0; i < 6; i++) {
         const date = new Date();
         date.setMonth(date.getMonth() - i);
-        
+
         await testDb.insert(schema.transactions).values({
           id: `trans-boundary-6-${i}`,
           user_id: testUserId,
           account_id: 'acc-boundary-6',
-          amount: -10000.00,
+          amount: -10000.0,
           type: 'expense',
           category: 'operating',
           date: date.toISOString(),
@@ -437,7 +452,7 @@ describe('Edge Case Tests', () => {
       }
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       expect(result.runwayMonths).toBeCloseTo(6, 1);
       expect(['healthy', 'warning']).toContain(result.status);
     });
@@ -447,7 +462,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-min-months',
         user_id: testUserId,
         name: 'Test Account',
-        balance: 50000.00,
+        balance: 50000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -455,7 +470,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateRunway(testUserId, 1, testDb);
-      
+
       expect(result.monthlyBreakdown.length).toBeGreaterThan(0);
       expect(result).toBeDefined();
     });
@@ -465,7 +480,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-max-months',
         user_id: testUserId,
         name: 'Test Account',
-        balance: 50000.00,
+        balance: 50000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -473,7 +488,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateRunway(testUserId, 60, testDb);
-      
+
       expect(result.monthlyBreakdown.length).toBeGreaterThan(0);
       expect(result).toBeDefined();
     });
@@ -488,7 +503,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-zero',
         user_id: testUserId,
         name: 'Zero Balance Account',
-        balance: 0.00,
+        balance: 0.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -496,7 +511,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       expect(result.currentCash).toBe(0);
       expect(['critical', 'warning', 'healthy']).toContain(result.status);
     });
@@ -506,7 +521,7 @@ describe('Edge Case Tests', () => {
         id: 'acc-old',
         user_id: testUserId,
         name: 'Test Account',
-        balance: 50000.00,
+        balance: 50000.0,
         type: 'bank',
         currency: 'TRY',
         created_at: new Date().toISOString(),
@@ -521,7 +536,7 @@ describe('Edge Case Tests', () => {
         id: 'trans-old',
         user_id: testUserId,
         account_id: 'acc-old',
-        amount: -10000.00,
+        amount: -10000.0,
         type: 'expense',
         category: 'operating',
         date: oldDate.toISOString(),
@@ -529,7 +544,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateRunway(testUserId, 12, testDb);
-      
+
       // Should only consider last 6 months, so this old transaction ignored
       expect(result.monthlyExpenses).toBe(0);
     });
@@ -543,7 +558,7 @@ describe('Edge Case Tests', () => {
         user_id: testUserId,
         type: 'receivable',
         customer_supplier: 'Late Paying Customer',
-        amount: 20000.00,
+        amount: 20000.0,
         due_date: overdueDate.toISOString(),
         age_days: 60,
         status: 'overdue',
@@ -552,7 +567,7 @@ describe('Edge Case Tests', () => {
       });
 
       const result = await calculateCashGap(testUserId, 6, testDb);
-      
+
       expect(result.totalAR).toBeGreaterThan(0);
       expect(result.arDueIn60Days).toBeGreaterThan(0);
     });
@@ -564,7 +579,7 @@ describe('Edge Case Tests', () => {
           user_id: testUserId,
           type: 'receivable',
           customer_supplier: 'Paid Customer',
-          amount: 10000.00,
+          amount: 10000.0,
           due_date: new Date().toISOString(),
           age_days: 0,
           status: 'paid',
@@ -576,7 +591,7 @@ describe('Edge Case Tests', () => {
           user_id: testUserId,
           type: 'receivable',
           customer_supplier: 'Pending Customer',
-          amount: 5000.00,
+          amount: 5000.0,
           due_date: new Date().toISOString(),
           age_days: 0,
           status: 'pending',
@@ -586,10 +601,9 @@ describe('Edge Case Tests', () => {
       ]);
 
       const result = await calculateCashGap(testUserId, 6, testDb);
-      
+
       // Should include all AR regardless of status
       expect(result.totalAR).toBe(15000);
     });
   });
 });
-

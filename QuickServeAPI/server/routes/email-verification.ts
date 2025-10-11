@@ -7,68 +7,79 @@ import { logger } from '../utils/logger';
 const router = Router();
 
 // Email verification API
-router.post('/send-verification', requireAuth, async (req: AuthenticatedRequest, res) => {
-  try {
-    const { email } = req.body;
-    const userId = req.user!.id;
+router.post(
+  '/send-verification',
+  requireAuth,
+  async (req: AuthenticatedRequest, res) => {
+    try {
+      const { email } = req.body;
+      const userId = req.user!.id;
 
-    // Generate verification code
-    const verificationCode = randomBytes(3).toString('hex').toUpperCase();
-    
-    // Store verification code (in production, store in database with expiration)
-    // For now, we'll just send the email
-    
-    // Send verification email
-    const template = emailService.generateEmailVerificationTemplate(verificationCode);
-    const emailSent = await emailService.sendEmail(email, template);
+      // Generate verification code
+      const verificationCode = randomBytes(3).toString('hex').toUpperCase();
 
-    if (emailSent) {
-      res.json({
-        success: true,
-        message: 'Doğrulama e-postası gönderildi',
-        verificationId: `verify_${Date.now()}`,
-      });
-    } else {
+      // Store verification code (in production, store in database with expiration)
+      // For now, we'll just send the email
+
+      // Send verification email
+      const template =
+        emailService.generateEmailVerificationTemplate(verificationCode);
+      const emailSent = await emailService.sendEmail(email, template);
+
+      if (emailSent) {
+        res.json({
+          success: true,
+          message: 'Doğrulama e-postası gönderildi',
+          verificationId: `verify_${Date.now()}`,
+        });
+      } else {
+        res.status(500).json({
+          error: 'E-posta gönderilemedi',
+        });
+      }
+    } catch (error) {
+      logger.error('Email verification error:', error);
       res.status(500).json({
-        error: 'E-posta gönderilemedi',
+        error: 'E-posta doğrulama gönderilirken hata oluştu',
       });
     }
-  } catch (error) {
-    logger.error('Email verification error:', error);
-    res.status(500).json({
-      error: 'E-posta doğrulama gönderilirken hata oluştu',
-    });
   }
-});
+);
 
 // Mock email verification confirmation
-router.post('/confirm-verification', requireAuth, async (req: AuthenticatedRequest, res) => {
-  try {
-    const { verificationCode } = req.body;
-    const userId = req.user!.id;
+router.post(
+  '/confirm-verification',
+  requireAuth,
+  async (req: AuthenticatedRequest, res) => {
+    try {
+      const { verificationCode } = req.body;
+      const userId = req.user!.id;
 
-    // TODO Tolga'dan teyit al - Mock verification logic
-    if (!verificationCode || verificationCode.length < 4) {
-      return res.status(400).json({
-        error: 'Geçersiz doğrulama kodu',
+      // TODO Tolga'dan teyit al - Mock verification logic
+      if (!verificationCode || verificationCode.length < 4) {
+        return res.status(400).json({
+          error: 'Geçersiz doğrulama kodu',
+        });
+      }
+
+      // Mock successful verification
+      logger.info(
+        `✅ Mock email verification confirmed for user ${userId} with code ${verificationCode}`
+      );
+
+      res.json({
+        success: true,
+        message: 'E-posta başarıyla doğrulandı',
+        verifiedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      logger.error('Email verification confirmation error:', error);
+      res.status(500).json({
+        error: 'E-posta doğrulama onaylanırken hata oluştu',
       });
     }
-
-    // Mock successful verification
-    logger.info(`✅ Mock email verification confirmed for user ${userId} with code ${verificationCode}`);
-
-    res.json({
-      success: true,
-      message: 'E-posta başarıyla doğrulandı',
-      verifiedAt: new Date().toISOString(),
-    });
-  } catch (error) {
-    logger.error('Email verification confirmation error:', error);
-    res.status(500).json({
-      error: 'E-posta doğrulama onaylanırken hata oluştu',
-    });
   }
-});
+);
 
 // Get verification status
 router.get('/status', requireAuth, async (req: AuthenticatedRequest, res) => {
@@ -90,4 +101,3 @@ router.get('/status', requireAuth, async (req: AuthenticatedRequest, res) => {
 });
 
 export default router;
-

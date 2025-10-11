@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import { db } from '../../server/db';
 import { budgetLines, transactions } from '../../server/db/schema';
-import { 
-  compareBudgetVsActual, 
-  getBudgetVarianceAnalysis, 
-  calculateBudgetEfficiencyScore 
+import {
+  compareBudgetVsActual,
+  getBudgetVarianceAnalysis,
+  calculateBudgetEfficiencyScore,
 } from '../../server/modules/budget/compare';
 import { eq } from 'drizzle-orm';
 
@@ -121,7 +121,9 @@ describe.skipIf(!process.env.DATABASE_URL)('Budget Comparison Module', () => {
 
       const result = await compareBudgetVsActual(testUserId, testMonth);
 
-      const officeCategory = result.categories.find(c => c.category === 'Office Supplies');
+      const officeCategory = result.categories.find(
+        c => c.category === 'Office Supplies'
+      );
       expect(officeCategory).toBeDefined();
       expect(officeCategory?.status).toBe('over-budget');
       expect(officeCategory?.variance).toBeLessThan(0);
@@ -156,7 +158,9 @@ describe.skipIf(!process.env.DATABASE_URL)('Budget Comparison Module', () => {
 
       const result = await compareBudgetVsActual(testUserId, testMonth);
 
-      const utilityCategory = result.categories.find(c => c.category === 'Utilities');
+      const utilityCategory = result.categories.find(
+        c => c.category === 'Utilities'
+      );
       expect(utilityCategory).toBeDefined();
       expect(utilityCategory?.status).toBe('under-budget');
       expect(utilityCategory?.variance).toBeGreaterThan(0);
@@ -342,7 +346,10 @@ describe.skipIf(!process.env.DATABASE_URL)('Budget Comparison Module', () => {
         },
       ]);
 
-      const result = await calculateBudgetEfficiencyScore(testUserId, testMonth);
+      const result = await calculateBudgetEfficiencyScore(
+        testUserId,
+        testMonth
+      );
 
       expect(result.score).toBeGreaterThanOrEqual(0);
       expect(result.score).toBeLessThanOrEqual(100);
@@ -405,7 +412,10 @@ describe.skipIf(!process.env.DATABASE_URL)('Budget Comparison Module', () => {
         },
       ]);
 
-      const result = await calculateBudgetEfficiencyScore(testUserId, testMonth);
+      const result = await calculateBudgetEfficiencyScore(
+        testUserId,
+        testMonth
+      );
 
       expect(result.score).toBeGreaterThanOrEqual(0);
       expect(result.score).toBeLessThanOrEqual(100);
@@ -427,7 +437,10 @@ describe.skipIf(!process.env.DATABASE_URL)('Budget Comparison Module', () => {
         updatedAt: new Date(),
       });
 
-      const result = await calculateBudgetEfficiencyScore(testUserId, testMonth);
+      const result = await calculateBudgetEfficiencyScore(
+        testUserId,
+        testMonth
+      );
 
       // Verify grade mapping logic
       if (result.score >= 90) {
@@ -444,4 +457,3 @@ describe.skipIf(!process.env.DATABASE_URL)('Budget Comparison Module', () => {
     });
   });
 });
-

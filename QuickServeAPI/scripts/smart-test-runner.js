@@ -24,7 +24,7 @@ const colors = {
   blue: '\x1b[34m',
   cyan: '\x1b[36m',
   red: '\x1b[31m',
-  magenta: '\x1b[35m'
+  magenta: '\x1b[35m',
 };
 
 function log(message, color = 'reset') {
@@ -40,13 +40,16 @@ function section(title) {
 // 1. Testleri Çalıştır ve Sonuçları Yakala
 async function runTests() {
   section('🧪 1/5: Testler Çalıştırılıyor...');
-  
+
   try {
-    const { stdout, stderr } = await execPromise('pnpm test --run --reporter=verbose', {
-      cwd: rootDir,
-      maxBuffer: 10 * 1024 * 1024
-    });
-    
+    const { stdout, stderr } = await execPromise(
+      'pnpm test --run --reporter=verbose',
+      {
+        cwd: rootDir,
+        maxBuffer: 10 * 1024 * 1024,
+      }
+    );
+
     log('✅ Testler tamamlandı', 'green');
     return { output: stdout + stderr, success: true };
   } catch (error) {
@@ -68,20 +71,22 @@ function parseResults(output) {
     skippedFiles: 0,
     duration: '0s',
     passRate: '0%',
-    timestamp: new Date().toLocaleString('tr-TR', { 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit', 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    timestamp: new Date().toLocaleString('tr-TR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
     }),
     failingTests: [],
     passingTestFiles: [],
-    failingTestFiles: []
+    failingTestFiles: [],
   };
 
   // Test Files
-  const testFilesMatch = output.match(/Test Files\s+(\d+)\s+failed.*?\|\s*(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/);
+  const testFilesMatch = output.match(
+    /Test Files\s+(\d+)\s+failed.*?\|\s*(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/
+  );
   if (testFilesMatch) {
     results.failingFiles = parseInt(testFilesMatch[1]) || 0;
     results.passingFiles = parseInt(testFilesMatch[2]) || 0;
@@ -96,14 +101,18 @@ function parseResults(output) {
   }
 
   // Tests
-  const testsMatch = output.match(/Tests\s+(\d+)\s+failed.*?\|\s*(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/);
+  const testsMatch = output.match(
+    /Tests\s+(\d+)\s+failed.*?\|\s*(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/
+  );
   if (testsMatch) {
     results.failing = parseInt(testsMatch[1]) || 0;
     results.passing = parseInt(testsMatch[2]) || 0;
     results.skipped = parseInt(testsMatch[3]) || 0;
     results.totalTests = parseInt(testsMatch[4]) || 0;
   } else {
-    const simpleMatch = output.match(/Tests\s+(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/);
+    const simpleMatch = output.match(
+      /Tests\s+(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/
+    );
     if (simpleMatch) {
       results.passing = parseInt(simpleMatch[1]) || 0;
       results.skipped = parseInt(simpleMatch[2]) || 0;
@@ -146,9 +155,9 @@ function parseResults(output) {
 // 3. README'yi Güncelle
 function updateReadme(results) {
   section('📝 2/5: README.md Güncelleniyor...');
-  
+
   const readmePath = path.join(rootDir, 'tests', 'README.md');
-  
+
   if (!fs.existsSync(readmePath)) {
     log('❌ README.md bulunamadı', 'red');
     return false;
@@ -157,8 +166,9 @@ function updateReadme(results) {
   let content = fs.readFileSync(readmePath, 'utf-8');
 
   // Test Suite Özeti
-  const summaryRegex = /## 📊 Test Suite Özeti\s*\n\s*\*\*Toplam:\*\*[^\n]*\n\s*\*\*Son Güncelleme:\*\*[^\n]*\n\s*\*\*Critical Tests:\*\*[^\n]*\n\s*\*\*Test Files:\*\*[^\n]*/;
-  
+  const summaryRegex =
+    /## 📊 Test Suite Özeti\s*\n\s*\*\*Toplam:\*\*[^\n]*\n\s*\*\*Son Güncelleme:\*\*[^\n]*\n\s*\*\*Critical Tests:\*\*[^\n]*\n\s*\*\*Test Files:\*\*[^\n]*/;
+
   const newSummary = `## 📊 Test Suite Özeti
 
 **Toplam:** ${results.totalTests} test | **Geçen:** ${results.passing} (${results.passRate}) | **Skip:** ${results.skipped} (${((results.skipped / results.totalTests) * 100).toFixed(0)}%) | **Coverage:** ~75%
@@ -169,11 +179,17 @@ function updateReadme(results) {
 
   content = content.replace(summaryRegex, newSummary);
   fs.writeFileSync(readmePath, content, 'utf-8');
-  
+
   log('✅ README.md güncellendi', 'green');
-  log(`   • ${results.passing}/${results.totalTests} test geçti (${results.passRate})`, 'cyan');
-  log(`   • ${results.failingFiles} dosya düzeltme gerektirir`, results.failingFiles > 0 ? 'yellow' : 'green');
-  
+  log(
+    `   • ${results.passing}/${results.totalTests} test geçti (${results.passRate})`,
+    'cyan'
+  );
+  log(
+    `   • ${results.failingFiles} dosya düzeltme gerektirir`,
+    results.failingFiles > 0 ? 'yellow' : 'green'
+  );
+
   return true;
 }
 
@@ -191,7 +207,7 @@ function updatePackageJson(results) {
 // 5. Eksik Test Coverage'ı Tespit Et
 function detectMissingTests() {
   section('🔍 3/5: Eksik Test Coverage Analizi...');
-  
+
   const serverDir = path.join(rootDir, 'server');
   const testsDir = path.join(rootDir, 'tests');
   const missingTests = [];
@@ -199,13 +215,13 @@ function detectMissingTests() {
   // Server dosyalarını tara
   function scanDirectory(dir, basePath = '') {
     if (!fs.existsSync(dir)) return;
-    
+
     const files = fs.readdirSync(dir);
-    
+
     for (const file of files) {
       const fullPath = path.join(dir, file);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat.isDirectory() && !file.includes('node_modules')) {
         scanDirectory(fullPath, path.join(basePath, file));
       } else if (file.endsWith('.ts') && !file.endsWith('.test.ts')) {
@@ -214,15 +230,23 @@ function detectMissingTests() {
         const possibleTestPaths = [
           path.join(testsDir, testPath),
           path.join(testsDir, file.replace(/\.ts$/, '.test.ts')),
-          path.join(testsDir, path.dirname(relativePath), file.replace(/\.ts$/, '.test.ts'))
+          path.join(
+            testsDir,
+            path.dirname(relativePath),
+            file.replace(/\.ts$/, '.test.ts')
+          ),
         ];
-        
+
         const hasTest = possibleTestPaths.some(p => fs.existsSync(p));
-        
-        if (!hasTest && !relativePath.includes('index.ts') && !relativePath.includes('vite.ts')) {
+
+        if (
+          !hasTest &&
+          !relativePath.includes('index.ts') &&
+          !relativePath.includes('vite.ts')
+        ) {
           missingTests.push({
             file: relativePath,
-            suggestedTestPath: path.join('tests', testPath)
+            suggestedTestPath: path.join('tests', testPath),
           });
         }
       }
@@ -250,7 +274,7 @@ function detectMissingTests() {
 // 6. Yeni Eklenen Dosyalar için Test Şablonları Oluştur
 function generateTestTemplates(missingTests) {
   section('🏗️  4/5: Test Şablonları Oluşturuluyor...');
-  
+
   if (missingTests.length === 0) {
     log('✅ Yeni test şablonu oluşturmaya gerek yok', 'green');
     return [];
@@ -262,7 +286,7 @@ function generateTestTemplates(missingTests) {
   for (let i = 0; i < Math.min(limit, missingTests.length); i++) {
     const item = missingTests[i];
     const testPath = path.join(rootDir, item.suggestedTestPath);
-    
+
     // Test dizinini oluştur
     const testDir = path.dirname(testPath);
     if (!fs.existsSync(testDir)) {
@@ -309,14 +333,14 @@ describe('${fileName}', () => {
 // 7. Geçici Dosyaları Temizle
 function cleanupTempFiles() {
   section('🧹 5/5: Geçici Dosyalar Temizleniyor...');
-  
+
   const tempPatterns = [
     '**/*.tmp',
     '**/*.log',
     '**/coverage/**',
     '**/.vitest-cache/**',
     '**/test-results/**',
-    '**/.DS_Store'
+    '**/.DS_Store',
   ];
 
   let cleanedCount = 0;
@@ -355,7 +379,7 @@ function cleanupTempFiles() {
 // 8. Özet Rapor Oluştur
 function generateSummaryReport(results, missingTests, createdFiles) {
   section('📊 TEST RAPORU ÖZETİ');
-  
+
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                     TEST SONUÇLARI                         ║
@@ -393,48 +417,50 @@ function generateSummaryReport(results, missingTests, createdFiles) {
 // Ana İşlem
 async function main() {
   const startTime = Date.now();
-  
+
   console.clear();
-  log(`
+  log(
+    `
 ╔════════════════════════════════════════════════════════════╗
 ║            🤖 AKILLI TEST RUNNER - FinBot v3              ║
 ║   Tek Komutla: Test + Analiz + Güncelleme + Temizlik     ║
 ╚════════════════════════════════════════════════════════════╝
-  `, 'bright');
+  `,
+    'bright'
+  );
 
   try {
     // 1. Testleri çalıştır
     const { output, success } = await runTests();
-    
+
     // 2. Sonuçları parse et
     const results = parseResults(output);
-    
+
     // 3. README'yi güncelle
     updateReadme(results);
-    
+
     // 4. package.json'ı güncelle
     updatePackageJson(results);
-    
+
     // 5. Eksik testleri tespit et
     const missingTests = detectMissingTests();
-    
+
     // 6. Test şablonları oluştur
     const createdFiles = generateTestTemplates(missingTests);
-    
+
     // 7. Geçici dosyaları temizle
     cleanupTempFiles();
-    
+
     // 8. Özet rapor
     generateSummaryReport(results, missingTests, createdFiles);
-    
+
     const endTime = Date.now();
     const duration = ((endTime - startTime) / 1000).toFixed(2);
-    
+
     log(`\n⏱️  Toplam Süre: ${duration} saniye`, 'cyan');
     log('═'.repeat(60) + '\n', 'bright');
-    
+
     process.exit(success ? 0 : 1);
-    
   } catch (error) {
     log('\n❌ HATA: ' + error.message, 'red');
     console.error(error);
@@ -443,4 +469,3 @@ async function main() {
 }
 
 main();
-

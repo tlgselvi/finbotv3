@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -18,12 +24,19 @@ import {
   BarChart3,
   Lightbulb,
   Shield,
-  Zap
+  Zap,
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { formatCurrency } from '@/lib/utils/formatCurrency';
 import { toast } from '@/hooks/use-toast';
-import { PieChart as RechartsPieChart, Cell, ResponsiveContainer, Pie, Tooltip, Legend } from 'recharts';
+import {
+  PieChart as RechartsPieChart,
+  Cell,
+  ResponsiveContainer,
+  Pie,
+  Tooltip,
+  Legend,
+} from 'recharts';
 
 type RiskProfile = 'low' | 'medium' | 'high';
 
@@ -88,7 +101,7 @@ export default function AdvisorPanel() {
     bonds: 100000,
     crypto: 25000,
     commodities: 15000,
-    realEstate: 50000
+    realEstate: 50000,
   });
 
   const [lastResult, setLastResult] = useState<AdvisorResult | null>(null);
@@ -115,23 +128,30 @@ export default function AdvisorPanel() {
 
   // Portföy analizi mutation
   const analyzePortfolioMutation = useMutation({
-    mutationFn: async (input: { portfolio: PortfolioInput; riskProfile: RiskProfile }) => {
-      const response = await apiRequest('POST', '/api/advisor/portfolio', input);
+    mutationFn: async (input: {
+      portfolio: PortfolioInput;
+      riskProfile: RiskProfile;
+    }) => {
+      const response = await apiRequest(
+        'POST',
+        '/api/advisor/portfolio',
+        input
+      );
       const data = await response.json();
       return data;
     },
     onSuccess: (data: AdvisorResult) => {
       setLastResult(data);
       toast({
-        title: "Portföy analizi tamamlandı",
+        title: 'Portföy analizi tamamlandı',
         description: `Risk skoru: ${data.riskScore}/100 - ${data.summary.riskScoreText}`,
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Analiz hatası",
-        description: error.message || "Portföy analizi yapılırken hata oluştu",
-        variant: "destructive",
+        title: 'Analiz hatası',
+        description: error.message || 'Portföy analizi yapılırken hata oluştu',
+        variant: 'destructive',
       });
     },
   });
@@ -159,21 +179,30 @@ export default function AdvisorPanel() {
   // Öncelik rengi
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'default';
+      case 'low':
+        return 'secondary';
+      default:
+        return 'secondary';
     }
   };
 
   // Kategori ikonu
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'allocation': return <Target className="w-4 h-4" />;
-      case 'risk': return <Shield className="w-4 h-4" />;
-      case 'diversification': return <PieChart className="w-4 h-4" />;
-      case 'timing': return <Zap className="w-4 h-4" />;
-      default: return <Lightbulb className="w-4 h-4" />;
+      case 'allocation':
+        return <Target className="w-4 h-4" />;
+      case 'risk':
+        return <Shield className="w-4 h-4" />;
+      case 'diversification':
+        return <PieChart className="w-4 h-4" />;
+      case 'timing':
+        return <Zap className="w-4 h-4" />;
+      default:
+        return <Lightbulb className="w-4 h-4" />;
     }
   };
 
@@ -192,28 +221,41 @@ export default function AdvisorPanel() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {riskProfiles && Object.entries(riskProfiles).map(([key, profile]) => (
-              <div
-                key={key}
-                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                  riskProfile === key ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => setRiskProfile(key as RiskProfile)}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold">{profile.name}</h3>
-                  <Badge variant={riskProfile === key ? 'default' : 'secondary'}>
-                    {key === 'low' ? 'Düşük' : key === 'medium' ? 'Orta' : 'Yüksek'}
-                  </Badge>
+            {riskProfiles &&
+              Object.entries(riskProfiles).map(([key, profile]) => (
+                <div
+                  key={key}
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    riskProfile === key
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setRiskProfile(key as RiskProfile)}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold">{profile.name}</h3>
+                    <Badge
+                      variant={riskProfile === key ? 'default' : 'secondary'}
+                    >
+                      {key === 'low'
+                        ? 'Düşük'
+                        : key === 'medium'
+                          ? 'Orta'
+                          : 'Yüksek'}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {profile.description}
+                  </p>
+                  <div className="space-y-1">
+                    {profile.characteristics.slice(0, 2).map((char, index) => (
+                      <p key={index} className="text-xs text-muted-foreground">
+                        • {char}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">{profile.description}</p>
-                <div className="space-y-1">
-                  {profile.characteristics.slice(0, 2).map((char, index) => (
-                    <p key={index} className="text-xs text-muted-foreground">• {char}</p>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </CardContent>
       </Card>
@@ -237,7 +279,9 @@ export default function AdvisorPanel() {
                 {/* Risk Skoru */}
                 <div className="space-y-3">
                   <div className="text-center">
-                    <div className={`text-3xl font-bold ${getRiskScoreColor(lastResult.riskScore)}`}>
+                    <div
+                      className={`text-3xl font-bold ${getRiskScoreColor(lastResult.riskScore)}`}
+                    >
                       {lastResult.riskScore}
                     </div>
                     <p className="text-sm text-muted-foreground">Risk Skoru</p>
@@ -250,7 +294,9 @@ export default function AdvisorPanel() {
                   <div className="text-2xl font-bold text-green-600">
                     {lastResult.recommendations.expectedReturnFormatted}
                   </div>
-                  <p className="text-sm text-muted-foreground">Beklenen Getiri</p>
+                  <p className="text-sm text-muted-foreground">
+                    Beklenen Getiri
+                  </p>
                 </div>
 
                 {/* Yeniden Dengeleme */}
@@ -262,7 +308,9 @@ export default function AdvisorPanel() {
                       <span className="text-green-600">Uygun</span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">Yeniden Dengeleme</p>
+                  <p className="text-sm text-muted-foreground">
+                    Yeniden Dengeleme
+                  </p>
                 </div>
 
                 {/* Aksiyon Öğeleri */}
@@ -279,7 +327,9 @@ export default function AdvisorPanel() {
           {/* Grafikler ve Detaylar */}
           <Tabs defaultValue="allocation" className="space-y-4">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="allocation">Dağılım Karşılaştırması</TabsTrigger>
+              <TabsTrigger value="allocation">
+                Dağılım Karşılaştırması
+              </TabsTrigger>
               <TabsTrigger value="recommendations">Öneriler</TabsTrigger>
               <TabsTrigger value="details">Detaylı Analiz</TabsTrigger>
             </TabsList>
@@ -305,13 +355,24 @@ export default function AdvisorPanel() {
                             cy="50%"
                             outerRadius={100}
                             dataKey="value"
-                            label={({ name, value }) => `${name}: %${value.toFixed(1)}`}
+                            label={({ name, value }) =>
+                              `${name}: %${value.toFixed(1)}`
+                            }
                           >
-                            {lastResult.chartData.current.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
+                            {lastResult.chartData.current.map(
+                              (entry, index) => (
+                                <Cell
+                                  key={`cell-${index}`}
+                                  fill={entry.color}
+                                />
+                              )
+                            )}
                           </Pie>
-                          <Tooltip formatter={(value: number) => `%${value.toFixed(1)}`} />
+                          <Tooltip
+                            formatter={(value: number) =>
+                              `%${value.toFixed(1)}`
+                            }
+                          />
                         </RechartsPieChart>
                       </ResponsiveContainer>
                     </div>
@@ -336,13 +397,19 @@ export default function AdvisorPanel() {
                             cy="50%"
                             outerRadius={100}
                             dataKey="value"
-                            label={({ name, value }) => `${name}: %${value.toFixed(1)}`}
+                            label={({ name, value }) =>
+                              `${name}: %${value.toFixed(1)}`
+                            }
                           >
                             {lastResult.chartData.target.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
                             ))}
                           </Pie>
-                          <Tooltip formatter={(value: number) => `%${value.toFixed(1)}`} />
+                          <Tooltip
+                            formatter={(value: number) =>
+                              `%${value.toFixed(1)}`
+                            }
+                          />
                         </RechartsPieChart>
                       </ResponsiveContainer>
                     </div>
@@ -368,32 +435,53 @@ export default function AdvisorPanel() {
                         </tr>
                       </thead>
                       <tbody>
-                        {Object.keys(lastResult.currentAllocation).filter(key => key !== 'formatted').map((key) => {
-                          const current = lastResult.currentAllocation[key as keyof PortfolioInput];
-                          const target = lastResult.targetAllocation[key as keyof PortfolioInput];
-                          const difference = target - current;
-                          const needsAction = Math.abs(difference) > 5;
-                          
-                          return (
-                            <tr key={key} className="border-b">
-                              <td className="p-2 font-medium">{key}</td>
-                              <td className="p-2 text-right">%{current.toFixed(1)}</td>
-                              <td className="p-2 text-right">%{target.toFixed(1)}</td>
-                              <td className={`p-2 text-right ${difference > 0 ? 'text-green-600' : difference < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                                {difference > 0 ? '+' : ''}{difference.toFixed(1)}%
-                              </td>
-                              <td className="p-2 text-center">
-                                {needsAction ? (
-                                  <Badge variant={difference > 0 ? 'default' : 'destructive'}>
-                                    {difference > 0 ? 'Artır' : 'Azalt'}
-                                  </Badge>
-                                ) : (
-                                  <CheckCircle className="w-4 h-4 text-green-600 mx-auto" />
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })}
+                        {Object.keys(lastResult.currentAllocation)
+                          .filter(key => key !== 'formatted')
+                          .map(key => {
+                            const current =
+                              lastResult.currentAllocation[
+                                key as keyof PortfolioInput
+                              ];
+                            const target =
+                              lastResult.targetAllocation[
+                                key as keyof PortfolioInput
+                              ];
+                            const difference = target - current;
+                            const needsAction = Math.abs(difference) > 5;
+
+                            return (
+                              <tr key={key} className="border-b">
+                                <td className="p-2 font-medium">{key}</td>
+                                <td className="p-2 text-right">
+                                  %{current.toFixed(1)}
+                                </td>
+                                <td className="p-2 text-right">
+                                  %{target.toFixed(1)}
+                                </td>
+                                <td
+                                  className={`p-2 text-right ${difference > 0 ? 'text-green-600' : difference < 0 ? 'text-red-600' : 'text-gray-600'}`}
+                                >
+                                  {difference > 0 ? '+' : ''}
+                                  {difference.toFixed(1)}%
+                                </td>
+                                <td className="p-2 text-center">
+                                  {needsAction ? (
+                                    <Badge
+                                      variant={
+                                        difference > 0
+                                          ? 'default'
+                                          : 'destructive'
+                                      }
+                                    >
+                                      {difference > 0 ? 'Artır' : 'Azalt'}
+                                    </Badge>
+                                  ) : (
+                                    <CheckCircle className="w-4 h-4 text-green-600 mx-auto" />
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
                       </tbody>
                     </table>
                   </div>
@@ -404,23 +492,36 @@ export default function AdvisorPanel() {
             {/* Öneriler */}
             <TabsContent value="recommendations" className="space-y-4">
               <div className="space-y-4">
-                {lastResult.tips.map((tip) => (
+                {lastResult.tips.map(tip => (
                   <Card key={tip.id}>
                     <CardContent className="pt-6">
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0">
-                          <Badge variant={getPriorityColor(tip.priority)} className="flex items-center gap-1">
+                          <Badge
+                            variant={getPriorityColor(tip.priority)}
+                            className="flex items-center gap-1"
+                          >
                             {getCategoryIcon(tip.category)}
-                            {tip.priority === 'high' ? 'Yüksek' : tip.priority === 'medium' ? 'Orta' : 'Düşük'}
+                            {tip.priority === 'high'
+                              ? 'Yüksek'
+                              : tip.priority === 'medium'
+                                ? 'Orta'
+                                : 'Düşük'}
                           </Badge>
                         </div>
                         <div className="flex-1">
                           <h4 className="font-semibold mb-2">{tip.title}</h4>
-                          <p className="text-sm text-muted-foreground mb-3">{tip.description}</p>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            {tip.description}
+                          </p>
                           {tip.action && (
                             <div className="bg-blue-50 p-3 rounded-lg">
-                              <p className="text-sm font-medium text-blue-900">Önerilen Aksiyon:</p>
-                              <p className="text-sm text-blue-800">{tip.action}</p>
+                              <p className="text-sm font-medium text-blue-900">
+                                Önerilen Aksiyon:
+                              </p>
+                              <p className="text-sm text-blue-800">
+                                {tip.action}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -444,14 +545,19 @@ export default function AdvisorPanel() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {lastResult.recommendations.actionItems.map((item, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                          <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                            {index + 1}
+                      {lastResult.recommendations.actionItems.map(
+                        (item, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                          >
+                            <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                              {index + 1}
+                            </div>
+                            <span className="text-sm">{item}</span>
                           </div>
-                          <span className="text-sm">{item}</span>
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -473,12 +579,17 @@ export default function AdvisorPanel() {
                         <div>
                           <h5 className="font-medium mb-2">Özellikler:</h5>
                           <ul className="text-sm space-y-1">
-                            {riskProfiles[riskProfile].characteristics.map((char, index) => (
-                              <li key={index} className="flex items-center gap-2">
-                                <CheckCircle className="w-3 h-3 text-green-600" />
-                                {char}
-                              </li>
-                            ))}
+                            {riskProfiles[riskProfile].characteristics.map(
+                              (char, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-center gap-2"
+                                >
+                                  <CheckCircle className="w-3 h-3 text-green-600" />
+                                  {char}
+                                </li>
+                              )
+                            )}
                           </ul>
                         </div>
                       </div>
@@ -493,7 +604,7 @@ export default function AdvisorPanel() {
 
       {/* Analiz Çalıştır Butonu */}
       <div className="flex justify-center">
-        <Button 
+        <Button
           onClick={handleAnalyzePortfolio}
           disabled={analyzePortfolioMutation.isPending}
           size="lg"
@@ -504,7 +615,9 @@ export default function AdvisorPanel() {
           ) : (
             <BarChart3 className="w-5 h-5" />
           )}
-          {analyzePortfolioMutation.isPending ? 'Analiz Ediliyor...' : 'Portföy Analizi Yap'}
+          {analyzePortfolioMutation.isPending
+            ? 'Analiz Ediliyor...'
+            : 'Portföy Analizi Yap'}
         </Button>
       </div>
     </div>

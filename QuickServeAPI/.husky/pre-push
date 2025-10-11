@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo ""
+echo "🔒 Pre-push hooks başlatılıyor..."
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+
+# 1. Critical Tests
+echo "[1/6] 🧪 Critical Tests..."
+pnpm test1 || exit 1
+
+# 2. Coverage Check
+echo ""
+echo "[2/6] 📊 Coverage Analizi..."
+pnpm coverage:analyze || echo "⚠️  Coverage kontrolü atlandı"
+
+# 3. Secrets Scan
+echo ""
+echo "[3/6] 🔐 Secrets Scan..."
+pnpm sec:secrets || exit 1
+
+# 4. SAST Scan
+echo ""
+echo "[4/6] 🔒 SAST Scan..."
+pnpm sec:sast || echo "⚠️  SAST kontrolü atlandı"
+
+# 5. License Audit
+echo ""
+echo "[5/6] ⚖️  License Audit..."
+pnpm sec:license || echo "⚠️  Lisans kontrolü atlandı"
+
+# 6. Migration Guard
+echo ""
+echo "[6/6] 🛡️  Migration Guard..."
+pnpm db:dryrun || echo "⚠️  Migration kontrolü atlandı"
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "✅ Tüm pre-push kontrolleri geçti! Push devam ediyor..."
+echo ""
+

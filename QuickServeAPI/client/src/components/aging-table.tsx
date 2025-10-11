@@ -106,7 +106,11 @@ const getRiskBadgeColor = (riskLevel: string): string => {
   }
 };
 
-export const AgingTable = memo(function AgingTable({ reportType, title, description }: AgingTableProps) {
+export const AgingTable = memo(function AgingTable({
+  reportType,
+  title,
+  description,
+}: AgingTableProps) {
   const [reports, setReports] = useState<AgingReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -130,13 +134,13 @@ export const AgingTable = memo(function AgingTable({ reportType, title, descript
     try {
       setLoading(true);
       const response = await fetch(`/api/aging/${reportType}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setReports(data.data);
       } else {
@@ -158,12 +162,16 @@ export const AgingTable = memo(function AgingTable({ reportType, title, descript
     }
 
     if (filters.agingBucket !== 'all') {
-      filtered = filtered.filter(report => report.agingBucket === filters.agingBucket);
+      filtered = filtered.filter(
+        report => report.agingBucket === filters.agingBucket
+      );
     }
 
     if (filters.customer) {
       filtered = filtered.filter(report =>
-        report.customerVendorName.toLowerCase().includes(filters.customer.toLowerCase())
+        report.customerVendorName
+          .toLowerCase()
+          .includes(filters.customer.toLowerCase())
       );
     }
 
@@ -217,10 +225,10 @@ export const AgingTable = memo(function AgingTable({ reportType, title, descript
             <div className="text-center text-red-600">
               <AlertCircle className="h-8 w-8 mx-auto mb-2" />
               <p className="text-sm">{error}</p>
-              <Button 
-                onClick={fetchAgingReports} 
-                variant="outline" 
-                size="sm" 
+              <Button
+                onClick={fetchAgingReports}
+                variant="outline"
+                size="sm"
                 className="mt-2"
               >
                 Tekrar Dene
@@ -239,31 +247,39 @@ export const AgingTable = memo(function AgingTable({ reportType, title, descript
           <Clock className="h-5 w-5 text-blue-600" />
           {title}
         </CardTitle>
-        <CardDescription className="text-blue-700 dark:text-blue-300">{description}</CardDescription>
-        
+        <CardDescription className="text-blue-700 dark:text-blue-300">
+          {description}
+        </CardDescription>
+
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg">
-            <p className="text-sm text-blue-700 dark:text-blue-300">Toplam Tutar</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Toplam Tutar
+            </p>
             <p className="text-lg font-semibold text-blue-900 dark:text-blue-100">
               {formatCurrency(totalAmount)}
             </p>
           </div>
           <div className="bg-red-50 dark:bg-red-950/30 p-3 rounded-lg">
-            <p className="text-sm text-red-700 dark:text-red-300">Gecikmiş Tutar</p>
+            <p className="text-sm text-red-700 dark:text-red-300">
+              Gecikmiş Tutar
+            </p>
             <p className="text-lg font-semibold text-red-900 dark:text-red-100">
               {formatCurrency(overdueAmount)}
             </p>
           </div>
           <div className="bg-gray-50 dark:bg-gray-950/30 p-3 rounded-lg">
-            <p className="text-sm text-gray-700 dark:text-gray-300">Toplam Kayıt</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              Toplam Kayıt
+            </p>
             <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {filteredReports.length}
             </p>
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-6">
@@ -271,12 +287,15 @@ export const AgingTable = memo(function AgingTable({ reportType, title, descript
             <Input
               placeholder="Müşteri/Tedarikçi ara..."
               value={filters.customer}
-              onChange={(e) => handleFilterChange('customer', e.target.value)}
+              onChange={e => handleFilterChange('customer', e.target.value)}
               className="w-full"
             />
           </div>
-          
-          <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
+
+          <Select
+            value={filters.status}
+            onValueChange={value => handleFilterChange('status', value)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Durum" />
             </SelectTrigger>
@@ -288,7 +307,10 @@ export const AgingTable = memo(function AgingTable({ reportType, title, descript
             </SelectContent>
           </Select>
 
-          <Select value={filters.agingBucket} onValueChange={(value) => handleFilterChange('agingBucket', value)}>
+          <Select
+            value={filters.agingBucket}
+            onValueChange={value => handleFilterChange('agingBucket', value)}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Yaşlandırma" />
             </SelectTrigger>
@@ -329,7 +351,7 @@ export const AgingTable = memo(function AgingTable({ reportType, title, descript
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredReports.map((report) => (
+                filteredReports.map(report => (
                   <TableRow key={report.id}>
                     <TableCell className="font-medium">
                       {report.customerVendorName}
@@ -341,8 +363,16 @@ export const AgingTable = memo(function AgingTable({ reportType, title, descript
                       {formatCurrency(parseFloat(report.currentAmount))}
                     </TableCell>
                     <TableCell>
-                      <span className={report.agingDays > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>
-                        {report.agingDays > 0 ? `+${report.agingDays}` : report.agingDays}
+                      <span
+                        className={
+                          report.agingDays > 0
+                            ? 'text-red-600 dark:text-red-400'
+                            : 'text-green-600 dark:text-green-400'
+                        }
+                      >
+                        {report.agingDays > 0
+                          ? `+${report.agingDays}`
+                          : report.agingDays}
                       </span>
                     </TableCell>
                     <TableCell>

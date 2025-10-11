@@ -1,6 +1,6 @@
 /**
  * Runway & Cash Gap Analysis Tests
- * 
+ *
  * Tests based on comprehensive test plan (TEST_PLAN.md)
  * Phase 1: Unit Tests (10 tests)
  */
@@ -10,7 +10,10 @@ import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import * as schema from '../../shared/schema-sqlite';
 import { eq } from 'drizzle-orm';
-import { calculateRunway, calculateCashGap } from '../../server/modules/dashboard/runway-cashgap';
+import {
+  calculateRunway,
+  calculateCashGap,
+} from '../../server/modules/dashboard/runway-cashgap';
 
 // Create in-memory test database
 const sqlite = new Database(':memory:');
@@ -77,16 +80,28 @@ beforeAll(() => {
 describe('Runway & Cash Gap Analysis', () => {
   beforeEach(async () => {
     // Clean up test data before each test
-    await testDb.delete(schema.transactions).where(eq(schema.transactions.user_id, testUserId));
-    await testDb.delete(schema.accounts).where(eq(schema.accounts.user_id, testUserId));
-    await testDb.delete(schema.arApItems).where(eq(schema.arApItems.user_id, testUserId));
+    await testDb
+      .delete(schema.transactions)
+      .where(eq(schema.transactions.user_id, testUserId));
+    await testDb
+      .delete(schema.accounts)
+      .where(eq(schema.accounts.user_id, testUserId));
+    await testDb
+      .delete(schema.arApItems)
+      .where(eq(schema.arApItems.user_id, testUserId));
   });
 
   afterEach(async () => {
     // Clean up test data after each test
-    await testDb.delete(schema.transactions).where(eq(schema.transactions.user_id, testUserId));
-    await testDb.delete(schema.accounts).where(eq(schema.accounts.user_id, testUserId));
-    await testDb.delete(schema.arApItems).where(eq(schema.arApItems.user_id, testUserId));
+    await testDb
+      .delete(schema.transactions)
+      .where(eq(schema.transactions.user_id, testUserId));
+    await testDb
+      .delete(schema.accounts)
+      .where(eq(schema.accounts.user_id, testUserId));
+    await testDb
+      .delete(schema.arApItems)
+      .where(eq(schema.arApItems.user_id, testUserId));
   });
 
   describe('calculateRunway', () => {
@@ -100,7 +115,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-runway-1',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 120000.00,
+        balance: 120000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -112,12 +127,12 @@ describe('Runway & Cash Gap Analysis', () => {
       for (let i = 0; i < 3; i++) {
         const date = new Date(now);
         date.setMonth(date.getMonth() - i);
-        
+
         await testDb.insert(schema.transactions).values({
           id: `trans-expense-${i}`,
           user_id: testUserId,
           account_id: 'acc-runway-1',
-          amount: -10000.00,
+          amount: -10000.0,
           description: `Monthly expense ${i}`,
           category: 'operating',
           type: 'expense',
@@ -148,7 +163,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-runway-2',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 50000.00,
+        balance: 50000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -160,12 +175,12 @@ describe('Runway & Cash Gap Analysis', () => {
       for (let i = 0; i < 6; i++) {
         const date = new Date(now);
         date.setMonth(date.getMonth() - i);
-        
+
         await testDb.insert(schema.transactions).values({
           id: `trans-expense-warn-${i}`,
           user_id: testUserId,
           account_id: 'acc-runway-2',
-          amount: -10000.00,
+          amount: -10000.0,
           description: `Monthly expense ${i}`,
           category: 'operating',
           type: 'expense',
@@ -195,7 +210,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-runway-3',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 15000.00,
+        balance: 15000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -207,12 +222,12 @@ describe('Runway & Cash Gap Analysis', () => {
       for (let i = 0; i < 3; i++) {
         const date = new Date(now);
         date.setMonth(date.getMonth() - i);
-        
+
         await testDb.insert(schema.transactions).values({
           id: `trans-expense-crit-${i}`,
           user_id: testUserId,
           account_id: 'acc-runway-3',
-          amount: -10000.00,
+          amount: -10000.0,
           description: `Monthly expense ${i}`,
           category: 'operating',
           type: 'expense',
@@ -241,7 +256,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-runway-4',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 50000.00,
+        balance: 50000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -268,7 +283,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-runway-5',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 100000.00,
+        balance: 100000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -281,7 +296,7 @@ describe('Runway & Cash Gap Analysis', () => {
       // Assert
       expect(result.monthlyBreakdown).toBeDefined();
       expect(result.monthlyBreakdown.length).toBeGreaterThan(0);
-      
+
       result.monthlyBreakdown.forEach(month => {
         expect(month).toHaveProperty('month');
         expect(month).toHaveProperty('projectedCash');
@@ -302,7 +317,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-cashgap-1',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 50000.00,
+        balance: 50000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -312,14 +327,14 @@ describe('Runway & Cash Gap Analysis', () => {
       // Setup: AR and AP items
       const futureDate30 = new Date();
       futureDate30.setDate(futureDate30.getDate() + 25);
-      
+
       await testDb.insert(schema.arApItems).values({
         id: 'ar-1',
         user_id: testUserId,
         type: 'receivable',
         invoice_number: 'INV-001',
         customer_supplier: 'Customer A',
-        amount: 20000.00,
+        amount: 20000.0,
         due_date: futureDate30.toISOString(),
         age_days: 0,
         status: 'pending',
@@ -333,7 +348,7 @@ describe('Runway & Cash Gap Analysis', () => {
         type: 'payable',
         invoice_number: 'BILL-001',
         customer_supplier: 'Supplier B',
-        amount: 15000.00,
+        amount: 15000.0,
         due_date: futureDate30.toISOString(),
         age_days: 0,
         status: 'pending',
@@ -365,7 +380,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-cashgap-2',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 50000.00,
+        balance: 50000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -382,7 +397,7 @@ describe('Runway & Cash Gap Analysis', () => {
         type: 'receivable',
         invoice_number: 'INV-002',
         customer_supplier: 'Customer C',
-        amount: 50000.00,
+        amount: 50000.0,
         due_date: futureDate.toISOString(),
         age_days: 0,
         status: 'pending',
@@ -397,7 +412,7 @@ describe('Runway & Cash Gap Analysis', () => {
         type: 'payable',
         invoice_number: 'BILL-002',
         customer_supplier: 'Supplier D',
-        amount: 20000.00,
+        amount: 20000.0,
         due_date: futureDate.toISOString(),
         age_days: 0,
         status: 'pending',
@@ -424,7 +439,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-cashgap-3',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 50000.00,
+        balance: 50000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -441,7 +456,7 @@ describe('Runway & Cash Gap Analysis', () => {
         type: 'receivable',
         invoice_number: 'INV-003',
         customer_supplier: 'Customer E',
-        amount: 15000.00,
+        amount: 15000.0,
         due_date: futureDate.toISOString(),
         age_days: 0,
         status: 'pending',
@@ -456,7 +471,7 @@ describe('Runway & Cash Gap Analysis', () => {
         type: 'payable',
         invoice_number: 'BILL-003',
         customer_supplier: 'Supplier F',
-        amount: 40000.00,
+        amount: 40000.0,
         due_date: futureDate.toISOString(),
         age_days: 0,
         status: 'pending',
@@ -483,7 +498,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-cashgap-4',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 50000.00,
+        balance: 50000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -496,7 +511,7 @@ describe('Runway & Cash Gap Analysis', () => {
       // Assert
       expect(result.timeline).toBeDefined();
       expect(Array.isArray(result.timeline)).toBe(true);
-      
+
       result.timeline.forEach(item => {
         expect(item).toHaveProperty('period');
         expect(item).toHaveProperty('arAmount');
@@ -516,7 +531,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-cashgap-5',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 10000.00,
+        balance: 10000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -549,7 +564,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-dashboard-1',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 80000.00,
+        balance: 80000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -561,12 +576,12 @@ describe('Runway & Cash Gap Analysis', () => {
       for (let i = 0; i < 6; i++) {
         const date = new Date(now);
         date.setMonth(date.getMonth() - i);
-        
+
         await testDb.insert(schema.transactions).values({
           id: `trans-dashboard-${i}`,
           user_id: testUserId,
           account_id: 'acc-dashboard-1',
-          amount: -8000.00,
+          amount: -8000.0,
           description: `Monthly expense ${i}`,
           category: 'operating',
           type: 'expense',
@@ -586,7 +601,7 @@ describe('Runway & Cash Gap Analysis', () => {
           type: 'receivable',
           invoice_number: 'INV-DASH-001',
           customer_supplier: 'Customer X',
-          amount: 30000.00,
+          amount: 30000.0,
           due_date: futureDate.toISOString(),
           age_days: 10,
           status: 'pending',
@@ -599,7 +614,7 @@ describe('Runway & Cash Gap Analysis', () => {
           type: 'payable',
           invoice_number: 'BILL-DASH-001',
           customer_supplier: 'Supplier Y',
-          amount: 20000.00,
+          amount: 20000.0,
           due_date: futureDate.toISOString(),
           age_days: 5,
           status: 'pending',
@@ -609,7 +624,9 @@ describe('Runway & Cash Gap Analysis', () => {
       ]);
 
       // Import the function
-      const { getDashboardRunwayCashGap } = await import('../../server/modules/dashboard/runway-cashgap');
+      const { getDashboardRunwayCashGap } = await import(
+        '../../server/modules/dashboard/runway-cashgap'
+      );
 
       // Execute
       const result = await getDashboardRunwayCashGap(testUserId, testDb);
@@ -621,7 +638,9 @@ describe('Runway & Cash Gap Analysis', () => {
       expect(result).toHaveProperty('summary');
 
       // Assert - Overall Risk
-      expect(['low', 'medium', 'high', 'critical']).toContain(result.overallRisk);
+      expect(['low', 'medium', 'high', 'critical']).toContain(
+        result.overallRisk
+      );
 
       // Assert - Summary
       expect(result.summary).toHaveProperty('totalCash');
@@ -636,7 +655,9 @@ describe('Runway & Cash Gap Analysis', () => {
       expect(result.summary.totalAR).toBe(result.cashGap.totalAR);
       expect(result.summary.totalAP).toBe(result.cashGap.totalAP);
       expect(result.summary.netPosition).toBe(
-        result.runway.currentCash + result.cashGap.totalAR - result.cashGap.totalAP
+        result.runway.currentCash +
+          result.cashGap.totalAR -
+          result.cashGap.totalAP
       );
     });
 
@@ -650,7 +671,7 @@ describe('Runway & Cash Gap Analysis', () => {
         id: 'acc-forecast-1',
         user_id: testUserId,
         name: 'Main Account',
-        balance: 100000.00,
+        balance: 100000.0,
         currency: 'TRY',
         type: 'bank',
         created_at: new Date().toISOString(),
@@ -662,12 +683,12 @@ describe('Runway & Cash Gap Analysis', () => {
       for (let i = 0; i < 6; i++) {
         const date = new Date(now);
         date.setMonth(date.getMonth() - i);
-        
+
         await testDb.insert(schema.transactions).values({
           id: `trans-forecast-${i}`,
           user_id: testUserId,
           account_id: 'acc-forecast-1',
-          amount: -5000.00,
+          amount: -5000.0,
           description: `Historical expense ${i}`,
           category: 'operating',
           type: 'expense',
@@ -679,7 +700,7 @@ describe('Runway & Cash Gap Analysis', () => {
       // Setup: Future AR/AP
       for (let i = 0; i < 3; i++) {
         const futureDate = new Date();
-        futureDate.setDate(futureDate.getDate() + (i * 20));
+        futureDate.setDate(futureDate.getDate() + i * 20);
 
         await testDb.insert(schema.arApItems).values([
           {
@@ -688,7 +709,7 @@ describe('Runway & Cash Gap Analysis', () => {
             type: 'receivable',
             invoice_number: `INV-FC-${i}`,
             customer_supplier: `Customer ${i}`,
-            amount: 10000.00,
+            amount: 10000.0,
             due_date: futureDate.toISOString(),
             age_days: i * 20,
             status: 'pending',
@@ -701,7 +722,7 @@ describe('Runway & Cash Gap Analysis', () => {
             type: 'payable',
             invoice_number: `BILL-FC-${i}`,
             customer_supplier: `Supplier ${i}`,
-            amount: 6000.00,
+            amount: 6000.0,
             due_date: futureDate.toISOString(),
             age_days: i * 20,
             status: 'pending',
@@ -712,7 +733,9 @@ describe('Runway & Cash Gap Analysis', () => {
       }
 
       // Import the function
-      const { getCashFlowForecast } = await import('../../server/modules/dashboard/runway-cashgap');
+      const { getCashFlowForecast } = await import(
+        '../../server/modules/dashboard/runway-cashgap'
+      );
 
       // Execute
       const forecast = await getCashFlowForecast(testUserId, 6, testDb);
@@ -754,7 +777,7 @@ describe('Runway & Cash Gap Analysis', () => {
       for (let i = 1; i < forecast.length; i++) {
         const prevMonth = forecast[i - 1];
         const currMonth = forecast[i];
-        
+
         // Current opening should equal previous closing
         // (allowing for small floating point differences)
         const diff = Math.abs(currMonth.openingCash - prevMonth.closingCash);

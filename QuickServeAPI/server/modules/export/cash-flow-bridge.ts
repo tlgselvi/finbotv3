@@ -57,7 +57,13 @@ export async function generateCashFlowBridgeReport(
     companyName?: string;
   }
 ): Promise<CashFlowBridgeReport> {
-  const { startDate, endDate, period, currency = 'TRY', companyName = 'FinBot Company' } = options;
+  const {
+    startDate,
+    endDate,
+    period,
+    currency = 'TRY',
+    companyName = 'FinBot Company',
+  } = options;
 
   // Get account balances
   const accounts = await db
@@ -65,34 +71,51 @@ export async function generateCashFlowBridgeReport(
     .from(accounts)
     .where(eq(accounts.userId, userId));
 
-  const openingBalance = accounts.reduce((sum, account) => sum + parseFloat(account.balance), 0);
+  const openingBalance = accounts.reduce(
+    (sum, account) => sum + parseFloat(account.balance),
+    0
+  );
 
   // Get transactions for the period
   const transactionsData = await db
     .select()
     .from(transactions)
-    .where(and(
-      eq(transactions.userId, userId),
-      gte(transactions.createdAt, startDate),
-      lte(transactions.createdAt, endDate)
-    ))
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        gte(transactions.createdAt, startDate),
+        lte(transactions.createdAt, endDate)
+      )
+    )
     .orderBy(transactions.createdAt);
 
   // Get aging reports for AR/AP analysis
   const agingData = await db
     .select()
     .from(agingReports)
-    .where(and(
-      eq(agingReports.userId, userId),
-      gte(agingReports.createdAt, startDate),
-      lte(agingReports.createdAt, endDate)
-    ));
+    .where(
+      and(
+        eq(agingReports.userId, userId),
+        gte(agingReports.createdAt, startDate),
+        lte(agingReports.createdAt, endDate)
+      )
+    );
 
   // Group data by period
-  const periodData = groupDataByPeriod(transactionsData, agingData, period, startDate, endDate);
+  const periodData = groupDataByPeriod(
+    transactionsData,
+    agingData,
+    period,
+    startDate,
+    endDate
+  );
 
   // Calculate cash flow bridge data
-  const bridgeData = calculateCashFlowBridge(periodData, openingBalance, currency);
+  const bridgeData = calculateCashFlowBridge(
+    periodData,
+    openingBalance,
+    currency
+  );
 
   // Calculate summary
   const summary = calculateSummary(bridgeData);
@@ -111,7 +134,8 @@ export async function generateCashFlowBridgeReport(
       'Faiz ve komisyonlar dahil edilmiştir',
       'Kur farkları cari kur ile hesaplanmıştır',
     ],
-    methodology: 'Cash Flow Bridge metodu ile nakit akışı analizi yapılmıştır. İşlemler operasyonel, yatırım ve finansman faaliyetleri olarak sınıflandırılmıştır.',
+    methodology:
+      'Cash Flow Bridge metodu ile nakit akışı analizi yapılmıştır. İşlemler operasyonel, yatırım ve finansman faaliyetleri olarak sınıflandırılmıştır.',
   };
 }
 
@@ -131,11 +155,11 @@ function groupDataByPeriod(
   transactions.forEach(transaction => {
     const date = new Date(transaction.createdAt);
     const periodKey = getPeriodKey(date, period);
-    
+
     if (!periodMap.has(periodKey)) {
       periodMap.set(periodKey, { transactions: [], aging: [] });
     }
-    
+
     periodMap.get(periodKey)!.transactions.push(transaction);
   });
 
@@ -143,11 +167,11 @@ function groupDataByPeriod(
   agingData.forEach(aging => {
     const date = new Date(aging.createdAt);
     const periodKey = getPeriodKey(date, period);
-    
+
     if (!periodMap.has(periodKey)) {
       periodMap.set(periodKey, { transactions: [], aging: [] });
     }
-    
+
     periodMap.get(periodKey)!.aging.push(aging);
   });
 
@@ -158,7 +182,7 @@ function groupDataByPeriod(
     if (!periodMap.has(periodKey)) {
       periodMap.set(periodKey, { transactions: [], aging: [] });
     }
-    
+
     // Increment date
     switch (period) {
       case 'daily':
@@ -179,7 +203,10 @@ function groupDataByPeriod(
 /**
  * Get period key for grouping
  */
-function getPeriodKey(date: Date, period: 'daily' | 'weekly' | 'monthly'): string {
+function getPeriodKey(
+  date: Date,
+  period: 'daily' | 'weekly' | 'monthly'
+): string {
   switch (period) {
     case 'daily':
       return date.toISOString().split('T')[0];
@@ -211,30 +238,32 @@ function calculateCashFlowBridge(
   sortedPeriods.forEach(periodKey => {
     const data = periodData.get(periodKey)!;
     const periodDate = new Date(periodKey);
-    
+
     // Calculate cash flows
     const inflows = calculateCashFlows(data.transactions, 'inflow');
     const outflows = calculateCashFlows(data.transactions, 'outflow');
-    
+
     // Calculate AR/AP impact
     const arImpact = calculateARAPImpact(data.aging, 'ar');
     const apImpact = calculateARAPImpact(data.aging, 'ap');
-    
+
     // Adjust flows with AR/AP
     inflows.operating += arImpact;
     outflows.operating += apImpact;
-    
+
     // Recalculate totals
     inflows.total = inflows.operating + inflows.investing + inflows.financing;
-    outflows.total = outflows.operating + outflows.investing + outflows.financing;
-    
+    outflows.total =
+      outflows.operating + outflows.investing + outflows.financing;
+
     const netCashFlow = inflows.total - outflows.total;
     const closingBalance = currentBalance + netCashFlow;
-    
+
     // Calculate variance
     const variance = closingBalance - currentBalance;
-    const variancePercent = currentBalance !== 0 ? (variance / currentBalance) * 100 : 0;
-    
+    const variancePercent =
+      currentBalance !== 0 ? (variance / currentBalance) * 100 : 0;
+
     bridgeData.push({
       period: periodKey,
       date: periodDate,
@@ -246,7 +275,7 @@ function calculateCashFlowBridge(
       variance,
       variancePercent,
     });
-    
+
     currentBalance = closingBalance;
   });
 
@@ -256,7 +285,10 @@ function calculateCashFlowBridge(
 /**
  * Calculate cash flows by category
  */
-function calculateCashFlows(transactions: any[], type: 'inflow' | 'outflow'): {
+function calculateCashFlows(
+  transactions: any[],
+  type: 'inflow' | 'outflow'
+): {
   operating: number;
   investing: number;
   financing: number;
@@ -269,7 +301,7 @@ function calculateCashFlows(transactions: any[], type: 'inflow' | 'outflow'): {
   transactions.forEach(transaction => {
     const amount = parseFloat(transaction.amount);
     const category = transaction.category || 'operating';
-    
+
     if (type === 'inflow' && amount > 0) {
       switch (category.toLowerCase()) {
         case 'operating':
@@ -352,14 +384,21 @@ function calculateSummary(data: CashFlowBridgeData[]): {
     };
   }
 
-  const totalInflows = data.reduce((sum, item) => sum + item.cashInflows.total, 0);
-  const totalOutflows = data.reduce((sum, item) => sum + item.cashOutflows.total, 0);
+  const totalInflows = data.reduce(
+    (sum, item) => sum + item.cashInflows.total,
+    0
+  );
+  const totalOutflows = data.reduce(
+    (sum, item) => sum + item.cashOutflows.total,
+    0
+  );
   const netCashFlow = totalInflows - totalOutflows;
-  
+
   const openingBalance = data[0].openingBalance;
   const closingBalance = data[data.length - 1].closingBalance;
   const variance = closingBalance - openingBalance;
-  const variancePercent = openingBalance !== 0 ? (variance / openingBalance) * 100 : 0;
+  const variancePercent =
+    openingBalance !== 0 ? (variance / openingBalance) * 100 : 0;
 
   return {
     totalInflows,
@@ -375,7 +414,9 @@ function calculateSummary(data: CashFlowBridgeData[]): {
 /**
  * Export Cash Flow Bridge to CSV
  */
-export function exportCashFlowBridgeToCSV(report: CashFlowBridgeReport): string {
+export function exportCashFlowBridgeToCSV(
+  report: CashFlowBridgeReport
+): string {
   const headers = [
     'Period',
     'Date',
@@ -412,13 +453,17 @@ export function exportCashFlowBridgeToCSV(report: CashFlowBridgeReport): string 
     item.variancePercent.toFixed(2),
   ]);
 
-  return [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+  return [headers, ...rows]
+    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .join('\n');
 }
 
 /**
  * Generate Cash Flow Bridge PDF content (HTML template)
  */
-export function generateCashFlowBridgePDF(report: CashFlowBridgeReport): string {
+export function generateCashFlowBridgePDF(
+  report: CashFlowBridgeReport
+): string {
   return `
 <!DOCTYPE html>
 <html lang="tr">
@@ -509,7 +554,9 @@ export function generateCashFlowBridgePDF(report: CashFlowBridgeReport): string 
             </tr>
         </thead>
         <tbody>
-            ${report.data.map(item => `
+            ${report.data
+              .map(
+                item => `
                 <tr>
                     <td>${item.period}</td>
                     <td>${item.date.toLocaleDateString('tr-TR')}</td>
@@ -527,7 +574,9 @@ export function generateCashFlowBridgePDF(report: CashFlowBridgeReport): string 
                     <td class="${item.variance >= 0 ? 'positive' : 'negative'}">${item.variance.toLocaleString('tr-TR')}</td>
                     <td class="${item.variancePercent >= 0 ? 'positive' : 'negative'}">${item.variancePercent.toFixed(1)}%</td>
                 </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
         </tbody>
     </table>
 

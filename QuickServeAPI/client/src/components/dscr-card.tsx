@@ -11,17 +11,22 @@ const statusToColor: Record<Props['status'], string> = {
 
 const statusToBgColor: Record<Props['status'], string> = {
   ok: 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800',
-  warning: 'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800',
+  warning:
+    'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800',
   critical: 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800',
 };
 
-export function DSCRCard ({ dscr, status }: Props) {
+export function DSCRCard({ dscr, status }: Props) {
   const getStatusText = (status: Props['status']) => {
     switch (status) {
-      case 'ok': return 'Sağlıklı (>1.2)';
-      case 'warning': return 'Dikkat (1.0-1.2)';
-      case 'critical': return 'Risk (<1.0)';
-      default: return status;
+      case 'ok':
+        return 'Sağlıklı (>1.2)';
+      case 'warning':
+        return 'Dikkat (1.0-1.2)';
+      case 'critical':
+        return 'Risk (<1.0)';
+      default:
+        return status;
     }
   };
 
@@ -43,4 +48,3 @@ export function DSCRCard ({ dscr, status }: Props) {
 }
 
 export default DSCRCard;
-

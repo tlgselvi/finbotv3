@@ -6,12 +6,24 @@ const calculateEBITDA = (revenue: number, operatingExpenses: number) => {
   return revenue - operatingExpenses;
 };
 
-const calculateNetCash = (ebitda: number, depreciation: number, interest: number, taxes: number, workingCapitalChange: number, capex: number) => {
-  return ebitda + depreciation - interest - taxes - workingCapitalChange - capex;
+const calculateNetCash = (
+  ebitda: number,
+  depreciation: number,
+  interest: number,
+  taxes: number,
+  workingCapitalChange: number,
+  capex: number
+) => {
+  return (
+    ebitda + depreciation - interest - taxes - workingCapitalChange - capex
+  );
 };
 
 const generateCashBridgeReport = async (reportData: any) => {
-  const ebitda = calculateEBITDA(reportData.revenue, reportData.operatingExpenses);
+  const ebitda = calculateEBITDA(
+    reportData.revenue,
+    reportData.operatingExpenses
+  );
   const netCash = calculateNetCash(
     ebitda,
     reportData.depreciation,
@@ -29,37 +41,48 @@ const generateCashBridgeReport = async (reportData: any) => {
     workingCapitalChange: reportData.workingCapitalChange,
     capex: reportData.capex,
     netCash: netCash,
-    summary: `EBITDA: ${ebitda.toFixed(2)} → Net Cash: ${netCash.toFixed(2)}`
+    summary: `EBITDA: ${ebitda.toFixed(2)} → Net Cash: ${netCash.toFixed(2)}`,
   };
 
   // Save report to database
-  const [savedReport] = await db.execute(`
+  const [savedReport] = await db.execute(
+    `
     INSERT INTO cash_bridge_reports (report_date, ebitda, depreciation, interest, taxes, working_capital_change, capex, net_cash, summary, created_at)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     RETURNING *
-  `, [
-    reportData.reportDate,
-    ebitda,
-    reportData.depreciation,
-    reportData.interest,
-    reportData.taxes,
-    reportData.workingCapitalChange,
-    reportData.capex,
-    netCash,
-    cashBridge.summary,
-    new Date()
-  ]);
+  `,
+    [
+      reportData.reportDate,
+      ebitda,
+      reportData.depreciation,
+      reportData.interest,
+      reportData.taxes,
+      reportData.workingCapitalChange,
+      reportData.capex,
+      netCash,
+      cashBridge.summary,
+      new Date(),
+    ]
+  );
 
   return {
     reportId: savedReport.rows[0].id,
     cashBridge,
-    chartData: generateChartData(cashBridge)
+    chartData: generateChartData(cashBridge),
   };
 };
 
 const generateChartData = (cashBridge: any) => {
   return {
-    labels: ['EBITDA', 'Depreciation', 'Interest', 'Taxes', 'Working Capital', 'CAPEX', 'Net Cash'],
+    labels: [
+      'EBITDA',
+      'Depreciation',
+      'Interest',
+      'Taxes',
+      'Working Capital',
+      'CAPEX',
+      'Net Cash',
+    ],
     values: [
       cashBridge.ebitda,
       cashBridge.depreciation,
@@ -67,18 +90,29 @@ const generateChartData = (cashBridge: any) => {
       -cashBridge.taxes, // Negative for chart
       -cashBridge.workingCapitalChange, // Negative for chart
       -cashBridge.capex, // Negative for chart
-      cashBridge.netCash
+      cashBridge.netCash,
     ],
-    colors: ['#22c55e', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4', '#10b981']
+    colors: [
+      '#22c55e',
+      '#3b82f6',
+      '#ef4444',
+      '#f59e0b',
+      '#8b5cf6',
+      '#06b6d4',
+      '#10b981',
+    ],
   };
 };
 
 const getCashBridgeHistory = async (limit: number = 10) => {
-  const [result] = await db.execute(`
+  const [result] = await db.execute(
+    `
     SELECT * FROM cash_bridge_reports 
     ORDER BY report_date DESC 
     LIMIT $1
-  `, [limit]);
+  `,
+    [limit]
+  );
 
   return result.rows;
 };
@@ -90,13 +124,23 @@ const calculateCashBridgeMetrics = (reports: any[]) => {
   const netCashValues = reports.map(r => r.net_cash);
 
   return {
-    averageEBITDA: ebitdaValues.reduce((sum, val) => sum + val, 0) / ebitdaValues.length,
-    averageNetCash: netCashValues.reduce((sum, val) => sum + val, 0) / netCashValues.length,
-    ebitdaGrowth: ebitdaValues.length > 1 ? 
-      ((ebitdaValues[0] - ebitdaValues[ebitdaValues.length - 1]) / ebitdaValues[ebitdaValues.length - 1]) * 100 : 0,
-    netCashGrowth: netCashValues.length > 1 ? 
-      ((netCashValues[0] - netCashValues[netCashValues.length - 1]) / netCashValues[netCashValues.length - 1]) * 100 : 0,
-    totalReports: reports.length
+    averageEBITDA:
+      ebitdaValues.reduce((sum, val) => sum + val, 0) / ebitdaValues.length,
+    averageNetCash:
+      netCashValues.reduce((sum, val) => sum + val, 0) / netCashValues.length,
+    ebitdaGrowth:
+      ebitdaValues.length > 1
+        ? ((ebitdaValues[0] - ebitdaValues[ebitdaValues.length - 1]) /
+            ebitdaValues[ebitdaValues.length - 1]) *
+          100
+        : 0,
+    netCashGrowth:
+      netCashValues.length > 1
+        ? ((netCashValues[0] - netCashValues[netCashValues.length - 1]) /
+            netCashValues[netCashValues.length - 1]) *
+          100
+        : 0,
+    totalReports: reports.length,
   };
 };
 
@@ -125,11 +169,11 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: 20000,
-        capex: 80000
+        capex: 80000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.cashBridge.ebitda).toBe(300000); // 1000000 - 700000
       expect(result.cashBridge.netCash).toBe(180000); // 300000 + 50000 - 30000 - 40000 - 20000 - 80000
       expect(result.cashBridge.summary).toContain('EBITDA: 300000.00');
@@ -147,7 +191,7 @@ describe.skip('Cash Bridge Report Tests', () => {
           workingCapitalChange: 10000,
           capex: 40000,
           expectedEBITDA: 150000,
-          expectedNetCash: 90000
+          expectedNetCash: 90000,
         },
         {
           revenue: 2000000,
@@ -158,7 +202,7 @@ describe.skip('Cash Bridge Report Tests', () => {
           workingCapitalChange: 40000,
           capex: 160000,
           expectedEBITDA: 800000,
-          expectedNetCash: 500000
+          expectedNetCash: 500000,
         },
         {
           revenue: 750000,
@@ -169,18 +213,18 @@ describe.skip('Cash Bridge Report Tests', () => {
           workingCapitalChange: 15000,
           capex: 60000,
           expectedEBITDA: 150000,
-          expectedNetCash: 60000
-        }
+          expectedNetCash: 60000,
+        },
       ];
 
       for (const testCase of testCases) {
         const reportData = {
           reportDate: new Date(),
-          ...testCase
+          ...testCase,
         };
 
         const result = await generateCashBridgeReport(reportData);
-        
+
         expect(result.cashBridge.ebitda).toBe(testCase.expectedEBITDA);
         expect(result.cashBridge.netCash).toBe(testCase.expectedNetCash);
       }
@@ -195,11 +239,11 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 15000,
         taxes: 20000,
         workingCapitalChange: 10000,
-        capex: 40000
+        capex: 40000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.cashBridge.ebitda).toBe(-100000); // 500000 - 600000
       expect(result.cashBridge.netCash).toBe(-160000); // -100000 + 25000 - 15000 - 20000 - 10000 - 40000
     });
@@ -213,11 +257,11 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 0,
         taxes: 0,
         workingCapitalChange: 0,
-        capex: 0
+        capex: 0,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.cashBridge.ebitda).toBe(0);
       expect(result.cashBridge.netCash).toBe(0);
     });
@@ -233,18 +277,24 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: 20000,
-        capex: 80000
+        capex: 80000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.chartData).toBeDefined();
       expect(result.chartData.labels).toHaveLength(7);
       expect(result.chartData.values).toHaveLength(7);
       expect(result.chartData.colors).toHaveLength(7);
-      
+
       expect(result.chartData.labels).toEqual([
-        'EBITDA', 'Depreciation', 'Interest', 'Taxes', 'Working Capital', 'CAPEX', 'Net Cash'
+        'EBITDA',
+        'Depreciation',
+        'Interest',
+        'Taxes',
+        'Working Capital',
+        'CAPEX',
+        'Net Cash',
       ]);
     });
 
@@ -257,11 +307,11 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: 20000,
-        capex: 80000
+        capex: 80000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.chartData.values[0]).toBe(300000); // EBITDA
       expect(result.chartData.values[1]).toBe(50000); // Depreciation
       expect(result.chartData.values[2]).toBe(-30000); // Interest (negative)
@@ -280,11 +330,11 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: 20000,
-        capex: 80000
+        capex: 80000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.chartData.colors[0]).toBe('#22c55e'); // EBITDA - Green
       expect(result.chartData.colors[1]).toBe('#3b82f6'); // Depreciation - Blue
       expect(result.chartData.colors[2]).toBe('#ef4444'); // Interest - Red
@@ -305,17 +355,20 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 40000,
         taxes: 50000,
         workingCapitalChange: 25000,
-        capex: 100000
+        capex: 100000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.reportId).toBeDefined();
-      
-      const [savedReport] = await db.execute(`
+
+      const [savedReport] = await db.execute(
+        `
         SELECT * FROM cash_bridge_reports WHERE id = $1
-      `, [result.reportId]);
-      
+      `,
+        [result.reportId]
+      );
+
       expect(savedReport.rows[0].ebitda).toBe(400000);
       expect(savedReport.rows[0].net_cash).toBe(245000);
       expect(savedReport.rows[0].summary).toContain('EBITDA: 400000.00');
@@ -332,7 +385,7 @@ describe.skip('Cash Bridge Report Tests', () => {
           interest: 30000,
           taxes: 40000,
           workingCapitalChange: 20000,
-          capex: 80000
+          capex: 80000,
         },
         {
           reportDate: new Date('2024-02-29'),
@@ -342,8 +395,8 @@ describe.skip('Cash Bridge Report Tests', () => {
           interest: 35000,
           taxes: 45000,
           workingCapitalChange: 25000,
-          capex: 90000
-        }
+          capex: 90000,
+        },
       ];
 
       for (const reportData of testReports) {
@@ -351,7 +404,7 @@ describe.skip('Cash Bridge Report Tests', () => {
       }
 
       const history = await getCashBridgeHistory(5);
-      
+
       expect(history).toBeDefined();
       expect(history.length).toBeGreaterThanOrEqual(2);
     });
@@ -365,21 +418,27 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 25000,
         taxes: 30000,
         workingCapitalChange: 15000,
-        capex: 60000
+        capex: 60000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       // Raporu güncelle
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE cash_bridge_reports 
         SET summary = $1, updated_at = $2
         WHERE id = $3
-      `, ['Updated test report', new Date(), result.reportId]);
+      `,
+        ['Updated test report', new Date(), result.reportId]
+      );
 
-      const [updatedReport] = await db.execute(`
+      const [updatedReport] = await db.execute(
+        `
         SELECT * FROM cash_bridge_reports WHERE id = $1
-      `, [result.reportId]);
+      `,
+        [result.reportId]
+      );
 
       expect(updatedReport.rows[0].summary).toBe('Updated test report');
     });
@@ -397,7 +456,7 @@ describe.skip('Cash Bridge Report Tests', () => {
           interest: 30000,
           taxes: 40000,
           workingCapitalChange: 20000,
-          capex: 80000
+          capex: 80000,
         },
         {
           reportDate: new Date('2024-02-29'),
@@ -407,7 +466,7 @@ describe.skip('Cash Bridge Report Tests', () => {
           interest: 35000,
           taxes: 45000,
           workingCapitalChange: 25000,
-          capex: 90000
+          capex: 90000,
         },
         {
           reportDate: new Date('2024-03-31'),
@@ -417,8 +476,8 @@ describe.skip('Cash Bridge Report Tests', () => {
           interest: 40000,
           taxes: 50000,
           workingCapitalChange: 30000,
-          capex: 100000
-        }
+          capex: 100000,
+        },
       ];
 
       for (const reportData of testReports) {
@@ -427,7 +486,7 @@ describe.skip('Cash Bridge Report Tests', () => {
 
       const history = await getCashBridgeHistory(10);
       const metrics = calculateCashBridgeMetrics(history);
-      
+
       expect(metrics).toBeDefined();
       expect(metrics.totalReports).toBeGreaterThanOrEqual(3);
       expect(metrics.averageEBITDA).toBeGreaterThan(0);
@@ -443,13 +502,13 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: 20000,
-        capex: 80000
+        capex: 80000,
       };
 
       await generateCashBridgeReport(reportData);
       const history = await getCashBridgeHistory(1);
       const metrics = calculateCashBridgeMetrics(history);
-      
+
       expect(metrics).toBeDefined();
       expect(metrics.totalReports).toBe(1);
       expect(metrics.averageEBITDA).toBe(300000);
@@ -460,7 +519,7 @@ describe.skip('Cash Bridge Report Tests', () => {
 
     test('Boş rapor listesi ile metrik hesaplama', async () => {
       const metrics = calculateCashBridgeMetrics([]);
-      
+
       expect(metrics).toBeNull();
     });
   });
@@ -475,11 +534,11 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000000,
         taxes: 40000000,
         workingCapitalChange: 20000000,
-        capex: 80000000
+        capex: 80000000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.cashBridge.ebitda).toBe(300000000);
       expect(result.cashBridge.netCash).toBe(180000000);
     });
@@ -493,11 +552,11 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: -5000, // Negative working capital change
-        capex: 80000
+        capex: 80000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.cashBridge.ebitda).toBe(-100000);
       expect(result.cashBridge.netCash).toBe(-155000); // -100000 + (-10000) - 30000 - 40000 - (-5000) - 80000
     });
@@ -505,19 +564,19 @@ describe.skip('Cash Bridge Report Tests', () => {
     test('Ondalık değerler ile hesaplama', async () => {
       const reportData = {
         reportDate: new Date(),
-        revenue: 1000000.50,
+        revenue: 1000000.5,
         operatingExpenses: 700000.25,
         depreciation: 50000.75,
-        interest: 30000.10,
-        taxes: 40000.90,
-        workingCapitalChange: 20000.30,
-        capex: 80000.60
+        interest: 30000.1,
+        taxes: 40000.9,
+        workingCapitalChange: 20000.3,
+        capex: 80000.6,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.cashBridge.ebitda).toBeCloseTo(300000.25, 2);
-      expect(result.cashBridge.netCash).toBeCloseTo(180000.00, 2);
+      expect(result.cashBridge.netCash).toBeCloseTo(180000.0, 2);
     });
   });
 
@@ -526,7 +585,7 @@ describe.skip('Cash Bridge Report Tests', () => {
       const startTime = Date.now();
 
       // 100 rapor oluştur
-      const promises = Array.from({ length: 100 }, (_, i) => 
+      const promises = Array.from({ length: 100 }, (_, i) =>
         generateCashBridgeReport({
           reportDate: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
           revenue: 1000000 + i * 10000,
@@ -535,7 +594,7 @@ describe.skip('Cash Bridge Report Tests', () => {
           interest: 30000 + i * 300,
           taxes: 40000 + i * 400,
           workingCapitalChange: 20000 + i * 200,
-          capex: 80000 + i * 800
+          capex: 80000 + i * 800,
         })
       );
 
@@ -574,7 +633,7 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: 20000,
-        capex: 80000
+        capex: 80000,
       };
 
       await expect(generateCashBridgeReport(reportData)).rejects.toThrow();
@@ -589,7 +648,7 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: 20000,
-        capex: 80000
+        capex: 80000,
       };
 
       await expect(generateCashBridgeReport(reportData)).rejects.toThrow();
@@ -604,11 +663,11 @@ describe.skip('Cash Bridge Report Tests', () => {
         interest: 30000,
         taxes: 40000,
         workingCapitalChange: 20000,
-        capex: 80000
+        capex: 80000,
       };
 
       const result = await generateCashBridgeReport(reportData);
-      
+
       expect(result.cashBridge.ebitda).toBe(300000);
       expect(result.cashBridge.netCash).toBe(180000);
     });

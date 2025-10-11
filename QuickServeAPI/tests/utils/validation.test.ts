@@ -34,10 +34,14 @@ describe('Input Validation Utilities', () => {
     });
 
     it('should reject user ID with SQL injection attempts', () => {
-      expect(() => validateUserId("'; DROP TABLE users; --")).toThrow(ValidationError);
+      expect(() => validateUserId("'; DROP TABLE users; --")).toThrow(
+        ValidationError
+      );
       expect(() => validateUserId("user' OR '1'='1")).toThrow(ValidationError);
-      expect(() => validateUserId('user-123; SELECT * FROM accounts')).toThrow(ValidationError);
-      expect(() => validateUserId('admin\' --')).toThrow(ValidationError);
+      expect(() => validateUserId('user-123; SELECT * FROM accounts')).toThrow(
+        ValidationError
+      );
+      expect(() => validateUserId("admin' --")).toThrow(ValidationError);
     });
 
     it('should reject user ID with prohibited keywords', () => {
@@ -105,14 +109,14 @@ describe('Input Validation Utilities', () => {
 
   describe('validateAmount', () => {
     it('should accept valid amounts', () => {
-      expect(validateAmount(100.50)).toBe(100.50);
-      expect(validateAmount('100.50')).toBe(100.50);
+      expect(validateAmount(100.5)).toBe(100.5);
+      expect(validateAmount('100.50')).toBe(100.5);
       expect(validateAmount(0)).toBe(0);
-      expect(validateAmount(-100.50)).toBe(-100.50);
+      expect(validateAmount(-100.5)).toBe(-100.5);
     });
 
     it('should accept negative amounts', () => {
-      expect(validateAmount(-50.00)).toBe(-50.00);
+      expect(validateAmount(-50.0)).toBe(-50.0);
       expect(validateAmount('-75.25')).toBe(-75.25);
     });
 
@@ -153,7 +157,7 @@ describe('Input Validation Utilities', () => {
       const result = sanitizeInput('<script>alert("XSS")</script>');
       expect(result).not.toContain('<script>');
       expect(result).toContain('alert');
-      
+
       expect(sanitizeInput('<b>Bold</b> text')).toBe('Bold text');
       expect(sanitizeInput('<div>Content</div>')).toBe('Content');
     });
@@ -285,7 +289,7 @@ describe('Input Validation Utilities', () => {
   describe('ValidationError class', () => {
     it('should create error with code and field', () => {
       const error = new ValidationError('Test error', 'TEST_CODE', 'testField');
-      
+
       expect(error).toBeInstanceOf(Error);
       expect(error).toBeInstanceOf(ValidationError);
       expect(error.name).toBe('ValidationError');
@@ -300,4 +304,3 @@ describe('Input Validation Utilities', () => {
     });
   });
 });
-

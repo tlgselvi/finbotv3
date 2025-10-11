@@ -5,7 +5,12 @@
 
 import { beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import { MockFactory } from '../utils/mock-factory.js';
-import { testDb, resetDatabase, seedTestData, closeDatabase } from './test-db.js';
+import {
+  testDb,
+  resetDatabase,
+  seedTestData,
+  closeDatabase,
+} from './test-db.js';
 import '@testing-library/jest-dom/vitest';
 
 // Global test setup
@@ -14,10 +19,10 @@ beforeAll(() => {
   process.env.NODE_ENV = 'test';
   process.env.JWT_SECRET = 'test-jwt-secret-for-testing';
   // Don't set DATABASE_URL - let integration tests skip if no real DB
-  // process.env.DATABASE_URL = ':memory:'; 
+  // process.env.DATABASE_URL = ':memory:';
   process.env.CORS_ORIGIN = 'http://localhost:3000';
   process.env.PORT = '3001';
-  
+
   // Initialize test database for unit tests
   resetDatabase();
   seedTestData();
@@ -46,7 +51,7 @@ vi.mock('../../server/db.js', async () => {
   const schema = await import('../../shared/schema-sqlite.js');
   return {
     db: testDb,
-    ...schema
+    ...schema,
   };
 });
 
@@ -54,31 +59,39 @@ vi.mock('bcryptjs', () => {
   const mockBcrypt = {
     hash: vi.fn((password: string) => Promise.resolve(`hashed_${password}`)),
     hashSync: vi.fn((password: string) => `hashed_${password}`),
-    compare: vi.fn((password: string, hash: string) => Promise.resolve(hash === `hashed_${password}`)),
-    compareSync: vi.fn((password: string, hash: string) => hash === `hashed_${password}`)
+    compare: vi.fn((password: string, hash: string) =>
+      Promise.resolve(hash === `hashed_${password}`)
+    ),
+    compareSync: vi.fn(
+      (password: string, hash: string) => hash === `hashed_${password}`
+    ),
   };
   return {
     default: mockBcrypt,
-    ...mockBcrypt
+    ...mockBcrypt,
   };
 });
 
 vi.mock('argon2', () => {
   const mockArgon2 = {
     hash: vi.fn((password: string) => Promise.resolve(`argon2_${password}`)),
-    verify: vi.fn((hash: string, password: string) => Promise.resolve(hash === `argon2_${password}`)),
+    verify: vi.fn((hash: string, password: string) =>
+      Promise.resolve(hash === `argon2_${password}`)
+    ),
     argon2id: 2, // Argon2id type constant
     argon2i: 1,
-    argon2d: 0
+    argon2d: 0,
   };
   return {
     default: mockArgon2,
-    ...mockArgon2
+    ...mockArgon2,
   };
 });
 
 vi.mock('jsonwebtoken', () => {
-  const mockSign = vi.fn((payload: any) => `mock.jwt.token.${JSON.stringify(payload)}`);
+  const mockSign = vi.fn(
+    (payload: any) => `mock.jwt.token.${JSON.stringify(payload)}`
+  );
   const mockVerify = vi.fn((token: string) => {
     const parts = token.split('.');
     if (parts.length === 3) {
@@ -90,14 +103,14 @@ vi.mock('jsonwebtoken', () => {
     }
     return null;
   });
-  
+
   return {
     default: {
       sign: mockSign,
-      verify: mockVerify
+      verify: mockVerify,
     },
     sign: mockSign,
-    verify: mockVerify
+    verify: mockVerify,
   };
 });
 
@@ -105,12 +118,12 @@ vi.mock('nodemailer', () => {
   const mockNodemailer = {
     createTransport: vi.fn(() => ({
       sendMail: vi.fn(() => Promise.resolve({ messageId: 'test-message-id' })),
-      verify: vi.fn(() => Promise.resolve(true))
-    }))
+      verify: vi.fn(() => Promise.resolve(true)),
+    })),
   };
   return {
     default: mockNodemailer,
-    ...mockNodemailer
+    ...mockNodemailer,
   };
 });
 
@@ -131,7 +144,7 @@ vi.mock('crypto', () => {
         length: size,
         // Add other Buffer methods if needed
         slice: () => mockBuffer,
-        copy: () => size
+        copy: () => size,
       };
       return mockBuffer as any;
     }),
@@ -142,7 +155,7 @@ vi.mock('crypto', () => {
           return 'test-hmac-hash-hex';
         }
         return Buffer.from('test-hash');
-      })
+      }),
     })),
     createHash: vi.fn(() => ({
       update: vi.fn().mockReturnThis(),
@@ -151,14 +164,14 @@ vi.mock('crypto', () => {
           return 'test-hash-hex';
         }
         return Buffer.from('test-hash');
-      })
+      }),
     })),
     timingSafeEqual: vi.fn(() => true),
-    pbkdf2Sync: vi.fn(() => Buffer.from('test-derived-key'))
+    pbkdf2Sync: vi.fn(() => Buffer.from('test-derived-key')),
   };
   return {
     default: mockCrypto,
-    ...mockCrypto
+    ...mockCrypto,
   };
 });
 
@@ -176,11 +189,11 @@ global.fetch = vi.fn((url: string, options?: any) => {
     clone: vi.fn(() => response),
     headers: new Headers({
       'content-type': 'application/json',
-      'x-request-id': 'test-request-id'
+      'x-request-id': 'test-request-id',
     }),
     redirected: false,
     type: 'basic' as ResponseType,
-    url: typeof url === 'string' ? url : ''
+    url: typeof url === 'string' ? url : '',
   };
   return Promise.resolve(response as Response);
 }) as any;
@@ -191,7 +204,7 @@ vi.mock('fs/promises', () => ({
   writeFile: vi.fn(() => Promise.resolve()),
   unlink: vi.fn(() => Promise.resolve()),
   mkdir: vi.fn(() => Promise.resolve()),
-  access: vi.fn(() => Promise.resolve())
+  access: vi.fn(() => Promise.resolve()),
 }));
 
 // Mock path operations
@@ -206,11 +219,11 @@ vi.mock('path', () => {
       return parts.length > 1 ? `.${parts.pop()}` : '';
     }),
     sep: '/',
-    delimiter: ':'
+    delimiter: ':',
   };
   return {
     default: mockPath,
-    ...mockPath
+    ...mockPath,
   };
 });
 
@@ -223,7 +236,7 @@ vi.mock('express', () => {
     put: vi.fn(),
     delete: vi.fn(),
     patch: vi.fn(),
-    all: vi.fn()
+    all: vi.fn(),
   }));
 
   const mockExpress: any = vi.fn(() => ({
@@ -234,13 +247,15 @@ vi.mock('express', () => {
     delete: vi.fn(),
     patch: vi.fn(),
     listen: vi.fn(),
-    set: vi.fn()
+    set: vi.fn(),
   }));
 
   // Add Router as a method on mockExpress
   mockExpress.Router = mockRouter;
   mockExpress.json = vi.fn(() => (req: any, res: any, next: any) => next());
-  mockExpress.urlencoded = vi.fn(() => (req: any, res: any, next: any) => next());
+  mockExpress.urlencoded = vi.fn(
+    () => (req: any, res: any, next: any) => next()
+  );
   mockExpress.static = vi.fn(() => (req: any, res: any, next: any) => next());
 
   return {
@@ -248,7 +263,7 @@ vi.mock('express', () => {
     Router: mockRouter,
     json: vi.fn(() => (req: any, res: any, next: any) => next()),
     urlencoded: vi.fn(() => (req: any, res: any, next: any) => next()),
-    static: vi.fn(() => (req: any, res: any, next: any) => next())
+    static: vi.fn(() => (req: any, res: any, next: any) => next()),
   };
 });
 
@@ -257,7 +272,7 @@ vi.mock('multer', () => {
   const mockMulter: any = vi.fn(() => ({
     single: vi.fn(() => (req: any, res: any, next: any) => next()),
     array: vi.fn(() => (req: any, res: any, next: any) => next()),
-    fields: vi.fn(() => (req: any, res: any, next: any) => next())
+    fields: vi.fn(() => (req: any, res: any, next: any) => next()),
   }));
 
   mockMulter.memoryStorage = vi.fn(() => ({}));
@@ -266,42 +281,42 @@ vi.mock('multer', () => {
   return {
     default: mockMulter,
     memoryStorage: vi.fn(() => ({})),
-    diskStorage: vi.fn(() => ({}))
+    diskStorage: vi.fn(() => ({})),
   };
 });
 
 // Mock rate limiting
 vi.mock('express-rate-limit', () => ({
-  default: vi.fn(() => (req: any, res: any, next: any) => next())
+  default: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 vi.mock('express-slow-down', () => ({
-  default: vi.fn(() => (req: any, res: any, next: any) => next())
+  default: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 // Mock session
 vi.mock('express-session', () => ({
-  default: vi.fn(() => (req: any, res: any, next: any) => next())
+  default: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 // Mock CORS
 vi.mock('cors', () => ({
-  default: vi.fn(() => (req: any, res: any, next: any) => next())
+  default: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 // Mock Helmet
 vi.mock('helmet', () => ({
-  default: vi.fn(() => (req: any, res: any, next: any) => next())
+  default: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 // Mock compression
 vi.mock('compression', () => ({
-  default: vi.fn(() => (req: any, res: any, next: any) => next())
+  default: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 // Mock morgan
 vi.mock('morgan', () => ({
-  default: vi.fn(() => (req: any, res: any, next: any) => next())
+  default: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 // Mock winston logger
@@ -312,12 +327,12 @@ vi.mock('winston', () => ({
     timestamp: vi.fn(),
     printf: vi.fn(),
     colorize: vi.fn(),
-    json: vi.fn()
+    json: vi.fn(),
   },
   transports: {
     Console: vi.fn(),
-    File: vi.fn()
-  }
+    File: vi.fn(),
+  },
 }));
 
 // Mock axios
@@ -331,15 +346,15 @@ vi.mock('axios', () => ({
       delete: vi.fn(() => Promise.resolve({ data: { success: true } })),
       interceptors: {
         request: { use: vi.fn() },
-        response: { use: vi.fn() }
-      }
+        response: { use: vi.fn() },
+      },
     })),
     request: vi.fn(() => Promise.resolve({ data: { success: true } })),
     get: vi.fn(() => Promise.resolve({ data: { success: true } })),
     post: vi.fn(() => Promise.resolve({ data: { success: true } })),
     put: vi.fn(() => Promise.resolve({ data: { success: true } })),
-    delete: vi.fn(() => Promise.resolve({ data: { success: true } }))
-  }
+    delete: vi.fn(() => Promise.resolve({ data: { success: true } })),
+  },
 }));
 
 // Mock OpenAI
@@ -347,43 +362,55 @@ vi.mock('openai', () => ({
   OpenAI: vi.fn(() => ({
     chat: {
       completions: {
-        create: vi.fn(() => Promise.resolve({
-          choices: [{
-            message: {
-              content: 'Mock AI response'
-            }
-          }]
-        }))
-      }
+        create: vi.fn(() =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: 'Mock AI response',
+                },
+              },
+            ],
+          })
+        ),
+      },
     },
     embeddings: {
-      create: vi.fn(() => Promise.resolve({
-        data: [{
-          embedding: new Array(1536).fill(0.1)
-        }]
-      }))
-    }
-  }))
+      create: vi.fn(() =>
+        Promise.resolve({
+          data: [
+            {
+              embedding: new Array(1536).fill(0.1),
+            },
+          ],
+        })
+      ),
+    },
+  })),
 }));
 
 // Mock PDF generation
 vi.mock('puppeteer', () => ({
   default: {
-    launch: vi.fn(() => Promise.resolve({
-      newPage: vi.fn(() => Promise.resolve({
-        setContent: vi.fn(),
-        pdf: vi.fn(() => Promise.resolve(Buffer.from('mock pdf'))),
-        close: vi.fn()
-      })),
-      close: vi.fn()
-    }))
-  }
+    launch: vi.fn(() =>
+      Promise.resolve({
+        newPage: vi.fn(() =>
+          Promise.resolve({
+            setContent: vi.fn(),
+            pdf: vi.fn(() => Promise.resolve(Buffer.from('mock pdf'))),
+            close: vi.fn(),
+          })
+        ),
+        close: vi.fn(),
+      })
+    ),
+  },
 }));
 
 // Mock QR code generation
 vi.mock('qrcode', () => ({
   toDataURL: vi.fn(() => Promise.resolve('data:image/png;base64,mock-qr-code')),
-  toString: vi.fn(() => Promise.resolve('mock-qr-string'))
+  toString: vi.fn(() => Promise.resolve('mock-qr-string')),
 }));
 
 // Mock 2FA
@@ -392,13 +419,13 @@ vi.mock('speakeasy', () => ({
     ascii: 'mock-secret',
     hex: 'mock-hex-secret',
     base32: 'mock-base32-secret',
-    otpauth_url: 'mock-otpauth-url'
+    otpauth_url: 'mock-otpauth-url',
   })),
   generateToken: vi.fn(() => '123456'),
   verifyToken: vi.fn(() => true),
   totp: {
-    verify: vi.fn(() => true)
-  }
+    verify: vi.fn(() => true),
+  },
 }));
 
 // Mock CSV parsing
@@ -412,8 +439,8 @@ vi.mock('csv-parser', () => ({
       }
     }),
     write: vi.fn(),
-    end: vi.fn()
-  }))
+    end: vi.fn(),
+  })),
 }));
 
 // Mock Excel parsing
@@ -426,35 +453,47 @@ vi.mock('xlsx', () => ({
         A1: { v: 'Header1' },
         B1: { v: 'Header2' },
         A2: { v: 'Value1' },
-        B2: { v: 'Value2' }
-      }
-    }
+        B2: { v: 'Value2' },
+      },
+    },
   })),
   utils: {
-    sheet_to_json: vi.fn(() => [
-      { Header1: 'Value1', Header2: 'Value2' }
-    ])
-  }
+    sheet_to_json: vi.fn(() => [{ Header1: 'Value1', Header2: 'Value2' }]),
+  },
 }));
 
 // Mock date-fns
 vi.mock('date-fns', () => ({
   format: vi.fn((date: Date, format: string) => date.toISOString()),
   parse: vi.fn((dateString: string, format: string) => new Date(dateString)),
-  addDays: vi.fn((date: Date, days: number) => new Date(date.getTime() + days * 24 * 60 * 60 * 1000)),
-  subDays: vi.fn((date: Date, days: number) => new Date(date.getTime() - days * 24 * 60 * 60 * 1000)),
+  addDays: vi.fn(
+    (date: Date, days: number) =>
+      new Date(date.getTime() + days * 24 * 60 * 60 * 1000)
+  ),
+  subDays: vi.fn(
+    (date: Date, days: number) =>
+      new Date(date.getTime() - days * 24 * 60 * 60 * 1000)
+  ),
   isAfter: vi.fn((date1: Date, date2: Date) => date1 > date2),
   isBefore: vi.fn((date1: Date, date2: Date) => date1 < date2),
-  differenceInDays: vi.fn((date1: Date, date2: Date) => Math.floor((date1.getTime() - date2.getTime()) / (24 * 60 * 60 * 1000)))
+  differenceInDays: vi.fn((date1: Date, date2: Date) =>
+    Math.floor((date1.getTime() - date2.getTime()) / (24 * 60 * 60 * 1000))
+  ),
 }));
 
 // Mock simple-statistics
 vi.mock('simple-statistics', () => ({
   mean: vi.fn((arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length),
-  median: vi.fn((arr: number[]) => arr.sort((a, b) => a - b)[Math.floor(arr.length / 2)]),
-  standardDeviation: vi.fn((arr: number[]) => Math.sqrt(arr.reduce((a, b) => a + b * b, 0) / arr.length)),
-  variance: vi.fn((arr: number[]) => arr.reduce((a, b) => a + b * b, 0) / arr.length),
-  linearRegression: vi.fn(() => ({ m: 1, b: 0, r2: 0.95 }))
+  median: vi.fn(
+    (arr: number[]) => arr.sort((a, b) => a - b)[Math.floor(arr.length / 2)]
+  ),
+  standardDeviation: vi.fn((arr: number[]) =>
+    Math.sqrt(arr.reduce((a, b) => a + b * b, 0) / arr.length)
+  ),
+  variance: vi.fn(
+    (arr: number[]) => arr.reduce((a, b) => a + b * b, 0) / arr.length
+  ),
+  linearRegression: vi.fn(() => ({ m: 1, b: 0, r2: 0.95 })),
 }));
 
 export { MockFactory };

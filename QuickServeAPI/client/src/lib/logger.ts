@@ -16,7 +16,8 @@ class ClientLogger {
   constructor() {
     this.config = {
       level: (import.meta.env.VITE_LOG_LEVEL as LogLevel) || 'info',
-      enabled: import.meta.env.DEV || import.meta.env.VITE_ENABLE_LOGGING === 'true'
+      enabled:
+        import.meta.env.DEV || import.meta.env.VITE_ENABLE_LOGGING === 'true',
     };
   }
 
@@ -30,7 +31,11 @@ class ClientLogger {
     return messageLevelIndex >= configLevelIndex;
   }
 
-  private formatMessage(level: LogLevel, message: string, ...args: any[]): void {
+  private formatMessage(
+    level: LogLevel,
+    message: string,
+    ...args: any[]
+  ): void {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
 

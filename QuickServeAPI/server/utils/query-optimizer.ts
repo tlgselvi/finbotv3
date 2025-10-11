@@ -22,7 +22,7 @@ export interface PaginatedResult<T> {
 }
 
 // Optimize query parameters
-export function optimizeQueryParams (options: QueryOptions) {
+export function optimizeQueryParams(options: QueryOptions) {
   const {
     limit = 20,
     offset = 0,
@@ -33,7 +33,10 @@ export function optimizeQueryParams (options: QueryOptions) {
   } = options;
 
   // Validate and sanitize parameters
-  const sanitizedLimit = Math.min(Math.max(parseInt(limit.toString()) || 20, 1), 100);
+  const sanitizedLimit = Math.min(
+    Math.max(parseInt(limit.toString()) || 20, 1),
+    100
+  );
   const sanitizedOffset = Math.max(parseInt(offset.toString()) || 0, 0);
   const sanitizedOrderBy = sanitizeColumnName(orderBy);
   const sanitizedOrderDirection = orderDirection === 'ASC' ? 'ASC' : 'DESC';
@@ -51,15 +54,28 @@ export function optimizeQueryParams (options: QueryOptions) {
 }
 
 // Sanitize column names to prevent SQL injection
-function sanitizeColumnName (column: string): string {
+function sanitizeColumnName(column: string): string {
   // Only allow alphanumeric characters, underscores, and dots
   const sanitized = column.replace(/[^a-zA-Z0-9_.]/g, '');
 
   // Common allowed columns
   const allowedColumns = [
-    'id', 'created_at', 'updated_at', 'name', 'email', 'username',
-    'amount', 'date', 'description', 'category', 'type', 'balance',
-    'bank_name', 'account_name', 'currency', 'is_active',
+    'id',
+    'created_at',
+    'updated_at',
+    'name',
+    'email',
+    'username',
+    'amount',
+    'date',
+    'description',
+    'category',
+    'type',
+    'balance',
+    'bank_name',
+    'account_name',
+    'currency',
+    'is_active',
   ];
 
   // If column is not in allowed list, default to created_at
@@ -71,7 +87,7 @@ function sanitizeColumnName (column: string): string {
 }
 
 // Sanitize filter values
-function sanitizeFilters (filters: Record<string, any>): Record<string, any> {
+function sanitizeFilters(filters: Record<string, any>): Record<string, any> {
   const sanitized: Record<string, any> = {};
 
   for (const [key, value] of Object.entries(filters)) {
@@ -99,7 +115,10 @@ function sanitizeFilters (filters: Record<string, any>): Record<string, any> {
 }
 
 // Build WHERE clause for filters
-export function buildWhereClause (filters: Record<string, any>): { clause: string; values: any[] } {
+export function buildWhereClause(filters: Record<string, any>): {
+  clause: string;
+  values: any[];
+} {
   const conditions: string[] = [];
   const values: any[] = [];
 
@@ -125,12 +144,16 @@ export function buildWhereClause (filters: Record<string, any>): { clause: strin
     }
   }
 
-  const clause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const clause =
+    conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   return { clause, values };
 }
 
 // Build search clause
-export function buildSearchClause (search: string, searchColumns: string[]): { clause: string; values: any[] } {
+export function buildSearchClause(
+  search: string,
+  searchColumns: string[]
+): { clause: string; values: any[] } {
   if (!search || searchColumns.length === 0) {
     return { clause: '', values: [] };
   }
@@ -143,7 +166,11 @@ export function buildSearchClause (search: string, searchColumns: string[]): { c
 }
 
 // Calculate pagination info
-export function calculatePagination (total: number, page: number, limit: number): {
+export function calculatePagination(
+  total: number,
+  page: number,
+  limit: number
+): {
   totalPages: number;
   hasNext: boolean;
   hasPrev: boolean;
@@ -163,13 +190,17 @@ export function calculatePagination (total: number, page: number, limit: number)
 }
 
 // Create paginated result
-export function createPaginatedResult<T> (
+export function createPaginatedResult<T>(
   data: T[],
   total: number,
   page: number,
-  limit: number,
+  limit: number
 ): PaginatedResult<T> {
-  const { totalPages, hasNext, hasPrev } = calculatePagination(total, page, limit);
+  const { totalPages, hasNext, hasPrev } = calculatePagination(
+    total,
+    page,
+    limit
+  );
 
   return {
     data,
@@ -184,16 +215,23 @@ export function createPaginatedResult<T> (
 
 // Query performance monitoring
 export class QueryPerformanceMonitor {
-  private static queries = new Map<string, { count: number; totalTime: number; avgTime: number }>();
+  private static queries = new Map<
+    string,
+    { count: number; totalTime: number; avgTime: number }
+  >();
 
-  static startQuery (queryId: string): () => void {
+  static startQuery(queryId: string): () => void {
     const startTime = Date.now();
 
     return () => {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      const existing = this.queries.get(queryId) || { count: 0, totalTime: 0, avgTime: 0 };
+      const existing = this.queries.get(queryId) || {
+        count: 0,
+        totalTime: 0,
+        avgTime: 0,
+      };
       existing.count++;
       existing.totalTime += duration;
       existing.avgTime = existing.totalTime / existing.count;
@@ -207,7 +245,7 @@ export class QueryPerformanceMonitor {
     };
   }
 
-  static getStats (): Record<string, any> {
+  static getStats(): Record<string, any> {
     const stats: Record<string, any> = {};
 
     for (const [queryId, data] of Array.from(this.queries.entries())) {
@@ -221,13 +259,13 @@ export class QueryPerformanceMonitor {
     return stats;
   }
 
-  static clearStats (): void {
+  static clearStats(): void {
     this.queries.clear();
   }
 }
 
 // Database connection health check
-export async function checkDatabaseHealth (pool: any): Promise<{
+export async function checkDatabaseHealth(pool: any): Promise<{
   healthy: boolean;
   latency: number;
   error?: string;

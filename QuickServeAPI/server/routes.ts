@@ -3,17 +3,66 @@ import { Router } from 'express';
 import { createServer, type Server } from 'http';
 import { storage } from './storage.ts';
 import { logger } from './utils/logger.ts';
-import { insertAccountSchema, insertTransactionSchema, insertCreditSchema, updateAccountSchema, deleteAccountSchema, updateTransactionSchema, deleteTransactionSchema, updateCreditSchema, deleteCreditSchema, loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, insertTeamSchema, updateTeamSchema, insertTeamMemberSchema, inviteUserSchema, acceptInviteSchema, insertSystemAlertSchema, insertFixedExpenseSchema, insertInvestmentSchema, insertForecastSchema, insertAISettingsSchema, importTransactionJsonSchema, exportTransactionsByDateSchema, transactionJsonFileSchema, Permission, UserRole, TeamPermission, hasTeamPermission, TeamRole } from '../shared/schema.ts';
+import {
+  insertAccountSchema,
+  insertTransactionSchema,
+  insertCreditSchema,
+  updateAccountSchema,
+  deleteAccountSchema,
+  updateTransactionSchema,
+  deleteTransactionSchema,
+  updateCreditSchema,
+  deleteCreditSchema,
+  loginSchema,
+  registerSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  insertTeamSchema,
+  updateTeamSchema,
+  insertTeamMemberSchema,
+  inviteUserSchema,
+  acceptInviteSchema,
+  insertSystemAlertSchema,
+  insertFixedExpenseSchema,
+  insertInvestmentSchema,
+  insertForecastSchema,
+  insertAISettingsSchema,
+  importTransactionJsonSchema,
+  exportTransactionsByDateSchema,
+  transactionJsonFileSchema,
+  Permission,
+  UserRole,
+  TeamPermission,
+  hasTeamPermission,
+  TeamRole,
+} from '../shared/schema.ts';
 import { db, dbInterface } from './db.ts';
 import bcrypt from 'bcryptjs';
 import { randomBytes, randomUUID } from 'crypto';
 import type { AuthenticatedRequest } from './middleware/auth.ts';
-import { requireAuth, requirePermission, requireAccountTypeAccess, optionalAuth, logAccess } from './middleware/auth.ts';
-import { requireJWTAuth, requireJWTPermission, requireJWTAdmin, logJWTAccess } from './middleware/jwt-auth.ts';
+import {
+  requireAuth,
+  requirePermission,
+  requireAccountTypeAccess,
+  optionalAuth,
+  logAccess,
+} from './middleware/auth.ts';
+import {
+  requireJWTAuth,
+  requireJWTPermission,
+  requireJWTAdmin,
+  logJWTAccess,
+} from './middleware/jwt-auth.ts';
 import { responseCache } from './middleware/response-cache.ts';
-import { securityAudit, rateLimitWithAudit } from './middleware/security-audit.ts';
+import {
+  securityAudit,
+  rateLimitWithAudit,
+} from './middleware/security-audit.ts';
 import aiAnalysisRouter from './routes/ai-analysis.ts';
-import { updateUserRoleSchema, updateUserStatusSchema } from '../shared/schema.ts';
+import {
+  updateUserRoleSchema,
+  updateUserStatusSchema,
+} from '../shared/schema.ts';
 import { alertService } from './alert-service.ts';
 import { transactionJsonService } from './transaction-json-service.ts';
 import { realtimeService } from './realtime-service.ts';
@@ -44,8 +93,14 @@ import enhancedExportRouter from './routes/enhanced-export.ts';
 import cashboxRouter from './routes/cashbox.ts';
 import bankIntegrationRouter from './routes/bank-integration.ts';
 import securityRouter from './routes/security.ts';
-import { securityHeadersMiddleware, advancedSecurityHeaders } from './middleware/security-headers-advanced.ts';
-import { auditComplianceMiddleware, auditComplianceManager } from './middleware/audit-compliance.ts';
+import {
+  securityHeadersMiddleware,
+  advancedSecurityHeaders,
+} from './middleware/security-headers-advanced.ts';
+import {
+  auditComplianceMiddleware,
+  auditComplianceManager,
+} from './middleware/audit-compliance.ts';
 import { rateLimitMiddleware } from './middleware/rate-limit-advanced.ts';
 import { authHardeningService } from './services/auth/auth-hardening.ts';
 
@@ -63,48 +118,48 @@ declare module 'express-session' {
   }
 }
 
-export async function registerRoutes (app: Express): Promise<Server> {
+export async function registerRoutes(app: Express): Promise<Server> {
   // ===================================
   // ADVANCED SECURITY MIDDLEWARE
   // ===================================
-  
+
   // Security audit middleware for all routes
   app.use(securityAudit);
 
   // AI Analysis routes
   app.use('/api/ai', aiAnalysisRouter);
-  
+
   // Enhanced rate limiting with security audit (relaxed for development)
   app.use('/api/auth', rateLimitWithAudit(15 * 60 * 1000, 50)); // 50 attempts per 15 minutes for auth
   app.use('/api', rateLimitWithAudit(60 * 1000, 1000)); // 1000 requests per minute for general API
-  
+
   // Security headers for all routes
   app.use(securityHeadersMiddleware.main);
-  
+
   // Rate limiting with advanced policies
   app.use('/api/auth', rateLimitMiddleware.login);
   app.use('/api/security', rateLimitMiddleware.login);
   app.use('/api', rateLimitMiddleware.slowDown);
-  
+
   // Audit compliance middleware - temporarily disabled until userActivityLogs table is created
   // app.use('/api', auditComplianceMiddleware.logRequests);
   // app.use('/api/auth', auditComplianceMiddleware.logAuth);
   // app.use('/api', auditComplianceMiddleware.logDataAccess);
-  
+
   // API-specific security headers
   app.use('/api', securityHeadersMiddleware.api);
-  
+
   // Development bypass for testing
   if (process.env.NODE_ENV === 'development') {
     app.use(securityHeadersMiddleware.development);
   }
-  
+
   // Static file security headers
   app.use(securityHeadersMiddleware.static);
-  
+
   // Error page security headers
   app.use(securityHeadersMiddleware.error);
-  
+
   // CSP violation reporting endpoint
   app.post('/api/security/csp-report', securityHeadersMiddleware.cspReport);
 
@@ -117,10 +172,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
   const financeApi = Router();
   financeApi.use('/finance', financeRouter);
   app.use('/api', financeApi);
-  app.get('/api/accounts',
+  app.get(
+    '/api/accounts',
     responseCache({ ttl: 2 * 60 * 1000 }), // 2 minutes cache
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_ACCOUNTS, Permission.VIEW_COMPANY_ACCOUNTS, Permission.VIEW_ALL_ACCOUNTS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_ACCOUNTS,
+      Permission.VIEW_COMPANY_ACCOUNTS,
+      Permission.VIEW_ALL_ACCOUNTS
+    ),
     logAccess('VIEW_ACCOUNTS'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -144,10 +204,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         res.status(500).json({ error: 'Hesaplar yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/accounts',
+  app.post(
+    '/api/accounts',
     requireAuth,
     logAccess('CREATE_ACCOUNT'),
     async (req: AuthenticatedRequest, res) => {
@@ -159,24 +220,42 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Check if user can create this account type
         const accountType = validatedData.type as 'personal' | 'company';
-        if (req.user!.role === UserRole.PERSONAL_USER && accountType === 'company') {
-          return res.status(403).json({ error: 'Şirket hesabı oluşturma yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          accountType === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Şirket hesabı oluşturma yetkiniz bulunmuyor' });
         }
 
         const account = await storage.createAccount(validatedData);
-        log.business('accounts', 'create', { accountId: account.id, type: account.type });
+        log.business('accounts', 'create', {
+          accountId: account.id,
+          type: account.type,
+        });
         res.json(account);
       } catch (error) {
         logger.error('❌ Account validation error:', error);
-        res.status(400).json({ error: 'Geçersiz hesap verisi', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'Geçersiz hesap verisi',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // PUT /api/accounts/:id - Update account
-  app.put('/api/accounts/:id',
+  app.put(
+    '/api/accounts/:id',
     requireAuth,
-    requirePermission(Permission.EDIT_PERSONAL_ACCOUNTS, Permission.EDIT_COMPANY_ACCOUNTS, Permission.EDIT_ALL_ACCOUNTS),
+    requirePermission(
+      Permission.EDIT_PERSONAL_ACCOUNTS,
+      Permission.EDIT_COMPANY_ACCOUNTS,
+      Permission.EDIT_ALL_ACCOUNTS
+    ),
     logAccess('UPDATE_ACCOUNT'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -186,14 +265,19 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Check if account exists and user has access
         const accounts = await storage.getAccounts();
         const account = accounts.find(acc => acc.id === id);
-        
+
         if (!account) {
           return res.status(404).json({ error: 'Hesap bulunamadı' });
         }
 
         // Check if user can edit this account type
-        if (req.user!.role === UserRole.PERSONAL_USER && account.type === 'company') {
-          return res.status(403).json({ error: 'Şirket hesabı düzenleme yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          account.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Şirket hesabı düzenleme yetkiniz bulunmuyor' });
         }
 
         const updatedAccount = await storage.updateAccount(id, validatedData);
@@ -204,15 +288,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(updatedAccount);
       } catch (error) {
         logger.error('❌ Account update error:', error);
-        res.status(400).json({ error: 'Hesap güncellenirken hata oluştu', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'Hesap güncellenirken hata oluştu',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // DELETE /api/accounts/:id - Soft delete account
-  app.delete('/api/accounts/:id',
+  app.delete(
+    '/api/accounts/:id',
     requireAuth,
-    requirePermission(Permission.DELETE_PERSONAL_ACCOUNTS, Permission.DELETE_COMPANY_ACCOUNTS, Permission.DELETE_ALL_ACCOUNTS),
+    requirePermission(
+      Permission.DELETE_PERSONAL_ACCOUNTS,
+      Permission.DELETE_COMPANY_ACCOUNTS,
+      Permission.DELETE_ALL_ACCOUNTS
+    ),
     logAccess('DELETE_ACCOUNT'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -222,14 +316,19 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Check if account exists and user has access
         const accounts = await storage.getAccounts();
         const account = accounts.find(acc => acc.id === id);
-        
+
         if (!account) {
           return res.status(404).json({ error: 'Hesap bulunamadı' });
         }
 
         // Check if user can delete this account type
-        if (req.user!.role === UserRole.PERSONAL_USER && account.type === 'company') {
-          return res.status(403).json({ error: 'Şirket hesabı silme yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          account.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Şirket hesabı silme yetkiniz bulunmuyor' });
         }
 
         const deleted = await storage.deleteAccount(id);
@@ -237,18 +336,31 @@ export async function registerRoutes (app: Express): Promise<Server> {
           return res.status(404).json({ error: 'Hesap silinemedi' });
         }
 
-        res.json({ message: 'Hesap başarıyla silindi', reason: validatedData.reason });
+        res.json({
+          message: 'Hesap başarıyla silindi',
+          reason: validatedData.reason,
+        });
       } catch (error) {
         logger.error('❌ Account delete error:', error);
-        res.status(400).json({ error: 'Hesap silinirken hata oluştu', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'Hesap silinirken hata oluştu',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // PATCH /api/accounts/:id/status - Toggle account status (active/passive)
-  app.patch('/api/accounts/:id/status',
+  app.patch(
+    '/api/accounts/:id/status',
     requireAuth,
-    requirePermission(Permission.EDIT_PERSONAL_ACCOUNTS, Permission.EDIT_COMPANY_ACCOUNTS, Permission.EDIT_ALL_ACCOUNTS),
+    requirePermission(
+      Permission.EDIT_PERSONAL_ACCOUNTS,
+      Permission.EDIT_COMPANY_ACCOUNTS,
+      Permission.EDIT_ALL_ACCOUNTS
+    ),
     logAccess('TOGGLE_ACCOUNT_STATUS'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -256,20 +368,29 @@ export async function registerRoutes (app: Express): Promise<Server> {
         const { isActive } = req.body;
 
         if (typeof isActive !== 'boolean') {
-          return res.status(400).json({ error: 'isActive değeri boolean olmalıdır' });
+          return res
+            .status(400)
+            .json({ error: 'isActive değeri boolean olmalıdır' });
         }
 
         // Check if account exists and user has access
         const accounts = await storage.getAccounts();
         const account = accounts.find(acc => acc.id === id);
-        
+
         if (!account) {
           return res.status(404).json({ error: 'Hesap bulunamadı' });
         }
 
         // Check if user can edit this account type
-        if (req.user!.role === UserRole.PERSONAL_USER && account.type === 'company') {
-          return res.status(403).json({ error: 'Şirket hesabı durumu değiştirme yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          account.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({
+              error: 'Şirket hesabı durumu değiştirme yetkiniz bulunmuyor',
+            });
         }
 
         const updatedAccount = await storage.updateAccount(id, { isActive });
@@ -280,15 +401,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(updatedAccount);
       } catch (error) {
         logger.error('❌ Account status update error:', error);
-        res.status(400).json({ error: 'Hesap durumu güncellenirken hata oluştu', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'Hesap durumu güncellenirken hata oluştu',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // Account summary endpoint - Enhanced account details with transactions and history
-  app.get('/api/accounts/:id/summary',
+  app.get(
+    '/api/accounts/:id/summary',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_ACCOUNTS, Permission.VIEW_COMPANY_ACCOUNTS, Permission.VIEW_ALL_ACCOUNTS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_ACCOUNTS,
+      Permission.VIEW_COMPANY_ACCOUNTS,
+      Permission.VIEW_ALL_ACCOUNTS
+    ),
     logAccess('VIEW_ACCOUNT_SUMMARY'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -317,7 +448,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
           .map(account => account.id);
 
         if (!allowedAccountIds.includes(accountId)) {
-          return res.status(403).json({ error: 'Bu hesaba erişim yetkiniz yok' });
+          return res
+            .status(403)
+            .json({ error: 'Bu hesaba erişim yetkiniz yok' });
         }
 
         res.set({
@@ -329,13 +462,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Account summary error:', error);
         res.status(500).json({ error: 'Hesap özeti yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Transaction routes - Protected by authentication and account type permissions
-  app.get('/api/transactions',
+  app.get(
+    '/api/transactions',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_TRANSACTIONS'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -363,11 +501,16 @@ export async function registerRoutes (app: Express): Promise<Server> {
           .map(account => account.id);
 
         // Use paginated endpoint for better performance
-        const result = await storage.getTransactionsPaginated(page, limit, search, accountId);
+        const result = await storage.getTransactionsPaginated(
+          page,
+          limit,
+          search,
+          accountId
+        );
 
         // Filter transactions based on user role and account access
         const filteredTransactions = result.transactions.filter(transaction =>
-          allowedAccountIds.includes(transaction.accountId),
+          allowedAccountIds.includes(transaction.accountId)
         );
 
         res.set({
@@ -386,10 +529,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         res.status(500).json({ error: 'İşlemler yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/transactions',
+  app.post(
+    '/api/transactions',
     requireAuth,
     logAccess('CREATE_TRANSACTION'),
     async (req: AuthenticatedRequest, res) => {
@@ -398,7 +542,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Validate transaction type for this endpoint
         if (!['income', 'expense'].includes(validatedData.type)) {
-          return res.status(400).json({ error: 'Bu endpoint sadece gelir ve gider işlemlerini destekler' });
+          return res
+            .status(400)
+            .json({
+              error: 'Bu endpoint sadece gelir ve gider işlemlerini destekler',
+            });
         }
 
         // Check if user can access the target account
@@ -408,13 +556,23 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // Check account type permissions
-        if (req.user!.role === UserRole.PERSONAL_USER && account.type === 'company') {
-          return res.status(403).json({ error: 'Şirket hesabında işlem yapma yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          account.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({
+              error: 'Şirket hesabında işlem yapma yetkiniz bulunmuyor',
+            });
         }
 
         // Calculate balance adjustment
         let balanceAdjustment = 0;
-        const amount = typeof validatedData.amount === 'string' ? parseFloat(validatedData.amount) : validatedData.amount;
+        const amount =
+          typeof validatedData.amount === 'string'
+            ? parseFloat(validatedData.amount)
+            : validatedData.amount;
 
         if (validatedData.type === 'income') {
           balanceAdjustment = amount;
@@ -423,19 +581,27 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // Use atomic transaction operation
-        const transaction = await storage.performTransaction(validatedData, balanceAdjustment);
+        const transaction = await storage.performTransaction(
+          validatedData,
+          balanceAdjustment
+        );
 
         res.json(transaction);
       } catch (error) {
         res.status(400).json({ error: 'Geçersiz işlem verisi' });
       }
-    },
+    }
   );
 
   // PUT /api/transactions/:id - Update transaction
-  app.put('/api/transactions/:id',
+  app.put(
+    '/api/transactions/:id',
     requireAuth,
-    requirePermission(Permission.EDIT_PERSONAL_TRANSACTIONS, Permission.EDIT_COMPANY_TRANSACTIONS, Permission.EDIT_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.EDIT_PERSONAL_TRANSACTIONS,
+      Permission.EDIT_COMPANY_TRANSACTIONS,
+      Permission.EDIT_ALL_TRANSACTIONS
+    ),
     logAccess('UPDATE_TRANSACTION'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -455,11 +621,21 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // Check account type permissions
-        if (req.user!.role === UserRole.PERSONAL_USER && account.type === 'company') {
-          return res.status(403).json({ error: 'Şirket hesabındaki işlemi düzenleme yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          account.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({
+              error: 'Şirket hesabındaki işlemi düzenleme yetkiniz bulunmuyor',
+            });
         }
 
-        const updatedTransaction = await storage.updateTransaction(id, validatedData);
+        const updatedTransaction = await storage.updateTransaction(
+          id,
+          validatedData
+        );
         if (!updatedTransaction) {
           return res.status(404).json({ error: 'İşlem güncellenemedi' });
         }
@@ -467,15 +643,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(updatedTransaction);
       } catch (error) {
         logger.error('❌ Transaction update error:', error);
-        res.status(400).json({ error: 'İşlem güncellenirken hata oluştu', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'İşlem güncellenirken hata oluştu',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // DELETE /api/transactions/:id - Soft delete transaction
-  app.delete('/api/transactions/:id',
+  app.delete(
+    '/api/transactions/:id',
     requireAuth,
-    requirePermission(Permission.DELETE_PERSONAL_TRANSACTIONS, Permission.DELETE_COMPANY_TRANSACTIONS, Permission.DELETE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.DELETE_PERSONAL_TRANSACTIONS,
+      Permission.DELETE_COMPANY_TRANSACTIONS,
+      Permission.DELETE_ALL_TRANSACTIONS
+    ),
     logAccess('DELETE_TRANSACTION'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -495,8 +681,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // Check account type permissions
-        if (req.user!.role === UserRole.PERSONAL_USER && account.type === 'company') {
-          return res.status(403).json({ error: 'Şirket hesabındaki işlemi silme yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          account.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({
+              error: 'Şirket hesabındaki işlemi silme yetkiniz bulunmuyor',
+            });
         }
 
         const deleted = await storage.deleteTransaction(id);
@@ -504,18 +697,31 @@ export async function registerRoutes (app: Express): Promise<Server> {
           return res.status(404).json({ error: 'İşlem silinemedi' });
         }
 
-        res.json({ message: 'İşlem başarıyla silindi', reason: validatedData.reason });
+        res.json({
+          message: 'İşlem başarıyla silindi',
+          reason: validatedData.reason,
+        });
       } catch (error) {
         logger.error('❌ Transaction delete error:', error);
-        res.status(400).json({ error: 'İşlem silinirken hata oluştu', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'İşlem silinirken hata oluştu',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // PATCH /api/transactions/:id/category - Update transaction category
-  app.patch('/api/transactions/:id/category',
+  app.patch(
+    '/api/transactions/:id/category',
     requireAuth,
-    requirePermission(Permission.EDIT_PERSONAL_TRANSACTIONS, Permission.EDIT_COMPANY_TRANSACTIONS, Permission.EDIT_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.EDIT_PERSONAL_TRANSACTIONS,
+      Permission.EDIT_COMPANY_TRANSACTIONS,
+      Permission.EDIT_ALL_TRANSACTIONS
+    ),
     logAccess('UPDATE_TRANSACTION_CATEGORY'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -523,7 +729,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
         const { category } = req.body;
 
         if (!category || typeof category !== 'string') {
-          return res.status(400).json({ error: 'Kategori değeri string olmalıdır' });
+          return res
+            .status(400)
+            .json({ error: 'Kategori değeri string olmalıdır' });
         }
 
         // Check if transaction exists and user has access
@@ -539,25 +747,42 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // Check account type permissions
-        if (req.user!.role === UserRole.PERSONAL_USER && account.type === 'company') {
-          return res.status(403).json({ error: 'Şirket hesabındaki işlemi düzenleme yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          account.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({
+              error: 'Şirket hesabındaki işlemi düzenleme yetkiniz bulunmuyor',
+            });
         }
 
-        const updatedTransaction = await storage.updateTransaction(id, { category });
+        const updatedTransaction = await storage.updateTransaction(id, {
+          category,
+        });
         if (!updatedTransaction) {
-          return res.status(404).json({ error: 'İşlem kategorisi güncellenemedi' });
+          return res
+            .status(404)
+            .json({ error: 'İşlem kategorisi güncellenemedi' });
         }
 
         res.json(updatedTransaction);
       } catch (error) {
         logger.error('❌ Transaction category update error:', error);
-        res.status(400).json({ error: 'İşlem kategorisi güncellenirken hata oluştu', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'İşlem kategorisi güncellenirken hata oluştu',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // Money transfer (virman) route - Protected by authentication
-  app.post('/api/virman',
+  app.post(
+    '/api/virman',
     requireAuth,
     logAccess('TRANSFER_FUNDS'),
     async (req: AuthenticatedRequest, res) => {
@@ -572,16 +797,24 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // Check if user can access both accounts
-        const canAccessFrom = req.user!.role === UserRole.ADMIN ||
-                              req.user!.role === UserRole.COMPANY_USER ||
-                              (req.user!.role === UserRole.PERSONAL_USER && fromAccount.type === 'personal');
+        const canAccessFrom =
+          req.user!.role === UserRole.ADMIN ||
+          req.user!.role === UserRole.COMPANY_USER ||
+          (req.user!.role === UserRole.PERSONAL_USER &&
+            fromAccount.type === 'personal');
 
-        const canAccessTo = req.user!.role === UserRole.ADMIN ||
-                            req.user!.role === UserRole.COMPANY_USER ||
-                            (req.user!.role === UserRole.PERSONAL_USER && toAccount.type === 'personal');
+        const canAccessTo =
+          req.user!.role === UserRole.ADMIN ||
+          req.user!.role === UserRole.COMPANY_USER ||
+          (req.user!.role === UserRole.PERSONAL_USER &&
+            toAccount.type === 'personal');
 
         if (!canAccessFrom || !canAccessTo) {
-          return res.status(403).json({ error: 'Bu hesaplar arasında virman yapma yetkiniz bulunmuyor' });
+          return res
+            .status(403)
+            .json({
+              error: 'Bu hesaplar arasında virman yapma yetkiniz bulunmuyor',
+            });
         }
 
         const transferAmount = parseFloat(amount);
@@ -593,7 +826,7 @@ export async function registerRoutes (app: Express): Promise<Server> {
           toAccountId,
           transferAmount,
           description || 'Hesaplar arası transfer',
-          virmanId,
+          virmanId
         );
 
         // Get updated balances
@@ -612,13 +845,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
         res.status(400).json({ error: 'Virman işleminde hata oluştu' });
       }
-    },
+    }
   );
 
   // Credit routes - Protected by authentication and account type permissions
-  app.get('/api/credits',
+  app.get(
+    '/api/credits',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_ACCOUNTS, Permission.VIEW_COMPANY_ACCOUNTS, Permission.VIEW_ALL_ACCOUNTS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_ACCOUNTS,
+      Permission.VIEW_COMPANY_ACCOUNTS,
+      Permission.VIEW_ALL_ACCOUNTS
+    ),
     logAccess('VIEW_CREDITS'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -643,10 +881,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         res.status(500).json({ error: 'Krediler yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/credits',
+  app.post(
+    '/api/credits',
     requireAuth,
     logAccess('CREATE_CREDIT'),
     async (req: AuthenticatedRequest, res) => {
@@ -654,23 +893,38 @@ export async function registerRoutes (app: Express): Promise<Server> {
         const validatedData = insertCreditSchema.parse(req.body);
 
         // Check if user can create this credit type
-        if (req.user!.role === UserRole.PERSONAL_USER && validatedData.type === 'company') {
-          return res.status(403).json({ error: 'Şirket kredisi oluşturma yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          validatedData.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Şirket kredisi oluşturma yetkiniz bulunmuyor' });
         }
 
         const credit = await storage.createCredit(validatedData);
         res.json(credit);
       } catch (error) {
         logger.error('❌ Credit validation error:', error);
-        res.status(400).json({ error: 'Geçersiz kredi verisi', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'Geçersiz kredi verisi',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // PUT /api/credits/:id - Update credit
-  app.put('/api/credits/:id',
+  app.put(
+    '/api/credits/:id',
     requireAuth,
-    requirePermission(Permission.EDIT_PERSONAL_ACCOUNTS, Permission.EDIT_COMPANY_ACCOUNTS, Permission.EDIT_ALL_ACCOUNTS),
+    requirePermission(
+      Permission.EDIT_PERSONAL_ACCOUNTS,
+      Permission.EDIT_COMPANY_ACCOUNTS,
+      Permission.EDIT_ALL_ACCOUNTS
+    ),
     logAccess('UPDATE_CREDIT'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -684,8 +938,13 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // Check if user can edit this credit type
-        if (req.user!.role === UserRole.PERSONAL_USER && credit.type === 'company') {
-          return res.status(403).json({ error: 'Şirket kredisini düzenleme yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          credit.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Şirket kredisini düzenleme yetkiniz bulunmuyor' });
         }
 
         const updatedCredit = await storage.updateCredit(id, validatedData);
@@ -696,15 +955,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(updatedCredit);
       } catch (error) {
         logger.error('❌ Credit update error:', error);
-        res.status(400).json({ error: 'Kredi güncellenirken hata oluştu', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'Kredi güncellenirken hata oluştu',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // DELETE /api/credits/:id - Soft delete credit
-  app.delete('/api/credits/:id',
+  app.delete(
+    '/api/credits/:id',
     requireAuth,
-    requirePermission(Permission.DELETE_PERSONAL_ACCOUNTS, Permission.DELETE_COMPANY_ACCOUNTS, Permission.DELETE_ALL_ACCOUNTS),
+    requirePermission(
+      Permission.DELETE_PERSONAL_ACCOUNTS,
+      Permission.DELETE_COMPANY_ACCOUNTS,
+      Permission.DELETE_ALL_ACCOUNTS
+    ),
     logAccess('DELETE_CREDIT'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -718,8 +987,13 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // Check if user can delete this credit type
-        if (req.user!.role === UserRole.PERSONAL_USER && credit.type === 'company') {
-          return res.status(403).json({ error: 'Şirket kredisini silme yetkiniz bulunmuyor' });
+        if (
+          req.user!.role === UserRole.PERSONAL_USER &&
+          credit.type === 'company'
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Şirket kredisini silme yetkiniz bulunmuyor' });
         }
 
         const deleted = await storage.deleteCredit(id);
@@ -727,16 +1001,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
           return res.status(404).json({ error: 'Kredi silinemedi' });
         }
 
-        res.json({ message: 'Kredi başarıyla silindi', reason: validatedData.reason });
+        res.json({
+          message: 'Kredi başarıyla silindi',
+          reason: validatedData.reason,
+        });
       } catch (error) {
         logger.error('❌ Credit delete error:', error);
-        res.status(400).json({ error: 'Kredi silinirken hata oluştu', details: (error as Error).message });
+        res
+          .status(400)
+          .json({
+            error: 'Kredi silinirken hata oluştu',
+            details: (error as Error).message,
+          });
       }
-    },
+    }
   );
 
   // Dashboard route - Protected by authentication with role-based filtering
-  app.get('/api/dashboard',
+  app.get(
+    '/api/dashboard',
     responseCache({ ttl: 30 * 1000 }), // 30 seconds cache for dashboard
     requireAuth,
     logAccess('VIEW_DASHBOARD'),
@@ -760,11 +1043,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
           res.json(dashboardData);
         } else if (userRole === UserRole.PERSONAL_USER) {
           // Personal user only sees personal account data - optimized filtering
-          const personalAccounts = dashboardData.accounts.filter(account => account.type === 'personal');
-          const personalAccountIds = new Set(personalAccounts.map(acc => acc.id));
+          const personalAccounts = dashboardData.accounts.filter(
+            account => account.type === 'personal'
+          );
+          const personalAccountIds = new Set(
+            personalAccounts.map(acc => acc.id)
+          );
 
           // Pre-calculate personal balances efficiently
-          const personalBalance = personalAccounts.reduce((sum, account) => sum + parseFloat(account.balance), 0);
+          const personalBalance = personalAccounts.reduce(
+            (sum, account) => sum + parseFloat(account.balance),
+            0
+          );
           const personalCash = personalAccounts
             .filter(acc => parseFloat(acc.balance) > 0)
             .reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
@@ -772,7 +1062,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
             .filter(acc => parseFloat(acc.balance) < 0)
             .reduce((sum, acc) => sum + Math.abs(parseFloat(acc.balance)), 0);
 
-          const personalTransactions = dashboardData.recentTransactions.filter(tx => personalAccountIds.has(tx.accountId));
+          const personalTransactions = dashboardData.recentTransactions.filter(
+            tx => personalAccountIds.has(tx.accountId)
+          );
 
           res.json({
             totalBalance: personalBalance,
@@ -798,28 +1090,37 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
       } catch (error) {
         logger.error('Dashboard error:', error);
-        res.status(500).json({ error: 'Dashboard verisi yüklenirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Dashboard verisi yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Real-time updates endpoint using Server-Sent Events
-  app.get('/api/dashboard/stream',
+  app.get(
+    '/api/dashboard/stream',
     requireAuth,
     logAccess('VIEW_DASHBOARD_STREAM'),
     (req: AuthenticatedRequest, res) => {
       realtimeService.addClient(req.user!.id, res);
-    },
+    }
   );
 
   // Consolidation breakdown endpoint
-  app.get('/api/consolidation/breakdown',
+  app.get(
+    '/api/consolidation/breakdown',
     requireAuth,
-    requirePermission(Permission.VIEW_ALL_REPORTS, Permission.VIEW_COMPANY_REPORTS, Permission.VIEW_PERSONAL_REPORTS),
+    requirePermission(
+      Permission.VIEW_ALL_REPORTS,
+      Permission.VIEW_COMPANY_REPORTS,
+      Permission.VIEW_PERSONAL_REPORTS
+    ),
     logAccess('VIEW_CONSOLIDATION_BREAKDOWN'),
     async (req: AuthenticatedRequest, res) => {
       try {
-        const { calculateConsolidationBreakdown, prepareBreakdownChartData } = await import('./src/modules/consolidation/breakdown');
+        const { calculateConsolidationBreakdown, prepareBreakdownChartData } =
+          await import('./src/modules/consolidation/breakdown');
         const accounts = await storage.getAccounts();
 
         // Filter accounts based on user role
@@ -844,18 +1145,17 @@ export async function registerRoutes (app: Express): Promise<Server> {
           table: result.table,
           summary: result.summary,
           chartData,
-          accounts: filteredAccounts.length
+          accounts: filteredAccounts.length,
         });
       } catch (error) {
         logger.error('Consolidation breakdown error:', error);
-        res.status(500).json({ 
+        res.status(500).json({
           error: 'Konsolidasyon breakdown hesaplanırken hata oluştu',
-          details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+          details: error instanceof Error ? error.message : 'Bilinmeyen hata',
         });
       }
-    },
+    }
   );
-
 
   // Authentication routes
   app.post('/api/auth/register', async (req, res) => {
@@ -863,19 +1163,34 @@ export async function registerRoutes (app: Express): Promise<Server> {
     log.info({ endpoint: 'register' }, 'Register endpoint hit');
     try {
       const validatedData = registerSchema.parse(req.body);
-      log.debug({ email: validatedData.email }, 'Registration validation passed');
+      log.debug(
+        { email: validatedData.email },
+        'Registration validation passed'
+      );
 
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(validatedData.email);
       if (existingUser) {
-        log.warn({ email: validatedData.email }, 'Registration failed: email already exists');
-        return res.status(400).json({ error: 'Bu email adresi zaten kullanılıyor' });
+        log.warn(
+          { email: validatedData.email },
+          'Registration failed: email already exists'
+        );
+        return res
+          .status(400)
+          .json({ error: 'Bu email adresi zaten kullanılıyor' });
       }
 
-      const existingUsername = await storage.getUserByUsername(validatedData.username);
+      const existingUsername = await storage.getUserByUsername(
+        validatedData.username
+      );
       if (existingUsername) {
-        log.warn({ username: validatedData.username }, 'Registration failed: username already exists');
-        return res.status(400).json({ error: 'Bu kullanıcı adı zaten kullanılıyor' });
+        log.warn(
+          { username: validatedData.username },
+          'Registration failed: username already exists'
+        );
+        return res
+          .status(400)
+          .json({ error: 'Bu kullanıcı adı zaten kullanılıyor' });
       }
 
       // Hash password
@@ -907,77 +1222,103 @@ export async function registerRoutes (app: Express): Promise<Server> {
   });
 
   // DSCR endpoint
-  app.get('/api/finance/dscr', requireAuth, async (req: AuthenticatedRequest, res) => {
-    try {
-      const { operatingCF, debtService } = req.query;
-      
-      if (!operatingCF || !debtService) {
-        return res.status(400).json({ error: 'operatingCF ve debtService parametreleri gerekli' });
+  app.get(
+    '/api/finance/dscr',
+    requireAuth,
+    async (req: AuthenticatedRequest, res) => {
+      try {
+        const { operatingCF, debtService } = req.query;
+
+        if (!operatingCF || !debtService) {
+          return res
+            .status(400)
+            .json({
+              error: 'operatingCF ve debtService parametreleri gerekli',
+            });
+        }
+
+        const operatingCFNum = parseFloat(operatingCF as string);
+        const debtServiceNum = parseFloat(debtService as string);
+
+        if (
+          isNaN(operatingCFNum) ||
+          isNaN(debtServiceNum) ||
+          debtServiceNum === 0
+        ) {
+          return res.status(400).json({ error: 'Geçersiz parametreler' });
+        }
+
+        const dscr = operatingCFNum / debtServiceNum;
+        let status: 'ok' | 'warning' | 'critical' = 'ok';
+
+        if (dscr < 1.0) {
+          status = 'critical';
+        } else if (dscr < 1.25) {
+          status = 'warning';
+        }
+
+        res.json({ dscr, status });
+      } catch (error) {
+        logger.error('DSCR calculation error:', error);
+        res.status(500).json({ error: 'DSCR hesaplama hatası' });
       }
-      
-      const operatingCFNum = parseFloat(operatingCF as string);
-      const debtServiceNum = parseFloat(debtService as string);
-      
-      if (isNaN(operatingCFNum) || isNaN(debtServiceNum) || debtServiceNum === 0) {
-        return res.status(400).json({ error: 'Geçersiz parametreler' });
-      }
-      
-      const dscr = operatingCFNum / debtServiceNum;
-      let status: 'ok' | 'warning' | 'critical' = 'ok';
-      
-      if (dscr < 1.0) {
-        status = 'critical';
-      } else if (dscr < 1.25) {
-        status = 'warning';
-      }
-      
-      res.json({ dscr, status });
-    } catch (error) {
-      logger.error('DSCR calculation error:', error);
-      res.status(500).json({ error: 'DSCR hesaplama hatası' });
     }
-  });
+  );
 
   app.post('/api/auth/login', async (req, res) => {
     try {
       logger.info('🔐 Login attempt started');
       logger.debug('Request body:', req.body);
-      
+
       const { email, password } = req.body;
-      
+
       // Validate input
       if (!email || !password) {
         return res.status(400).json({ error: 'Email ve şifre gerekli' });
       }
-      
+
       const validatedData = { email, password };
       logger.debug('✓ Validation passed');
 
       // Find user by email - use db interface
       logger.debug('Searching for user:', validatedData.email);
       const user = dbInterface.getUserByEmail(validatedData.email) as any;
-      
+
       if (!user) {
-        logger.warn('Login failed: user not found', { email: validatedData.email });
+        logger.warn('Login failed: user not found', {
+          email: validatedData.email,
+        });
         return res.status(401).json({ error: 'Geçersiz email veya şifre' });
       }
 
-      logger.debug('User found:', { userId: user.id, email: user.email, fields: Object.keys(user) });
+      logger.debug('User found:', {
+        userId: user.id,
+        email: user.email,
+        fields: Object.keys(user),
+      });
 
       // Check password - SQLite uses password_hash field
       const passwordToCheck = user.password_hash;
-      
+
       if (!passwordToCheck) {
-        logger.error('Login failed: no password hash found for user', { userId: user.id, userFields: Object.keys(user) });
+        logger.error('Login failed: no password hash found for user', {
+          userId: user.id,
+          userFields: Object.keys(user),
+        });
         return res.status(500).json({ error: 'Sistem hatası' });
       }
-      
+
       logger.debug('Comparing passwords...');
-      const isValidPassword = await bcrypt.compare(validatedData.password, passwordToCheck);
+      const isValidPassword = await bcrypt.compare(
+        validatedData.password,
+        passwordToCheck
+      );
       logger.debug('Password comparison result:', isValidPassword);
-      
+
       if (!isValidPassword) {
-        logger.warn('Login failed: invalid password', { email: validatedData.email });
+        logger.warn('Login failed: invalid password', {
+          email: validatedData.email,
+        });
         return res.status(401).json({ error: 'Geçersiz email veya şifre' });
       }
 
@@ -1001,7 +1342,10 @@ export async function registerRoutes (app: Express): Promise<Server> {
         isActive: user.is_active === 1 || user.is_active === true,
       };
 
-      logger.info('✅ Login successful', { userId: user.id, email: user.email });
+      logger.info('✅ Login successful', {
+        userId: user.id,
+        email: user.email,
+      });
 
       res.json({
         message: 'Giriş başarılı',
@@ -1011,11 +1355,17 @@ export async function registerRoutes (app: Express): Promise<Server> {
     } catch (error) {
       console.error('❌ LOGIN ERROR CAUGHT:', error);
       logger.error('❌ Login error:', error);
-      res.status(500).json({ error: 'Giriş sırasında hata oluştu', details: error instanceof Error ? error.message : String(error) });
+      res
+        .status(500)
+        .json({
+          error: 'Giriş sırasında hata oluştu',
+          details: error instanceof Error ? error.message : String(error),
+        });
     }
   });
 
-  app.post('/api/auth/logout',
+  app.post(
+    '/api/auth/logout',
     requireAuth,
     logAccess('LOGOUT'),
     async (req: AuthenticatedRequest, res) => {
@@ -1024,10 +1374,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
           log.auth('logout', { id: req.session.userId }, req.ip);
 
           // Destroy session
-          req.session.destroy((err) => {
+          req.session.destroy(err => {
             if (err) {
               logger.error('❌ Session destruction error:', err);
-              return res.status(500).json({ error: 'Çıkış sırasında hata oluştu' });
+              return res
+                .status(500)
+                .json({ error: 'Çıkış sırasında hata oluştu' });
             }
             res.clearCookie('connect.sid'); // Clear session cookie
             res.json({ message: 'Çıkış başarılı' });
@@ -1039,7 +1391,7 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('❌ Logout error:', error);
         res.status(500).json({ error: 'Çıkış sırasında hata oluştu' });
       }
-    },
+    }
   );
 
   // JWT Authentication Routes
@@ -1054,7 +1406,10 @@ export async function registerRoutes (app: Express): Promise<Server> {
       }
 
       // Check password with Argon2id
-      const isValidPassword = await authHardeningService.verifyPassword(validatedData.password, user.password);
+      const isValidPassword = await authHardeningService.verifyPassword(
+        validatedData.password,
+        user.password
+      );
       if (!isValidPassword) {
         return res.status(401).json({ error: 'Geçersiz email veya şifre' });
       }
@@ -1105,9 +1460,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
       }
 
       // Verify refresh token with rotation
-      const result = await authHardeningService.rotateRefreshToken(refreshToken);
+      const result =
+        await authHardeningService.rotateRefreshToken(refreshToken);
       if (!result.success) {
-        return res.status(401).json({ error: result.error || 'Invalid or expired refresh token' });
+        return res
+          .status(401)
+          .json({ error: result.error || 'Invalid or expired refresh token' });
       }
 
       res.json({
@@ -1122,13 +1480,16 @@ export async function registerRoutes (app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/auth/jwt/logout',
+  app.post(
+    '/api/auth/jwt/logout',
     requireJWTAuth,
     logJWTAccess('JWT_LOGOUT'),
     async (req: JWTAuthenticatedRequest, res) => {
       try {
         // Extract token from Authorization header
-        const token = JWTAuthService.extractTokenFromHeader(req.headers.authorization);
+        const token = JWTAuthService.extractTokenFromHeader(
+          req.headers.authorization
+        );
 
         if (token) {
           // Revoke token using auth hardening service
@@ -1141,7 +1502,7 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('❌ JWT Logout error:', error);
         res.status(500).json({ error: 'Çıkış sırasında hata oluştu' });
       }
-    },
+    }
   );
 
   app.post('/api/auth/forgot-password', async (req, res) => {
@@ -1151,24 +1512,35 @@ export async function registerRoutes (app: Express): Promise<Server> {
       const user = await storage.getUserByEmail(validatedData.email);
       if (!user) {
         // Don't reveal if email exists for security
-        return res.json({ message: 'Eğer bu email kayıtlıysa, şifre sıfırlama linki gönderilecek' });
+        return res.json({
+          message:
+            'Eğer bu email kayıtlıysa, şifre sıfırlama linki gönderilecek',
+        });
       }
 
       // Generate reset token
       const resetToken = randomBytes(32).toString('hex');
       const resetTokenExpires = new Date(Date.now() + 3600000); // 1 hour
 
-      await storage.setResetToken(validatedData.email, resetToken, resetTokenExpires);
+      await storage.setResetToken(
+        validatedData.email,
+        resetToken,
+        resetTokenExpires
+      );
 
       // Send email with reset link
       const { emailService } = await import('./services/email-service.js');
       const template = emailService.generatePasswordResetTemplate(resetToken);
       await emailService.sendEmail(validatedData.email, template);
 
-      res.json({ message: 'Eğer bu email kayıtlıysa, şifre sıfırlama linki gönderilecek' });
+      res.json({
+        message: 'Eğer bu email kayıtlıysa, şifre sıfırlama linki gönderilecek',
+      });
     } catch (error) {
       logger.error('Forgot password error:', error);
-      res.status(500).json({ error: 'Şifre sıfırlama isteği sırasında hata oluştu' });
+      res
+        .status(500)
+        .json({ error: 'Şifre sıfırlama isteği sırasında hata oluştu' });
     }
   });
 
@@ -1179,7 +1551,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
       // Find user by reset token
       const user = await storage.findUserByResetToken(validatedData.token);
       if (!user) {
-        return res.status(400).json({ error: 'Geçersiz veya süresi dolmuş şifre sıfırlama tokeni' });
+        return res
+          .status(400)
+          .json({
+            error: 'Geçersiz veya süresi dolmuş şifre sıfırlama tokeni',
+          });
       }
 
       // Hash new password
@@ -1196,7 +1572,8 @@ export async function registerRoutes (app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/auth/me',
+  app.get(
+    '/api/auth/me',
     requireAuth,
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1206,13 +1583,16 @@ export async function registerRoutes (app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('❌ Get user error:', error);
-        res.status(500).json({ error: 'Kullanıcı bilgileri alınırken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Kullanıcı bilgileri alınırken hata oluştu' });
       }
-    },
+    }
   );
 
   // Admin User Management Routes
-  app.get('/api/admin/users',
+  app.get(
+    '/api/admin/users',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS, Permission.VIEW_USERS),
     logAccess('VIEW_ALL_USERS'),
@@ -1228,10 +1608,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get all users error:', error);
         res.status(500).json({ error: 'Kullanıcılar yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.put('/api/admin/users/:userId/role',
+  app.put(
+    '/api/admin/users/:userId/role',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS),
     logAccess('CHANGE_USER_ROLE'),
@@ -1247,7 +1628,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Prevent self role change to avoid lockout
         if (userId === req.user!.id) {
-          return res.status(403).json({ error: 'Kendi rolünüzü değiştiremezsiniz' });
+          return res
+            .status(403)
+            .json({ error: 'Kendi rolünüzü değiştiremezsiniz' });
         }
 
         const updatedUser = await storage.updateUserRole(userId, role);
@@ -1266,10 +1649,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Update user role error:', error);
         res.status(500).json({ error: 'Rol değiştirilirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.put('/api/admin/users/:userId/status',
+  app.put(
+    '/api/admin/users/:userId/status',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS),
     logAccess('CHANGE_USER_STATUS'),
@@ -1285,7 +1669,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Prevent self deactivation to avoid lockout
         if (userId === req.user!.id && !isActive) {
-          return res.status(403).json({ error: 'Kendi hesabınızı pasif hale getiremezsiniz' });
+          return res
+            .status(403)
+            .json({ error: 'Kendi hesabınızı pasif hale getiremezsiniz' });
         }
 
         const updatedUser = await storage.updateUserStatus(userId, isActive);
@@ -1302,13 +1688,16 @@ export async function registerRoutes (app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('Update user status error:', error);
-        res.status(500).json({ error: 'Kullanıcı durumu değiştirilirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Kullanıcı durumu değiştirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // JWT-based Admin User Management Routes
-  app.get('/api/jwt/admin/users',
+  app.get(
+    '/api/jwt/admin/users',
     requireJWTAuth,
     requireJWTPermission(Permission.MANAGE_USERS, Permission.VIEW_USERS),
     logJWTAccess('JWT_VIEW_ALL_USERS'),
@@ -1324,10 +1713,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('JWT Get all users error:', error);
         res.status(500).json({ error: 'Kullanıcılar yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.put('/api/jwt/admin/users/:userId/role',
+  app.put(
+    '/api/jwt/admin/users/:userId/role',
     requireJWTAuth,
     requireJWTPermission(Permission.MANAGE_USERS),
     logJWTAccess('JWT_CHANGE_USER_ROLE'),
@@ -1343,7 +1733,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Prevent self role change to avoid lockout
         if (userId === req.user!.id) {
-          return res.status(403).json({ error: 'Kendi rolünüzü değiştiremezsiniz' });
+          return res
+            .status(403)
+            .json({ error: 'Kendi rolünüzü değiştiremezsiniz' });
         }
 
         const updatedUser = await storage.updateUserRole(userId, role);
@@ -1360,12 +1752,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('JWT Update user role error:', error);
-        res.status(500).json({ error: 'Kullanıcı rolü değiştirilirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Kullanıcı rolü değiştirilirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.put('/api/jwt/admin/users/:userId/status',
+  app.put(
+    '/api/jwt/admin/users/:userId/status',
     requireJWTAuth,
     requireJWTPermission(Permission.MANAGE_USERS),
     logJWTAccess('JWT_CHANGE_USER_STATUS'),
@@ -1381,7 +1776,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Prevent self deactivation to avoid lockout
         if (userId === req.user!.id && !isActive) {
-          return res.status(403).json({ error: 'Kendi hesabınızı pasif hale getiremezsiniz' });
+          return res
+            .status(403)
+            .json({ error: 'Kendi hesabınızı pasif hale getiremezsiniz' });
         }
 
         const updatedUser = await storage.updateUserStatus(userId, isActive);
@@ -1398,13 +1795,16 @@ export async function registerRoutes (app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('JWT Update user status error:', error);
-        res.status(500).json({ error: 'Kullanıcı durumu değiştirilirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Kullanıcı durumu değiştirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // JWT-based User Profile Routes
-  app.get('/api/jwt/auth/me',
+  app.get(
+    '/api/jwt/auth/me',
     requireJWTAuth,
     logJWTAccess('JWT_GET_PROFILE'),
     async (req: JWTAuthenticatedRequest, res) => {
@@ -1419,12 +1819,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json({ user: safeUser });
       } catch (error) {
         logger.error('JWT Get profile error:', error);
-        res.status(500).json({ error: 'Profil bilgileri alınırken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Profil bilgileri alınırken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.put('/api/jwt/auth/profile',
+  app.put(
+    '/api/jwt/auth/profile',
     requireJWTAuth,
     logJWTAccess('JWT_UPDATE_PROFILE'),
     async (req: JWTAuthenticatedRequest, res) => {
@@ -1433,16 +1836,26 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Validate input
         if (!username || !email) {
-          return res.status(400).json({ error: 'Kullanıcı adı ve email gereklidir' });
+          return res
+            .status(400)
+            .json({ error: 'Kullanıcı adı ve email gereklidir' });
         }
 
         // Check if email is already taken by another user
         const existingUser = await storage.getUserByEmail(email);
         if (existingUser && existingUser.id !== req.user!.id) {
-          return res.status(400).json({ error: 'Bu email adresi başka bir kullanıcı tarafından kullanılıyor' });
+          return res
+            .status(400)
+            .json({
+              error:
+                'Bu email adresi başka bir kullanıcı tarafından kullanılıyor',
+            });
         }
 
-        const updatedUser = await storage.updateUserProfile(req.user!.id, { username, email });
+        const updatedUser = await storage.updateUserProfile(req.user!.id, {
+          username,
+          email,
+        });
         if (!updatedUser) {
           return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
         }
@@ -1458,15 +1871,20 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('JWT Update profile error:', error);
         res.status(500).json({ error: 'Profil güncellenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // ==================== FIXED EXPENSES API ROUTES ====================
 
   // Get all fixed expenses
-  app.get('/api/fixed-expenses',
+  app.get(
+    '/api/fixed-expenses',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_FIXED_EXPENSES'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1474,15 +1892,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(expenses);
       } catch (error) {
         logger.error('Get fixed expenses error:', error);
-        res.status(500).json({ error: 'Sabit giderler yüklenirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Sabit giderler yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get specific fixed expense
-  app.get('/api/fixed-expenses/:id',
+  app.get(
+    '/api/fixed-expenses/:id',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_FIXED_EXPENSE'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1498,13 +1923,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get fixed expense error:', error);
         res.status(500).json({ error: 'Sabit gider yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Create new fixed expense
-  app.post('/api/fixed-expenses',
+  app.post(
+    '/api/fixed-expenses',
     requireAuth,
-    requirePermission(Permission.CREATE_PERSONAL_TRANSACTIONS, Permission.CREATE_COMPANY_TRANSACTIONS, Permission.CREATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.CREATE_PERSONAL_TRANSACTIONS,
+      Permission.CREATE_COMPANY_TRANSACTIONS,
+      Permission.CREATE_ALL_TRANSACTIONS
+    ),
     logAccess('CREATE_FIXED_EXPENSE'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1513,15 +1943,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Check if user has access to the specified account
         if (validatedData.accountId) {
           const accounts = await storage.getAccounts();
-          const account = accounts.find(acc => acc.id === validatedData.accountId);
+          const account = accounts.find(
+            acc => acc.id === validatedData.accountId
+          );
 
           if (!account) {
             return res.status(404).json({ error: 'Hesap bulunamadı' });
           }
 
           // Check account type access based on user role
-          if (req.user!.role === UserRole.PERSONAL_USER && account.type !== 'personal') {
-            return res.status(403).json({ error: 'Bu hesap türüne erişim yetkiniz yok' });
+          if (
+            req.user!.role === UserRole.PERSONAL_USER &&
+            account.type !== 'personal'
+          ) {
+            return res
+              .status(403)
+              .json({ error: 'Bu hesap türüne erişim yetkiniz yok' });
           }
         }
 
@@ -1533,15 +1970,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('Create fixed expense error:', error);
-        res.status(400).json({ error: 'Sabit gider oluşturulurken hata oluştu' });
+        res
+          .status(400)
+          .json({ error: 'Sabit gider oluşturulurken hata oluştu' });
       }
-    },
+    }
   );
 
   // Update fixed expense
-  app.put('/api/fixed-expenses/:id',
+  app.put(
+    '/api/fixed-expenses/:id',
     requireAuth,
-    requirePermission(Permission.UPDATE_PERSONAL_TRANSACTIONS, Permission.UPDATE_COMPANY_TRANSACTIONS, Permission.UPDATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.UPDATE_PERSONAL_TRANSACTIONS,
+      Permission.UPDATE_COMPANY_TRANSACTIONS,
+      Permission.UPDATE_ALL_TRANSACTIONS
+    ),
     logAccess('UPDATE_FIXED_EXPENSE'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1560,15 +2004,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('Update fixed expense error:', error);
-        res.status(500).json({ error: 'Sabit gider güncellenirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Sabit gider güncellenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Delete fixed expense
-  app.delete('/api/fixed-expenses/:id',
+  app.delete(
+    '/api/fixed-expenses/:id',
     requireAuth,
-    requirePermission(Permission.DELETE_PERSONAL_TRANSACTIONS, Permission.DELETE_COMPANY_TRANSACTIONS, Permission.DELETE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.DELETE_PERSONAL_TRANSACTIONS,
+      Permission.DELETE_COMPANY_TRANSACTIONS,
+      Permission.DELETE_ALL_TRANSACTIONS
+    ),
     logAccess('DELETE_FIXED_EXPENSE'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1585,11 +2036,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Delete fixed expense error:', error);
         res.status(500).json({ error: 'Sabit gider silinirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Process recurring expenses (admin only)
-  app.post('/api/fixed-expenses/process',
+  app.post(
+    '/api/fixed-expenses/process',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS),
     logAccess('PROCESS_RECURRING_EXPENSES'),
@@ -1604,17 +2056,24 @@ export async function registerRoutes (app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('Process recurring expenses error:', error);
-        res.status(500).json({ error: 'Tekrarlayan giderler işlenirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Tekrarlayan giderler işlenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // ==================== INVESTMENT & PORTFOLIO API ROUTES ====================
 
   // Get all investments
-  app.get('/api/investments',
+  app.get(
+    '/api/investments',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_INVESTMENTS'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1624,13 +2083,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get investments error:', error);
         res.status(500).json({ error: 'Yatırımlar getirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get portfolio summary
-  app.get('/api/investments/portfolio',
+  app.get(
+    '/api/investments/portfolio',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_PORTFOLIO'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1638,15 +2102,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(portfolio);
       } catch (error) {
         logger.error('Get portfolio summary error:', error);
-        res.status(500).json({ error: 'Portföy özeti getirilirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Portföy özeti getirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get investments by type
-  app.get('/api/investments/type/:type',
+  app.get(
+    '/api/investments/type/:type',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_INVESTMENTS_BY_TYPE'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1655,15 +2126,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(investments);
       } catch (error) {
         logger.error('Get investments by type error:', error);
-        res.status(500).json({ error: 'Yatırımlar türe göre getirilirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Yatırımlar türe göre getirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get specific investment
-  app.get('/api/investments/:id',
+  app.get(
+    '/api/investments/:id',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_INVESTMENT'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1679,13 +2157,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get investment error:', error);
         res.status(500).json({ error: 'Yatırım getirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Create new investment
-  app.post('/api/investments',
+  app.post(
+    '/api/investments',
     requireAuth,
-    requirePermission(Permission.CREATE_PERSONAL_TRANSACTIONS, Permission.CREATE_COMPANY_TRANSACTIONS, Permission.CREATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.CREATE_PERSONAL_TRANSACTIONS,
+      Permission.CREATE_COMPANY_TRANSACTIONS,
+      Permission.CREATE_ALL_TRANSACTIONS
+    ),
     logAccess('CREATE_INVESTMENT'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1695,18 +2178,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         logger.error('Create investment error:', error);
         if (error instanceof Error && error.name === 'ZodError') {
-          res.status(400).json({ error: 'Geçersiz veri formatı', details: error.message });
+          res
+            .status(400)
+            .json({ error: 'Geçersiz veri formatı', details: error.message });
         } else {
           res.status(500).json({ error: 'Yatırım oluşturulurken hata oluştu' });
         }
       }
-    },
+    }
   );
 
   // Update investment
-  app.put('/api/investments/:id',
+  app.put(
+    '/api/investments/:id',
     requireAuth,
-    requirePermission(Permission.UPDATE_PERSONAL_TRANSACTIONS, Permission.UPDATE_COMPANY_TRANSACTIONS, Permission.UPDATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.UPDATE_PERSONAL_TRANSACTIONS,
+      Permission.UPDATE_COMPANY_TRANSACTIONS,
+      Permission.UPDATE_ALL_TRANSACTIONS
+    ),
     logAccess('UPDATE_INVESTMENT'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1723,18 +2213,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         logger.error('Update investment error:', error);
         if (error instanceof Error && error.name === 'ZodError') {
-          res.status(400).json({ error: 'Geçersiz veri formatı', details: error.message });
+          res
+            .status(400)
+            .json({ error: 'Geçersiz veri formatı', details: error.message });
         } else {
           res.status(500).json({ error: 'Yatırım güncellenirken hata oluştu' });
         }
       }
-    },
+    }
   );
 
   // Update investment price
-  app.patch('/api/investments/:id/price',
+  app.patch(
+    '/api/investments/:id/price',
     requireAuth,
-    requirePermission(Permission.UPDATE_PERSONAL_TRANSACTIONS, Permission.UPDATE_COMPANY_TRANSACTIONS, Permission.UPDATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.UPDATE_PERSONAL_TRANSACTIONS,
+      Permission.UPDATE_COMPANY_TRANSACTIONS,
+      Permission.UPDATE_ALL_TRANSACTIONS
+    ),
     logAccess('UPDATE_INVESTMENT_PRICE'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1742,10 +2239,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
         const { currentPrice } = req.body;
 
         if (typeof currentPrice !== 'number' || currentPrice < 0) {
-          return res.status(400).json({ error: 'Geçerli bir fiyat değeri giriniz' });
+          return res
+            .status(400)
+            .json({ error: 'Geçerli bir fiyat değeri giriniz' });
         }
 
-        const investment = await storage.updateInvestmentPrice(id, currentPrice);
+        const investment = await storage.updateInvestmentPrice(
+          id,
+          currentPrice
+        );
 
         if (!investment) {
           return res.status(404).json({ error: 'Yatırım bulunamadı' });
@@ -1754,15 +2256,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(investment);
       } catch (error) {
         logger.error('Update investment price error:', error);
-        res.status(500).json({ error: 'Yatırım fiyatı güncellenirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Yatırım fiyatı güncellenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Delete investment
-  app.delete('/api/investments/:id',
+  app.delete(
+    '/api/investments/:id',
     requireAuth,
-    requirePermission(Permission.DELETE_PERSONAL_TRANSACTIONS, Permission.DELETE_COMPANY_TRANSACTIONS, Permission.DELETE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.DELETE_PERSONAL_TRANSACTIONS,
+      Permission.DELETE_COMPANY_TRANSACTIONS,
+      Permission.DELETE_ALL_TRANSACTIONS
+    ),
     logAccess('DELETE_INVESTMENT'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1778,15 +2287,20 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Delete investment error:', error);
         res.status(500).json({ error: 'Yatırım silinirken hata oluştu' });
       }
-    },
+    }
   );
 
   // ==================== FORECAST & SCENARIO ANALYSIS API ROUTES ====================
 
   // Get all forecasts
-  app.get('/api/forecasts',
+  app.get(
+    '/api/forecasts',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_FORECASTS'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1796,13 +2310,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get forecasts error:', error);
         res.status(500).json({ error: 'Tahminler getirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get active forecasts
-  app.get('/api/forecasts/active',
+  app.get(
+    '/api/forecasts/active',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_ACTIVE_FORECASTS'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1810,15 +2329,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(forecasts);
       } catch (error) {
         logger.error('Get active forecasts error:', error);
-        res.status(500).json({ error: 'Aktif tahminler getirilirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Aktif tahminler getirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get forecasts by scenario
-  app.get('/api/forecasts/scenario/:scenario',
+  app.get(
+    '/api/forecasts/scenario/:scenario',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_FORECASTS_BY_SCENARIO'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1827,15 +2353,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(forecasts);
       } catch (error) {
         logger.error('Get forecasts by scenario error:', error);
-        res.status(500).json({ error: 'Senaryoya göre tahminler getirilirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Senaryoya göre tahminler getirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get specific forecast
-  app.get('/api/forecasts/:id',
+  app.get(
+    '/api/forecasts/:id',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_FORECAST'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1851,13 +2384,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get forecast error:', error);
         res.status(500).json({ error: 'Tahmin getirilirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Create new forecast
-  app.post('/api/forecasts',
+  app.post(
+    '/api/forecasts',
     requireAuth,
-    requirePermission(Permission.CREATE_PERSONAL_TRANSACTIONS, Permission.CREATE_COMPANY_TRANSACTIONS, Permission.CREATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.CREATE_PERSONAL_TRANSACTIONS,
+      Permission.CREATE_COMPANY_TRANSACTIONS,
+      Permission.CREATE_ALL_TRANSACTIONS
+    ),
     logAccess('CREATE_FORECAST'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1867,18 +2405,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         logger.error('Create forecast error:', error);
         if (error instanceof Error && error.name === 'ZodError') {
-          res.status(400).json({ error: 'Geçersiz veri formatı', details: error.message });
+          res
+            .status(400)
+            .json({ error: 'Geçersiz veri formatı', details: error.message });
         } else {
           res.status(500).json({ error: 'Tahmin oluşturulurken hata oluştu' });
         }
       }
-    },
+    }
   );
 
   // Update forecast
-  app.put('/api/forecasts/:id',
+  app.put(
+    '/api/forecasts/:id',
     requireAuth,
-    requirePermission(Permission.UPDATE_PERSONAL_TRANSACTIONS, Permission.UPDATE_COMPANY_TRANSACTIONS, Permission.UPDATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.UPDATE_PERSONAL_TRANSACTIONS,
+      Permission.UPDATE_COMPANY_TRANSACTIONS,
+      Permission.UPDATE_ALL_TRANSACTIONS
+    ),
     logAccess('UPDATE_FORECAST'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1895,18 +2440,25 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         logger.error('Update forecast error:', error);
         if (error instanceof Error && error.name === 'ZodError') {
-          res.status(400).json({ error: 'Geçersiz veri formatı', details: error.message });
+          res
+            .status(400)
+            .json({ error: 'Geçersiz veri formatı', details: error.message });
         } else {
           res.status(500).json({ error: 'Tahmin güncellenirken hata oluştu' });
         }
       }
-    },
+    }
   );
 
   // Delete forecast
-  app.delete('/api/forecasts/:id',
+  app.delete(
+    '/api/forecasts/:id',
     requireAuth,
-    requirePermission(Permission.DELETE_PERSONAL_TRANSACTIONS, Permission.DELETE_COMPANY_TRANSACTIONS, Permission.DELETE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.DELETE_PERSONAL_TRANSACTIONS,
+      Permission.DELETE_COMPANY_TRANSACTIONS,
+      Permission.DELETE_ALL_TRANSACTIONS
+    ),
     logAccess('DELETE_FORECAST'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -1922,67 +2474,97 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Delete forecast error:', error);
         res.status(500).json({ error: 'Tahmin silinirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get predefined scenarios
-  app.get('/api/scenarios/predefined',
+  app.get(
+    '/api/scenarios/predefined',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('VIEW_PREDEFINED_SCENARIOS'),
     async (req: AuthenticatedRequest, res) => {
       try {
-        const { ScenarioAnalysisService } = await import('./scenario-analysis-service');
+        const { ScenarioAnalysisService } = await import(
+          './scenario-analysis-service'
+        );
         const service = new ScenarioAnalysisService(storage);
         const scenarios = await service.getScenarioForecasts();
         res.json(scenarios);
       } catch (error) {
         logger.error('Get predefined scenarios error:', error);
-        res.status(500).json({ error: 'Önceden tanımlanmış senaryolar getirilirken hata oluştu' });
+        res
+          .status(500)
+          .json({
+            error: 'Önceden tanımlanmış senaryolar getirilirken hata oluştu',
+          });
       }
-    },
+    }
   );
 
   // Analyze custom scenario
-  app.post('/api/scenarios/analyze',
+  app.post(
+    '/api/scenarios/analyze',
     requireAuth,
-    requirePermission(Permission.CREATE_PERSONAL_TRANSACTIONS, Permission.CREATE_COMPANY_TRANSACTIONS, Permission.CREATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.CREATE_PERSONAL_TRANSACTIONS,
+      Permission.CREATE_COMPANY_TRANSACTIONS,
+      Permission.CREATE_ALL_TRANSACTIONS
+    ),
     logAccess('ANALYZE_SCENARIO'),
     async (req: AuthenticatedRequest, res) => {
       try {
         const { scenarioName, parameters } = req.body;
 
         if (!scenarioName || !parameters) {
-          return res.status(400).json({ error: 'Senaryo adı ve parametreler gerekli' });
+          return res
+            .status(400)
+            .json({ error: 'Senaryo adı ve parametreler gerekli' });
         }
 
-        const { ScenarioAnalysisService } = await import('./scenario-analysis-service');
+        const { ScenarioAnalysisService } = await import(
+          './scenario-analysis-service'
+        );
         const service = new ScenarioAnalysisService(storage);
         const result = await service.analyzeScenario(parameters, scenarioName);
 
         res.json(result);
       } catch (error) {
         logger.error('Analyze scenario error:', error);
-        res.status(500).json({ error: 'Senaryo analizi yapılırken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Senaryo analizi yapılırken hata oluştu' });
       }
-    },
+    }
   );
 
   // Analyze predefined scenario
-  app.post('/api/scenarios/analyze/:scenarioKey',
+  app.post(
+    '/api/scenarios/analyze/:scenarioKey',
     requireAuth,
-    requirePermission(Permission.CREATE_PERSONAL_TRANSACTIONS, Permission.CREATE_COMPANY_TRANSACTIONS, Permission.CREATE_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.CREATE_PERSONAL_TRANSACTIONS,
+      Permission.CREATE_COMPANY_TRANSACTIONS,
+      Permission.CREATE_ALL_TRANSACTIONS
+    ),
     logAccess('ANALYZE_PREDEFINED_SCENARIO'),
     async (req: AuthenticatedRequest, res) => {
       try {
         const { scenarioKey } = req.params;
 
-        const { ScenarioAnalysisService } = await import('./scenario-analysis-service');
+        const { ScenarioAnalysisService } = await import(
+          './scenario-analysis-service'
+        );
         const service = new ScenarioAnalysisService(storage);
         const scenarios = await service.getScenarioForecasts();
 
-        const scenario = scenarios.find((s: any) =>
-          s.scenario?.toLowerCase().replace(/\s+/g, '_') === scenarioKey,
+        const scenario = scenarios.find(
+          (s: any) =>
+            s.scenario?.toLowerCase().replace(/\s+/g, '_') === scenarioKey
         );
 
         if (!scenario) {
@@ -1991,21 +2573,26 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         const result = await service.analyzeScenario(
           scenario.parameters ? JSON.parse(scenario.parameters) : {},
-          scenario.title,
+          scenario.title
         );
 
         res.json(result);
       } catch (error) {
         logger.error('Analyze predefined scenario error:', error);
-        res.status(500).json({ error: 'Önceden tanımlanmış senaryo analizi yapılırken hata oluştu' });
+        res
+          .status(500)
+          .json({
+            error: 'Önceden tanımlanmış senaryo analizi yapılırken hata oluştu',
+          });
       }
-    },
+    }
   );
 
   // ==================== TEAM MANAGEMENT API ROUTES ====================
 
   // Team CRUD routes
-  app.post('/api/teams',
+  app.post(
+    '/api/teams',
     requireAuth,
     logAccess('CREATE_TEAM'),
     async (req: AuthenticatedRequest, res) => {
@@ -2034,10 +2621,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Create team error:', error);
         res.status(400).json({ error: 'Takım oluşturulurken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.get('/api/teams',
+  app.get(
+    '/api/teams',
     requireAuth,
     logAccess('VIEW_TEAMS'),
     async (req: AuthenticatedRequest, res) => {
@@ -2048,10 +2636,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get teams error:', error);
         res.status(500).json({ error: 'Takımlar yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.get('/api/teams/:teamId',
+  app.get(
+    '/api/teams/:teamId',
     requireAuth,
     logAccess('VIEW_TEAM_DETAILS'),
     async (req: AuthenticatedRequest, res) => {
@@ -2061,7 +2650,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Check if user is a member of this team
         const teamMember = await storage.getTeamMember(teamId, req.user!.id);
         if (!teamMember) {
-          return res.status(403).json({ error: 'Bu takıma erişim yetkiniz bulunmuyor' });
+          return res
+            .status(403)
+            .json({ error: 'Bu takıma erişim yetkiniz bulunmuyor' });
         }
 
         const team = await storage.getTeam(teamId);
@@ -2072,12 +2663,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(team);
       } catch (error) {
         logger.error('Get team error:', error);
-        res.status(500).json({ error: 'Takım bilgileri yüklenirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Takım bilgileri yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.put('/api/teams/:teamId',
+  app.put(
+    '/api/teams/:teamId',
     requireAuth,
     logAccess('UPDATE_TEAM'),
     async (req: AuthenticatedRequest, res) => {
@@ -2086,8 +2680,13 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Check if user has team management permission
         const userRole = await storage.getUserTeamRole(teamId, req.user!.id);
-        if (!userRole || !(userRole === TeamRole.OWNER || userRole === TeamRole.ADMIN)) {
-          return res.status(403).json({ error: 'Takım düzenleme yetkiniz bulunmuyor' });
+        if (
+          !userRole ||
+          !(userRole === TeamRole.OWNER || userRole === TeamRole.ADMIN)
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Takım düzenleme yetkiniz bulunmuyor' });
         }
 
         // SECURITY FIX: Use secure update schema that only allows name/description
@@ -2103,10 +2702,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Update team error:', error);
         res.status(400).json({ error: 'Takım güncellenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.delete('/api/teams/:teamId',
+  app.delete(
+    '/api/teams/:teamId',
     requireAuth,
     logAccess('DELETE_TEAM'),
     async (req: AuthenticatedRequest, res) => {
@@ -2116,7 +2716,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Only team owner can delete the team
         const team = await storage.getTeam(teamId);
         if (!team || team.ownerId !== req.user!.id) {
-          return res.status(403).json({ error: 'Sadece takım sahibi takımı silebilir' });
+          return res
+            .status(403)
+            .json({ error: 'Sadece takım sahibi takımı silebilir' });
         }
 
         const deleted = await storage.deleteTeam(teamId);
@@ -2129,11 +2731,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Delete team error:', error);
         res.status(500).json({ error: 'Takım silinirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Team Member Management routes
-  app.get('/api/teams/:teamId/members',
+  app.get(
+    '/api/teams/:teamId/members',
     requireAuth,
     logAccess('VIEW_TEAM_MEMBERS'),
     async (req: AuthenticatedRequest, res) => {
@@ -2143,19 +2746,24 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Check if user is a member of this team
         const teamMember = await storage.getTeamMember(teamId, req.user!.id);
         if (!teamMember) {
-          return res.status(403).json({ error: 'Bu takıma erişim yetkiniz bulunmuyor' });
+          return res
+            .status(403)
+            .json({ error: 'Bu takıma erişim yetkiniz bulunmuyor' });
         }
 
         const members = await storage.getTeamMembers(teamId);
         res.json(members);
       } catch (error) {
         logger.error('Get team members error:', error);
-        res.status(500).json({ error: 'Takım üyeleri yüklenirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Takım üyeleri yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/teams/:teamId/members',
+  app.post(
+    '/api/teams/:teamId/members',
     requireAuth,
     logAccess('ADD_TEAM_MEMBER'),
     async (req: AuthenticatedRequest, res) => {
@@ -2164,8 +2772,13 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Check if user has invite members permission
         const userRole = await storage.getUserTeamRole(teamId, req.user!.id);
-        if (!userRole || !hasTeamPermission(userRole as any, TeamPermission.INVITE_MEMBERS)) {
-          return res.status(403).json({ error: 'Üye ekleme yetkiniz bulunmuyor' });
+        if (
+          !userRole ||
+          !hasTeamPermission(userRole as any, TeamPermission.INVITE_MEMBERS)
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Üye ekleme yetkiniz bulunmuyor' });
         }
 
         const validatedData = insertTeamMemberSchema.parse(req.body);
@@ -2176,10 +2789,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Add team member error:', error);
         res.status(400).json({ error: 'Takım üyesi eklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.put('/api/teams/:teamId/members/:userId',
+  app.put(
+    '/api/teams/:teamId/members/:userId',
     requireAuth,
     logAccess('UPDATE_TEAM_MEMBER'),
     async (req: AuthenticatedRequest, res) => {
@@ -2191,15 +2805,21 @@ export async function registerRoutes (app: Express): Promise<Server> {
         const team = await storage.getTeam(teamId);
 
         const isOwner = team?.ownerId === req.user!.id;
-        const hasManagePermission = userRole && (userRole === TeamRole.OWNER || userRole === TeamRole.ADMIN);
+        const hasManagePermission =
+          userRole &&
+          (userRole === TeamRole.OWNER || userRole === TeamRole.ADMIN);
 
         if (!isOwner && !hasManagePermission) {
-          return res.status(403).json({ error: 'Rol düzenleme yetkiniz bulunmuyor' });
+          return res
+            .status(403)
+            .json({ error: 'Rol düzenleme yetkiniz bulunmuyor' });
         }
 
         // SECURITY FIX: Prevent demoting/changing team owner
         if (team && team.ownerId === userId) {
-          return res.status(403).json({ error: 'Takım sahibinin rolü değiştirilemez' });
+          return res
+            .status(403)
+            .json({ error: 'Takım sahibinin rolü değiştirilemez' });
         }
 
         const member = await storage.getTeamMember(teamId, userId);
@@ -2213,17 +2833,23 @@ export async function registerRoutes (app: Express): Promise<Server> {
           return res.status(400).json({ error: 'Geçersiz güncelleme verisi' });
         }
 
-        const updatedMember = await storage.updateTeamMember(member.id, allowedUpdates);
+        const updatedMember = await storage.updateTeamMember(
+          member.id,
+          allowedUpdates
+        );
 
         res.json(updatedMember);
       } catch (error) {
         logger.error('Update team member error:', error);
-        res.status(400).json({ error: 'Takım üyesi güncellenirken hata oluştu' });
+        res
+          .status(400)
+          .json({ error: 'Takım üyesi güncellenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.delete('/api/teams/:teamId/members/:userId',
+  app.delete(
+    '/api/teams/:teamId/members/:userId',
     requireAuth,
     logAccess('REMOVE_TEAM_MEMBER'),
     async (req: AuthenticatedRequest, res) => {
@@ -2235,10 +2861,14 @@ export async function registerRoutes (app: Express): Promise<Server> {
         const team = await storage.getTeam(teamId);
 
         const isOwner = team?.ownerId === req.user!.id;
-        const hasRemovePermission = userRole && (userRole === TeamRole.OWNER || userRole === TeamRole.ADMIN);
+        const hasRemovePermission =
+          userRole &&
+          (userRole === TeamRole.OWNER || userRole === TeamRole.ADMIN);
 
         if (!isOwner && !hasRemovePermission) {
-          return res.status(403).json({ error: 'Üye çıkarma yetkiniz bulunmuyor' });
+          return res
+            .status(403)
+            .json({ error: 'Üye çıkarma yetkiniz bulunmuyor' });
         }
 
         // SECURITY FIX: Cannot remove team owner - ENFORCED PROTECTION
@@ -2254,7 +2884,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         const removed = await storage.removeTeamMember(teamId, userId);
         if (!removed) {
-          return res.status(500).json({ error: 'Takım üyesi çıkarılırken hata oluştu' });
+          return res
+            .status(500)
+            .json({ error: 'Takım üyesi çıkarılırken hata oluştu' });
         }
 
         res.json({
@@ -2265,11 +2897,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Remove team member error:', error);
         res.status(500).json({ error: 'Takım üyesi çıkarılırken hata oluştu' });
       }
-    },
+    }
   );
 
   // Team Invite System routes
-  app.post('/api/teams/:teamId/invites',
+  app.post(
+    '/api/teams/:teamId/invites',
     requireAuth,
     logAccess('CREATE_TEAM_INVITE'),
     async (req: AuthenticatedRequest, res) => {
@@ -2278,8 +2911,13 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Check if user has invite members permission
         const userRole = await storage.getUserTeamRole(teamId, req.user!.id);
-        if (!userRole || !hasTeamPermission(userRole as any, TeamPermission.INVITE_MEMBERS)) {
-          return res.status(403).json({ error: 'Davet gönderme yetkiniz bulunmuyor' });
+        if (
+          !userRole ||
+          !hasTeamPermission(userRole as any, TeamPermission.INVITE_MEMBERS)
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Davet gönderme yetkiniz bulunmuyor' });
         }
 
         const validatedData = inviteUserSchema.parse(req.body);
@@ -2303,7 +2941,10 @@ export async function registerRoutes (app: Express): Promise<Server> {
         const { emailService } = await import('./services/email-service.js');
         const team = await storage.getTeam(validatedData.teamId);
         if (team) {
-          const template = emailService.generateTeamInviteTemplate(team.name, inviteToken);
+          const template = emailService.generateTeamInviteTemplate(
+            team.name,
+            inviteToken
+          );
           await emailService.sendEmail(validatedData.email, template);
         }
 
@@ -2315,10 +2956,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Create invite error:', error);
         res.status(400).json({ error: 'Davet oluşturulurken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.get('/api/teams/:teamId/invites',
+  app.get(
+    '/api/teams/:teamId/invites',
     requireAuth,
     logAccess('VIEW_TEAM_INVITES'),
     async (req: AuthenticatedRequest, res) => {
@@ -2327,8 +2969,13 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // Check if user has team management permission
         const userRole = await storage.getUserTeamRole(teamId, req.user!.id);
-        if (!userRole || !hasTeamPermission(userRole as any, TeamPermission.MANAGE_TEAM)) {
-          return res.status(403).json({ error: 'Davet görüntüleme yetkiniz bulunmuyor' });
+        if (
+          !userRole ||
+          !hasTeamPermission(userRole as any, TeamPermission.MANAGE_TEAM)
+        ) {
+          return res
+            .status(403)
+            .json({ error: 'Davet görüntüleme yetkiniz bulunmuyor' });
         }
 
         const invites = await storage.getTeamInvites(teamId);
@@ -2337,10 +2984,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get team invites error:', error);
         res.status(500).json({ error: 'Davetler yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/invites/accept',
+  app.post(
+    '/api/invites/accept',
     requireAuth,
     logAccess('ACCEPT_TEAM_INVITE'),
     async (req: AuthenticatedRequest, res) => {
@@ -2354,7 +3002,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         // SECURITY FIX: Strict status and expiry checks
         if (invite.status !== 'pending') {
-          return res.status(400).json({ error: 'Bu davet zaten işleme alınmış' });
+          return res
+            .status(400)
+            .json({ error: 'Bu davet zaten işleme alınmış' });
         }
 
         // SECURITY FIX: Enforce expiry check
@@ -2370,7 +3020,10 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
 
         // SECURITY FIX: Check if user is already a team member
-        const existingMember = await storage.getTeamMember(invite.teamId, req.user!.id);
+        const existingMember = await storage.getTeamMember(
+          invite.teamId,
+          req.user!.id
+        );
         if (existingMember) {
           return res.status(400).json({ error: 'Bu takımın zaten üyesisiniz' });
         }
@@ -2378,7 +3031,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // SECURITY FIX: Verify team still exists and is active
         const team = await storage.getTeam(invite.teamId);
         if (!team?.isActive) {
-          return res.status(400).json({ error: 'Davet edilen takım artık mevcut değil' });
+          return res
+            .status(400)
+            .json({ error: 'Davet edilen takım artık mevcut değil' });
         }
 
         // Add user to team - atomic operation
@@ -2401,16 +3056,19 @@ export async function registerRoutes (app: Express): Promise<Server> {
           });
         } catch (memberError) {
           logger.error('Add team member error:', memberError);
-          res.status(500).json({ error: 'Takıma katılım sırasında hata oluştu' });
+          res
+            .status(500)
+            .json({ error: 'Takıma katılım sırasında hata oluştu' });
         }
       } catch (error) {
         logger.error('Accept invite error:', error);
         res.status(400).json({ error: 'Davet kabul edilirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/invites/:inviteId/decline',
+  app.post(
+    '/api/invites/:inviteId/decline',
     requireAuth,
     logAccess('DECLINE_TEAM_INVITE'),
     async (req: AuthenticatedRequest, res) => {
@@ -2433,10 +3091,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Decline invite error:', error);
         res.status(500).json({ error: 'Davet reddedilirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.get('/api/user/invites',
+  app.get(
+    '/api/user/invites',
     requireAuth,
     logAccess('VIEW_USER_INVITES'),
     async (req: AuthenticatedRequest, res) => {
@@ -2447,13 +3106,18 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get user invites error:', error);
         res.status(500).json({ error: 'Davetleriniz yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Export API routes - Protected by authentication
-  app.get('/api/export/csv',
+  app.get(
+    '/api/export/csv',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('EXPORT_CSV'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -2478,11 +3142,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
           .map(account => account.id);
 
         const filteredAccounts = accounts.filter(account =>
-          allowedAccountIds.includes(account.id),
+          allowedAccountIds.includes(account.id)
         );
 
         const filteredTransactions = transactions.filter(transaction =>
-          allowedAccountIds.includes(transaction.accountId),
+          allowedAccountIds.includes(transaction.accountId)
         );
 
         // Safe CSV escaping function to prevent injection
@@ -2493,23 +3157,31 @@ export async function registerRoutes (app: Express): Promise<Server> {
           let escaped = String(value).trimStart(); // Remove leading whitespace
           // Neutralize formula injection (Excel formula prefixes)
           if (escaped.match(/^[=+\-@]/)) {
-            escaped = `'${  escaped}`;
+            escaped = `'${escaped}`;
           }
           // Always wrap in quotes for safety
-          escaped = `"${  escaped.replace(/"/g, '""')  }"`;
+          escaped = `"${escaped.replace(/"/g, '""')}"`;
           return escaped;
         };
 
         // Create safe CSV data with UNIVERSAL escaping for all fields
         const csvData = filteredTransactions.map(transaction => {
-          const account = filteredAccounts.find(acc => acc.id === transaction.accountId);
-          const tipLabel = transaction.type === 'income' ? 'Gelir'
-            : transaction.type === 'expense' ? 'Gider'
-              : transaction.type === 'transfer_in' ? 'Gelen Virman'
-                : 'Giden Virman';
+          const account = filteredAccounts.find(
+            acc => acc.id === transaction.accountId
+          );
+          const tipLabel =
+            transaction.type === 'income'
+              ? 'Gelir'
+              : transaction.type === 'expense'
+                ? 'Gider'
+                : transaction.type === 'transfer_in'
+                  ? 'Gelen Virman'
+                  : 'Giden Virman';
 
           return {
-            tarih: escapeCsvValue(new Date(transaction.date).toLocaleDateString('tr-TR')),
+            tarih: escapeCsvValue(
+              new Date(transaction.date).toLocaleDateString('tr-TR')
+            ),
             hesap: escapeCsvValue(account ? account.bankName : 'Bilinmeyen'),
             tip: escapeCsvValue(tipLabel),
             miktar: escapeCsvValue(transaction.amount),
@@ -2522,13 +3194,17 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Set response headers
         const timestamp = new Date().toISOString().split('T')[0];
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader('Content-Disposition', `attachment; filename="finbot-islemler-${timestamp}.csv"`);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="finbot-islemler-${timestamp}.csv"`
+        );
 
         // Add BOM for Turkish characters in Excel
         res.write('\uFEFF');
 
         // Write CSV header
-        const headerRow = 'Tarih,Hesap,İşlem Tipi,Miktar,Açıklama,Kategori,Para Birimi\n';
+        const headerRow =
+          'Tarih,Hesap,İşlem Tipi,Miktar,Açıklama,Kategori,Para Birimi\n';
         res.write(headerRow);
 
         // Write CSV data with safe escaping
@@ -2542,12 +3218,17 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('CSV export error:', error);
         res.status(500).json({ error: 'CSV export sırasında hata oluştu' });
       }
-    },
+    }
   );
 
-  app.get('/api/export/pdf',
+  app.get(
+    '/api/export/pdf',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('EXPORT_PDF'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -2573,11 +3254,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
           .map(account => account.id);
 
         const filteredAccounts = accounts.filter(account =>
-          allowedAccountIds.includes(account.id),
+          allowedAccountIds.includes(account.id)
         );
 
         const filteredTransactions = transactions.filter(transaction =>
-          allowedAccountIds.includes(transaction.accountId),
+          allowedAccountIds.includes(transaction.accountId)
         );
 
         const formatCurrency = (amount: string) => {
@@ -2653,7 +3334,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
               </tr>
             </thead>
             <tbody>
-              ${filteredAccounts.map(account => `
+              ${filteredAccounts
+                .map(
+                  account => `
                 <tr>
                   <td>${escapeHtml(account.bankName)}</td>
                   <td>${escapeHtml(account.accountName)}</td>
@@ -2661,7 +3344,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
                   <td class="${parseFloat(account.balance) >= 0 ? 'positive' : 'negative'}">${formatCurrency(account.balance)}</td>
                   <td>${escapeHtml(account.currency)}</td>
                 </tr>
-              `).join('')}
+              `
+                )
+                .join('')}
             </tbody>
           </table>
           
@@ -2677,12 +3362,21 @@ export async function registerRoutes (app: Express): Promise<Server> {
               </tr>
             </thead>
             <tbody>
-              ${filteredTransactions.slice(0, 20).map(transaction => {
-    const account = filteredAccounts.find(acc => acc.id === transaction.accountId);
-    const tipLabel = transaction.type === 'income' ? 'Gelir'
-      : transaction.type === 'expense' ? 'Gider'
-        : transaction.type === 'transfer_in' ? 'Gelen Virman' : 'Giden Virman';
-    return `
+              ${filteredTransactions
+                .slice(0, 20)
+                .map(transaction => {
+                  const account = filteredAccounts.find(
+                    acc => acc.id === transaction.accountId
+                  );
+                  const tipLabel =
+                    transaction.type === 'income'
+                      ? 'Gelir'
+                      : transaction.type === 'expense'
+                        ? 'Gider'
+                        : transaction.type === 'transfer_in'
+                          ? 'Gelen Virman'
+                          : 'Giden Virman';
+                  return `
                 <tr>
                   <td>${escapeHtml(new Date(transaction.date).toLocaleDateString('tr-TR'))}</td>
                   <td>${escapeHtml(account ? account.bankName : 'Bilinmeyen')}</td>
@@ -2691,7 +3385,8 @@ export async function registerRoutes (app: Express): Promise<Server> {
                   <td>${escapeHtml(transaction.description)}</td>
                 </tr>
                 `;
-  }).join('')}
+                })
+                .join('')}
             </tbody>
           </table>
         </body>
@@ -2721,7 +3416,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
           pdfBuffer = await page.pdf({
             format: 'A4',
-            margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' },
+            margin: {
+              top: '20px',
+              right: '20px',
+              bottom: '20px',
+              left: '20px',
+            },
           });
         } finally {
           if (browser) {
@@ -2732,19 +3432,27 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Set response headers
         const timestamp = new Date().toISOString().split('T')[0];
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="finbot-rapor-${timestamp}.pdf"`);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="finbot-rapor-${timestamp}.pdf"`
+        );
 
         res.send(pdfBuffer);
       } catch (error) {
         logger.error('PDF export error:', error);
         res.status(500).json({ error: 'PDF export sırasında hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/export/google-sheets',
+  app.post(
+    '/api/export/google-sheets',
     requireAuth,
-    requirePermission(Permission.VIEW_PERSONAL_TRANSACTIONS, Permission.VIEW_COMPANY_TRANSACTIONS, Permission.VIEW_ALL_TRANSACTIONS),
+    requirePermission(
+      Permission.VIEW_PERSONAL_TRANSACTIONS,
+      Permission.VIEW_COMPANY_TRANSACTIONS,
+      Permission.VIEW_ALL_TRANSACTIONS
+    ),
     logAccess('EXPORT_GOOGLE_SHEETS'),
     async (req: AuthenticatedRequest, res) => {
       try {
@@ -2761,7 +3469,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         const sheets = google.sheets({ version: 'v4', auth });
         const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
-        if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+        if (
+          !spreadsheetId ||
+          !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ||
+          !process.env.GOOGLE_PRIVATE_KEY
+        ) {
           return res.status(500).json({
             error: 'Google Sheets konfigürasyonu eksik',
             message: 'Gerekli environment değişkenleri ayarlanmamış',
@@ -2789,23 +3501,36 @@ export async function registerRoutes (app: Express): Promise<Server> {
           .map(account => account.id);
 
         const filteredAccounts = accounts.filter(account =>
-          allowedAccountIds.includes(account.id),
+          allowedAccountIds.includes(account.id)
         );
 
         const filteredTransactions = transactions.filter(transaction =>
-          allowedAccountIds.includes(transaction.accountId),
+          allowedAccountIds.includes(transaction.accountId)
         );
 
         // Prepare data for Google Sheets
-        const headers = ['Tarih', 'Hesap', 'Tip', 'Miktar', 'Açıklama', 'Kategori'];
+        const headers = [
+          'Tarih',
+          'Hesap',
+          'Tip',
+          'Miktar',
+          'Açıklama',
+          'Kategori',
+        ];
         const sheetData = [headers];
 
         filteredTransactions.forEach(transaction => {
-          const account = filteredAccounts.find(acc => acc.id === transaction.accountId);
-          const tipLabel = transaction.type === 'income' ? 'Gelir'
-            : transaction.type === 'expense' ? 'Gider'
-              : transaction.type === 'transfer_in' ? 'Gelen Virman'
-                : 'Giden Virman';
+          const account = filteredAccounts.find(
+            acc => acc.id === transaction.accountId
+          );
+          const tipLabel =
+            transaction.type === 'income'
+              ? 'Gelir'
+              : transaction.type === 'expense'
+                ? 'Gider'
+                : transaction.type === 'transfer_in'
+                  ? 'Gelen Virman'
+                  : 'Giden Virman';
 
           sheetData.push([
             new Date(transaction.date).toLocaleDateString('tr-TR'),
@@ -2827,17 +3552,19 @@ export async function registerRoutes (app: Express): Promise<Server> {
           await sheets.spreadsheets.batchUpdate({
             spreadsheetId: spreadsheetId,
             resource: {
-              requests: [{
-                addSheet: {
-                  properties: {
-                    title: worksheetTitle,
-                    gridProperties: {
-                      rowCount: sheetData.length + 10,
-                      columnCount: headers.length,
+              requests: [
+                {
+                  addSheet: {
+                    properties: {
+                      title: worksheetTitle,
+                      gridProperties: {
+                        rowCount: sheetData.length + 10,
+                        columnCount: headers.length,
+                      },
                     },
                   },
                 },
-              }],
+              ],
             },
           });
         } catch (error) {
@@ -2892,11 +3619,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
           details: error instanceof Error ? error.message : 'Bilinmeyen hata',
         });
       }
-    },
+    }
   );
 
   // System Alerts API Routes
-  app.get('/api/alerts',
+  app.get(
+    '/api/alerts',
     requireAuth,
     logAccess('VIEW_ALERTS'),
     async (req: AuthenticatedRequest, res) => {
@@ -2907,10 +3635,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get alerts error:', error);
         res.status(500).json({ error: 'Uyarılar yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.get('/api/alerts/all',
+  app.get(
+    '/api/alerts/all',
     requireAuth,
     requirePermission(Permission.MANAGE_SETTINGS), // Only admins can see all alerts
     logAccess('VIEW_ALL_ALERTS'),
@@ -2922,10 +3651,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Get all alerts error:', error);
         res.status(500).json({ error: 'Tüm uyarılar yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/alerts/:alertId/dismiss',
+  app.post(
+    '/api/alerts/:alertId/dismiss',
     requireAuth,
     logAccess('DISMISS_ALERT'),
     async (req: AuthenticatedRequest, res) => {
@@ -2942,10 +3672,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Dismiss alert error:', error);
         res.status(500).json({ error: 'Uyarı kapatılırken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/alerts/run-checks',
+  app.post(
+    '/api/alerts/run-checks',
     requireAuth,
     requirePermission(Permission.MANAGE_SETTINGS), // Only admins can trigger checks
     logAccess('RUN_ALERT_CHECKS'),
@@ -2955,12 +3686,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json({ message: 'Uyarı kontrolleri başarıyla çalıştırıldı' });
       } catch (error) {
         logger.error('Run alert checks error:', error);
-        res.status(500).json({ error: 'Uyarı kontrolleri çalıştırılırken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Uyarı kontrolleri çalıştırılırken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/alerts',
+  app.post(
+    '/api/alerts',
     requireAuth,
     requirePermission(Permission.MANAGE_SETTINGS),
     logAccess('CREATE_ALERT'),
@@ -2973,11 +3707,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
         logger.error('Create alert error:', error);
         res.status(400).json({ error: 'Uyarı oluşturulurken hata oluştu' });
       }
-    },
+    }
   );
 
   // Transaction JSON Service API Routes
-  app.post('/api/transactions/export-json',
+  app.post(
+    '/api/transactions/export-json',
     requireAuth,
     requirePermission(Permission.VIEW_ALL_TRANSACTIONS),
     logAccess('EXPORT_TRANSACTIONS_JSON'),
@@ -2999,19 +3734,24 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
       } catch (error) {
         logger.error('Export transactions JSON error:', error);
-        res.status(500).json({ error: "İşlemler JSON'a aktarılırken hata oluştu" });
+        res
+          .status(500)
+          .json({ error: "İşlemler JSON'a aktarılırken hata oluştu" });
       }
-    },
+    }
   );
 
-  app.post('/api/transactions/import-json',
+  app.post(
+    '/api/transactions/import-json',
     requireAuth,
     requirePermission(Permission.MANAGE_SETTINGS),
     logAccess('IMPORT_TRANSACTIONS_JSON'),
     async (req: AuthenticatedRequest, res) => {
       try {
         const validatedData = importTransactionJsonSchema.parse(req.body);
-        const result = await transactionJsonService.importTransactionsFromJson(validatedData.overwriteExisting);
+        const result = await transactionJsonService.importTransactionsFromJson(
+          validatedData.overwriteExisting
+        );
 
         if (result.success) {
           res.json({
@@ -3027,12 +3767,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
       } catch (error) {
         logger.error('Import transactions JSON error:', error);
-        res.status(500).json({ error: "JSON'dan işlemler içe aktarılırken hata oluştu" });
+        res
+          .status(500)
+          .json({ error: "JSON'dan işlemler içe aktarılırken hata oluştu" });
       }
-    },
+    }
   );
 
-  app.get('/api/transactions/json-status',
+  app.get(
+    '/api/transactions/json-status',
     requireAuth,
     requirePermission(Permission.VIEW_ALL_TRANSACTIONS),
     logAccess('CHECK_TRANSACTIONS_JSON'),
@@ -3042,12 +3785,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
         res.json(status);
       } catch (error) {
         logger.error('Check transactions JSON status error:', error);
-        res.status(500).json({ error: 'JSON dosya durumu kontrol edilirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'JSON dosya durumu kontrol edilirken hata oluştu' });
       }
-    },
+    }
   );
 
-  app.post('/api/transactions/export-json-by-date',
+  app.post(
+    '/api/transactions/export-json-by-date',
     requireAuth,
     requirePermission(Permission.VIEW_ALL_TRANSACTIONS),
     logAccess('EXPORT_TRANSACTIONS_JSON_BY_DATE'),
@@ -3055,10 +3801,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
       try {
         const validatedData = exportTransactionsByDateSchema.parse(req.body);
 
-        const result = await transactionJsonService.exportTransactionsByDateRange(
-          new Date(validatedData.startDate),
-          new Date(validatedData.endDate),
-        );
+        const result =
+          await transactionJsonService.exportTransactionsByDateRange(
+            new Date(validatedData.startDate),
+            new Date(validatedData.endDate)
+          );
 
         if (result.success) {
           res.json({
@@ -3074,18 +3821,22 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
       } catch (error) {
         logger.error('Export transactions by date JSON error:', error);
-        res.status(500).json({ error: "Tarihli işlemler JSON'a aktarılırken hata oluştu" });
+        res
+          .status(500)
+          .json({ error: "Tarihli işlemler JSON'a aktarılırken hata oluştu" });
       }
-    },
+    }
   );
 
-  app.post('/api/transactions/export-category-analysis',
+  app.post(
+    '/api/transactions/export-category-analysis',
     requireAuth,
     requirePermission(Permission.VIEW_ALL_TRANSACTIONS),
     logAccess('EXPORT_CATEGORY_ANALYSIS_JSON'),
     async (req: AuthenticatedRequest, res) => {
       try {
-        const result = await transactionJsonService.exportCategoryAnalysisToJson();
+        const result =
+          await transactionJsonService.exportCategoryAnalysisToJson();
 
         if (result.success) {
           res.json({
@@ -3101,9 +3852,11 @@ export async function registerRoutes (app: Express): Promise<Server> {
         }
       } catch (error) {
         logger.error('Export category analysis JSON error:', error);
-        res.status(500).json({ error: "Kategori analizi JSON'a aktarılırken hata oluştu" });
+        res
+          .status(500)
+          .json({ error: "Kategori analizi JSON'a aktarılırken hata oluştu" });
       }
-    },
+    }
   );
 
   // =====================
@@ -3111,7 +3864,8 @@ export async function registerRoutes (app: Express): Promise<Server> {
   // =====================
 
   // Get AI settings (Admin only)
-  app.get('/api/admin/ai/settings',
+  app.get(
+    '/api/admin/ai/settings',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS),
     logAccess('VIEW_AI_SETTINGS'),
@@ -3127,17 +3881,26 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         res.status(500).json({ error: 'AI ayarları yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Update AI settings (Admin only)
-  app.put('/api/admin/ai/settings',
+  app.put(
+    '/api/admin/ai/settings',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS),
     logAccess('UPDATE_AI_SETTINGS'),
     async (req: AuthenticatedRequest, res) => {
       try {
-        const { provider, apiKey, isActive, defaultModel, cacheDuration, maxTokens, temperature } = req.body;
+        const {
+          provider,
+          apiKey,
+          isActive,
+          defaultModel,
+          cacheDuration,
+          maxTokens,
+          temperature,
+        } = req.body;
 
         await openaiService.updateSettings({
           provider,
@@ -3149,13 +3912,16 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
         res.json({ message: 'AI ayarları güncellendi' });
       } catch (error) {
-        res.status(400).json({ error: 'AI ayarları güncellenirken hata oluştu' });
+        res
+          .status(400)
+          .json({ error: 'AI ayarları güncellenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Test AI connection (Admin only)
-  app.post('/api/admin/ai/test',
+  app.post(
+    '/api/admin/ai/test',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS),
     logAccess('TEST_AI_CONNECTION'),
@@ -3169,11 +3935,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
           message: 'Bağlantı testi sırasında hata oluştu',
         });
       }
-    },
+    }
   );
 
   // Generate AI response (Authenticated users - supports both JWT and Session)
-  app.post('/api/ai/generate',
+  app.post(
+    '/api/ai/generate',
     async (req: AuthenticatedRequest, res, next) => {
       // Try JWT auth first, fallback to session auth
       const token = req.headers.authorization?.startsWith('Bearer ')
@@ -3197,10 +3964,15 @@ export async function registerRoutes (app: Express): Promise<Server> {
           return res.status(400).json({ error: 'Sorgu metni gereklidir' });
         }
 
-        const response = await openaiService.generateResponse(query, persona || 'default');
+        const response = await openaiService.generateResponse(
+          query,
+          persona || 'default'
+        );
 
         if (!response.success) {
-          return res.status(500).json({ error: response.error || 'AI yanıtı oluşturulamadı' });
+          return res
+            .status(500)
+            .json({ error: response.error || 'AI yanıtı oluşturulamadı' });
         }
 
         res.json({
@@ -3211,11 +3983,12 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         res.status(500).json({ error: 'AI yanıtı oluşturulurken hata oluştu' });
       }
-    },
+    }
   );
 
   // Get AI cache stats (Admin only)
-  app.get('/api/admin/ai/cache/stats',
+  app.get(
+    '/api/admin/ai/cache/stats',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS),
     logAccess('VIEW_AI_CACHE_STATS'),
@@ -3224,13 +3997,16 @@ export async function registerRoutes (app: Express): Promise<Server> {
         // Cache stats not available - return empty stats
         res.json({ hits: 0, misses: 0, size: 0 });
       } catch (error) {
-        res.status(500).json({ error: 'Cache istatistikleri yüklenirken hata oluştu' });
+        res
+          .status(500)
+          .json({ error: 'Cache istatistikleri yüklenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // Clear AI cache (Admin only)
-  app.post('/api/admin/ai/cache/clear',
+  app.post(
+    '/api/admin/ai/cache/clear',
     requireAuth,
     requirePermission(Permission.MANAGE_USERS),
     logAccess('CLEAR_AI_CACHE'),
@@ -3241,7 +4017,7 @@ export async function registerRoutes (app: Express): Promise<Server> {
       } catch (error) {
         res.status(500).json({ error: 'Cache temizlenirken hata oluştu' });
       }
-    },
+    }
   );
 
   // ===================================
@@ -3359,4 +4135,3 @@ export async function registerRoutes (app: Express): Promise<Server> {
   // @ts-ignore - return type mismatch but we need this for flexibility
   return app;
 }
-

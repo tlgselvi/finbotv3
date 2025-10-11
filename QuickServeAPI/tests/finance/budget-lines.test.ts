@@ -25,7 +25,10 @@ describe('BudgetLine CRUD Operations', () => {
 
   describe('Create BudgetLine', () => {
     it('should create a budget line successfully', async () => {
-      const [created] = await db.insert(budgetLines).values(testBudgetLine).returning();
+      const [created] = await db
+        .insert(budgetLines)
+        .values(testBudgetLine)
+        .returning();
 
       expect(created).toBeDefined();
       expect(created.category).toBe(testBudgetLine.category);
@@ -103,7 +106,10 @@ describe('BudgetLine CRUD Operations', () => {
     let budgetLineId: string;
 
     beforeEach(async () => {
-      const [created] = await db.insert(budgetLines).values(testBudgetLine).returning();
+      const [created] = await db
+        .insert(budgetLines)
+        .values(testBudgetLine)
+        .returning();
       budgetLineId = created.id;
     });
 
@@ -143,7 +149,10 @@ describe('BudgetLine CRUD Operations', () => {
     let budgetLineId: string;
 
     beforeEach(async () => {
-      const [created] = await db.insert(budgetLines).values(testBudgetLine).returning();
+      const [created] = await db
+        .insert(budgetLines)
+        .values(testBudgetLine)
+        .returning();
       budgetLineId = created.id;
     });
 
@@ -197,16 +206,22 @@ describe('BudgetLine CRUD Operations', () => {
         .from(budgetLines)
         .where(eq(budgetLines.userId, testUserId));
 
-      const summary = budgetLineList.reduce((acc, line) => {
-        const category = line.category;
-        if (!acc[category]) {
-          acc[category] = { planned: 0, actual: 0, variance: 0 };
-        }
-        acc[category].planned += parseFloat(line.plannedAmount);
-        acc[category].actual += parseFloat(line.actualAmount || '0');
-        acc[category].variance = acc[category].planned - acc[category].actual;
-        return acc;
-      }, {} as Record<string, { planned: number; actual: number; variance: number }>);
+      const summary = budgetLineList.reduce(
+        (acc, line) => {
+          const category = line.category;
+          if (!acc[category]) {
+            acc[category] = { planned: 0, actual: 0, variance: 0 };
+          }
+          acc[category].planned += parseFloat(line.plannedAmount);
+          acc[category].actual += parseFloat(line.actualAmount || '0');
+          acc[category].variance = acc[category].planned - acc[category].actual;
+          return acc;
+        },
+        {} as Record<
+          string,
+          { planned: number; actual: number; variance: number }
+        >
+      );
 
       expect(summary.Food.planned).toBe(1000);
       expect(summary.Food.actual).toBe(800);
@@ -227,10 +242,14 @@ describe('BudgetLine CRUD Operations', () => {
         .from(budgetLines)
         .where(eq(budgetLines.userId, testUserId));
 
-      const totalPlanned = budgetLineList.reduce((sum, line) => 
-        sum + parseFloat(line.plannedAmount), 0);
-      const totalActual = budgetLineList.reduce((sum, line) => 
-        sum + parseFloat(line.actualAmount || '0'), 0);
+      const totalPlanned = budgetLineList.reduce(
+        (sum, line) => sum + parseFloat(line.plannedAmount),
+        0
+      );
+      const totalActual = budgetLineList.reduce(
+        (sum, line) => sum + parseFloat(line.actualAmount || '0'),
+        0
+      );
       const totalVariance = totalPlanned - totalActual;
 
       expect(totalPlanned).toBe(1800);
@@ -239,4 +258,3 @@ describe('BudgetLine CRUD Operations', () => {
     });
   });
 });
-

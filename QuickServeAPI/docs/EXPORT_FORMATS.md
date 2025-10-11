@@ -7,12 +7,14 @@ FinBot sistemi, finansal verilerinizi çeşitli formatlarda dışa aktarmanıza 
 ## Desteklenen Formatlar
 
 ### 1. JSON (JavaScript Object Notation)
+
 - **Kullanım:** API entegrasyonları, programatik işlemler
 - **Avantajlar:** Yapılandırılmış veri, kolay parsing
 - **Dosya Uzantısı:** `.json`
 - **MIME Type:** `application/json`
 
 ### 2. CSV (Comma-Separated Values)
+
 - **Kullanım:** Excel, Google Sheets, veri analizi araçları
 - **Avantajlar:** Universal format, kolay import
 - **Dosya Uzantısı:** `.csv`
@@ -20,6 +22,7 @@ FinBot sistemi, finansal verilerinizi çeşitli formatlarda dışa aktarmanıza 
 - **Encoding:** UTF-8 with BOM
 
 ### 3. PDF (Portable Document Format)
+
 - **Kullanım:** Resmi raporlar, sunumlar, arşivleme
 - **Avantajlar:** Profesyonel görünüm, yazdırılabilir
 - **Dosya Uzantısı:** `.pdf`
@@ -30,11 +33,13 @@ FinBot sistemi, finansal verilerinizi çeşitli formatlarda dışa aktarmanıza 
 ### 1. Cash Flow Bridge Report
 
 #### Amaç
+
 Nakit akışının detaylı analizini sağlar. Operasyonel, yatırım ve finansman faaliyetlerini ayrı ayrı gösterir.
 
 #### Veri Yapısı
 
 **JSON Format:**
+
 ```json
 {
   "title": "Cash Flow Bridge Report",
@@ -83,12 +88,14 @@ Nakit akışının detaylı analizini sağlar. Operasyonel, yatırım ve finansm
 ```
 
 **CSV Format:**
+
 ```csv
 Period,Date,Opening Balance,Operating Inflows,Investing Inflows,Financing Inflows,Total Inflows,Operating Outflows,Investing Outflows,Financing Outflows,Total Outflows,Net Cash Flow,Closing Balance,Variance,Variance %
 "2024-01","2024-01-01","500000.00","45000.00","5000.00","10000.00","60000.00","35000.00","8000.00","7000.00","50000.00","10000.00","510000.00","10000.00","2.0"
 ```
 
 #### Alan Açıklamaları
+
 - **period:** Dönem tanımlayıcısı (YYYY-MM format)
 - **date:** Dönem başlangıç tarihi
 - **openingBalance:** Dönem başı nakit bakiyesi
@@ -110,11 +117,13 @@ Period,Date,Opening Balance,Operating Inflows,Investing Inflows,Financing Inflow
 ### 2. Aging Analysis Report
 
 #### Amaç
+
 Alacak ve borçların yaşlandırma analizini sağlar. Vade geçmişi durumunu gösterir.
 
 #### Veri Yapısı
 
 **JSON Format:**
+
 ```json
 {
   "title": "Aging Analysis Report",
@@ -156,12 +165,14 @@ Alacak ve borçların yaşlandırma analizini sağlar. Vade geçmişi durumunu g
 ```
 
 **CSV Format:**
+
 ```csv
 ID,Customer/Vendor ID,Customer/Vendor Name,Invoice Number,Invoice Date,Due Date,Original Amount,Current Amount,Currency,Aging Days,Aging Bucket,Status,Payment Terms,Description
 "aging_001","CUST_001","ABC Şirketi","INV-2024-001","2024-01-15","2024-02-15","10000.00","10000.00","TRY","45","30-60","outstanding","30 gün","Satış faturası"
 ```
 
 #### Alan Açıklamaları
+
 - **id:** Benzersiz kayıt tanımlayıcısı
 - **customerVendorId:** Müşteri/Tedarikçi ID'si
 - **customerVendorName:** Müşteri/Tedarikçi adı
@@ -180,11 +191,13 @@ ID,Customer/Vendor ID,Customer/Vendor Name,Invoice Number,Invoice Date,Due Date,
 ### 3. Runway Analysis Report
 
 #### Amaç
+
 Nakit tükenme süresini analiz eder. Mevcut nakitin ne kadar süre yeteceğini hesaplar.
 
 #### Veri Yapısı
 
 **JSON Format:**
+
 ```json
 {
   "title": "Runway Analysis Report",
@@ -220,6 +233,7 @@ Nakit tükenme süresini analiz eder. Mevcut nakitin ne kadar süre yeteceğini 
 ```
 
 #### Alan Açıklamaları
+
 - **currentCash:** Mevcut nakit bakiyesi
 - **monthlyBurnRate:** Aylık nakit tüketim oranı
 - **runwayMonths:** Runway süresi (ay)
@@ -230,11 +244,13 @@ Nakit tükenme süresini analiz eder. Mevcut nakitin ne kadar süre yeteceğini 
 ### 4. Financial Health Report
 
 #### Amaç
+
 Genel finansal sağlık durumunu değerlendirir.
 
 #### Veri Yapısı
 
 **JSON Format:**
+
 ```json
 {
   "title": "Financial Health Report",
@@ -264,42 +280,50 @@ Genel finansal sağlık durumunu değerlendirir.
 ### Genel Parametreler
 
 #### Tarih Aralığı
+
 ```json
 {
   "startDate": "2024-01-01",
   "endDate": "2024-12-31"
 }
 ```
+
 - **Format:** ISO 8601 (YYYY-MM-DD)
 - **Zorunlu:** Evet
 - **Varsayılan:** Yok
 
 #### Para Birimi
+
 ```json
 {
   "currency": "TRY"
 }
 ```
+
 - **Seçenekler:** TRY, USD, EUR, GBP
 - **Zorunlu:** Hayır
 - **Varsayılan:** TRY
 
 #### Dönem Tipi
+
 ```json
 {
   "period": "monthly"
 }
 ```
+
 - **Seçenekler:** daily, weekly, monthly, quarterly, yearly
 - **Zorunlu:** Hayır
 - **Varsayılan:** monthly
 
 #### Format Seçimi
+
 ```json
 {
   "format": "json"
 }
 ```
+
 - **Seçenekler:** json, csv, pdf
 - **Zorunlu:** Hayır
 - **Varsayılan:** json
@@ -307,6 +331,7 @@ Genel finansal sağlık durumunu değerlendirir.
 ### PDF Özelleştirme
 
 #### Logo ve Marka
+
 ```json
 {
   "includeLogo": true,
@@ -316,6 +341,7 @@ Genel finansal sağlık durumunu değerlendirir.
 ```
 
 #### Stil Seçenekleri
+
 ```json
 {
   "style": {
@@ -330,11 +356,13 @@ Genel finansal sağlık durumunu değerlendirir.
 ```
 
 #### Dil Seçimi
+
 ```json
 {
   "language": "tr"
 }
 ```
+
 - **Seçenekler:** tr, en
 - **Zorunlu:** Hayır
 - **Varsayılan:** tr
@@ -342,6 +370,7 @@ Genel finansal sağlık durumunu değerlendirir.
 ### Filtreleme Seçenekleri
 
 #### Aging Reports
+
 ```json
 {
   "filters": {
@@ -355,6 +384,7 @@ Genel finansal sağlık durumunu değerlendirir.
 ```
 
 #### Transactions
+
 ```json
 {
   "filters": {
@@ -369,16 +399,19 @@ Genel finansal sağlık durumunu değerlendirir.
 ## Veri Doğrulama
 
 ### Tarih Validasyonu
+
 - Başlangıç tarihi bitiş tarihinden önce olmalı
 - Maksimum 2 yıl aralık
 - Gelecek tarihler kabul edilmez
 
 ### Tutar Validasyonu
+
 - Pozitif sayılar
 - Maksimum 15 haneli ondalık
 - Para birimi uyumluluğu
 
 ### Kayıt Limiti
+
 - Tek seferde maksimum 100,000 kayıt
 - Büyük veri setleri için sayfalama
 - Performans optimizasyonu
@@ -386,6 +419,7 @@ Genel finansal sağlık durumunu değerlendirir.
 ## Hata Kodları
 
 ### Export Hataları
+
 ```json
 {
   "error": "EXPORT_FAILED",
@@ -400,6 +434,7 @@ Genel finansal sağlık durumunu değerlendirir.
 ```
 
 ### Doğrulama Hataları
+
 ```json
 {
   "error": "VALIDATION_FAILED",
@@ -416,16 +451,19 @@ Genel finansal sağlık durumunu değerlendirir.
 ## Performans Limitleri
 
 ### API Limitleri
+
 - **Rate Limit:** 100 request/minute
 - **Export Limit:** 10 export/hour
 - **Batch Limit:** 10 rapor/batch
 
 ### Dosya Limitleri
+
 - **JSON:** Maksimum 50MB
 - **CSV:** Maksimum 100MB
 - **PDF:** Maksimum 25MB
 
 ### Zaman Limitleri
+
 - **Export Timeout:** 5 dakika
 - **Batch Timeout:** 15 dakika
 - **Cache TTL:** 5 dakika
@@ -433,16 +471,19 @@ Genel finansal sağlık durumunu değerlendirir.
 ## Güvenlik
 
 ### Yetkilendirme
+
 - **Export Permission:** `EXPORT_DATA` gerekli
 - **Admin Functions:** `MANAGE_SETTINGS` gerekli
 - **User Isolation:** Kullanıcılar sadece kendi verilerini export edebilir
 
 ### Veri Güvenliği
+
 - **SSL/TLS:** Tüm export işlemleri şifrelenir
 - **Access Logs:** Export işlemleri loglanır
 - **Data Retention:** Export dosyaları 30 gün saklanır
 
 ### Gizlilik
+
 - **PII Protection:** Kişisel veriler korunur
 - **Audit Trail:** Export işlemleri izlenir
 - **Compliance:** GDPR ve KVKK uyumlu
@@ -450,25 +491,27 @@ Genel finansal sağlık durumunu değerlendirir.
 ## Entegrasyon Örnekleri
 
 ### JavaScript/TypeScript
+
 ```javascript
 // Cash Flow Bridge export
 const response = await fetch('/api/export/cash-flow-bridge', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
   },
   body: JSON.stringify({
     startDate: '2024-01-01',
     endDate: '2024-12-31',
-    format: 'csv'
-  })
+    format: 'csv',
+  }),
 });
 
 const csvData = await response.text();
 ```
 
 ### Python
+
 ```python
 import requests
 import json
@@ -491,12 +534,13 @@ data = response.json()
 ```
 
 ### Excel Integration
+
 ```vba
 ' CSV dosyasını Excel'e import etme
 Sub ImportCSV()
     Dim csvFile As String
     csvFile = "C:\path\to\exported_data.csv"
-    
+
     Workbooks.Open csvFile
     ' Veri işleme kodları...
 End Sub
@@ -505,18 +549,21 @@ End Sub
 ## Best Practices
 
 ### Export Kullanımı
+
 1. **Doğru Format Seçimi:** Kullanım amacına göre format seçin
 2. **Veri Filtreleme:** Gereksiz verileri filtreleyin
 3. **Batch İşlemler:** Çoklu export için batch kullanın
 4. **Cache Kullanımı:** Sık kullanılan verileri cache'leyin
 
 ### Performans Optimizasyonu
+
 1. **Tarih Aralığı:** Makul tarih aralıkları seçin
 2. **Veri Limiti:** Büyük veri setlerini parçalayın
 3. **Async İşlemler:** Uzun süren işlemler için async kullanın
 4. **Error Handling:** Hata durumlarını ele alın
 
 ### Güvenlik
+
 1. **Token Yönetimi:** JWT token'ları güvenli saklayın
 2. **HTTPS Kullanımı:** Her zaman HTTPS kullanın
 3. **Veri Temizleme:** Export dosyalarını güvenli silin

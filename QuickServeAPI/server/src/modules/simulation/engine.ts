@@ -1,8 +1,8 @@
 import { formatCurrency } from '../../../lib/utils/formatCurrency';
 
 export interface SimulationParameters {
-  fxDelta: number;        // Döviz kuru değişimi (%)
-  rateDelta: number;      // Faiz oranı değişimi (%)
+  fxDelta: number; // Döviz kuru değişimi (%)
+  rateDelta: number; // Faiz oranı değişimi (%)
   inflationDelta: number; // Enflasyon değişimi (%)
   horizonMonths: 3 | 6 | 12; // Simülasyon süresi (ay)
 }
@@ -49,11 +49,18 @@ export class SimulationEngine {
   runSimulation(parameters: SimulationParameters): SimulationResults {
     const projections = this.generateProjections(parameters);
     const cashDeficitMonth = this.findCashDeficitMonth(projections);
-    const summary = this.generateSummary(projections, cashDeficitMonth, parameters);
-    
-    const totalCashChange = projections[projections.length - 1].cash - this.baseCash;
-    const totalDebtChange = projections[projections.length - 1].debt - this.baseDebt;
-    const totalNetWorthChange = projections[projections.length - 1].netWorth - this.baseNetWorth;
+    const summary = this.generateSummary(
+      projections,
+      cashDeficitMonth,
+      parameters
+    );
+
+    const totalCashChange =
+      projections[projections.length - 1].cash - this.baseCash;
+    const totalDebtChange =
+      projections[projections.length - 1].debt - this.baseDebt;
+    const totalNetWorthChange =
+      projections[projections.length - 1].netWorth - this.baseNetWorth;
 
     return {
       projections,
@@ -62,39 +69,59 @@ export class SimulationEngine {
       totalCashChange,
       totalDebtChange,
       totalNetWorthChange,
-      formattedSummary: this.formatSummary(summary, cashDeficitMonth, parameters.horizonMonths)
+      formattedSummary: this.formatSummary(
+        summary,
+        cashDeficitMonth,
+        parameters.horizonMonths
+      ),
     };
   }
 
   /**
    * Aylık projeksiyonları hesaplar
    */
-  private generateProjections(parameters: SimulationParameters): MonthlyProjection[] {
+  private generateProjections(
+    parameters: SimulationParameters
+  ): MonthlyProjection[] {
     const projections: MonthlyProjection[] = [];
     let currentCash = this.baseCash;
     let currentDebt = this.baseDebt;
 
     for (let month = 1; month <= parameters.horizonMonths; month++) {
       // Döviz etkisi (döviz pozisyonu varsayımı: %15)
-      const fxEffect = this.calculateFxEffect(currentCash, parameters.fxDelta, month);
-      
+      const fxEffect = this.calculateFxEffect(
+        currentCash,
+        parameters.fxDelta,
+        month
+      );
+
       // Faiz etkisi (nakit getirisi ve borç faizi)
-      const rateEffect = this.calculateRateEffect(currentCash, currentDebt, parameters.rateDelta, month);
-      
+      const rateEffect = this.calculateRateEffect(
+        currentCash,
+        currentDebt,
+        parameters.rateDelta,
+        month
+      );
+
       // Enflasyon etkisi (satın alma gücü kaybı)
-      const inflationEffect = this.calculateInflationEffect(currentCash, parameters.inflationDelta, month);
-      
+      const inflationEffect = this.calculateInflationEffect(
+        currentCash,
+        parameters.inflationDelta,
+        month
+      );
+
       // Aylık gelir/gider varsayımı (sabit)
       const monthlyIncome = 50000; // Aylık gelir varsayımı
       const monthlyExpenses = 35000; // Aylık gider varsayımı
       const monthlyNet = monthlyIncome - monthlyExpenses;
-      
+
       // Nakit güncelleme
-      currentCash = currentCash + fxEffect + rateEffect - inflationEffect + monthlyNet;
-      
+      currentCash =
+        currentCash + fxEffect + rateEffect - inflationEffect + monthlyNet;
+
       // Borç güncelleme (faiz etkisi ile)
-      currentDebt = currentDebt + (rateEffect * 0.3); // Borç faiz etkisi
-      
+      currentDebt = currentDebt + rateEffect * 0.3; // Borç faiz etkisi
+
       // Net değer hesaplama
       const netWorth = currentCash - currentDebt;
 
@@ -102,7 +129,7 @@ export class SimulationEngine {
         month,
         cash: Math.round(currentCash),
         debt: Math.round(currentDebt),
-        netWorth: Math.round(netWorth)
+        netWorth: Math.round(netWorth),
       });
     }
 
@@ -112,7 +139,11 @@ export class SimulationEngine {
   /**
    * Döviz kuru etkisini hesaplar
    */
-  private calculateFxEffect(cash: number, fxDelta: number, month: number): number {
+  private calculateFxEffect(
+    cash: number,
+    fxDelta: number,
+    month: number
+  ): number {
     // Döviz pozisyonu varsayımı: %15
     const fxPosition = cash * 0.15;
     // Aylık etki (yıllık değişimin 1/12'si)
@@ -123,22 +154,31 @@ export class SimulationEngine {
   /**
    * Faiz oranı etkisini hesaplar
    */
-  private calculateRateEffect(cash: number, debt: number, rateDelta: number, month: number): number {
+  private calculateRateEffect(
+    cash: number,
+    debt: number,
+    rateDelta: number,
+    month: number
+  ): number {
     // Nakit getirisi (pozitif)
     const cashReturn = cash * 0.02; // %2 aylık nakit getirisi varsayımı
-    const rateMultiplier = 1 + (rateDelta / 100 / 12); // Aylık etki
-    
+    const rateMultiplier = 1 + rateDelta / 100 / 12; // Aylık etki
+
     // Borç faizi (negatif)
     const debtInterest = debt * 0.03; // %3 aylık borç faizi varsayımı
-    const debtRateMultiplier = 1 + (rateDelta / 100 / 12);
-    
-    return (cashReturn * rateMultiplier) - (debtInterest * debtRateMultiplier);
+    const debtRateMultiplier = 1 + rateDelta / 100 / 12;
+
+    return cashReturn * rateMultiplier - debtInterest * debtRateMultiplier;
   }
 
   /**
    * Enflasyon etkisini hesaplar
    */
-  private calculateInflationEffect(cash: number, inflationDelta: number, month: number): number {
+  private calculateInflationEffect(
+    cash: number,
+    inflationDelta: number,
+    month: number
+  ): number {
     // Satın alma gücü kaybı
     const monthlyInflation = inflationDelta / 12;
     return cash * (monthlyInflation / 100);
@@ -147,7 +187,9 @@ export class SimulationEngine {
   /**
    * Nakit açığı ayını bulur
    */
-  private findCashDeficitMonth(projections: MonthlyProjection[]): number | undefined {
+  private findCashDeficitMonth(
+    projections: MonthlyProjection[]
+  ): number | undefined {
     for (const projection of projections) {
       if (projection.cash < 0) {
         return projection.month;
@@ -160,7 +202,7 @@ export class SimulationEngine {
    * Özet metni oluşturur
    */
   private generateSummary(
-    projections: MonthlyProjection[], 
+    projections: MonthlyProjection[],
     cashDeficitMonth: number | undefined,
     parameters: SimulationParameters
   ): string {
@@ -186,7 +228,11 @@ export class SimulationEngine {
   /**
    * Özet metnini formatlar
    */
-  private formatSummary(summary: string, cashDeficitMonth: number | undefined, horizonMonths: number): string {
+  private formatSummary(
+    summary: string,
+    cashDeficitMonth: number | undefined,
+    horizonMonths: number
+  ): string {
     if (cashDeficitMonth) {
       return `Bu senaryoda ${cashDeficitMonth} ay içinde nakit açığı oluşabilir.`;
     } else {
@@ -203,8 +249,11 @@ export class SimulationEngine {
     inflationImpact: string;
     riskLevel: 'low' | 'medium' | 'high';
   } {
-    const totalImpact = Math.abs(parameters.fxDelta) + Math.abs(parameters.rateDelta) + Math.abs(parameters.inflationDelta);
-    
+    const totalImpact =
+      Math.abs(parameters.fxDelta) +
+      Math.abs(parameters.rateDelta) +
+      Math.abs(parameters.inflationDelta);
+
     let fxImpact = 'Nötr';
     if (parameters.fxDelta > 5) fxImpact = 'Olumlu (güçlü TRY)';
     else if (parameters.fxDelta < -5) fxImpact = 'Olumsuz (zayıf TRY)';
@@ -218,8 +267,10 @@ export class SimulationEngine {
     else if (parameters.rateDelta < 0) rateImpact = 'Hafif olumsuz';
 
     let inflationImpact = 'Nötr';
-    if (parameters.inflationDelta > 10) inflationImpact = 'Olumsuz (yüksek enflasyon)';
-    else if (parameters.inflationDelta < 5) inflationImpact = 'Olumlu (düşük enflasyon)';
+    if (parameters.inflationDelta > 10)
+      inflationImpact = 'Olumsuz (yüksek enflasyon)';
+    else if (parameters.inflationDelta < 5)
+      inflationImpact = 'Olumlu (düşük enflasyon)';
     else if (parameters.inflationDelta > 8) inflationImpact = 'Hafif olumsuz';
     else if (parameters.inflationDelta < 7) inflationImpact = 'Hafif olumlu';
 
@@ -231,7 +282,7 @@ export class SimulationEngine {
       fxImpact,
       rateImpact,
       inflationImpact,
-      riskLevel
+      riskLevel,
     };
   }
 }
@@ -259,17 +310,29 @@ export function validateSimulationParameters(parameters: any): {
   const errors: string[] = [];
 
   // fxDelta kontrolü
-  if (typeof parameters.fxDelta !== 'number' || parameters.fxDelta < -50 || parameters.fxDelta > 50) {
+  if (
+    typeof parameters.fxDelta !== 'number' ||
+    parameters.fxDelta < -50 ||
+    parameters.fxDelta > 50
+  ) {
     errors.push('fxDelta -50 ile +50 arasında olmalıdır');
   }
 
   // rateDelta kontrolü
-  if (typeof parameters.rateDelta !== 'number' || parameters.rateDelta < -20 || parameters.rateDelta > 20) {
+  if (
+    typeof parameters.rateDelta !== 'number' ||
+    parameters.rateDelta < -20 ||
+    parameters.rateDelta > 20
+  ) {
     errors.push('rateDelta -20 ile +20 arasında olmalıdır');
   }
 
   // inflationDelta kontrolü
-  if (typeof parameters.inflationDelta !== 'number' || parameters.inflationDelta < 0 || parameters.inflationDelta > 100) {
+  if (
+    typeof parameters.inflationDelta !== 'number' ||
+    parameters.inflationDelta < 0 ||
+    parameters.inflationDelta > 100
+  ) {
     errors.push('inflationDelta 0 ile 100 arasında olmalıdır');
   }
 
@@ -282,7 +345,7 @@ export function validateSimulationParameters(parameters: any): {
     return {
       valid: false,
       errors,
-      normalized: null
+      normalized: null,
     };
   }
 
@@ -293,7 +356,7 @@ export function validateSimulationParameters(parameters: any): {
       fxDelta: parameters.fxDelta,
       rateDelta: parameters.rateDelta,
       inflationDelta: parameters.inflationDelta,
-      horizonMonths: parameters.horizonMonths
-    }
+      horizonMonths: parameters.horizonMonths,
+    },
   };
 }

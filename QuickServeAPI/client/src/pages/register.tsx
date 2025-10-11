@@ -6,15 +6,28 @@ import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { registerSchema, type RegisterRequest } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, UserPlus, LogIn } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
 
-export default function Register () {
+export default function Register() {
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -36,17 +49,22 @@ export default function Register () {
       const response = await apiRequest('POST', '/api/auth/register', data);
       // API'den gelen yanıtın başarılı olup olmadığını kontrol et
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Kayıt sırasında bir sunucu hatası oluştu.' }));
+        const errorData = await response
+          .json()
+          .catch(() => ({
+            message: 'Kayıt sırasında bir sunucu hatası oluştu.',
+          }));
         // Hata durumunda bir Error fırlatarak onError bloğunu tetikle
         throw new Error(errorData.message || 'Kayıt işlemi başarısız oldu.');
       }
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       logger.info('✅ Registration successful:', data);
       toast({
         title: 'Kayıt Başarılı',
-        description: 'Hesabınız oluşturuldu! Giriş sayfasına yönlendiriliyorsunuz...',
+        description:
+          'Hesabınız oluşturuldu! Giriş sayfasına yönlendiriliyorsunuz...',
       });
       // Use requestAnimationFrame for a more reliable redirect after state updates and rendering.
       // This ensures the browser is ready before changing the location.
@@ -77,7 +95,9 @@ export default function Register () {
               <UserPlus className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">FinBot'a Kayıt Ol</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            FinBot'a Kayıt Ol
+          </CardTitle>
           <CardDescription>
             Finansal yönetim platformuna yeni hesap oluşturun
           </CardDescription>
@@ -181,7 +201,9 @@ export default function Register () {
                           variant="ghost"
                           size="sm"
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           data-testid="button-toggle-confirm-password"
                         >
                           {showConfirmPassword ? (
@@ -200,7 +222,8 @@ export default function Register () {
               {registerMutation.error && (
                 <Alert variant="destructive" data-testid="alert-register-error">
                   <AlertDescription>
-                    {(registerMutation.error as any)?.message || 'Kayıt sırasında bir hata oluştu'}
+                    {(registerMutation.error as any)?.message ||
+                      'Kayıt sırasında bir hata oluştu'}
                   </AlertDescription>
                 </Alert>
               )}

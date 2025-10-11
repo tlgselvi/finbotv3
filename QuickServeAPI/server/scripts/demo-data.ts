@@ -12,7 +12,7 @@ import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { logger } from '../utils/logger';
 
-export async function createDemoData () {
+export async function createDemoData() {
   try {
     logger.info('🚀 Demo data oluşturuluyor...');
 
@@ -20,17 +20,20 @@ export async function createDemoData () {
     const hashedPassword = await bcrypt.hash('demo123', 10);
     const demoUserId = randomUUID();
 
-    const [demoUser] = await db.insert(users).values({
-      id: demoUserId,
-      email: 'demo@finbot.com',
-      username: 'demo_user',
-      passwordHash: hashedPassword,
-      role: 'user',
-      isActive: true,
-      emailVerified: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }).returning();
+    const [demoUser] = await db
+      .insert(users)
+      .values({
+        id: demoUserId,
+        email: 'demo@finbot.com',
+        username: 'demo_user',
+        passwordHash: hashedPassword,
+        role: 'user',
+        isActive: true,
+        emailVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
 
     logger.info('✅ Demo kullanıcı oluşturuldu:', demoUser.email);
 
@@ -78,7 +81,10 @@ export async function createDemoData () {
       },
     ];
 
-    const createdAccounts = await db.insert(accounts).values(accountsData).returning();
+    const createdAccounts = await db
+      .insert(accounts)
+      .values(accountsData)
+      .returning();
     logger.info('✅ Demo hesaplar oluşturuldu:', createdAccounts.length);
 
     // Create demo transactions
@@ -145,7 +151,10 @@ export async function createDemoData () {
       },
     ];
 
-    const createdTransactions = await db.insert(transactions).values(transactionsData).returning();
+    const createdTransactions = await db
+      .insert(transactions)
+      .values(transactionsData)
+      .returning();
     logger.info('✅ Demo işlemler oluşturuldu:', createdTransactions.length);
 
     // Create demo investments
@@ -216,7 +225,10 @@ export async function createDemoData () {
       },
     ];
 
-    const createdInvestments = await db.insert(investments).values(investmentsData).returning();
+    const createdInvestments = await db
+      .insert(investments)
+      .values(investmentsData)
+      .returning();
     logger.info('✅ Demo yatırımlar oluşturuldu:', createdInvestments.length);
 
     // Create demo fixed expenses
@@ -262,8 +274,14 @@ export async function createDemoData () {
       },
     ];
 
-    const createdFixedExpenses = await db.insert(fixedExpenses).values(fixedExpensesData).returning();
-    logger.info('✅ Demo sabit giderler oluşturuldu:', createdFixedExpenses.length);
+    const createdFixedExpenses = await db
+      .insert(fixedExpenses)
+      .values(fixedExpensesData)
+      .returning();
+    logger.info(
+      '✅ Demo sabit giderler oluşturuldu:',
+      createdFixedExpenses.length
+    );
 
     // Create demo credits
     const creditsData = [
@@ -297,7 +315,10 @@ export async function createDemoData () {
       },
     ];
 
-    const createdCredits = await db.insert(credits).values(creditsData).returning();
+    const createdCredits = await db
+      .insert(credits)
+      .values(creditsData)
+      .returning();
     logger.info('✅ Demo krediler oluşturuldu:', createdCredits.length);
 
     // Create demo system alerts
@@ -307,10 +328,14 @@ export async function createDemoData () {
         userId: demoUserId,
         type: 'low_balance',
         title: 'Düşük Bakiye Uyarısı',
-        message: "İş Bankası Vadesiz hesabınızda bakiye 10.000 TL'nin altına düştü.",
+        message:
+          "İş Bankası Vadesiz hesabınızda bakiye 10.000 TL'nin altına düştü.",
         severity: 'medium',
         isRead: false,
-        metadata: JSON.stringify({ accountId: createdAccounts[0].id, threshold: 10000 }),
+        metadata: JSON.stringify({
+          accountId: createdAccounts[0].id,
+          threshold: 10000,
+        }),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -322,13 +347,19 @@ export async function createDemoData () {
         message: 'Garanti Kredi Kartı ödemeniz 15 gün içinde yapılmalı.',
         severity: 'high',
         isRead: false,
-        metadata: JSON.stringify({ creditId: createdCredits[0].id, dueDate: '2024-02-15' }),
+        metadata: JSON.stringify({
+          creditId: createdCredits[0].id,
+          dueDate: '2024-02-15',
+        }),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     ];
 
-    const createdAlerts = await db.insert(systemAlerts).values(alertsData).returning();
+    const createdAlerts = await db
+      .insert(systemAlerts)
+      .values(alertsData)
+      .returning();
     logger.info('✅ Demo uyarılar oluşturuldu:', createdAlerts.length);
 
     logger.info('🎉 Demo data başarıyla oluşturuldu!');
@@ -364,7 +395,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       logger.info('✅ Demo data script tamamlandı');
       process.exit(0);
     })
-    .catch((error) => {
+    .catch(error => {
       logger.error('❌ Demo data script hatası:', error);
       process.exit(1);
     });

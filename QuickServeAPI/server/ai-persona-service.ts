@@ -37,7 +37,8 @@ export class AIPersonaService {
       id: 'accountant',
       name: 'Muhasebeci AI',
       role: 'Muhasebe Uzmanı',
-      description: 'Finansal kayıt tutma, bütçe analizi ve vergi konularında uzman',
+      description:
+        'Finansal kayıt tutma, bütçe analizi ve vergi konularında uzman',
       systemPrompt: `Sen deneyimli bir muhasebeci ve finansal danışmansın. Türkiye'deki muhasebe standartlarına hakimsin ve şirketlerin finansal sağlığını değerlendirme konusunda uzmanlığın var.
 
 Görevlerin:
@@ -55,7 +56,8 @@ Yaklaşımın: Detaylı, analitik ve mevzuata uygun. Her önerini somut verilerl
       id: 'ceo',
       name: 'CEO AI',
       role: 'Genel Müdür',
-      description: 'Stratejik karar verme, büyüme planlama ve liderlik konularında uzman',
+      description:
+        'Stratejik karar verme, büyüme planlama ve liderlik konularında uzman',
       systemPrompt: `Sen başarılı bir CEO'sun ve şirket yönetimi konusunda geniş deneyime sahipsin. Stratejik düşünme, büyüme planlama ve liderlik konularında uzmanlığın var.
 
 Görevlerin:
@@ -66,14 +68,21 @@ Görevlerin:
 - Risk yönetimi stratejileri geliştirmek
 
 Yaklaşımın: Stratejik, vizyoner ve sonuç odaklı. Büyük resmi gör ve uzun vadeli düşün.`,
-      expertise: ['strateji', 'büyüme', 'pazar analizi', 'liderlik', 'risk yönetimi'],
+      expertise: [
+        'strateji',
+        'büyüme',
+        'pazar analizi',
+        'liderlik',
+        'risk yönetimi',
+      ],
       tone: 'vizyoner',
     },
     {
       id: 'investor',
       name: 'Yatırımcı AI',
       role: 'Yatırım Uzmanı',
-      description: 'Portföy yönetimi, risk analizi ve yatırım stratejileri konularında uzman',
+      description:
+        'Portföy yönetimi, risk analizi ve yatırım stratejileri konularında uzman',
       systemPrompt: `Sen deneyimli bir yatırım uzmanısın ve portföy yönetimi, risk analizi konularında uzmanlığın var. Farklı yatırım araçlarını ve piyasa dinamiklerini iyi biliyorsun.
 
 Görevlerin:
@@ -84,7 +93,13 @@ Görevlerin:
 - Piyasa trendlerini yorumlamak
 
 Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kararını risk-getiri perspektifiyle değerlendir.`,
-      expertise: ['portföy', 'risk analizi', 'yatırım', 'getiri', 'varlık dağılımı'],
+      expertise: [
+        'portföy',
+        'risk analizi',
+        'yatırım',
+        'getiri',
+        'varlık dağılımı',
+      ],
       tone: 'analitik',
     },
   ];
@@ -92,21 +107,21 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
   /**
    * Get all available personas
    */
-  static getPersonas (): AIPersona[] {
+  static getPersonas(): AIPersona[] {
     return this.personas;
   }
 
   /**
    * Get specific persona by ID
    */
-  static getPersona (id: string): AIPersona | undefined {
+  static getPersona(id: string): AIPersona | undefined {
     return this.personas.find(p => p.id === id);
   }
 
   /**
    * Generate AI response based on persona and user query
    */
-  static async generateResponse (
+  static async generateResponse(
     personaId: string,
     userMessage: string,
     context?: {
@@ -114,7 +129,7 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
       userRole?: string;
       recentTransactions?: any[];
       accountBalances?: any[];
-    },
+    }
   ): Promise<{ response: string; reasoning: string }> {
     const persona = this.getPersona(personaId);
     if (!persona) {
@@ -123,7 +138,11 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
 
     // Simulate AI response generation
     // In a real implementation, this would call an AI service (OpenAI, Claude, etc.)
-    const response = await this.simulateAIResponse(persona, userMessage, context);
+    const response = await this.simulateAIResponse(
+      persona,
+      userMessage,
+      context
+    );
 
     return {
       response: response.message,
@@ -134,10 +153,10 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
   /**
    * Simulate AI response (placeholder for real AI integration)
    */
-  private static async simulateAIResponse (
+  private static async simulateAIResponse(
     persona: AIPersona,
     userMessage: string,
-    context?: any,
+    context?: any
   ): Promise<{ message: string; reasoning: string }> {
     // This is a simplified simulation
     // In production, this would integrate with OpenAI, Claude, or other AI services
@@ -145,36 +164,41 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
     const responses = {
       accountant: {
         message: `Muhasebe perspektifinden bakıldığında, ${userMessage} konusunda detaylı bir analiz yapılması gerekiyor. Finansal kayıtlarınızı inceleyerek size özel öneriler sunabilirim.`,
-        reasoning: 'Muhasebe uzmanı olarak finansal verileri analiz etmek ve mevzuata uygun öneriler sunmak gerekiyor.',
+        reasoning:
+          'Muhasebe uzmanı olarak finansal verileri analiz etmek ve mevzuata uygun öneriler sunmak gerekiyor.',
       },
       ceo: {
         message: `Stratejik açıdan değerlendirdiğimde, ${userMessage} konusu şirketin büyüme planları için önemli bir fırsat sunabilir. Detaylı bir pazar analizi yaparak stratejik kararlar alabiliriz.`,
-        reasoning: 'CEO perspektifinden büyük resmi görerek stratejik kararlar almak ve büyüme fırsatlarını değerlendirmek önemli.',
+        reasoning:
+          'CEO perspektifinden büyük resmi görerek stratejik kararlar almak ve büyüme fırsatlarını değerlendirmek önemli.',
       },
       investor: {
         message: `Yatırım uzmanı olarak, ${userMessage} konusunu risk-getiri perspektifinden değerlendirmek gerekiyor. Portföyünüzün performansını analiz ederek optimal yatırım stratejileri önerebilirim.`,
-        reasoning: 'Yatırım uzmanı olarak risk analizi yapmak ve portföy optimizasyonu önerileri sunmak gerekiyor.',
+        reasoning:
+          'Yatırım uzmanı olarak risk analizi yapmak ve portföy optimizasyonu önerileri sunmak gerekiyor.',
       },
     };
 
     const personaResponse = responses[persona.id as keyof typeof responses];
 
-    return personaResponse || {
-      message: `Merhaba! ${persona.name} olarak size nasıl yardımcı olabilirim?`,
-      reasoning: 'Genel bir karşılama mesajı veriliyor.',
-    };
+    return (
+      personaResponse || {
+        message: `Merhaba! ${persona.name} olarak size nasıl yardımcı olabilirim?`,
+        reasoning: 'Genel bir karşılama mesajı veriliyor.',
+      }
+    );
   }
 
   /**
    * Save decision history
    */
-  static saveDecision (
+  static saveDecision(
     userId: string,
     personaId: string,
     decision: string,
     reasoning: string,
     outcome?: string,
-    metadata?: any,
+    metadata?: any
   ): DecisionHistory {
     const decisionRecord: DecisionHistory = {
       id: randomUUID(),
@@ -195,7 +219,7 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
   /**
    * Get decision history for a user
    */
-  static getDecisionHistory (userId: string, limit?: number): DecisionHistory[] {
+  static getDecisionHistory(userId: string, limit?: number): DecisionHistory[] {
     // In a real implementation, this would query the database
     // For now, return empty array
     return [];
@@ -204,9 +228,9 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
   /**
    * Route to appropriate AI service based on complexity
    */
-  static async routeToAIService (
+  static async routeToAIService(
     query: string,
-    persona: AIPersona,
+    persona: AIPersona
   ): Promise<{ service: string; confidence: number }> {
     // Simple routing logic based on query complexity and persona
     const complexity = this.analyzeQueryComplexity(query);
@@ -223,14 +247,21 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
   /**
    * Analyze query complexity (simplified)
    */
-  private static analyzeQueryComplexity (query: string): number {
+  private static analyzeQueryComplexity(query: string): number {
     const complexKeywords = [
-      'analiz', 'strateji', 'optimizasyon', 'risk', 'portföy',
-      'yatırım', 'finansal model', 'simülasyon', 'tahmin',
+      'analiz',
+      'strateji',
+      'optimizasyon',
+      'risk',
+      'portföy',
+      'yatırım',
+      'finansal model',
+      'simülasyon',
+      'tahmin',
     ];
 
     const keywordCount = complexKeywords.filter(keyword =>
-      query.toLowerCase().includes(keyword),
+      query.toLowerCase().includes(keyword)
     ).length;
 
     return Math.min(keywordCount / complexKeywords.length, 1);
@@ -239,9 +270,9 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
   /**
    * Get persona-specific recommendations
    */
-  static getPersonaRecommendations (
+  static getPersonaRecommendations(
     personaId: string,
-    financialData: any,
+    financialData: any
   ): string[] {
     const persona = this.getPersona(personaId);
     if (!persona) {
@@ -272,4 +303,3 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
     return recommendations[personaId as keyof typeof recommendations] || [];
   }
 }
-

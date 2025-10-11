@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 
 export type Currency = 'TRY' | 'USD' | 'EUR';
 
@@ -10,7 +16,9 @@ export interface CurrencyContextType {
   formatCurrency: (amount: number, locale?: string) => string;
 }
 
-const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
+const CurrencyContext = createContext<CurrencyContextType | undefined>(
+  undefined
+);
 
 interface CurrencyProviderProps {
   children: ReactNode;
@@ -18,12 +26,12 @@ interface CurrencyProviderProps {
 
 export function CurrencyProvider({ children }: CurrencyProviderProps) {
   const [currency, setCurrency] = useState<Currency>('TRY');
-  
+
   // Döviz kurları (örnek değerler - gerçek uygulamada API'den gelecek)
   const [exchangeRates] = useState<Record<Currency, number>>({
     TRY: 1,
     USD: 0.033, // 1 TRY = 0.033 USD (yaklaşık 30.3 TRY = 1 USD)
-    EUR: 0.030  // 1 TRY = 0.030 EUR (yaklaşık 33.3 TRY = 1 EUR)
+    EUR: 0.03, // 1 TRY = 0.030 EUR (yaklaşık 33.3 TRY = 1 EUR)
   });
 
   // Local storage'dan currency'yi yükle
@@ -40,14 +48,17 @@ export function CurrencyProvider({ children }: CurrencyProviderProps) {
   }, [currency]);
 
   // Para birimi dönüştürme
-  const convertAmount = (amount: number, fromCurrency: Currency = 'TRY'): number => {
+  const convertAmount = (
+    amount: number,
+    fromCurrency: Currency = 'TRY'
+  ): number => {
     if (fromCurrency === currency) return amount;
-    
+
     // TRY'den diğer para birimlerine dönüştür
     if (fromCurrency === 'TRY') {
       return amount * exchangeRates[currency];
     }
-    
+
     // Diğer para birimlerinden TRY'ye dönüştür, sonra hedef para birimine
     const amountInTRY = amount / exchangeRates[fromCurrency];
     return amountInTRY * exchangeRates[currency];
@@ -56,11 +67,11 @@ export function CurrencyProvider({ children }: CurrencyProviderProps) {
   // Para birimi formatlama
   const formatCurrency = (amount: number, locale?: string): string => {
     const convertedAmount = convertAmount(amount);
-    
+
     const locales: Record<Currency, string> = {
       TRY: 'tr-TR',
       USD: 'en-US',
-      EUR: 'de-DE'
+      EUR: 'de-DE',
     };
 
     const selectedLocale = locale || locales[currency];
@@ -77,7 +88,7 @@ export function CurrencyProvider({ children }: CurrencyProviderProps) {
       const symbols: Record<Currency, string> = {
         TRY: '₺',
         USD: '$',
-        EUR: '€'
+        EUR: '€',
       };
       return `${symbols[currency]}${convertedAmount.toFixed(2)}`;
     }
@@ -88,7 +99,7 @@ export function CurrencyProvider({ children }: CurrencyProviderProps) {
     setCurrency,
     exchangeRates,
     convertAmount,
-    formatCurrency
+    formatCurrency,
   };
 
   return (

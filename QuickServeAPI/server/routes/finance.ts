@@ -8,7 +8,9 @@ router.get('/dscr', (req, res) => {
   const debtService = Number(req.query.debtService);
 
   if (Number.isNaN(operatingCF) || Number.isNaN(debtService)) {
-    return res.status(400).json({ error: 'operatingCF and debtService must be numbers' });
+    return res
+      .status(400)
+      .json({ error: 'operatingCF and debtService must be numbers' });
   }
 
   const dscr = calculateDSCR(operatingCF, debtService);
@@ -17,4 +19,3 @@ router.get('/dscr', (req, res) => {
 });
 
 export default router;
-

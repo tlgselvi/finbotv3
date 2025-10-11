@@ -32,4 +32,3 @@ export function getAllCategories(): Category[] {
 export function getCategoryByValue(value: string): Category | undefined {
   return getAllCategories().find(cat => cat.value === value);
 }
-

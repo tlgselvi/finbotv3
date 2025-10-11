@@ -1,7 +1,8 @@
 import { describe, expect, test, beforeAll } from 'vitest';
 import request from 'supertest';
 
-const BACKEND_AVAILABLE = !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
+const BACKEND_AVAILABLE =
+  !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
 
 describe.skipIf(!BACKEND_AVAILABLE)('Finance DSCR API', () => {
   beforeAll(() => {
@@ -19,4 +20,3 @@ describe.skipIf(!BACKEND_AVAILABLE)('Finance DSCR API', () => {
     expect(typeof res.body.dscr).toBe('number');
   });
 });
-

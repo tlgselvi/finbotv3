@@ -8,36 +8,38 @@ vi.mock('../../server/db', () => ({
   db: {
     select: vi.fn(() => ({
       from: vi.fn(() => ({
-        where: vi.fn(() => Promise.resolve([]))
-      }))
-    }))
-  }
+        where: vi.fn(() => Promise.resolve([])),
+      })),
+    })),
+  },
 }));
 
 vi.mock('../../server/utils/logger', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
-    warn: vi.fn()
-  }
+    warn: vi.fn(),
+  },
 }));
 
 vi.mock('../../server/services/ai/openaiService', () => ({
   openaiService: {
-    generateResponse: vi.fn(() => Promise.resolve({
-      success: true,
-      response: JSON.stringify({
-        riskScore: 5,
-        riskLevel: 'medium',
-        riskFactors: ['Test risk factor'],
-        mitigationStrategies: ['Test strategy'],
-        liquidityRisk: 4,
-        creditRisk: 6,
-        marketRisk: 5,
-        operationalRisk: 3
+    generateResponse: vi.fn(() =>
+      Promise.resolve({
+        success: true,
+        response: JSON.stringify({
+          riskScore: 5,
+          riskLevel: 'medium',
+          riskFactors: ['Test risk factor'],
+          mitigationStrategies: ['Test strategy'],
+          liquidityRisk: 4,
+          creditRisk: 6,
+          marketRisk: 5,
+          operationalRisk: 3,
+        }),
       })
-    }))
-  }
+    ),
+  },
 }));
 
 describe('Sprint 2 - AI Services', () => {

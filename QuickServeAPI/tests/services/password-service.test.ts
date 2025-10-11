@@ -6,9 +6,9 @@ vi.mock('nodemailer', () => ({
   default: {
     createTransporter: vi.fn(() => ({
       verify: vi.fn().mockResolvedValue(true),
-      sendMail: vi.fn().mockResolvedValue({ messageId: 'test-message-id' })
-    }))
-  }
+      sendMail: vi.fn().mockResolvedValue({ messageId: 'test-message-id' }),
+    })),
+  },
 }));
 
 // Mock database
@@ -17,22 +17,22 @@ vi.mock('../../server/db', () => ({
     select: vi.fn(() => ({
       from: vi.fn(() => ({
         where: vi.fn(() => ({
-          limit: vi.fn().mockResolvedValue([])
-        }))
-      }))
+          limit: vi.fn().mockResolvedValue([]),
+        })),
+      })),
     })),
     insert: vi.fn(() => ({
-      values: vi.fn().mockResolvedValue({})
+      values: vi.fn().mockResolvedValue({}),
     })),
     update: vi.fn(() => ({
       set: vi.fn(() => ({
-        where: vi.fn().mockResolvedValue({})
-      }))
+        where: vi.fn().mockResolvedValue({}),
+      })),
     })),
     delete: vi.fn(() => ({
-      where: vi.fn().mockResolvedValue({})
-    }))
-  }
+      where: vi.fn().mockResolvedValue({}),
+    })),
+  },
 }));
 
 describe('PasswordService', () => {
@@ -47,7 +47,7 @@ describe('PasswordService', () => {
     it('should validate password correctly', () => {
       const validPassword = 'Test123!@#';
       const result = passwordService.validatePassword(validPassword);
-      
+
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
@@ -55,7 +55,7 @@ describe('PasswordService', () => {
     it('should reject weak passwords', () => {
       const weakPassword = '123';
       const result = passwordService.validatePassword(weakPassword);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
@@ -63,9 +63,11 @@ describe('PasswordService', () => {
     it('should reject common patterns', () => {
       const commonPassword = 'password123';
       const result = passwordService.validatePassword(commonPassword);
-      
+
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Şifre yaygın kullanılan kelimeler içeremez');
+      expect(result.errors).toContain(
+        'Şifre yaygın kullanılan kelimeler içeremez'
+      );
     });
   });
 
@@ -73,7 +75,7 @@ describe('PasswordService', () => {
     it('should hash password successfully', async () => {
       const password = 'Test123!@#';
       const hashedPassword = await passwordService.hashPassword(password);
-      
+
       expect(hashedPassword).toBeDefined();
       expect(hashedPassword).not.toBe(password);
       expect(hashedPassword.length).toBeGreaterThan(0);
@@ -84,8 +86,11 @@ describe('PasswordService', () => {
     it('should verify password correctly', async () => {
       const password = 'Test123!@#';
       const hashedPassword = await passwordService.hashPassword(password);
-      
-      const isValid = await passwordService.verifyPassword(password, hashedPassword);
+
+      const isValid = await passwordService.verifyPassword(
+        password,
+        hashedPassword
+      );
       expect(isValid).toBe(true);
     });
 
@@ -93,8 +98,11 @@ describe('PasswordService', () => {
       const password = 'Test123!@#';
       const wrongPassword = 'Wrong123!@#';
       const hashedPassword = await passwordService.hashPassword(password);
-      
-      const isValid = await passwordService.verifyPassword(wrongPassword, hashedPassword);
+
+      const isValid = await passwordService.verifyPassword(
+        wrongPassword,
+        hashedPassword
+      );
       expect(isValid).toBe(false);
     });
   });
@@ -106,13 +114,13 @@ describe('PasswordService', () => {
       mockDb.db.select = vi.fn(() => ({
         from: vi.fn(() => ({
           where: vi.fn(() => ({
-            limit: vi.fn().mockResolvedValue([])
-          }))
-        }))
+            limit: vi.fn().mockResolvedValue([]),
+          })),
+        })),
       }));
 
       const result = await passwordService.requestPasswordReset({
-        email: 'nonexistent@example.com'
+        email: 'nonexistent@example.com',
       });
 
       expect(result).toBeUndefined(); // Should return without error
@@ -124,20 +132,22 @@ describe('PasswordService', () => {
       mockDb.db.select = vi.fn(() => ({
         from: vi.fn(() => ({
           where: vi.fn(() => ({
-            limit: vi.fn().mockResolvedValue([{
-              userId: 'test-user-id',
-              email: 'test@example.com'
-            }])
-          }))
-        }))
+            limit: vi.fn().mockResolvedValue([
+              {
+                userId: 'test-user-id',
+                email: 'test@example.com',
+              },
+            ]),
+          })),
+        })),
       }));
 
       mockDb.db.insert = vi.fn(() => ({
-        values: vi.fn().mockResolvedValue({})
+        values: vi.fn().mockResolvedValue({}),
       }));
 
       const result = await passwordService.requestPasswordReset({
-        email: 'test@example.com'
+        email: 'test@example.com',
       });
 
       expect(result).toBeUndefined(); // Should complete without error
@@ -151,25 +161,27 @@ describe('PasswordService', () => {
       mockDb.db.select = vi.fn(() => ({
         from: vi.fn(() => ({
           where: vi.fn(() => ({
-            limit: vi.fn().mockResolvedValue([{
-              id: 'token-id',
-              userId: 'user-id',
-              token: 'valid-token',
-              expiresAt: new Date(Date.now() + 3600000) // 1 hour from now
-            }])
-          }))
-        }))
+            limit: vi.fn().mockResolvedValue([
+              {
+                id: 'token-id',
+                userId: 'user-id',
+                token: 'valid-token',
+                expiresAt: new Date(Date.now() + 3600000), // 1 hour from now
+              },
+            ]),
+          })),
+        })),
       }));
 
       mockDb.db.update = vi.fn(() => ({
         set: vi.fn(() => ({
-          where: vi.fn().mockResolvedValue({})
-        }))
+          where: vi.fn().mockResolvedValue({}),
+        })),
       }));
 
       const result = await passwordService.resetPassword({
         token: 'valid-token',
-        newPassword: 'NewPassword123!@#'
+        newPassword: 'NewPassword123!@#',
       });
 
       expect(result).toBeUndefined(); // Should complete without error
@@ -181,15 +193,15 @@ describe('PasswordService', () => {
       mockDb.db.select = vi.fn(() => ({
         from: vi.fn(() => ({
           where: vi.fn(() => ({
-            limit: vi.fn().mockResolvedValue([])
-          }))
-        }))
+            limit: vi.fn().mockResolvedValue([]),
+          })),
+        })),
       }));
 
       await expect(
         passwordService.resetPassword({
           token: 'invalid-token',
-          newPassword: 'NewPassword123!@#'
+          newPassword: 'NewPassword123!@#',
         })
       ).rejects.toThrow('Geçersiz veya süresi dolmuş reset token');
     });

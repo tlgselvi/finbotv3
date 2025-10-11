@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 const logger = {
   info: (msg, ...args) => console.log(`[INFO] ${msg}`, ...args),
   error: (msg, ...args) => console.error(`[ERROR] ${msg}`, ...args),
-  warn: (msg, ...args) => console.warn(`[WARN] ${msg}`, ...args)
+  warn: (msg, ...args) => console.warn(`[WARN] ${msg}`, ...args),
 };
 
 logger.info('🧪 Setting up SQLite test database...');
@@ -37,7 +37,7 @@ try {
   // Create test database directory if it doesn't exist
   const testDbPath = path.join(__dirname, '..', 'test.db');
   const testDbDir = path.dirname(testDbPath);
-  
+
   if (!fs.existsSync(testDbDir)) {
     fs.mkdirSync(testDbDir, { recursive: true });
   }
@@ -51,10 +51,10 @@ try {
   // Run migrations using drizzle-kit
   logger.info('🔄 Running database migrations...');
   try {
-    execSync('npx drizzle-kit push', { 
+    execSync('npx drizzle-kit push', {
       cwd: path.join(__dirname, '..'),
       stdio: 'inherit',
-      env: { ...process.env, NODE_ENV: 'test' }
+      env: { ...process.env, NODE_ENV: 'test' },
     });
     logger.info('✅ Migrations completed');
   } catch (error) {
@@ -67,7 +67,7 @@ try {
     execSync('node scripts/seed-database.js', {
       cwd: path.join(__dirname, '..'),
       stdio: 'inherit',
-      env: { ...process.env, NODE_ENV: 'test' }
+      env: { ...process.env, NODE_ENV: 'test' },
     });
     logger.info('✅ Test data created');
   } catch (error) {
@@ -77,7 +77,6 @@ try {
   logger.info('✅ SQLite test database setup completed!');
   logger.info('🚀 You can now run: npm test');
   logger.info('📁 Test database location:', testDbPath);
-
 } catch (error) {
   logger.error('❌ SQLite test database setup failed:', error.message);
   process.exit(1);

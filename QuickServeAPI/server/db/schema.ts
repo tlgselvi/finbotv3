@@ -1,4 +1,14 @@
-import { pgTable, text, timestamp, numeric, boolean, integer, uuid, varchar, jsonb } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  text,
+  timestamp,
+  numeric,
+  boolean,
+  integer,
+  uuid,
+  varchar,
+  jsonb,
+} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // Users table
@@ -20,7 +30,9 @@ export const teams = pgTable('teams', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
-  ownerId: uuid('owner_id').references(() => users.id).notNull(),
+  ownerId: uuid('owner_id')
+    .references(() => users.id)
+    .notNull(),
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -29,8 +41,12 @@ export const teams = pgTable('teams', {
 // Team Members table
 export const teamMembers = pgTable('team_members', {
   id: uuid('id').defaultRandom().primaryKey(),
-  teamId: uuid('team_id').references(() => teams.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  teamId: uuid('team_id')
+    .references(() => teams.id)
+    .notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   role: varchar('role', { length: 50 }).notNull().default('member'),
   permissions: text('permissions'), // JSON string
   isActive: boolean('is_active').default(true),
@@ -42,12 +58,16 @@ export const teamMembers = pgTable('team_members', {
 // Accounts table
 export const accounts = pgTable('accounts', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   type: varchar('type', { length: 50 }).notNull(), // 'checking', 'savings', 'credit_card', 'loan', 'investment'
   bankName: varchar('bank_name', { length: 255 }),
   accountNumber: varchar('account_number', { length: 100 }),
-  balance: numeric('balance', { precision: 15, scale: 2 }).notNull().default('0'),
+  balance: numeric('balance', { precision: 15, scale: 2 })
+    .notNull()
+    .default('0'),
   currency: varchar('currency', { length: 3 }).notNull().default('TRY'),
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
@@ -57,8 +77,12 @@ export const accounts = pgTable('accounts', {
 // Transactions table
 export const transactions = pgTable('transactions', {
   id: uuid('id').defaultRandom().primaryKey(),
-  accountId: uuid('account_id').references(() => accounts.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  accountId: uuid('account_id')
+    .references(() => accounts.id)
+    .notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   type: varchar('type', { length: 20 }).notNull(), // 'income', 'expense', 'transfer'
   amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
   description: text('description').notNull(),
@@ -76,12 +100,17 @@ export const transactions = pgTable('transactions', {
 // Investments table
 export const investments = pgTable('investments', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   title: varchar('title', { length: 255 }).notNull(),
   type: varchar('type', { length: 50 }).notNull(), // 'stock', 'crypto', 'bond', 'fund', 'real_estate'
   symbol: varchar('symbol', { length: 20 }),
   quantity: numeric('quantity', { precision: 15, scale: 8 }).notNull(),
-  purchasePrice: numeric('purchase_price', { precision: 15, scale: 2 }).notNull(),
+  purchasePrice: numeric('purchase_price', {
+    precision: 15,
+    scale: 2,
+  }).notNull(),
   currentPrice: numeric('current_price', { precision: 15, scale: 2 }),
   currency: varchar('currency', { length: 3 }).notNull().default('TRY'),
   category: varchar('category', { length: 100 }),
@@ -96,8 +125,12 @@ export const investments = pgTable('investments', {
 // Fixed Expenses table
 export const fixedExpenses = pgTable('fixed_expenses', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
-  accountId: uuid('account_id').references(() => accounts.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  accountId: uuid('account_id')
+    .references(() => accounts.id)
+    .notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
   frequency: varchar('frequency', { length: 20 }).notNull(), // 'monthly', 'weekly', 'yearly'
@@ -112,14 +145,24 @@ export const fixedExpenses = pgTable('fixed_expenses', {
 // Credits table
 export const credits = pgTable('credits', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
-  accountId: uuid('account_id').references(() => accounts.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  accountId: uuid('account_id')
+    .references(() => accounts.id)
+    .notNull(),
   type: varchar('type', { length: 50 }).notNull(), // 'credit_card', 'personal_loan', 'mortgage'
   name: varchar('name', { length: 255 }).notNull(),
   totalAmount: numeric('total_amount', { precision: 15, scale: 2 }).notNull(),
-  remainingAmount: numeric('remaining_amount', { precision: 15, scale: 2 }).notNull(),
+  remainingAmount: numeric('remaining_amount', {
+    precision: 15,
+    scale: 2,
+  }).notNull(),
   interestRate: numeric('interest_rate', { precision: 5, scale: 2 }).notNull(),
-  monthlyPayment: numeric('monthly_payment', { precision: 15, scale: 2 }).notNull(),
+  monthlyPayment: numeric('monthly_payment', {
+    precision: 15,
+    scale: 2,
+  }).notNull(),
   dueDate: integer('due_date'), // Day of month (1-31)
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
@@ -129,7 +172,9 @@ export const credits = pgTable('credits', {
 // Forecasts table
 export const forecasts = pgTable('forecasts', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   type: varchar('type', { length: 50 }).notNull(), // 'cash_flow', 'budget', 'investment'
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -144,7 +189,9 @@ export const forecasts = pgTable('forecasts', {
 // System Alerts table
 export const systemAlerts = pgTable('system_alerts', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   type: varchar('type', { length: 50 }).notNull(), // 'low_balance', 'payment_due', 'budget_exceeded'
   title: varchar('title', { length: 255 }).notNull(),
   message: text('message').notNull(),
@@ -159,8 +206,12 @@ export const systemAlerts = pgTable('system_alerts', {
 // AI Settings table
 export const aiSettings = pgTable('ai_settings', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
-  persona: varchar('persona', { length: 50 }).notNull().default('financial_advisor'),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  persona: varchar('persona', { length: 50 })
+    .notNull()
+    .default('financial_advisor'),
   preferences: text('preferences'), // JSON string
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
@@ -170,8 +221,12 @@ export const aiSettings = pgTable('ai_settings', {
 // Recurring Transactions table
 export const recurringTransactions = pgTable('recurring_transactions', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
-  accountId: uuid('account_id').references(() => accounts.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  accountId: uuid('account_id')
+    .references(() => accounts.id)
+    .notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
   type: varchar('type', { length: 20 }).notNull(),
@@ -191,10 +246,17 @@ export const recurringTransactions = pgTable('recurring_transactions', {
 // Budget Lines table
 export const budgetLines = pgTable('budget_lines', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   category: varchar('category', { length: 100 }).notNull(),
-  budgetedAmount: numeric('budgeted_amount', { precision: 15, scale: 2 }).notNull(),
-  actualAmount: numeric('actual_amount', { precision: 15, scale: 2 }).default('0'),
+  budgetedAmount: numeric('budgeted_amount', {
+    precision: 15,
+    scale: 2,
+  }).notNull(),
+  actualAmount: numeric('actual_amount', { precision: 15, scale: 2 }).default(
+    '0'
+  ),
   month: varchar('month', { length: 7 }).notNull(),
   currency: varchar('currency', { length: 3 }).default('TRY'),
   notes: text('notes'),
@@ -205,9 +267,14 @@ export const budgetLines = pgTable('budget_lines', {
 // Aging Reports table
 export const agingReports = pgTable('aging_reports', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   reportDate: timestamp('report_date').notNull(),
-  totalReceivables: numeric('total_receivables', { precision: 15, scale: 2 }).default('0'),
+  totalReceivables: numeric('total_receivables', {
+    precision: 15,
+    scale: 2,
+  }).default('0'),
   current: numeric('current', { precision: 15, scale: 2 }).default('0'),
   days30: numeric('days_30', { precision: 15, scale: 2 }).default('0'),
   days60: numeric('days_60', { precision: 15, scale: 2 }).default('0'),
@@ -222,7 +289,9 @@ export const agingReports = pgTable('aging_reports', {
 // AR/AP Items table - detailed receivables and payables
 export const arApItems = pgTable('ar_ap_items', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   type: varchar('type', { length: 20 }).notNull(), // 'receivable' or 'payable'
   invoiceNumber: varchar('invoice_number', { length: 100 }),
   customerSupplier: varchar('customer_supplier', { length: 255 }).notNull(),
@@ -239,7 +308,9 @@ export const arApItems = pgTable('ar_ap_items', {
 // Bank Integrations table
 export const bankIntegrations = pgTable('bank_integrations', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   bankName: varchar('bank_name', { length: 255 }).notNull(),
   accountNumber: varchar('account_number', { length: 100 }),
   accountType: varchar('account_type', { length: 50 }),
@@ -258,7 +329,9 @@ export const bankIntegrations = pgTable('bank_integrations', {
 // Cashboxes table
 export const cashboxes = pgTable('cashboxes', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   balance: numeric('balance', { precision: 15, scale: 2 }).default('0'),
   currency: varchar('currency', { length: 3 }).default('TRY'),
@@ -271,8 +344,12 @@ export const cashboxes = pgTable('cashboxes', {
 // Cashbox Transactions table
 export const cashboxTransactions = pgTable('cashbox_transactions', {
   id: uuid('id').defaultRandom().primaryKey(),
-  cashboxId: uuid('cashbox_id').references(() => cashboxes.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  cashboxId: uuid('cashbox_id')
+    .references(() => cashboxes.id)
+    .notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   type: varchar('type', { length: 20 }).notNull(), // 'deposit', 'withdrawal', 'transfer'
   amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
   description: text('description'),
@@ -286,8 +363,12 @@ export const cashboxTransactions = pgTable('cashbox_transactions', {
 // Cashbox Audit Logs table
 export const cashboxAuditLogs = pgTable('cashbox_audit_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
-  cashboxId: uuid('cashbox_id').references(() => cashboxes.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  cashboxId: uuid('cashbox_id')
+    .references(() => cashboxes.id)
+    .notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   action: varchar('action', { length: 50 }).notNull(),
   details: text('details'),
   ipAddress: varchar('ip_address', { length: 45 }),
@@ -298,7 +379,10 @@ export const cashboxAuditLogs = pgTable('cashbox_audit_logs', {
 // User Profiles table
 export const userProfiles = pgTable('user_profiles', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull().unique(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull()
+    .unique(),
   fullName: varchar('full_name', { length: 255 }),
   phone: varchar('phone', { length: 20 }),
   avatar: text('avatar'),
@@ -313,7 +397,9 @@ export const userProfiles = pgTable('user_profiles', {
 // User Activity Logs table
 export const userActivityLogs = pgTable('user_activity_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   action: varchar('action', { length: 100 }).notNull(),
   resource: varchar('resource', { length: 100 }),
   resourceId: uuid('resource_id'),
@@ -326,7 +412,9 @@ export const userActivityLogs = pgTable('user_activity_logs', {
 // Email Verification Codes table
 export const emailVerificationCodes = pgTable('email_verification_codes', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   code: varchar('code', { length: 10 }).notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   isUsed: boolean('is_used').default(false),
@@ -336,7 +424,10 @@ export const emailVerificationCodes = pgTable('email_verification_codes', {
 // User Two Factor Auth table
 export const userTwoFactorAuth = pgTable('user_two_factor_auth', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull().unique(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull()
+    .unique(),
   secret: text('secret').notNull(),
   isEnabled: boolean('is_enabled').default(false),
   backupCodes: text('backup_codes'), // JSON array
@@ -348,7 +439,9 @@ export const userTwoFactorAuth = pgTable('user_two_factor_auth', {
 // Password Reset Tokens table
 export const passwordResetTokens = pgTable('password_reset_tokens', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   token: varchar('token', { length: 255 }).notNull().unique(),
   expiresAt: timestamp('expires_at').notNull(),
   isUsed: boolean('is_used').default(false),
@@ -358,7 +451,9 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
 // Refresh Tokens table
 export const refreshTokens = pgTable('refresh_tokens', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   token: text('token').notNull().unique(),
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
@@ -375,12 +470,19 @@ export const revokedTokens = pgTable('revoked_tokens', {
 // Progress Payments table
 export const progressPayments = pgTable('progress_payments', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
-  accountId: uuid('account_id').references(() => accounts.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  accountId: uuid('account_id')
+    .references(() => accounts.id)
+    .notNull(),
   projectName: varchar('project_name', { length: 255 }).notNull(),
   totalAmount: numeric('total_amount', { precision: 15, scale: 2 }).notNull(),
   paidAmount: numeric('paid_amount', { precision: 15, scale: 2 }).default('0'),
-  remainingAmount: numeric('remaining_amount', { precision: 15, scale: 2 }).notNull(),
+  remainingAmount: numeric('remaining_amount', {
+    precision: 15,
+    scale: 2,
+  }).notNull(),
   dueDate: timestamp('due_date'),
   status: varchar('status', { length: 50 }).default('active'),
   currency: varchar('currency', { length: 3 }).default('TRY'),
@@ -392,7 +494,9 @@ export const progressPayments = pgTable('progress_payments', {
 // Team Invitations table
 export const teamInvitations = pgTable('team_invitations', {
   id: uuid('id').defaultRandom().primaryKey(),
-  teamId: uuid('team_id').references(() => teams.id).notNull(),
+  teamId: uuid('team_id')
+    .references(() => teams.id)
+    .notNull(),
   email: varchar('email', { length: 255 }).notNull(),
   role: varchar('role', { length: 50 }).notNull(),
   token: varchar('token', { length: 100 }).notNull().unique(),
@@ -418,7 +522,9 @@ export const auditLogs = pgTable('audit_logs', {
 // Tags table
 export const tags = pgTable('tags', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   name: varchar('name', { length: 50 }).notNull(),
   color: varchar('color', { length: 7 }),
   createdAt: timestamp('created_at').defaultNow(),
@@ -427,7 +533,9 @@ export const tags = pgTable('tags', {
 // Categories table
 export const categories = pgTable('categories', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   type: varchar('type', { length: 20 }).notNull(), // 'income' or 'expense'
   icon: varchar('icon', { length: 50 }),
@@ -439,8 +547,12 @@ export const categories = pgTable('categories', {
 // Bank Transactions table (for integrations)
 export const bankTransactions = pgTable('bank_transactions', {
   id: uuid('id').defaultRandom().primaryKey(),
-  bankIntegrationId: uuid('bank_integration_id').references(() => bankIntegrations.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  bankIntegrationId: uuid('bank_integration_id')
+    .references(() => bankIntegrations.id)
+    .notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
   externalId: varchar('external_id', { length: 255 }),
   amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
   currency: varchar('currency', { length: 3 }).default('TRY'),
@@ -454,8 +566,12 @@ export const bankTransactions = pgTable('bank_transactions', {
 // Import Batches table
 export const importBatches = pgTable('import_batches', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
-  bankIntegrationId: uuid('bank_integration_id').references(() => bankIntegrations.id),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  bankIntegrationId: uuid('bank_integration_id').references(
+    () => bankIntegrations.id
+  ),
   filename: varchar('filename', { length: 255 }).notNull(),
   totalRecords: integer('total_records').default(0),
   successfulRecords: integer('successful_records').default(0),
@@ -470,9 +586,15 @@ export const importBatches = pgTable('import_batches', {
 // Reconciliation Logs table
 export const reconciliationLogs = pgTable('reconciliation_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
-  bankIntegrationId: uuid('bank_integration_id').references(() => bankIntegrations.id),
-  bankTransactionId: uuid('bank_transaction_id').references(() => bankTransactions.id),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  bankIntegrationId: uuid('bank_integration_id').references(
+    () => bankIntegrations.id
+  ),
+  bankTransactionId: uuid('bank_transaction_id').references(
+    () => bankTransactions.id
+  ),
   transactionId: uuid('transaction_id').references(() => transactions.id),
   action: varchar('action', { length: 50 }).notNull(), // 'matched', 'unmatched', 'manual_match'
   confidence: numeric('confidence', { precision: 5, scale: 2 }),
@@ -549,27 +671,33 @@ export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
 // Simulation Runs table
 export const simulationRuns = pgTable('simulation_runs', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
-  parameters: jsonb('parameters').$type<{
-    fxDelta: number;
-    rateDelta: number;
-    inflationDelta: number;
-    horizonMonths: number;
-  }>().notNull(),
-  results: jsonb('results').$type<{
-    projections: Array<{
-      month: number;
-      cash: number;
-      debt: number;
-      netWorth: number;
-    }>;
-    summary: string;
-    formattedSummary: string;
-    cashDeficitMonth?: number;
-    totalCashChange: number;
-    totalDebtChange: number;
-    totalNetWorthChange: number;
-  }>().notNull(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  parameters: jsonb('parameters')
+    .$type<{
+      fxDelta: number;
+      rateDelta: number;
+      inflationDelta: number;
+      horizonMonths: number;
+    }>()
+    .notNull(),
+  results: jsonb('results')
+    .$type<{
+      projections: Array<{
+        month: number;
+        cash: number;
+        debt: number;
+        netWorth: number;
+      }>;
+      summary: string;
+      formattedSummary: string;
+      cashDeficitMonth?: number;
+      totalCashChange: number;
+      totalDebtChange: number;
+      totalNetWorthChange: number;
+    }>()
+    .notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -618,7 +746,8 @@ export type SimulationRun = typeof simulationRuns.$inferSelect;
 export type InsertSimulationRun = typeof simulationRuns.$inferInsert;
 
 export type RecurringTransaction = typeof recurringTransactions.$inferSelect;
-export type InsertRecurringTransaction = typeof recurringTransactions.$inferInsert;
+export type InsertRecurringTransaction =
+  typeof recurringTransactions.$inferInsert;
 
 export type BudgetLine = typeof budgetLines.$inferSelect;
 export type InsertBudgetLine = typeof budgetLines.$inferInsert;
@@ -647,7 +776,8 @@ export type UserActivityLog = typeof userActivityLogs.$inferSelect;
 export type InsertUserActivityLog = typeof userActivityLogs.$inferInsert;
 
 export type EmailVerificationCode = typeof emailVerificationCodes.$inferSelect;
-export type InsertEmailVerificationCode = typeof emailVerificationCodes.$inferInsert;
+export type InsertEmailVerificationCode =
+  typeof emailVerificationCodes.$inferInsert;
 
 export type ProgressPayment = typeof progressPayments.$inferSelect;
 export type InsertProgressPayment = typeof progressPayments.$inferInsert;

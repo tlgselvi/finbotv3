@@ -11,7 +11,9 @@ router.get('/summary', async (req, res) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     // Get all user investments
@@ -25,19 +27,25 @@ router.get('/summary', async (req, res) => {
     let totalInvested = 0;
     let totalGain = 0;
 
-    const assetAllocation: { [key: string]: { value: number; count: number } } = {};
-    const riskDistribution: { [key: string]: { value: number; count: number } } = {};
+    const assetAllocation: { [key: string]: { value: number; count: number } } =
+      {};
+    const riskDistribution: {
+      [key: string]: { value: number; count: number };
+    } = {};
 
     for (const investment of userInvestments) {
       const qty = parseFloat(String((investment as any).quantity || '0'));
       const buy = parseFloat(String((investment as any).purchasePrice || '0'));
-      const cur = (investment as any).currentPrice != null ? parseFloat(String((investment as any).currentPrice)) : undefined;
+      const cur =
+        (investment as any).currentPrice != null
+          ? parseFloat(String((investment as any).currentPrice))
+          : undefined;
       const investedAmount = qty * buy;
       const currentValue = cur != null ? qty * cur : investedAmount; // Use invested amount if no current price
 
       totalInvested += investedAmount;
       totalValue += currentValue;
-      totalGain += (currentValue - investedAmount);
+      totalGain += currentValue - investedAmount;
 
       // Asset allocation by type
       const { type } = investment;
@@ -56,21 +64,26 @@ router.get('/summary', async (req, res) => {
       riskDistribution[risk].count += 1;
     }
 
-    const totalGainPercentage = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
+    const totalGainPercentage =
+      totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
 
     // Format asset allocation
-    const formattedAssetAllocation = Object.entries(assetAllocation).map(([type, data]) => ({
-      type,
-      value: data.value,
-      percentage: totalValue > 0 ? (data.value / totalValue) * 100 : 0,
-    }));
+    const formattedAssetAllocation = Object.entries(assetAllocation).map(
+      ([type, data]) => ({
+        type,
+        value: data.value,
+        percentage: totalValue > 0 ? (data.value / totalValue) * 100 : 0,
+      })
+    );
 
     // Format risk distribution
-    const formattedRiskDistribution = Object.entries(riskDistribution).map(([level, data]) => ({
-      level,
-      value: data.value,
-      percentage: totalValue > 0 ? (data.value / totalValue) * 100 : 0,
-    }));
+    const formattedRiskDistribution = Object.entries(riskDistribution).map(
+      ([level, data]) => ({
+        level,
+        value: data.value,
+        percentage: totalValue > 0 ? (data.value / totalValue) * 100 : 0,
+      })
+    );
 
     const summary = {
       totalValue,
@@ -97,7 +110,9 @@ router.get('/performance', async (req, res) => {
     const { period = '30' } = req.query; // days
 
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     // This would typically fetch historical data
@@ -123,7 +138,9 @@ router.get('/performance', async (req, res) => {
     res.json(performanceData);
   } catch (error) {
     logger.error('Portfolio performance error:', error);
-    res.status(500).json({ error: 'Portföy performansı alınırken hata oluştu' });
+    res
+      .status(500)
+      .json({ error: 'Portföy performansı alınırken hata oluştu' });
   }
 });
 
@@ -132,7 +149,9 @@ router.get('/rebalance', async (req, res) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     // Get current portfolio allocation
@@ -148,11 +167,15 @@ router.get('/rebalance', async (req, res) => {
     for (const investment of userInvestments) {
       const qty2 = parseFloat(String((investment as any).quantity || '0'));
       const buy2 = parseFloat(String((investment as any).purchasePrice || '0'));
-      const cur2 = (investment as any).currentPrice != null ? parseFloat(String((investment as any).currentPrice)) : undefined;
+      const cur2 =
+        (investment as any).currentPrice != null
+          ? parseFloat(String((investment as any).currentPrice))
+          : undefined;
       const currentValue = cur2 != null ? qty2 * cur2 : qty2 * buy2;
 
       totalValue += currentValue;
-      currentAllocation[investment.type] = (currentAllocation[investment.type] || 0) + currentValue;
+      currentAllocation[investment.type] =
+        (currentAllocation[investment.type] || 0) + currentValue;
     }
 
     // Target allocation (can be customized based on user profile)
@@ -164,22 +187,25 @@ router.get('/rebalance', async (req, res) => {
     };
 
     // Calculate rebalancing suggestions
-    const suggestions = Object.entries(targetAllocation).map(([type, targetPercentage]) => {
-      const currentValue = currentAllocation[type] || 0;
-      const currentPercentage = totalValue > 0 ? (currentValue / totalValue) * 100 : 0;
-      const targetValue = (totalValue * targetPercentage) / 100;
-      const difference = targetValue - currentValue;
+    const suggestions = Object.entries(targetAllocation).map(
+      ([type, targetPercentage]) => {
+        const currentValue = currentAllocation[type] || 0;
+        const currentPercentage =
+          totalValue > 0 ? (currentValue / totalValue) * 100 : 0;
+        const targetValue = (totalValue * targetPercentage) / 100;
+        const difference = targetValue - currentValue;
 
-      return {
-        type,
-        currentPercentage: Math.round(currentPercentage * 100) / 100,
-        targetPercentage,
-        currentValue: Math.round(currentValue * 100) / 100,
-        targetValue: Math.round(targetValue * 100) / 100,
-        action: difference > 0 ? 'buy' : difference < 0 ? 'sell' : 'hold',
-        amount: Math.round(Math.abs(difference) * 100) / 100,
-      };
-    });
+        return {
+          type,
+          currentPercentage: Math.round(currentPercentage * 100) / 100,
+          targetPercentage,
+          currentValue: Math.round(currentValue * 100) / 100,
+          targetValue: Math.round(targetValue * 100) / 100,
+          action: difference > 0 ? 'buy' : difference < 0 ? 'sell' : 'hold',
+          amount: Math.round(Math.abs(difference) * 100) / 100,
+        };
+      }
+    );
 
     res.json({
       totalValue,
@@ -188,7 +214,9 @@ router.get('/rebalance', async (req, res) => {
     });
   } catch (error) {
     logger.error('Portfolio rebalance error:', error);
-    res.status(500).json({ error: 'Rebalancing önerileri alınırken hata oluştu' });
+    res
+      .status(500)
+      .json({ error: 'Rebalancing önerileri alınırken hata oluştu' });
   }
 });
 

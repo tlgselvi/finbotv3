@@ -2,13 +2,14 @@ import crypto from 'crypto';
 import { logger } from 'logger';
 
 const ALGORITHM = 'aes-256-gcm';
-const SECRET_KEY = process.env.ENCRYPTION_KEY || 'your-32-character-secret-key-here!'; // 32 chars
+const SECRET_KEY =
+  process.env.ENCRYPTION_KEY || 'your-32-character-secret-key-here!'; // 32 chars
 const IV_LENGTH = 16; // For GCM, this is always 16
 
 /**
  * Encrypt text using AES-256-GCM
  */
-export function encrypt (text: string): string {
+export function encrypt(text: string): string {
   if (!text) {
     return '';
   }
@@ -22,13 +23,13 @@ export function encrypt (text: string): string {
   const authTag = cipher.getAuthTag();
 
   // Combine iv, authTag, and encrypted data
-  return `${iv.toString('hex')  }:${  authTag.toString('hex')  }:${  encrypted}`;
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
 }
 
 /**
  * Decrypt text using AES-256-GCM
  */
-export function decrypt (encryptedText: string): string {
+export function decrypt(encryptedText: string): string {
   if (!encryptedText) {
     return '';
   }
@@ -59,13 +60,13 @@ export function decrypt (encryptedText: string): string {
 /**
  * Hash text using SHA-256
  */
-export function hash (text: string): string {
+export function hash(text: string): string {
   return crypto.createHash('sha256').update(text).digest('hex');
 }
 
 /**
  * Generate random string
  */
-export function generateRandomString (length: number = 32): string {
+export function generateRandomString(length: number = 32): string {
   return crypto.randomBytes(length).toString('hex');
 }

@@ -20,21 +20,25 @@ describe('Recurring Transactions Module', () => {
   beforeAll(() => {
     // Skip tests if DATABASE_URL is not set
     if (!process.env.DATABASE_URL) {
-      console.warn('Skipping recurring transactions tests - DATABASE_URL not set');
+      console.warn(
+        'Skipping recurring transactions tests - DATABASE_URL not set'
+      );
     }
   });
 
   beforeEach(async () => {
     if (!process.env.DATABASE_URL) return;
-    
+
     // Clean up test data
     try {
-      await db.delete(recurringTransactions).where(eq(recurringTransactions.userId, testUserId));
+      await db
+        .delete(recurringTransactions)
+        .where(eq(recurringTransactions.userId, testUserId));
       await db.delete(transactions).where(eq(transactions.userId, testUserId));
     } catch (error) {
       console.warn('Cleanup failed:', error);
     }
-    
+
     // Create test account
     await db.insert(accounts).values({
       id: testAccountId,
@@ -49,10 +53,12 @@ describe('Recurring Transactions Module', () => {
 
   afterEach(async () => {
     if (!process.env.DATABASE_URL) return;
-    
+
     // Clean up test data
     try {
-      await db.delete(recurringTransactions).where(eq(recurringTransactions.userId, testUserId));
+      await db
+        .delete(recurringTransactions)
+        .where(eq(recurringTransactions.userId, testUserId));
       await db.delete(transactions).where(eq(transactions.userId, testUserId));
       await db.delete(accounts).where(eq(accounts.id, testAccountId));
     } catch (error) {
@@ -73,7 +79,10 @@ describe('Recurring Transactions Module', () => {
         currency: 'TRY',
       };
 
-      const created = await createRecurringTransaction(testUserId, recurringData);
+      const created = await createRecurringTransaction(
+        testUserId,
+        recurringData
+      );
 
       expect(created).toBeDefined();
       expect(created.userId).toBe(testUserId);
@@ -96,7 +105,10 @@ describe('Recurring Transactions Module', () => {
         currency: 'TRY',
       };
 
-      const created = await createRecurringTransaction(testUserId, recurringData);
+      const created = await createRecurringTransaction(
+        testUserId,
+        recurringData
+      );
       const expectedNextDate = new Date('2024-02-15');
 
       expect(created.nextDueDate).toEqual(expectedNextDate);
@@ -142,8 +154,14 @@ describe('Recurring Transactions Module', () => {
     });
 
     it('should filter by active status', async () => {
-      const activeRecurring = await getUserRecurringTransactions(testUserId, true);
-      const inactiveRecurring = await getUserRecurringTransactions(testUserId, false);
+      const activeRecurring = await getUserRecurringTransactions(
+        testUserId,
+        true
+      );
+      const inactiveRecurring = await getUserRecurringTransactions(
+        testUserId,
+        false
+      );
 
       expect(activeRecurring).toHaveLength(1);
       expect(inactiveRecurring).toHaveLength(1);
@@ -156,19 +174,22 @@ describe('Recurring Transactions Module', () => {
     let recurringId: string;
 
     beforeEach(async () => {
-      const [created] = await db.insert(recurringTransactions).values({
-        userId: testUserId,
-        accountId: testAccountId,
-        amount: '1000.00',
-        description: 'Monthly Salary',
-        interval: 'monthly',
-        intervalCount: 1,
-        startDate: new Date('2024-01-01'),
-        nextDueDate: new Date('2024-02-01'),
-        isActive: true,
-        currency: 'TRY',
-      }).returning();
-      
+      const [created] = await db
+        .insert(recurringTransactions)
+        .values({
+          userId: testUserId,
+          accountId: testAccountId,
+          amount: '1000.00',
+          description: 'Monthly Salary',
+          interval: 'monthly',
+          intervalCount: 1,
+          startDate: new Date('2024-01-01'),
+          nextDueDate: new Date('2024-02-01'),
+          isActive: true,
+          currency: 'TRY',
+        })
+        .returning();
+
       recurringId = created.id;
     });
 
@@ -178,7 +199,11 @@ describe('Recurring Transactions Module', () => {
         description: 'Updated Salary',
       };
 
-      const updated = await updateRecurringTransaction(recurringId, testUserId, updates);
+      const updated = await updateRecurringTransaction(
+        recurringId,
+        testUserId,
+        updates
+      );
 
       expect(updated).toBeDefined();
       expect(updated!.amount).toBe('1200');
@@ -191,7 +216,11 @@ describe('Recurring Transactions Module', () => {
         intervalCount: 2,
       };
 
-      const updated = await updateRecurringTransaction(recurringId, testUserId, updates);
+      const updated = await updateRecurringTransaction(
+        recurringId,
+        testUserId,
+        updates
+      );
 
       expect(updated).toBeDefined();
       expect(updated!.interval).toBe('weekly');
@@ -205,19 +234,22 @@ describe('Recurring Transactions Module', () => {
     let recurringId: string;
 
     beforeEach(async () => {
-      const [created] = await db.insert(recurringTransactions).values({
-        userId: testUserId,
-        accountId: testAccountId,
-        amount: '1000.00',
-        description: 'Monthly Salary',
-        interval: 'monthly',
-        intervalCount: 1,
-        startDate: new Date('2024-01-01'),
-        nextDueDate: new Date('2024-02-01'),
-        isActive: true,
-        currency: 'TRY',
-      }).returning();
-      
+      const [created] = await db
+        .insert(recurringTransactions)
+        .values({
+          userId: testUserId,
+          accountId: testAccountId,
+          amount: '1000.00',
+          description: 'Monthly Salary',
+          interval: 'monthly',
+          intervalCount: 1,
+          startDate: new Date('2024-01-01'),
+          nextDueDate: new Date('2024-02-01'),
+          isActive: true,
+          currency: 'TRY',
+        })
+        .returning();
+
       recurringId = created.id;
     });
 
@@ -236,19 +268,22 @@ describe('Recurring Transactions Module', () => {
     let recurringId: string;
 
     beforeEach(async () => {
-      const [created] = await db.insert(recurringTransactions).values({
-        userId: testUserId,
-        accountId: testAccountId,
-        amount: '1000.00',
-        description: 'Monthly Salary',
-        interval: 'monthly',
-        intervalCount: 1,
-        startDate: new Date('2024-01-01'),
-        nextDueDate: new Date('2024-02-01'),
-        isActive: true,
-        currency: 'TRY',
-      }).returning();
-      
+      const [created] = await db
+        .insert(recurringTransactions)
+        .values({
+          userId: testUserId,
+          accountId: testAccountId,
+          amount: '1000.00',
+          description: 'Monthly Salary',
+          interval: 'monthly',
+          intervalCount: 1,
+          startDate: new Date('2024-01-01'),
+          nextDueDate: new Date('2024-02-01'),
+          isActive: true,
+          currency: 'TRY',
+        })
+        .returning();
+
       recurringId = created.id;
     });
 
@@ -259,7 +294,10 @@ describe('Recurring Transactions Module', () => {
       expect(toggled!.isActive).toBe(false);
 
       // Toggle again
-      const toggledAgain = await toggleRecurringTransaction(recurringId, testUserId);
+      const toggledAgain = await toggleRecurringTransaction(
+        recurringId,
+        testUserId
+      );
       expect(toggledAgain!.isActive).toBe(true);
     });
   });
@@ -353,7 +391,10 @@ describe('Recurring Transactions Module', () => {
 
       // Should only return transactions due within 10 days
       upcoming.forEach(transaction => {
-        const daysUntilDue = Math.ceil((new Date(transaction.nextDueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+        const daysUntilDue = Math.ceil(
+          (new Date(transaction.nextDueDate).getTime() - new Date().getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
         expect(daysUntilDue).toBeLessThanOrEqual(10);
       });
     });

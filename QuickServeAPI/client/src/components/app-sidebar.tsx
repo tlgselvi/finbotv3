@@ -160,7 +160,7 @@ const menuGroups: MenuGroup[] = [
   },
 ];
 
-export function AppSidebar () {
+export function AppSidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
 
@@ -172,7 +172,10 @@ export function AppSidebar () {
             <TrendingUp className="h-5 w-5 text-white" />
           </div>
           <div>
-            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" data-testid="sidebar-title">
+            <span
+              className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+              data-testid="sidebar-title"
+            >
               FinBot
             </span>
             <div className="text-xs text-muted-foreground">v3.0.0</div>
@@ -181,12 +184,12 @@ export function AppSidebar () {
       </SidebarHeader>
 
       <SidebarContent>
-        {menuGroups.map((group) => (
+        {menuGroups.map(group => (
           <SidebarGroup key={group.title}>
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => {
+                {group.items.map(item => {
                   // Hide admin items for non-admin users
                   if (item.requiredRole && user?.role !== item.requiredRole) {
                     return null;
@@ -197,26 +200,30 @@ export function AppSidebar () {
 
                   return (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
+                      <SidebarMenuButton
+                        asChild
                         isActive={isActive}
                         className="group relative overflow-hidden transition-all duration-200 hover:bg-accent/50 hover:shadow-sm"
                       >
-                        <Link 
-                          href={item.path} 
+                        <Link
+                          href={item.path}
                           data-testid={`sidebar-${item.path.replace('/', '') || 'home'}`}
                           className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
                         >
-                          <Icon className={`h-4 w-4 transition-colors ${
-                            isActive 
-                              ? 'text-primary' 
-                              : 'text-muted-foreground group-hover:text-foreground'
-                          }`} />
-                          <span className={`font-medium transition-colors ${
-                            isActive 
-                              ? 'text-primary' 
-                              : 'text-muted-foreground group-hover:text-foreground'
-                          }`}>
+                          <Icon
+                            className={`h-4 w-4 transition-colors ${
+                              isActive
+                                ? 'text-primary'
+                                : 'text-muted-foreground group-hover:text-foreground'
+                            }`}
+                          />
+                          <span
+                            className={`font-medium transition-colors ${
+                              isActive
+                                ? 'text-primary'
+                                : 'text-muted-foreground group-hover:text-foreground'
+                            }`}
+                          >
                             {item.title}
                           </span>
                           {isActive && (

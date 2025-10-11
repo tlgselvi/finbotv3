@@ -1,15 +1,36 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Settings, TestTube, Trash2, RotateCcw, Key, Zap, Clock, Brain } from 'lucide-react';
+import {
+  Settings,
+  TestTube,
+  Trash2,
+  RotateCcw,
+  Key,
+  Zap,
+  Clock,
+  Brain,
+} from 'lucide-react';
 
 interface AISettings {
   provider: 'openai' | 'mock';
@@ -21,7 +42,7 @@ interface AISettings {
   temperature: number;
 }
 
-export function AISettings () {
+export function AISettings() {
   const [settings, setSettings] = useState<AISettings>({
     provider: 'mock',
     apiKey: null,
@@ -32,7 +53,10 @@ export function AISettings () {
     temperature: 0.7,
   });
   const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [testResult, setTestResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -57,7 +81,11 @@ export function AISettings () {
   // Update AI settings mutation
   const updateSettingsMutation = useMutation({
     mutationFn: async (newSettings: AISettings) => {
-      const response = await apiRequest('PUT', '/api/admin/ai/settings', newSettings);
+      const response = await apiRequest(
+        'PUT',
+        '/api/admin/ai/settings',
+        newSettings
+      );
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Ayarlar güncellenemedi');
@@ -86,7 +114,7 @@ export function AISettings () {
       const response = await apiRequest('POST', '/api/admin/ai/test');
       return response.json();
     },
-    onSuccess: (result) => {
+    onSuccess: result => {
       setTestResult(result);
       toast({
         title: result.success ? 'Bağlantı Başarılı' : 'Bağlantı Hatası',
@@ -180,7 +208,11 @@ export function AISettings () {
             <TestTube className="w-4 h-4 mr-2" />
             {isTesting ? 'Test Ediliyor...' : 'Bağlantıyı Test Et'}
           </Button>
-          <Button variant="outline" onClick={handleClearCache} disabled={clearCacheMutation.isPending}>
+          <Button
+            variant="outline"
+            onClick={handleClearCache}
+            disabled={clearCacheMutation.isPending}
+          >
             <RotateCcw className="w-4 h-4 mr-2" />
             Cache Temizle
           </Button>
@@ -235,7 +267,9 @@ export function AISettings () {
                   type="password"
                   placeholder="sk-..."
                   value={settings.apiKey || ''}
-                  onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                  onChange={e =>
+                    setSettings({ ...settings, apiKey: e.target.value })
+                  }
                   disabled={settings.provider === 'mock'}
                 />
                 <Button
@@ -256,7 +290,7 @@ export function AISettings () {
               <Switch
                 id="isActive"
                 checked={settings.isActive}
-                onCheckedChange={(checked) =>
+                onCheckedChange={checked =>
                   setSettings({ ...settings, isActive: checked })
                 }
               />
@@ -302,7 +336,12 @@ export function AISettings () {
                 id="maxTokens"
                 type="number"
                 value={settings.maxTokens}
-                onChange={(e) => setSettings({ ...settings, maxTokens: parseInt(e.target.value) })}
+                onChange={e =>
+                  setSettings({
+                    ...settings,
+                    maxTokens: parseInt(e.target.value),
+                  })
+                }
                 min="100"
                 max="4000"
               />
@@ -317,7 +356,12 @@ export function AISettings () {
                 min="0"
                 max="2"
                 value={settings.temperature}
-                onChange={(e) => setSettings({ ...settings, temperature: parseFloat(e.target.value) })}
+                onChange={e =>
+                  setSettings({
+                    ...settings,
+                    temperature: parseFloat(e.target.value),
+                  })
+                }
               />
               <p className="text-xs text-muted-foreground mt-1">
                 0.0 (kesin) - 2.0 (yaratıcı)
@@ -330,7 +374,12 @@ export function AISettings () {
                 id="cacheDuration"
                 type="number"
                 value={settings.cacheDuration}
-                onChange={(e) => setSettings({ ...settings, cacheDuration: parseInt(e.target.value) })}
+                onChange={e =>
+                  setSettings({
+                    ...settings,
+                    cacheDuration: parseInt(e.target.value),
+                  })
+                }
                 min="5"
                 max="1440"
               />
@@ -346,7 +395,9 @@ export function AISettings () {
           disabled={updateSettingsMutation.isPending}
           className="min-w-[120px]"
         >
-          {updateSettingsMutation.isPending ? 'Kaydediliyor...' : 'Ayarları Kaydet'}
+          {updateSettingsMutation.isPending
+            ? 'Kaydediliyor...'
+            : 'Ayarları Kaydet'}
         </Button>
       </div>
 
@@ -360,7 +411,18 @@ export function AISettings () {
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm text-muted-foreground">
-            <p>1. <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">OpenAI Platform</a> üzerinde hesap oluşturun</p>
+            <p>
+              1.{' '}
+              <a
+                href="https://platform.openai.com/api-keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                OpenAI Platform
+              </a>{' '}
+              üzerinde hesap oluşturun
+            </p>
             <p>2. API Keys bölümünden yeni bir anahtar oluşturun</p>
             <p>3. Anahtarı kopyalayıp yukarıdaki alana yapıştırın</p>
             <p>4. "Bağlantıyı Test Et" butonu ile bağlantıyı doğrulayın</p>

@@ -8,7 +8,10 @@ interface TransactionItemProps {
   accounts: Account[];
 }
 
-export default function TransactionItem ({ transaction, accounts }: TransactionItemProps) {
+export default function TransactionItem({
+  transaction,
+  accounts,
+}: TransactionItemProps) {
   const account = accounts.find(a => a.id === transaction.accountId);
 
   const getTransactionIcon = () => {
@@ -54,7 +57,9 @@ export default function TransactionItem ({ transaction, accounts }: TransactionI
 
   const formatDate = (date: Date) => {
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60));
+    const diffInHours = Math.floor(
+      (now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60)
+    );
 
     if (diffInHours < 1) {
       return 'Az önce';
@@ -76,7 +81,10 @@ export default function TransactionItem ({ transaction, accounts }: TransactionI
 
   const getAmountDisplay = () => {
     const amount = parseFloat(transaction.amount);
-    const sign = transaction.type === 'income' || transaction.type === 'transfer_in' ? '+' : '-';
+    const sign =
+      transaction.type === 'income' || transaction.type === 'transfer_in'
+        ? '+'
+        : '-';
     return `${sign}${formatCurrency(Math.abs(amount))}`;
   };
 
@@ -86,24 +94,36 @@ export default function TransactionItem ({ transaction, accounts }: TransactionI
       data-testid={`transaction-item-${transaction.id}`}
     >
       <div className="flex items-center">
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
-          transaction.type === 'income' ? 'bg-accent/10'
-            : transaction.type === 'expense' ? 'bg-destructive/10' : 'bg-primary/10'
-        }`}>
+        <div
+          className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
+            transaction.type === 'income'
+              ? 'bg-accent/10'
+              : transaction.type === 'expense'
+                ? 'bg-destructive/10'
+                : 'bg-primary/10'
+          }`}
+        >
           {getTransactionIcon()}
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground" data-testid={`text-description-${transaction.id}`}>
+          <p
+            className="text-sm font-medium text-foreground"
+            data-testid={`text-description-${transaction.id}`}
+          >
             {transaction.description}
           </p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span data-testid={`text-date-${transaction.id}`}>
-              {formatDate(transaction.date)} • {account?.bankName || 'Bilinmeyen Hesap'}
+              {formatDate(transaction.date)} •{' '}
+              {account?.bankName || 'Bilinmeyen Hesap'}
             </span>
             {transaction.category && (
               <>
                 <span>•</span>
-                <div className="flex items-center gap-1" data-testid={`text-category-${transaction.id}`}>
+                <div
+                  className="flex items-center gap-1"
+                  data-testid={`text-category-${transaction.id}`}
+                >
                   <Tag className="w-3 h-3" />
                   <span>{getCategoryLabel(transaction.category)}</span>
                 </div>
@@ -113,10 +133,16 @@ export default function TransactionItem ({ transaction, accounts }: TransactionI
         </div>
       </div>
       <div className="text-right">
-        <p className={`text-sm font-semibold ${getTransactionColor()}`} data-testid={`text-amount-${transaction.id}`}>
+        <p
+          className={`text-sm font-semibold ${getTransactionColor()}`}
+          data-testid={`text-amount-${transaction.id}`}
+        >
           {getAmountDisplay()}
         </p>
-        <p className="text-xs text-muted-foreground" data-testid={`text-type-${transaction.id}`}>
+        <p
+          className="text-xs text-muted-foreground"
+          data-testid={`text-type-${transaction.id}`}
+        >
           {getTransactionType()}
         </p>
       </div>

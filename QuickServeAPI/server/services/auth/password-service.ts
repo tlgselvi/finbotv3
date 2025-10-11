@@ -1,10 +1,10 @@
 import { eq, and, gt } from 'drizzle-orm';
 import { db } from '../../db';
 import { logger } from '../../utils/logger';
-import { 
+import {
   userProfiles,
   passwordResetTokens,
-  insertPasswordResetTokenSchema
+  insertPasswordResetTokenSchema,
 } from '../../db/schema';
 import { z } from 'zod';
 import * as crypto from 'crypto';
@@ -22,7 +22,7 @@ export const PASSWORD_POLICY = {
   EXPIRY_DAYS: 90,
   MAX_ATTEMPTS: 5,
   LOCKOUT_DURATION_MINUTES: 30,
-  HISTORY_COUNT: 5 // Remember last 5 passwords
+  HISTORY_COUNT: 5, // Remember last 5 passwords
 };
 
 // Argon2id Configuration for password hashing
@@ -32,7 +32,7 @@ export const ARGON2_CONFIG = {
   timeCost: 3, // 3 iterations
   parallelism: 1,
   hashLength: 32,
-  saltLength: 16
+  saltLength: 16,
 };
 
 // Password Service
@@ -46,7 +46,9 @@ export class PasswordService {
     }
 
     if (password.length > PASSWORD_POLICY.MAX_LENGTH) {
-      errors.push(`Şifre en fazla ${PASSWORD_POLICY.MAX_LENGTH} karakter olmalı`);
+      errors.push(
+        `Şifre en fazla ${PASSWORD_POLICY.MAX_LENGTH} karakter olmalı`
+      );
     }
 
     if (PASSWORD_POLICY.REQUIRE_UPPERCASE && !/[A-Z]/.test(password)) {
@@ -61,7 +63,10 @@ export class PasswordService {
       errors.push('Şifre en az bir rakam içermeli');
     }
 
-    if (PASSWORD_POLICY.REQUIRE_SPECIAL_CHARS && !/[^A-Za-z0-9]/.test(password)) {
+    if (
+      PASSWORD_POLICY.REQUIRE_SPECIAL_CHARS &&
+      !/[^A-Za-z0-9]/.test(password)
+    ) {
       errors.push('Şifre en az bir özel karakter içermeli (!@#$%^&*)');
     }
 
@@ -71,7 +76,7 @@ export class PasswordService {
       /password/i,
       /qwerty/i,
       /admin/i,
-      /letmein/i
+      /letmein/i,
     ];
 
     if (commonPatterns.some(pattern => pattern.test(password))) {
@@ -80,7 +85,7 @@ export class PasswordService {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -98,8 +103,11 @@ export class PasswordService {
       }
 
       const passwordChangedAt = new Date(profile[0].passwordChangedAt);
-      const expiryDate = new Date(passwordChangedAt.getTime() + (PASSWORD_POLICY.EXPIRY_DAYS * 24 * 60 * 60 * 1000));
-      
+      const expiryDate = new Date(
+        passwordChangedAt.getTime() +
+          PASSWORD_POLICY.EXPIRY_DAYS * 24 * 60 * 60 * 1000
+      );
+
       return new Date() > expiryDate;
     } catch (error) {
       logger.error('Error checking password expiry:', error);
@@ -108,7 +116,10 @@ export class PasswordService {
   }
 
   // Check if password is in history
-  async isPasswordInHistory(userId: string, newPassword: string): Promise<boolean> {
+  async isPasswordInHistory(
+    userId: string,
+    newPassword: string
+  ): Promise<boolean> {
     try {
       // In a real implementation, you would store password history
       // For now, we'll just return false
@@ -128,19 +139,25 @@ export class PasswordService {
         timeCost: ARGON2_CONFIG.timeCost,
         parallelism: ARGON2_CONFIG.parallelism,
         hashLength: ARGON2_CONFIG.hashLength,
-        saltLength: ARGON2_CONFIG.saltLength
+        saltLength: ARGON2_CONFIG.saltLength,
       });
     } catch (error) {
       logger.error('Error hashing password:', error);
-      throw new Error('Şifre hash\'lenemedi');
+      throw new Error("Şifre hash'lenemedi");
     }
   }
 
   // Verify password with Argon2id
-  async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  async verifyPassword(
+    password: string,
+    hashedPassword: string
+  ): Promise<boolean> {
     try {
       // Handle both Argon2id and legacy bcrypt hashes
-      if (hashedPassword.startsWith('$2b$') || hashedPassword.startsWith('$2a$')) {
+      if (
+        hashedPassword.startsWith('$2b$') ||
+        hashedPassword.startsWith('$2a$')
+      ) {
         // Legacy bcrypt hash - for backward compatibility
         const bcrypt = await import('bcryptjs');
         return await bcrypt.compare(password, hashedPassword);
@@ -155,25 +172,29 @@ export class PasswordService {
   }
 
   // Migrate bcrypt password to Argon2id
-  async migratePasswordToArgon2id(userId: string, plainPassword: string, bcryptHash: string): Promise<string> {
+  async migratePasswordToArgon2id(
+    userId: string,
+    plainPassword: string,
+    bcryptHash: string
+  ): Promise<string> {
     try {
       // Verify the bcrypt password first
       const bcrypt = await import('bcryptjs');
       const isValid = await bcrypt.compare(plainPassword, bcryptHash);
-      
+
       if (!isValid) {
         throw new Error('Invalid current password');
       }
 
       // Hash with Argon2id
       const argon2Hash = await this.hashPassword(plainPassword);
-      
+
       // Update user password in database
       await db
         .update(userProfiles)
-        .set({ 
+        .set({
           passwordChangedAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, userId));
 
@@ -185,16 +206,24 @@ export class PasswordService {
   }
 
   // Change password
-  async changePassword(userId: string, changeData: z.infer<typeof changePasswordSchema>): Promise<void> {
+  async changePassword(
+    userId: string,
+    changeData: z.infer<typeof changePasswordSchema>
+  ): Promise<void> {
     try {
       // Validate new password
       const validation = this.validatePassword(changeData.newPassword);
       if (!validation.isValid) {
-        throw new Error(`Şifre gereksinimleri karşılanmıyor: ${validation.errors.join(', ')}`);
+        throw new Error(
+          `Şifre gereksinimleri karşılanmıyor: ${validation.errors.join(', ')}`
+        );
       }
 
       // Check if password is in history
-      const isInHistory = await this.isPasswordInHistory(userId, changeData.newPassword);
+      const isInHistory = await this.isPasswordInHistory(
+        userId,
+        changeData.newPassword
+      );
       if (isInHistory) {
         throw new Error('Bu şifre daha önce kullanılmış');
       }
@@ -209,14 +238,13 @@ export class PasswordService {
       // For now, we'll update the password changed timestamp
       await db
         .update(userProfiles)
-        .set({ 
+        .set({
           passwordChangedAt: new Date(),
           failedLoginAttempts: 0,
           lockedUntil: null,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, userId));
-
     } catch (error) {
       logger.error('Error changing password:', error);
       throw new Error('Şifre değiştirilemedi');
@@ -224,7 +252,9 @@ export class PasswordService {
   }
 
   // Request password reset
-  async requestPasswordReset(requestData: z.infer<typeof requestPasswordResetSchema>): Promise<void> {
+  async requestPasswordReset(
+    requestData: z.infer<typeof requestPasswordResetSchema>
+  ): Promise<void> {
     try {
       // Find user by email
       const user = await db
@@ -235,7 +265,9 @@ export class PasswordService {
 
       if (user.length === 0) {
         // Don't reveal if email exists or not for security
-        logger.info(`Password reset requested for non-existent email: ${requestData.email}`);
+        logger.info(
+          `Password reset requested for non-existent email: ${requestData.email}`
+        );
         return; // Silently succeed to prevent email enumeration
       }
 
@@ -246,8 +278,14 @@ export class PasswordService {
         .where(eq(userProfiles.userId, user[0].userId))
         .limit(1);
 
-      if (profile.length > 0 && profile[0].lockedUntil && new Date(profile[0].lockedUntil) > new Date()) {
-        throw new Error('Hesabınız geçici olarak kilitlenmiştir. Lütfen daha sonra tekrar deneyin.');
+      if (
+        profile.length > 0 &&
+        profile[0].lockedUntil &&
+        new Date(profile[0].lockedUntil) > new Date()
+      ) {
+        throw new Error(
+          'Hesabınız geçici olarak kilitlenmiştir. Lütfen daha sonra tekrar deneyin.'
+        );
       }
 
       // Generate reset token
@@ -258,7 +296,7 @@ export class PasswordService {
       const resetTokenData = insertPasswordResetTokenSchema.parse({
         userId: user[0].userId,
         token,
-        expiresAt
+        expiresAt,
       });
 
       await db.insert(passwordResetTokens).values(resetTokenData);
@@ -267,7 +305,6 @@ export class PasswordService {
       await this.sendPasswordResetEmail(requestData.email, token);
 
       logger.info(`Password reset token created for user: ${user[0].userId}`);
-
     } catch (error) {
       logger.error('Error requesting password reset:', error);
       throw new Error('Şifre sıfırlama talebi oluşturulamadı');
@@ -275,12 +312,16 @@ export class PasswordService {
   }
 
   // Reset password with token
-  async resetPassword(resetData: z.infer<typeof resetPasswordV2Schema>): Promise<void> {
+  async resetPassword(
+    resetData: z.infer<typeof resetPasswordV2Schema>
+  ): Promise<void> {
     try {
       // Validate new password
       const validation = this.validatePassword(resetData.newPassword);
       if (!validation.isValid) {
-        throw new Error(`Şifre gereksinimleri karşılanmıyor: ${validation.errors.join(', ')}`);
+        throw new Error(
+          `Şifre gereksinimleri karşılanmıyor: ${validation.errors.join(', ')}`
+        );
       }
 
       // Find valid reset token
@@ -301,7 +342,10 @@ export class PasswordService {
       }
 
       // Check if password is in history
-      const isInHistory = await this.isPasswordInHistory(resetToken[0].userId, resetData.newPassword);
+      const isInHistory = await this.isPasswordInHistory(
+        resetToken[0].userId,
+        resetData.newPassword
+      );
       if (isInHistory) {
         throw new Error('Bu şifre daha önce kullanılmış');
       }
@@ -312,23 +356,22 @@ export class PasswordService {
       // Update password in user profile
       await db
         .update(userProfiles)
-        .set({ 
+        .set({
           passwordChangedAt: new Date(),
           failedLoginAttempts: 0,
           lockedUntil: null,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, resetToken[0].userId));
 
       // Mark token as used
       await db
         .update(passwordResetTokens)
-        .set({ 
+        .set({
           used: true,
-          usedAt: new Date()
+          usedAt: new Date(),
         })
         .where(eq(passwordResetTokens.id, resetToken[0].id));
-
     } catch (error) {
       logger.error('Error resetting password:', error);
       throw new Error('Şifre sıfırlanamadı');
@@ -352,23 +395,25 @@ export class PasswordService {
 
       if (currentAttempts >= PASSWORD_POLICY.MAX_ATTEMPTS) {
         // Lock account
-        const lockoutUntil = new Date(Date.now() + (PASSWORD_POLICY.LOCKOUT_DURATION_MINUTES * 60 * 1000));
-        
+        const lockoutUntil = new Date(
+          Date.now() + PASSWORD_POLICY.LOCKOUT_DURATION_MINUTES * 60 * 1000
+        );
+
         await db
           .update(userProfiles)
-          .set({ 
+          .set({
             failedLoginAttempts: currentAttempts,
             lockedUntil: lockoutUntil,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where(eq(userProfiles.userId, userId));
       } else {
         // Increment failed attempts
         await db
           .update(userProfiles)
-          .set({ 
+          .set({
             failedLoginAttempts: currentAttempts,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where(eq(userProfiles.userId, userId));
       }
@@ -382,11 +427,11 @@ export class PasswordService {
     try {
       await db
         .update(userProfiles)
-        .set({ 
+        .set({
           failedLoginAttempts: 0,
           lockedUntil: null,
           lastLogin: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, userId));
     } catch (error) {
@@ -395,15 +440,20 @@ export class PasswordService {
   }
 
   // Send password reset email
-  private async sendPasswordResetEmail(email: string, token: string): Promise<void> {
+  private async sendPasswordResetEmail(
+    email: string,
+    token: string
+  ): Promise<void> {
     try {
       // Check if we're in production or test environment
       const isProduction = process.env.NODE_ENV === 'production';
       const isTest = process.env.NODE_ENV === 'test';
-      
+
       if (isTest) {
         // In test environment, just log the email
-        logger.info(`[TEST] Password reset email would be sent to ${email} with token: ${token}`);
+        logger.info(
+          `[TEST] Password reset email would be sent to ${email} with token: ${token}`
+        );
         return;
       }
 
@@ -414,11 +464,11 @@ export class PasswordService {
         secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
         auth: {
           user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
+          pass: process.env.SMTP_PASS,
         },
         tls: {
-          rejectUnauthorized: false // For development/testing
-        }
+          rejectUnauthorized: false, // For development/testing
+        },
       });
 
       // Verify transporter configuration
@@ -429,7 +479,10 @@ export class PasswordService {
       const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
 
       const mailOptions = {
-        from: process.env.EMAIL_FROM || process.env.SMTP_USER || 'noreply@finbot.com',
+        from:
+          process.env.EMAIL_FROM ||
+          process.env.SMTP_USER ||
+          'noreply@finbot.com',
         to: email,
         subject: 'FinBot - Şifre Sıfırlama Talebi',
         html: `
@@ -501,7 +554,7 @@ export class PasswordService {
           Eğer bu talebi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.
           
           © 2024 FinBot
-        `
+        `,
       };
 
       await transporter.sendMail(mailOptions);
@@ -509,13 +562,15 @@ export class PasswordService {
       logger.info(`✅ Password reset email sent to ${email}`);
     } catch (error) {
       logger.error('❌ Error sending password reset email:', error);
-      
+
       // In development, don't throw error, just log
       if (process.env.NODE_ENV === 'development') {
-        logger.info(`[DEV] Would send password reset email to ${email} with token: ${token}`);
+        logger.info(
+          `[DEV] Would send password reset email to ${email} with token: ${token}`
+        );
         return;
       }
-      
+
       throw new Error('Şifre sıfırlama e-postası gönderilemedi');
     }
   }

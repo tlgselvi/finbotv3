@@ -3,14 +3,14 @@ import { formatCurrency } from '../../../lib/utils/formatCurrency';
 export type RiskProfile = 'low' | 'medium' | 'high';
 
 export interface PortfolioAllocation {
-  cash: number;           // Nakit
-  deposits: number;       // Mevduat
-  forex: number;          // Döviz
-  stocks: number;         // Hisse senetleri
-  bonds: number;          // Tahvil
-  crypto: number;         // Kripto para
-  commodities: number;    // Emtia
-  realEstate: number;     // Gayrimenkul
+  cash: number; // Nakit
+  deposits: number; // Mevduat
+  forex: number; // Döviz
+  stocks: number; // Hisse senetleri
+  bonds: number; // Tahvil
+  crypto: number; // Kripto para
+  commodities: number; // Emtia
+  realEstate: number; // Gayrimenkul
 }
 
 export interface InvestmentTip {
@@ -59,17 +59,30 @@ export interface PortfolioInput {
  * Yatırım Danışmanı Ajanı - Risk profiline göre portföy önerileri
  */
 export class InvestmentAdvisor {
-  
   /**
    * Ana analiz fonksiyonu
    */
   analyzePortfolio(input: PortfolioInput): AdvisorResult {
     const currentAllocation = this.normalizeAllocation(input.portfolio);
     const targetAllocation = this.getTargetAllocation(input.riskProfile);
-    const riskScore = this.calculateRiskScore(currentAllocation, input.riskProfile);
-    const tips = this.generateTips(currentAllocation, targetAllocation, input.riskProfile);
-    const recommendations = this.generateRecommendations(currentAllocation, targetAllocation, input.riskProfile);
-    const chartData = this.prepareChartData(currentAllocation, targetAllocation);
+    const riskScore = this.calculateRiskScore(
+      currentAllocation,
+      input.riskProfile
+    );
+    const tips = this.generateTips(
+      currentAllocation,
+      targetAllocation,
+      input.riskProfile
+    );
+    const recommendations = this.generateRecommendations(
+      currentAllocation,
+      targetAllocation,
+      input.riskProfile
+    );
+    const chartData = this.prepareChartData(
+      currentAllocation,
+      targetAllocation
+    );
 
     return {
       riskScore,
@@ -77,16 +90,21 @@ export class InvestmentAdvisor {
       targetAllocation,
       currentAllocation,
       recommendations,
-      chartData
+      chartData,
     };
   }
 
   /**
    * Portföy dağılımını normalize eder (toplam %100)
    */
-  private normalizeAllocation(portfolio: PortfolioInput['portfolio']): PortfolioAllocation {
-    const total = Object.values(portfolio).reduce((sum, value) => sum + value, 0);
-    
+  private normalizeAllocation(
+    portfolio: PortfolioInput['portfolio']
+  ): PortfolioAllocation {
+    const total = Object.values(portfolio).reduce(
+      (sum, value) => sum + value,
+      0
+    );
+
     if (total === 0) {
       return {
         cash: 100,
@@ -96,7 +114,7 @@ export class InvestmentAdvisor {
         bonds: 0,
         crypto: 0,
         commodities: 0,
-        realEstate: 0
+        realEstate: 0,
       };
     }
 
@@ -108,7 +126,7 @@ export class InvestmentAdvisor {
       bonds: (portfolio.bonds / total) * 100,
       crypto: (portfolio.crypto / total) * 100,
       commodities: (portfolio.commodities / total) * 100,
-      realEstate: (portfolio.realEstate / total) * 100
+      realEstate: (portfolio.realEstate / total) * 100,
     };
   }
 
@@ -126,9 +144,9 @@ export class InvestmentAdvisor {
           bonds: 10,
           crypto: 0,
           commodities: 0,
-          realEstate: 0
+          realEstate: 0,
         };
-      
+
       case 'medium':
         return {
           cash: 15,
@@ -138,9 +156,9 @@ export class InvestmentAdvisor {
           bonds: 10,
           crypto: 3,
           commodities: 2,
-          realEstate: 0
+          realEstate: 0,
         };
-      
+
       case 'high':
         return {
           cash: 10,
@@ -150,9 +168,9 @@ export class InvestmentAdvisor {
           bonds: 5,
           crypto: 10,
           commodities: 3,
-          realEstate: 2
+          realEstate: 2,
         };
-      
+
       default:
         return this.getTargetAllocation('medium');
     }
@@ -161,7 +179,10 @@ export class InvestmentAdvisor {
   /**
    * Risk skorunu hesaplar (0-100)
    */
-  private calculateRiskScore(current: PortfolioAllocation, targetProfile: RiskProfile): number {
+  private calculateRiskScore(
+    current: PortfolioAllocation,
+    targetProfile: RiskProfile
+  ): number {
     // Risk ağırlıkları
     const riskWeights = {
       cash: 0,
@@ -171,38 +192,46 @@ export class InvestmentAdvisor {
       bonds: 2,
       crypto: 10,
       commodities: 7,
-      realEstate: 4
+      realEstate: 4,
     };
 
     // Mevcut portföy risk skoru
-    const currentRisk = Object.entries(current).reduce((score, [key, value]) => {
-      return score + (value * riskWeights[key as keyof PortfolioAllocation]);
-    }, 0);
+    const currentRisk = Object.entries(current).reduce(
+      (score, [key, value]) => {
+        return score + value * riskWeights[key as keyof PortfolioAllocation];
+      },
+      0
+    );
 
     // Hedef risk profili skoru
-    const targetRisk = targetProfile === 'low' ? 25 : targetProfile === 'medium' ? 50 : 75;
+    const targetRisk =
+      targetProfile === 'low' ? 25 : targetProfile === 'medium' ? 50 : 75;
 
     // Uyum skoru (100 - fark)
     const alignment = Math.max(0, 100 - Math.abs(currentRisk - targetRisk));
-    
+
     return Math.round(alignment);
   }
 
   /**
    * Yatırım tavsiyeleri oluşturur
    */
-  private generateTips(current: PortfolioAllocation, target: PortfolioAllocation, riskProfile: RiskProfile): InvestmentTip[] {
+  private generateTips(
+    current: PortfolioAllocation,
+    target: PortfolioAllocation,
+    riskProfile: RiskProfile
+  ): InvestmentTip[] {
     const tips: InvestmentTip[] = [];
 
     // Dağılım analizi
     this.analyzeAllocation(current, target, tips);
-    
+
     // Risk profili analizi
     this.analyzeRiskProfile(current, riskProfile, tips);
-    
+
     // Çeşitlendirme analizi
     this.analyzeDiversification(current, tips);
-    
+
     // Zamanlama tavsiyeleri
     this.analyzeTiming(riskProfile, tips);
 
@@ -215,7 +244,11 @@ export class InvestmentAdvisor {
   /**
    * Dağılım analizi yapar
    */
-  private analyzeAllocation(current: PortfolioAllocation, target: PortfolioAllocation, tips: InvestmentTip[]) {
+  private analyzeAllocation(
+    current: PortfolioAllocation,
+    target: PortfolioAllocation,
+    tips: InvestmentTip[]
+  ) {
     const threshold = 5; // %5 fark eşiği
 
     Object.keys(current).forEach(key => {
@@ -225,7 +258,7 @@ export class InvestmentAdvisor {
 
       if (difference > threshold) {
         const assetName = this.getAssetName(key);
-        
+
         if (currentValue > targetValue + threshold) {
           tips.push({
             id: `reduce-${key}`,
@@ -233,7 +266,7 @@ export class InvestmentAdvisor {
             title: `${assetName} pozisyonunu azaltın`,
             description: `Mevcut ${assetName} ağırlığınız %${currentValue.toFixed(1)}, hedef %${targetValue.toFixed(1)}. Fazla pozisyonu azaltarak riski düşürün.`,
             priority: difference > 15 ? 'high' : 'medium',
-            action: `${assetName} pozisyonunu %${targetValue.toFixed(0)}'a düşürün`
+            action: `${assetName} pozisyonunu %${targetValue.toFixed(0)}'a düşürün`,
           });
         } else if (currentValue < targetValue - threshold) {
           tips.push({
@@ -242,7 +275,7 @@ export class InvestmentAdvisor {
             title: `${assetName} pozisyonunu artırın`,
             description: `Mevcut ${assetName} ağırlığınız %${currentValue.toFixed(1)}, hedef %${targetValue.toFixed(1)}. Bu varlık sınıfına daha fazla yatırım yaparak portföyü dengeleyin.`,
             priority: difference > 15 ? 'high' : 'medium',
-            action: `${assetName} pozisyonunu %${targetValue.toFixed(0)}'a çıkarın`
+            action: `${assetName} pozisyonunu %${targetValue.toFixed(0)}'a çıkarın`,
           });
         }
       }
@@ -252,8 +285,13 @@ export class InvestmentAdvisor {
   /**
    * Risk profili analizi yapar
    */
-  private analyzeRiskProfile(current: PortfolioAllocation, riskProfile: RiskProfile, tips: InvestmentTip[]) {
-    const highRiskAssets = current.stocks + current.crypto + current.commodities;
+  private analyzeRiskProfile(
+    current: PortfolioAllocation,
+    riskProfile: RiskProfile,
+    tips: InvestmentTip[]
+  ) {
+    const highRiskAssets =
+      current.stocks + current.crypto + current.commodities;
     const lowRiskAssets = current.cash + current.deposits + current.bonds;
 
     if (riskProfile === 'low' && highRiskAssets > 30) {
@@ -261,18 +299,20 @@ export class InvestmentAdvisor {
         id: 'reduce-risk',
         category: 'risk',
         title: 'Risk seviyesini düşürün',
-        description: 'Düşük risk profili için yüksek riskli varlıklar (%30 üzeri) fazla. Nakit ve mevduat ağırlığını artırın.',
+        description:
+          'Düşük risk profili için yüksek riskli varlıklar (%30 üzeri) fazla. Nakit ve mevduat ağırlığını artırın.',
         priority: 'high',
-        action: 'Yüksek riskli varlıkları %30\'un altına düşürün'
+        action: "Yüksek riskli varlıkları %30'un altına düşürün",
       });
     } else if (riskProfile === 'high' && lowRiskAssets > 50) {
       tips.push({
         id: 'increase-risk',
         category: 'risk',
         title: 'Risk seviyesini artırın',
-        description: 'Yüksek risk profili için düşük riskli varlıklar (%50 üzeri) fazla. Hisse senedi ve kripto ağırlığını artırın.',
+        description:
+          'Yüksek risk profili için düşük riskli varlıklar (%50 üzeri) fazla. Hisse senedi ve kripto ağırlığını artırın.',
         priority: 'high',
-        action: 'Yüksek getirili varlıklara daha fazla yatırım yapın'
+        action: 'Yüksek getirili varlıklara daha fazla yatırım yapın',
       });
     }
   }
@@ -280,8 +320,13 @@ export class InvestmentAdvisor {
   /**
    * Çeşitlendirme analizi yapar
    */
-  private analyzeDiversification(current: PortfolioAllocation, tips: InvestmentTip[]) {
-    const nonZeroAssets = Object.values(current).filter(value => value > 0).length;
+  private analyzeDiversification(
+    current: PortfolioAllocation,
+    tips: InvestmentTip[]
+  ) {
+    const nonZeroAssets = Object.values(current).filter(
+      value => value > 0
+    ).length;
 
     if (nonZeroAssets < 3) {
       tips.push({
@@ -290,21 +335,23 @@ export class InvestmentAdvisor {
         title: 'Portföyü çeşitlendirin',
         description: `Sadece ${nonZeroAssets} varlık sınıfında yatırımınız var. Risk dağıtmak için daha fazla varlık sınıfına yatırım yapın.`,
         priority: 'high',
-        action: 'En az 3-4 farklı varlık sınıfına yatırım yapın'
+        action: 'En az 3-4 farklı varlık sınıfına yatırım yapın',
       });
     }
 
     // Tek varlık konsantrasyonu kontrolü
     const maxAllocation = Math.max(...Object.values(current));
     if (maxAllocation > 60) {
-      const dominantAsset = Object.keys(current).find(key => current[key as keyof PortfolioAllocation] === maxAllocation);
+      const dominantAsset = Object.keys(current).find(
+        key => current[key as keyof PortfolioAllocation] === maxAllocation
+      );
       tips.push({
         id: 'concentration-risk',
         category: 'diversification',
         title: 'Konsantrasyon riski yüksek',
         description: `${this.getAssetName(dominantAsset!)} %${maxAllocation.toFixed(1)} ile portföyünüzde çok dominant. Risk dağıtımı için diğer varlıklara yatırım yapın.`,
         priority: 'high',
-        action: 'En yüksek pozisyonu %50\'nin altına düşürün'
+        action: "En yüksek pozisyonu %50'nin altına düşürün",
       });
     }
   }
@@ -318,9 +365,10 @@ export class InvestmentAdvisor {
         id: 'dca-strategy',
         category: 'timing',
         title: 'Dolar maliyet ortalaması uygulayın',
-        description: 'Yüksek risk profili için volatil varlıklarda düzenli yatırım stratejisi riski azaltır.',
+        description:
+          'Yüksek risk profili için volatil varlıklarda düzenli yatırım stratejisi riski azaltır.',
         priority: 'medium',
-        action: 'Aylık düzenli yatırım planı oluşturun'
+        action: 'Aylık düzenli yatırım planı oluşturun',
       });
     }
 
@@ -328,16 +376,21 @@ export class InvestmentAdvisor {
       id: 'rebalance-schedule',
       category: 'timing',
       title: 'Düzenli yeniden dengeleme yapın',
-      description: 'Portföy dağılımını korumak için 3-6 ayda bir yeniden dengeleme yapın.',
+      description:
+        'Portföy dağılımını korumak için 3-6 ayda bir yeniden dengeleme yapın.',
       priority: 'medium',
-      action: 'Yılda 2-4 kez portföy yeniden dengelemesi yapın'
+      action: 'Yılda 2-4 kez portföy yeniden dengelemesi yapın',
     });
   }
 
   /**
    * Öneriler oluşturur
    */
-  private generateRecommendations(current: PortfolioAllocation, target: PortfolioAllocation, riskProfile: RiskProfile) {
+  private generateRecommendations(
+    current: PortfolioAllocation,
+    target: PortfolioAllocation,
+    riskProfile: RiskProfile
+  ) {
     const rebalance = this.needsRebalancing(current, target);
     const actionItems = this.getActionItems(current, target);
     const expectedReturn = this.calculateExpectedReturn(target, riskProfile);
@@ -346,17 +399,23 @@ export class InvestmentAdvisor {
       rebalance,
       actionItems,
       expectedReturn,
-      riskLevel: riskProfile
+      riskLevel: riskProfile,
     };
   }
 
   /**
    * Yeniden dengeleme gereksinimini kontrol eder
    */
-  private needsRebalancing(current: PortfolioAllocation, target: PortfolioAllocation): boolean {
+  private needsRebalancing(
+    current: PortfolioAllocation,
+    target: PortfolioAllocation
+  ): boolean {
     const threshold = 5;
     return Object.keys(current).some(key => {
-      const difference = Math.abs(current[key as keyof PortfolioAllocation] - target[key as keyof PortfolioAllocation]);
+      const difference = Math.abs(
+        current[key as keyof PortfolioAllocation] -
+          target[key as keyof PortfolioAllocation]
+      );
       return difference > threshold;
     });
   }
@@ -364,7 +423,10 @@ export class InvestmentAdvisor {
   /**
    * Aksiyon öğeleri oluşturur
    */
-  private getActionItems(current: PortfolioAllocation, target: PortfolioAllocation): string[] {
+  private getActionItems(
+    current: PortfolioAllocation,
+    target: PortfolioAllocation
+  ): string[] {
     const items: string[] = [];
     const threshold = 5;
 
@@ -376,9 +438,13 @@ export class InvestmentAdvisor {
       if (Math.abs(difference) > threshold) {
         const assetName = this.getAssetName(key);
         if (difference > 0) {
-          items.push(`${assetName} pozisyonunu %${difference.toFixed(1)} artırın`);
+          items.push(
+            `${assetName} pozisyonunu %${difference.toFixed(1)} artırın`
+          );
         } else {
-          items.push(`${assetName} pozisyonunu %${Math.abs(difference).toFixed(1)} azaltın`);
+          items.push(
+            `${assetName} pozisyonunu %${Math.abs(difference).toFixed(1)} azaltın`
+          );
         }
       }
     });
@@ -389,7 +455,10 @@ export class InvestmentAdvisor {
   /**
    * Beklenen getiri hesaplar
    */
-  private calculateExpectedReturn(allocation: PortfolioAllocation, riskProfile: RiskProfile): number {
+  private calculateExpectedReturn(
+    allocation: PortfolioAllocation,
+    riskProfile: RiskProfile
+  ): number {
     // Varlık sınıflarına göre beklenen getiriler (% yıllık)
     const expectedReturns = {
       cash: 2,
@@ -399,12 +468,18 @@ export class InvestmentAdvisor {
       bonds: 5,
       crypto: 15,
       commodities: 8,
-      realEstate: 7
+      realEstate: 7,
     };
 
-    const weightedReturn = Object.entries(allocation).reduce((total, [key, weight]) => {
-      return total + (weight / 100) * expectedReturns[key as keyof PortfolioAllocation];
-    }, 0);
+    const weightedReturn = Object.entries(allocation).reduce(
+      (total, [key, weight]) => {
+        return (
+          total +
+          (weight / 100) * expectedReturns[key as keyof PortfolioAllocation]
+        );
+      },
+      0
+    );
 
     return Math.round(weightedReturn * 100) / 100;
   }
@@ -412,16 +487,19 @@ export class InvestmentAdvisor {
   /**
    * Grafik verisi hazırlar
    */
-  private prepareChartData(current: PortfolioAllocation, target: PortfolioAllocation) {
+  private prepareChartData(
+    current: PortfolioAllocation,
+    target: PortfolioAllocation
+  ) {
     const colors = {
-      cash: '#10B981',      // Yeşil
-      deposits: '#3B82F6',  // Mavi
-      forex: '#F59E0B',     // Turuncu
-      stocks: '#EF4444',    // Kırmızı
-      bonds: '#8B5CF6',     // Mor
-      crypto: '#F97316',    // Turuncu-kırmızı
+      cash: '#10B981', // Yeşil
+      deposits: '#3B82F6', // Mavi
+      forex: '#F59E0B', // Turuncu
+      stocks: '#EF4444', // Kırmızı
+      bonds: '#8B5CF6', // Mor
+      crypto: '#F97316', // Turuncu-kırmızı
       commodities: '#06B6D4', // Cyan
-      realEstate: '#84CC16'  // Lime
+      realEstate: '#84CC16', // Lime
     };
 
     const currentData = Object.entries(current)
@@ -429,7 +507,7 @@ export class InvestmentAdvisor {
       .map(([key, value]) => ({
         name: this.getAssetName(key),
         value: Math.round(value * 10) / 10,
-        color: colors[key as keyof typeof colors]
+        color: colors[key as keyof typeof colors],
       }));
 
     const targetData = Object.entries(target)
@@ -437,12 +515,12 @@ export class InvestmentAdvisor {
       .map(([key, value]) => ({
         name: this.getAssetName(key),
         value: Math.round(value * 10) / 10,
-        color: colors[key as keyof typeof colors]
+        color: colors[key as keyof typeof colors],
       }));
 
     return {
       current: currentData,
-      target: targetData
+      target: targetData,
     };
   }
 
@@ -458,7 +536,7 @@ export class InvestmentAdvisor {
       bonds: 'Tahvil',
       crypto: 'Kripto Para',
       commodities: 'Emtia',
-      realEstate: 'Gayrimenkul'
+      realEstate: 'Gayrimenkul',
     };
     return names[key] || key;
   }
@@ -486,9 +564,21 @@ export function validatePortfolioInput(input: any): {
   if (!input.portfolio || typeof input.portfolio !== 'object') {
     errors.push('Portfolio verisi gereklidir');
   } else {
-    const requiredFields = ['cash', 'deposits', 'forex', 'stocks', 'bonds', 'crypto', 'commodities', 'realEstate'];
+    const requiredFields = [
+      'cash',
+      'deposits',
+      'forex',
+      'stocks',
+      'bonds',
+      'crypto',
+      'commodities',
+      'realEstate',
+    ];
     requiredFields.forEach(field => {
-      if (typeof input.portfolio[field] !== 'number' || input.portfolio[field] < 0) {
+      if (
+        typeof input.portfolio[field] !== 'number' ||
+        input.portfolio[field] < 0
+      ) {
         errors.push(`${field} alanı 0 veya pozitif sayı olmalıdır`);
       }
     });
@@ -503,7 +593,7 @@ export function validatePortfolioInput(input: any): {
     return {
       valid: false,
       errors,
-      normalized: null
+      normalized: null,
     };
   }
 
@@ -514,7 +604,7 @@ export function validatePortfolioInput(input: any): {
       portfolio: input.portfolio,
       riskProfile: input.riskProfile,
       age: input.age,
-      investmentHorizon: input.investmentHorizon
-    }
+      investmentHorizon: input.investmentHorizon,
+    },
   };
 }

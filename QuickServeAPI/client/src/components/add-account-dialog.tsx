@@ -1,9 +1,20 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { User, Building, CreditCard, Calendar } from 'lucide-react';
 
@@ -14,12 +25,21 @@ interface AddAccountDialogProps {
   isLoading: boolean;
 }
 
-export default function AddAccountDialog ({ open, onOpenChange, onAddAccount, isLoading }: AddAccountDialogProps) {
-  const [accountType, setAccountType] = useState<'personal' | 'company'>('personal');
+export default function AddAccountDialog({
+  open,
+  onOpenChange,
+  onAddAccount,
+  isLoading,
+}: AddAccountDialogProps) {
+  const [accountType, setAccountType] = useState<'personal' | 'company'>(
+    'personal'
+  );
   const [bankName, setBankName] = useState('');
   const [accountName, setAccountName] = useState('');
   const [balance, setBalance] = useState('');
-  const [accountCategory, setAccountCategory] = useState<'checking' | 'credit_card' | 'loan' | 'savings'>('checking');
+  const [accountCategory, setAccountCategory] = useState<
+    'checking' | 'credit_card' | 'loan' | 'savings'
+  >('checking');
   const [paymentDueDate, setPaymentDueDate] = useState('');
   const [cutOffDate, setCutOffDate] = useState('');
   const [gracePeriod, setGracePeriod] = useState('');
@@ -76,21 +96,29 @@ export default function AddAccountDialog ({ open, onOpenChange, onAddAccount, is
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      onOpenChange(isOpen);
-      if (!isOpen) {
-        // Form kapatıldığında reset et
-        resetForm();
-      }
-    }}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden" data-testid="dialog-add-account">
+    <Dialog
+      open={open}
+      onOpenChange={isOpen => {
+        onOpenChange(isOpen);
+        if (!isOpen) {
+          // Form kapatıldığında reset et
+          resetForm();
+        }
+      }}
+    >
+      <DialogContent
+        className="max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden"
+        data-testid="dialog-add-account"
+      >
         <DialogHeader>
           <DialogTitle data-testid="dialog-title">Yeni Hesap Ekle</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label className="text-sm font-medium text-foreground mb-2 block">Hesap Türü</Label>
+            <Label className="text-sm font-medium text-foreground mb-2 block">
+              Hesap Türü
+            </Label>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 type="button"
@@ -116,35 +144,44 @@ export default function AddAccountDialog ({ open, onOpenChange, onAddAccount, is
           </div>
 
           <div>
-            <Label htmlFor="bankName" className="text-sm font-medium text-foreground mb-2 block">
+            <Label
+              htmlFor="bankName"
+              className="text-sm font-medium text-foreground mb-2 block"
+            >
               Banka Adı
             </Label>
             <Input
               id="bankName"
               placeholder="Örn: Yapı Kredi, Garanti, İş Bankası"
               value={bankName}
-              onChange={(e) => setBankName(e.target.value)}
+              onChange={e => setBankName(e.target.value)}
               required
               data-testid="input-bank-name"
             />
           </div>
 
           <div>
-            <Label htmlFor="accountName" className="text-sm font-medium text-foreground mb-2 block">
+            <Label
+              htmlFor="accountName"
+              className="text-sm font-medium text-foreground mb-2 block"
+            >
               Hesap Adı
             </Label>
             <Input
               id="accountName"
               placeholder="Hesap için açıklayıcı bir ad"
               value={accountName}
-              onChange={(e) => setAccountName(e.target.value)}
+              onChange={e => setAccountName(e.target.value)}
               required
               data-testid="input-account-name"
             />
           </div>
 
           <div>
-            <Label htmlFor="balance" className="text-sm font-medium text-foreground mb-2 block">
+            <Label
+              htmlFor="balance"
+              className="text-sm font-medium text-foreground mb-2 block"
+            >
               Başlangıç Bakiyesi
             </Label>
             <div className="relative">
@@ -153,20 +190,27 @@ export default function AddAccountDialog ({ open, onOpenChange, onAddAccount, is
                 type="number"
                 placeholder="0.00"
                 value={balance}
-                onChange={(e) => setBalance(e.target.value)}
+                onChange={e => setBalance(e.target.value)}
                 className="pr-12"
                 step="0.01"
                 min="0"
                 required
                 data-testid="input-balance"
               />
-              <span className="absolute right-3 top-2 text-sm text-muted-foreground">TRY</span>
+              <span className="absolute right-3 top-2 text-sm text-muted-foreground">
+                TRY
+              </span>
             </div>
           </div>
 
           <div>
-            <Label className="text-sm font-medium text-foreground mb-2 block">Hesap Kategorisi</Label>
-            <Select value={accountCategory} onValueChange={(value: any) => setAccountCategory(value)}>
+            <Label className="text-sm font-medium text-foreground mb-2 block">
+              Hesap Kategorisi
+            </Label>
+            <Select
+              value={accountCategory}
+              onValueChange={(value: any) => setAccountCategory(value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Hesap türünü seçin" />
               </SelectTrigger>
@@ -200,17 +244,25 @@ export default function AddAccountDialog ({ open, onOpenChange, onAddAccount, is
           </div>
 
           {/* Payment dates - only show for credit cards and loans */}
-          {(accountCategory === 'credit_card' || accountCategory === 'loan') && (
+          {(accountCategory === 'credit_card' ||
+            accountCategory === 'loan') && (
             <Card className="bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Ödeme Günleri</span>
+                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                    Ödeme Günleri
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor="cutOffDate" className="text-xs text-blue-600 dark:text-blue-400">Kesim Tarihi (Ayın Kaçı)</Label>
+                    <Label
+                      htmlFor="cutOffDate"
+                      className="text-xs text-blue-600 dark:text-blue-400"
+                    >
+                      Kesim Tarihi (Ayın Kaçı)
+                    </Label>
                     <Select value={cutOffDate} onValueChange={setCutOffDate}>
                       <SelectTrigger className="h-8">
                         <SelectValue placeholder="Gün" />
@@ -226,8 +278,16 @@ export default function AddAccountDialog ({ open, onOpenChange, onAddAccount, is
                   </div>
 
                   <div>
-                    <Label htmlFor="paymentDueDate" className="text-xs text-blue-600 dark:text-blue-400">Son Ödeme (Ayın Kaçı)</Label>
-                    <Select value={paymentDueDate} onValueChange={setPaymentDueDate}>
+                    <Label
+                      htmlFor="paymentDueDate"
+                      className="text-xs text-blue-600 dark:text-blue-400"
+                    >
+                      Son Ödeme (Ayın Kaçı)
+                    </Label>
+                    <Select
+                      value={paymentDueDate}
+                      onValueChange={setPaymentDueDate}
+                    >
                       <SelectTrigger className="h-8">
                         <SelectValue placeholder="Gün" />
                       </SelectTrigger>
@@ -244,27 +304,37 @@ export default function AddAccountDialog ({ open, onOpenChange, onAddAccount, is
 
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div>
-                    <Label htmlFor="gracePeriod" className="text-xs text-blue-600 dark:text-blue-400">Ödeme Erteleme (Gün)</Label>
+                    <Label
+                      htmlFor="gracePeriod"
+                      className="text-xs text-blue-600 dark:text-blue-400"
+                    >
+                      Ödeme Erteleme (Gün)
+                    </Label>
                     <Input
                       id="gracePeriod"
                       type="number"
                       placeholder="0"
                       value={gracePeriod}
-                      onChange={(e) => setGracePeriod(e.target.value)}
+                      onChange={e => setGracePeriod(e.target.value)}
                       className="h-8"
                     />
                   </div>
 
                   {accountCategory === 'credit_card' && (
                     <div>
-                      <Label htmlFor="minimumPayment" className="text-xs text-blue-600 dark:text-blue-400">Asgari Ödeme (TL)</Label>
+                      <Label
+                        htmlFor="minimumPayment"
+                        className="text-xs text-blue-600 dark:text-blue-400"
+                      >
+                        Asgari Ödeme (TL)
+                      </Label>
                       <Input
                         id="minimumPayment"
                         type="number"
                         step="0.01"
                         placeholder="0.00"
                         value={minimumPayment}
-                        onChange={(e) => setMinimumPayment(e.target.value)}
+                        onChange={e => setMinimumPayment(e.target.value)}
                         className="h-8"
                       />
                     </div>
@@ -272,14 +342,19 @@ export default function AddAccountDialog ({ open, onOpenChange, onAddAccount, is
                 </div>
 
                 <div className="mt-3">
-                  <Label htmlFor="interestRate" className="text-xs text-blue-600 dark:text-blue-400">Faiz Oranı (% Yıllık)</Label>
+                  <Label
+                    htmlFor="interestRate"
+                    className="text-xs text-blue-600 dark:text-blue-400"
+                  >
+                    Faiz Oranı (% Yıllık)
+                  </Label>
                   <Input
                     id="interestRate"
                     type="number"
                     step="0.01"
                     placeholder="0.00"
                     value={interestRate}
-                    onChange={(e) => setInterestRate(e.target.value)}
+                    onChange={e => setInterestRate(e.target.value)}
                     className="h-8"
                   />
                 </div>

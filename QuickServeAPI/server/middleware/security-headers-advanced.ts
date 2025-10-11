@@ -21,14 +21,14 @@ export const SECURITY_HEADERS_CONFIG = {
     'form-action': ["'self'"],
     'base-uri': ["'self'"],
     'frame-ancestors': ["'none'"],
-    'upgrade-insecure-requests': []
+    'upgrade-insecure-requests': [],
   },
 
   // Strict Transport Security
   hsts: {
     maxAge: 31536000, // 1 year
     includeSubDomains: true,
-    preload: true
+    preload: true,
   },
 
   // Cross-Origin Policies
@@ -41,16 +41,16 @@ export const SECURITY_HEADERS_CONFIG = {
   xXSSProtection: '1; mode=block',
   referrerPolicy: 'strict-origin-when-cross-origin',
   permissionsPolicy: {
-    'geolocation': [],
-    'microphone': [],
-    'camera': [],
-    'payment': [],
-    'usb': [],
-    'magnetometer': [],
-    'gyroscope': [],
-    'accelerometer': [],
-    'ambient-light-sensor': []
-  }
+    geolocation: [],
+    microphone: [],
+    camera: [],
+    payment: [],
+    usb: [],
+    magnetometer: [],
+    gyroscope: [],
+    accelerometer: [],
+    'ambient-light-sensor': [],
+  },
 };
 
 // Advanced Security Headers Middleware
@@ -67,15 +67,15 @@ export class AdvancedSecurityHeaders {
   private getNonce(req: Request): string {
     const sessionId = req.sessionID || 'default';
     const cached = this.nonceCache.get(sessionId);
-    
-    if (cached && (Date.now() - cached.timestamp) < this.NONCE_CACHE_TTL) {
+
+    if (cached && Date.now() - cached.timestamp < this.NONCE_CACHE_TTL) {
       return cached.nonce;
     }
 
     const nonce = this.generateNonce();
     this.nonceCache.set(sessionId, {
       nonce,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Clean up old nonces
@@ -98,7 +98,7 @@ export class AdvancedSecurityHeaders {
   private generateCSP(req: Request): string {
     const nonce = this.getNonce(req);
     const csp = SECURITY_HEADERS_CONFIG.csp;
-    
+
     // Add nonce to script-src and style-src
     const scriptSrc = [...csp['script-src'], `'nonce-${nonce}'`];
     const styleSrc = [...csp['style-src'], `'nonce-${nonce}'`];
@@ -119,7 +119,9 @@ export class AdvancedSecurityHeaders {
       `form-action ${csp['form-action'].join(' ')}`,
       `base-uri ${csp['base-uri'].join(' ')}`,
       `frame-ancestors ${csp['frame-ancestors'].join(' ')}`,
-      csp['upgrade-insecure-requests'].length > 0 ? 'upgrade-insecure-requests' : ''
+      csp['upgrade-insecure-requests'].length > 0
+        ? 'upgrade-insecure-requests'
+        : '',
     ].filter(Boolean);
 
     return cspDirectives.join('; ');
@@ -142,15 +144,15 @@ export class AdvancedSecurityHeaders {
   private generateHSTS(): string {
     const config = SECURITY_HEADERS_CONFIG.hsts;
     let hsts = `max-age=${config.maxAge}`;
-    
+
     if (config.includeSubDomains) {
       hsts += '; includeSubDomains';
     }
-    
+
     if (config.preload) {
       hsts += '; preload';
     }
-    
+
     return hsts;
   }
 
@@ -171,10 +173,16 @@ export class AdvancedSecurityHeaders {
 
       // Cross-Origin Policies
       res.setHeader('Cross-Origin-Opener-Policy', SECURITY_HEADERS_CONFIG.coop);
-      res.setHeader('Cross-Origin-Embedder-Policy', SECURITY_HEADERS_CONFIG.coep);
+      res.setHeader(
+        'Cross-Origin-Embedder-Policy',
+        SECURITY_HEADERS_CONFIG.coep
+      );
 
       // Standard Security Headers
-      res.setHeader('X-Content-Type-Options', SECURITY_HEADERS_CONFIG.xContentTypeOptions);
+      res.setHeader(
+        'X-Content-Type-Options',
+        SECURITY_HEADERS_CONFIG.xContentTypeOptions
+      );
       res.setHeader('X-Frame-Options', SECURITY_HEADERS_CONFIG.xFrameOptions);
       res.setHeader('X-XSS-Protection', SECURITY_HEADERS_CONFIG.xXSSProtection);
       res.setHeader('Referrer-Policy', SECURITY_HEADERS_CONFIG.referrerPolicy);
@@ -184,7 +192,10 @@ export class AdvancedSecurityHeaders {
       res.setHeader('X-DNS-Prefetch-Control', 'off');
       res.setHeader('X-Download-Options', 'noopen');
       res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, proxy-revalidate'
+      );
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
 
@@ -200,9 +211,10 @@ export class AdvancedSecurityHeaders {
     return (req: Request, res: Response, next: NextFunction) => {
       const csp = this.generateCSP(req);
       res.setHeader('Content-Security-Policy-Report-Only', csp);
-      
+
       // Add report URI for CSP violations
-      const reportUri = process.env.CSP_REPORT_URI || '/api/security/csp-report';
+      const reportUri =
+        process.env.CSP_REPORT_URI || '/api/security/csp-report';
       const reportOnlyCsp = `${csp}; report-uri ${reportUri}`;
       res.setHeader('Content-Security-Policy-Report-Only', reportOnlyCsp);
 
@@ -218,7 +230,7 @@ export class AdvancedSecurityHeaders {
         "default-src 'none'",
         "frame-ancestors 'none'",
         "base-uri 'none'",
-        "form-action 'none'"
+        "form-action 'none'",
       ].join('; ');
 
       res.setHeader('Content-Security-Policy', apiCsp);
@@ -233,7 +245,8 @@ export class AdvancedSecurityHeaders {
   public developmentMiddleware() {
     return (req: Request, res: Response, next: NextFunction) => {
       const isDevelopment = process.env.NODE_ENV === 'development';
-      const isAdminBypass = req.headers['x-admin-bypass'] === process.env.ADMIN_BYPASS_KEY;
+      const isAdminBypass =
+        req.headers['x-admin-bypass'] === process.env.ADMIN_BYPASS_KEY;
 
       if (isDevelopment || isAdminBypass) {
         // More relaxed CSP for development
@@ -243,7 +256,7 @@ export class AdvancedSecurityHeaders {
           "img-src 'self' data: https: blob:",
           "font-src 'self' data: https:",
           "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-          "style-src 'self' 'unsafe-inline'"
+          "style-src 'self' 'unsafe-inline'",
         ].join('; ');
 
         res.setHeader('Content-Security-Policy', devCsp);
@@ -257,7 +270,9 @@ export class AdvancedSecurityHeaders {
   public staticMiddleware() {
     return (req: Request, res: Response, next: NextFunction) => {
       // Long-term caching for static assets
-      if (req.url.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+      if (
+        req.url.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)
+      ) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         res.setHeader('X-Content-Type-Options', 'nosniff');
       }
@@ -270,7 +285,10 @@ export class AdvancedSecurityHeaders {
   public errorMiddleware() {
     return (req: Request, res: Response, next: NextFunction) => {
       // No caching for error pages
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, proxy-revalidate'
+      );
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
 
@@ -283,7 +301,7 @@ export class AdvancedSecurityHeaders {
     return (req: Request, res: Response) => {
       try {
         const violation = req.body;
-        
+
         // Log CSP violation
         logger.warn('CSP Violation:', {
           documentUri: violation['document-uri'],
@@ -294,7 +312,7 @@ export class AdvancedSecurityHeaders {
           columnNumber: violation['column-number'],
           userAgent: req.headers['user-agent'],
           ip: req.ip,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
 
         // In production, you might want to send this to a monitoring service
@@ -318,11 +336,13 @@ export class AdvancedSecurityHeaders {
       'X-Content-Type-Options',
       'X-Frame-Options',
       'X-XSS-Protection',
-      'Referrer-Policy'
+      'Referrer-Policy',
     ];
 
-    const missingHeaders = requiredHeaders.filter(header => !res.getHeader(header));
-    
+    const missingHeaders = requiredHeaders.filter(
+      header => !res.getHeader(header)
+    );
+
     if (missingHeaders.length > 0) {
       logger.warn('Missing security headers:', missingHeaders);
       return false;
@@ -340,7 +360,7 @@ export class AdvancedSecurityHeaders {
     return {
       nonceCacheSize: this.nonceCache.size,
       cspReports: 0, // Would be tracked in production
-      headerViolations: 0 // Would be tracked in production
+      headerViolations: 0, // Would be tracked in production
     };
   }
 }
@@ -356,5 +376,5 @@ export const securityHeadersMiddleware = {
   development: advancedSecurityHeaders.developmentMiddleware(),
   static: advancedSecurityHeaders.staticMiddleware(),
   error: advancedSecurityHeaders.errorMiddleware(),
-  cspReport: advancedSecurityHeaders.cspReportHandler()
+  cspReport: advancedSecurityHeaders.cspReportHandler(),
 };

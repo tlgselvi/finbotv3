@@ -1,12 +1,31 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { InvestmentDialog } from '@/components/investment-dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Plus,
@@ -54,17 +73,20 @@ interface PortfolioSummary {
   }>;
 }
 
-export default function Portfolio () {
+export default function Portfolio() {
   const formatCurrency = useFormatCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedRisk, setSelectedRisk] = useState<string>('all');
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedInvestment, setSelectedInvestment] = useState<Investment | null>(null);
+  const [selectedInvestment, setSelectedInvestment] =
+    useState<Investment | null>(null);
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
 
   // Fetch investments
-  const { data: investments = [], isLoading: investmentsLoading } = useQuery<Investment[]>({
+  const { data: investments = [], isLoading: investmentsLoading } = useQuery<
+    Investment[]
+  >({
     queryKey: ['/api/investments'],
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/investments');
@@ -74,61 +96,85 @@ export default function Portfolio () {
   });
 
   // Fetch portfolio summary
-  const { data: portfolioSummary, isLoading: summaryLoading } = useQuery<PortfolioSummary>({
-    queryKey: ['/api/portfolio/summary'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/portfolio/summary');
-      return response.json();
-    },
-    staleTime: 30000,
-  });
+  const { data: portfolioSummary, isLoading: summaryLoading } =
+    useQuery<PortfolioSummary>({
+      queryKey: ['/api/portfolio/summary'],
+      queryFn: async () => {
+        const response = await apiRequest('GET', '/api/portfolio/summary');
+        return response.json();
+      },
+      staleTime: 30000,
+    });
 
-  const filteredInvestments = investments.filter((investment) => {
-    const matchesSearch = investment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         investment.symbol?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedType === 'all' || investment.type === selectedType;
-    const matchesRisk = selectedRisk === 'all' || investment.riskLevel === selectedRisk;
+  const filteredInvestments = investments.filter(investment => {
+    const matchesSearch =
+      investment.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investment.symbol?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType =
+      selectedType === 'all' || investment.type === selectedType;
+    const matchesRisk =
+      selectedRisk === 'all' || investment.riskLevel === selectedRisk;
 
     return matchesSearch && matchesType && matchesRisk;
   });
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'stock': return <TrendingUp className="w-4 h-4" />;
-      case 'crypto': return <DollarSign className="w-4 h-4" />;
-      case 'bond': return <Target className="w-4 h-4" />;
-      case 'fund': return <PieChart className="w-4 h-4" />;
-      case 'real_estate': return <BarChart3 className="w-4 h-4" />;
-      default: return <DollarSign className="w-4 h-4" />;
+      case 'stock':
+        return <TrendingUp className="w-4 h-4" />;
+      case 'crypto':
+        return <DollarSign className="w-4 h-4" />;
+      case 'bond':
+        return <Target className="w-4 h-4" />;
+      case 'fund':
+        return <PieChart className="w-4 h-4" />;
+      case 'real_estate':
+        return <BarChart3 className="w-4 h-4" />;
+      default:
+        return <DollarSign className="w-4 h-4" />;
     }
   };
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'stock': return 'Hisse Senedi';
-      case 'crypto': return 'Kripto Para';
-      case 'bond': return 'Tahvil';
-      case 'fund': return 'Fon';
-      case 'real_estate': return 'Gayrimenkul';
-      default: return type;
+      case 'stock':
+        return 'Hisse Senedi';
+      case 'crypto':
+        return 'Kripto Para';
+      case 'bond':
+        return 'Tahvil';
+      case 'fund':
+        return 'Fon';
+      case 'real_estate':
+        return 'Gayrimenkul';
+      default:
+        return type;
     }
   };
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
-      case 'low': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'high': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getRiskLabel = (risk: string) => {
     switch (risk) {
-      case 'low': return 'Düşük Risk';
-      case 'medium': return 'Orta Risk';
-      case 'high': return 'Yüksek Risk';
-      default: return risk;
+      case 'low':
+        return 'Düşük Risk';
+      case 'medium':
+        return 'Orta Risk';
+      case 'high':
+        return 'Yüksek Risk';
+      default:
+        return risk;
     }
   };
 
@@ -160,7 +206,9 @@ export default function Portfolio () {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="page-title">Portföy Yönetimi</h1>
+        <h1 className="text-3xl font-bold" data-testid="page-title">
+          Portföy Yönetimi
+        </h1>
         <Button
           className="bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={handleAddInvestment}
@@ -174,7 +222,9 @@ export default function Portfolio () {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Portföy Değeri</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Toplam Portföy Değeri
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -189,11 +239,15 @@ export default function Portfolio () {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Kar/Zarar</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Toplam Kar/Zarar
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${(portfolioSummary?.totalGain || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div
+              className={`text-2xl font-bold ${(portfolioSummary?.totalGain || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}
+            >
               {formatCurrency(portfolioSummary?.totalGain || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -204,7 +258,9 @@ export default function Portfolio () {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Yatırım</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Toplam Yatırım
+            </CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -224,7 +280,7 @@ export default function Portfolio () {
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              {portfolioSummary?.riskDistribution?.slice(0, 2).map((risk) => (
+              {portfolioSummary?.riskDistribution?.slice(0, 2).map(risk => (
                 <div key={risk.level} className="flex justify-between text-xs">
                   <span>{getRiskLabel(risk.level)}</span>
                   <span>{risk.percentage.toFixed(1)}%</span>
@@ -240,7 +296,7 @@ export default function Portfolio () {
         <Input
           placeholder="Yatırım ara..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
         <Select value={selectedType} onValueChange={setSelectedType}>
@@ -295,9 +351,11 @@ export default function Portfolio () {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredInvestments.map((investment) => {
+                {filteredInvestments.map(investment => {
                   const { gain, percentage } = calculateGainLoss(investment);
-                  const currentValue = investment.currentPrice ? investment.quantity * investment.currentPrice : 0;
+                  const currentValue = investment.currentPrice
+                    ? investment.quantity * investment.currentPrice
+                    : 0;
 
                   return (
                     <TableRow key={investment.id}>
@@ -305,31 +363,43 @@ export default function Portfolio () {
                         <div className="flex items-center gap-2">
                           {getTypeIcon(investment.type)}
                           <div>
-                            <div className="font-medium">{investment.title}</div>
+                            <div className="font-medium">
+                              {investment.title}
+                            </div>
                             {investment.symbol && (
-                              <div className="text-sm text-muted-foreground">{investment.symbol}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {investment.symbol}
+                              </div>
                             )}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{getTypeLabel(investment.type)}</Badge>
+                        <Badge variant="outline">
+                          {getTypeLabel(investment.type)}
+                        </Badge>
                       </TableCell>
                       <TableCell>{investment.quantity}</TableCell>
-                      <TableCell>{formatCurrency(investment.purchasePrice)}</TableCell>
+                      <TableCell>
+                        {formatCurrency(investment.purchasePrice)}
+                      </TableCell>
                       <TableCell>
                         {investment.currentPrice
                           ? formatCurrency(investment.currentPrice)
-                          : 'Güncel değil'
-                        }
+                          : 'Güncel değil'}
                       </TableCell>
                       <TableCell>{formatCurrency(currentValue)}</TableCell>
                       <TableCell>
-                        <div className={`font-medium ${gain >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <div
+                          className={`font-medium ${gain >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                        >
                           {formatCurrency(gain)}
                         </div>
-                        <div className={`text-sm ${gain >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {percentage >= 0 ? '+' : ''}{percentage.toFixed(2)}%
+                        <div
+                          className={`text-sm ${gain >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                        >
+                          {percentage >= 0 ? '+' : ''}
+                          {percentage.toFixed(2)}%
                         </div>
                       </TableCell>
                       <TableCell>
@@ -366,7 +436,14 @@ export default function Portfolio () {
       <InvestmentDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        investment={selectedInvestment ? { ...selectedInvestment, accountId: (selectedInvestment as any).accountId || '' } : null}
+        investment={
+          selectedInvestment
+            ? {
+                ...selectedInvestment,
+                accountId: (selectedInvestment as any).accountId || '',
+              }
+            : null
+        }
         mode={dialogMode}
       />
     </div>

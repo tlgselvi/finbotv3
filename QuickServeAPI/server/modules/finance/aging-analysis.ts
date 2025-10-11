@@ -50,7 +50,9 @@ export function calculateAgingDays(dueDate: Date): number {
 /**
  * Determine risk level based on aging
  */
-export function getRiskLevel(agingDays: number): 'low' | 'medium' | 'high' | 'critical' {
+export function getRiskLevel(
+  agingDays: number
+): 'low' | 'medium' | 'high' | 'critical' {
   if (agingDays <= 30) return 'low';
   if (agingDays <= 60) return 'medium';
   if (agingDays <= 90) return 'high';
@@ -100,16 +102,23 @@ export async function getAgingReports(
   let query = db
     .select()
     .from(agingReports)
-    .where(and(
-      eq(agingReports.userId, userId),
-      eq(agingReports.reportType, reportType)
-    ));
+    .where(
+      and(
+        eq(agingReports.userId, userId),
+        eq(agingReports.reportType, reportType)
+      )
+    );
 
   if (filters) {
-    const conditions = [eq(agingReports.userId, userId), eq(agingReports.reportType, reportType)];
+    const conditions = [
+      eq(agingReports.userId, userId),
+      eq(agingReports.reportType, reportType),
+    ];
 
     if (filters.customerVendorId) {
-      conditions.push(eq(agingReports.customerVendorId, filters.customerVendorId));
+      conditions.push(
+        eq(agingReports.customerVendorId, filters.customerVendorId)
+      );
     }
     if (filters.status) {
       conditions.push(eq(agingReports.status, filters.status));
@@ -118,10 +127,14 @@ export async function getAgingReports(
       conditions.push(eq(agingReports.agingBucket, filters.agingBucket));
     }
     if (filters.minAmount !== undefined) {
-      conditions.push(gte(agingReports.currentAmount, filters.minAmount.toString()));
+      conditions.push(
+        gte(agingReports.currentAmount, filters.minAmount.toString())
+      );
     }
     if (filters.maxAmount !== undefined) {
-      conditions.push(lte(agingReports.currentAmount, filters.maxAmount.toString()));
+      conditions.push(
+        lte(agingReports.currentAmount, filters.maxAmount.toString())
+      );
     }
 
     query = query.where(and(...conditions));
@@ -144,13 +157,16 @@ export async function getAgingSummary(
   reportType: 'ar' | 'ap'
 ): Promise<AgingSummary> {
   const reports = await getAgingReports(userId, reportType);
-  
-  const totalAmount = reports.reduce((sum, report) => sum + parseFloat(report.currentAmount), 0);
+
+  const totalAmount = reports.reduce(
+    (sum, report) => sum + parseFloat(report.currentAmount),
+    0
+  );
   const totalCount = reports.length;
-  
+
   // Calculate bucket totals
   const bucketTotals: Record<string, { amount: number; count: number }> = {};
-  
+
   reports.forEach(report => {
     const bucket = report.agingBucket;
     if (!bucketTotals[bucket]) {
@@ -161,27 +177,58 @@ export async function getAgingSummary(
   });
 
   const buckets: AgingBucket[] = [
-    { bucket: '0-30', days: '0-30 gün', amount: bucketTotals['0-30']?.amount || 0, count: bucketTotals['0-30']?.count || 0, percentage: 0 },
-    { bucket: '30-60', days: '30-60 gün', amount: bucketTotals['30-60']?.amount || 0, count: bucketTotals['30-60']?.count || 0, percentage: 0 },
-    { bucket: '60-90', days: '60-90 gün', amount: bucketTotals['60-90']?.amount || 0, count: bucketTotals['60-90']?.count || 0, percentage: 0 },
-    { bucket: '90+', days: '90+ gün', amount: bucketTotals['90+']?.amount || 0, count: bucketTotals['90+']?.count || 0, percentage: 0 },
+    {
+      bucket: '0-30',
+      days: '0-30 gün',
+      amount: bucketTotals['0-30']?.amount || 0,
+      count: bucketTotals['0-30']?.count || 0,
+      percentage: 0,
+    },
+    {
+      bucket: '30-60',
+      days: '30-60 gün',
+      amount: bucketTotals['30-60']?.amount || 0,
+      count: bucketTotals['30-60']?.count || 0,
+      percentage: 0,
+    },
+    {
+      bucket: '60-90',
+      days: '60-90 gün',
+      amount: bucketTotals['60-90']?.amount || 0,
+      count: bucketTotals['60-90']?.count || 0,
+      percentage: 0,
+    },
+    {
+      bucket: '90+',
+      days: '90+ gün',
+      amount: bucketTotals['90+']?.amount || 0,
+      count: bucketTotals['90+']?.count || 0,
+      percentage: 0,
+    },
   ];
 
   // Calculate percentages
   buckets.forEach(bucket => {
-    bucket.percentage = totalAmount > 0 ? (bucket.amount / totalAmount) * 100 : 0;
+    bucket.percentage =
+      totalAmount > 0 ? (bucket.amount / totalAmount) * 100 : 0;
   });
 
   // Calculate overdue amounts
   const overdueReports = reports.filter(report => report.agingDays > 0);
-  const overdueAmount = overdueReports.reduce((sum, report) => sum + parseFloat(report.currentAmount), 0);
+  const overdueAmount = overdueReports.reduce(
+    (sum, report) => sum + parseFloat(report.currentAmount),
+    0
+  );
   const overdueCount = overdueReports.length;
-  const overduePercentage = totalAmount > 0 ? (overdueAmount / totalAmount) * 100 : 0;
+  const overduePercentage =
+    totalAmount > 0 ? (overdueAmount / totalAmount) * 100 : 0;
 
   // Calculate average aging days
-  const averageAgingDays = reports.length > 0 
-    ? reports.reduce((sum, report) => sum + report.agingDays, 0) / reports.length 
-    : 0;
+  const averageAgingDays =
+    reports.length > 0
+      ? reports.reduce((sum, report) => sum + report.agingDays, 0) /
+        reports.length
+      : 0;
 
   return {
     reportType,
@@ -201,21 +248,23 @@ export async function getAgingSummary(
 export async function getAgingByCustomer(
   userId: string,
   reportType: 'ar' | 'ap'
-): Promise<Array<{
-  customerVendorId: string;
-  customerVendorName: string;
-  totalAmount: number;
-  overdueAmount: number;
-  averageAgingDays: number;
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  reportCount: number;
-  reports: AgingReportWithCustomer[];
-}>> {
+): Promise<
+  Array<{
+    customerVendorId: string;
+    customerVendorName: string;
+    totalAmount: number;
+    overdueAmount: number;
+    averageAgingDays: number;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    reportCount: number;
+    reports: AgingReportWithCustomer[];
+  }>
+> {
   const reports = await getAgingReports(userId, reportType);
-  
+
   // Group by customer/vendor
   const customerMap = new Map<string, AgingReportWithCustomer[]>();
-  
+
   reports.forEach(report => {
     const customerId = report.customerVendorId;
     if (!customerMap.has(customerId)) {
@@ -225,27 +274,41 @@ export async function getAgingByCustomer(
   });
 
   // Calculate customer summaries
-  const customerSummaries = Array.from(customerMap.entries()).map(([customerId, customerReports]) => {
-    const totalAmount = customerReports.reduce((sum, report) => sum + parseFloat(report.currentAmount), 0);
-    const overdueReports = customerReports.filter(report => report.agingDays > 0);
-    const overdueAmount = overdueReports.reduce((sum, report) => sum + parseFloat(report.currentAmount), 0);
-    const averageAgingDays = customerReports.reduce((sum, report) => sum + report.agingDays, 0) / customerReports.length;
-    
-    // Determine overall risk level
-    const maxAgingDays = Math.max(...customerReports.map(report => report.agingDays));
-    const riskLevel = getRiskLevel(maxAgingDays);
+  const customerSummaries = Array.from(customerMap.entries()).map(
+    ([customerId, customerReports]) => {
+      const totalAmount = customerReports.reduce(
+        (sum, report) => sum + parseFloat(report.currentAmount),
+        0
+      );
+      const overdueReports = customerReports.filter(
+        report => report.agingDays > 0
+      );
+      const overdueAmount = overdueReports.reduce(
+        (sum, report) => sum + parseFloat(report.currentAmount),
+        0
+      );
+      const averageAgingDays =
+        customerReports.reduce((sum, report) => sum + report.agingDays, 0) /
+        customerReports.length;
 
-    return {
-      customerVendorId: customerId,
-      customerVendorName: customerReports[0].customerVendorName,
-      totalAmount,
-      overdueAmount,
-      averageAgingDays: Math.round(averageAgingDays),
-      riskLevel,
-      reportCount: customerReports.length,
-      reports: customerReports.sort((a, b) => b.agingDays - a.agingDays),
-    };
-  });
+      // Determine overall risk level
+      const maxAgingDays = Math.max(
+        ...customerReports.map(report => report.agingDays)
+      );
+      const riskLevel = getRiskLevel(maxAgingDays);
+
+      return {
+        customerVendorId: customerId,
+        customerVendorName: customerReports[0].customerVendorName,
+        totalAmount,
+        overdueAmount,
+        averageAgingDays: Math.round(averageAgingDays),
+        riskLevel,
+        reportCount: customerReports.length,
+        reports: customerReports.sort((a, b) => b.agingDays - a.agingDays),
+      };
+    }
+  );
 
   return customerSummaries.sort((a, b) => b.totalAmount - a.totalAmount);
 }
@@ -263,8 +326,10 @@ export async function updateAgingReport(
   };
 
   // Update basic fields
-  if (updates.currentAmount !== undefined) updateData.currentAmount = updates.currentAmount.toString();
-  if (updates.description !== undefined) updateData.description = updates.description;
+  if (updates.currentAmount !== undefined)
+    updateData.currentAmount = updates.currentAmount.toString();
+  if (updates.description !== undefined)
+    updateData.description = updates.description;
   if (updates.status !== undefined) updateData.status = updates.status;
   if (updates.metadata !== undefined) updateData.metadata = updates.metadata;
 
@@ -273,7 +338,7 @@ export async function updateAgingReport(
     const agingDays = calculateAgingDays(updates.dueDate);
     const agingBucket = calculateAgingBucket(agingDays);
     const riskLevel = getRiskLevel(agingDays);
-    
+
     updateData.agingDays = agingDays;
     updateData.agingBucket = agingBucket;
     updateData.status = agingDays > 0 ? 'overdue' : 'outstanding';
@@ -283,10 +348,7 @@ export async function updateAgingReport(
   const [updated] = await db
     .update(agingReports)
     .set(updateData)
-    .where(and(
-      eq(agingReports.id, id),
-      eq(agingReports.userId, userId)
-    ))
+    .where(and(eq(agingReports.id, id), eq(agingReports.userId, userId)))
     .returning();
 
   return updated || null;
@@ -301,10 +363,7 @@ export async function deleteAgingReport(
 ): Promise<boolean> {
   const [deleted] = await db
     .delete(agingReports)
-    .where(and(
-      eq(agingReports.id, id),
-      eq(agingReports.userId, userId)
-    ))
+    .where(and(eq(agingReports.id, id), eq(agingReports.userId, userId)))
     .returning();
 
   return !!deleted;
@@ -337,21 +396,38 @@ export async function getAgingStatistics(
   }
 
   const totalReports = allReports.length;
-  const totalAmount = allReports.reduce((sum, report) => sum + parseFloat(report.currentAmount), 0);
+  const totalAmount = allReports.reduce(
+    (sum, report) => sum + parseFloat(report.currentAmount),
+    0
+  );
   const overdueReports = allReports.filter(report => report.agingDays > 0);
-  const overdueAmount = overdueReports.reduce((sum, report) => sum + parseFloat(report.currentAmount), 0);
-  const averageAgingDays = allReports.length > 0 
-    ? allReports.reduce((sum, report) => sum + report.agingDays, 0) / allReports.length 
-    : 0;
-  const criticalRiskCount = allReports.filter(report => report.agingDays > 90).length;
+  const overdueAmount = overdueReports.reduce(
+    (sum, report) => sum + parseFloat(report.currentAmount),
+    0
+  );
+  const averageAgingDays =
+    allReports.length > 0
+      ? allReports.reduce((sum, report) => sum + report.agingDays, 0) /
+        allReports.length
+      : 0;
+  const criticalRiskCount = allReports.filter(
+    report => report.agingDays > 90
+  ).length;
 
   // Get top customers by amount
-  const customerMap = new Map<string, { name: string; totalAmount: number; overdueAmount: number }>();
-  
+  const customerMap = new Map<
+    string,
+    { name: string; totalAmount: number; overdueAmount: number }
+  >();
+
   allReports.forEach(report => {
     const customerId = report.customerVendorId;
     if (!customerMap.has(customerId)) {
-      customerMap.set(customerId, { name: report.customerVendorName, totalAmount: 0, overdueAmount: 0 });
+      customerMap.set(customerId, {
+        name: report.customerVendorName,
+        totalAmount: 0,
+        overdueAmount: 0,
+      });
     }
     const customer = customerMap.get(customerId)!;
     customer.totalAmount += parseFloat(report.currentAmount);
@@ -377,9 +453,7 @@ export async function getAgingStatistics(
 /**
  * Recalculate aging for all reports
  */
-export async function recalculateAging(
-  userId: string
-): Promise<{
+export async function recalculateAging(userId: string): Promise<{
   updated: number;
   errors: string[];
 }> {

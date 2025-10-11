@@ -18,7 +18,10 @@ interface AuthContextType {
   accessToken: string | null;
   refreshToken: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshAccessToken: () => Promise<boolean>;
   isAuthenticated: boolean;
@@ -26,7 +29,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function JWTAuthProvider ({ children }: { children: ReactNode }) {
+export function JWTAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
@@ -78,11 +81,17 @@ export function JWTAuthProvider ({ children }: { children: ReactNode }) {
     localStorage.removeItem('refreshToken');
   };
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       setIsLoading(true);
 
-      const response = await apiRequest('POST', '/api/auth/jwt/login', { email, password });
+      const response = await apiRequest('POST', '/api/auth/jwt/login', {
+        email,
+        password,
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -130,7 +139,9 @@ export function JWTAuthProvider ({ children }: { children: ReactNode }) {
         return false;
       }
 
-      const response = await apiRequest('POST', '/api/auth/jwt/refresh', { refreshToken: storedRefreshToken });
+      const response = await apiRequest('POST', '/api/auth/jwt/refresh', {
+        refreshToken: storedRefreshToken,
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -163,14 +174,10 @@ export function JWTAuthProvider ({ children }: { children: ReactNode }) {
     isAuthenticated: !!user && !!accessToken,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useJWTAuth (): AuthContextType {
+export function useJWTAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useJWTAuth must be used within a JWTAuthProvider');
@@ -179,11 +186,11 @@ export function useJWTAuth (): AuthContextType {
 }
 
 // Enhanced API request function with automatic token refresh
-export async function authenticatedApiRequest (
+export async function authenticatedApiRequest(
   method: string,
   url: string,
   headers: Record<string, string> = {},
-  body?: string,
+  body?: string
 ): Promise<Response> {
   const accessToken = localStorage.getItem('accessToken');
 
@@ -197,7 +204,11 @@ export async function authenticatedApiRequest (
   if (response.status === 401 && accessToken) {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
-      const refreshResponse = await apiRequest('POST', '/api/auth/jwt/refresh', { refreshToken });
+      const refreshResponse = await apiRequest(
+        'POST',
+        '/api/auth/jwt/refresh',
+        { refreshToken }
+      );
 
       if (refreshResponse.ok) {
         const data = await refreshResponse.json();
@@ -213,4 +224,3 @@ export async function authenticatedApiRequest (
 
   return response;
 }
-

@@ -49,7 +49,9 @@ export function useRealtime(config: RealtimeConfig) {
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const eventHandlersRef = useRef<Map<string, (event: RealtimeEvent) => void>>(new Map());
+  const eventHandlersRef = useRef<Map<string, (event: RealtimeEvent) => void>>(
+    new Map()
+  );
 
   const connect = useCallback(() => {
     if (eventSourceRef.current?.readyState === EventSource.OPEN) {
@@ -61,7 +63,7 @@ export function useRealtime(config: RealtimeConfig) {
     try {
       const topicsParam = topics.join(',');
       const url = `/api/realtime/subscribe?topics=${encodeURIComponent(topicsParam)}`;
-      
+
       eventSourceRef.current = new EventSource(url);
 
       eventSourceRef.current.onopen = () => {
@@ -78,10 +80,10 @@ export function useRealtime(config: RealtimeConfig) {
         startHeartbeatMonitoring();
       };
 
-      eventSourceRef.current.onmessage = (event) => {
+      eventSourceRef.current.onmessage = event => {
         try {
           const data = JSON.parse(event.data);
-          
+
           if (data.type === 'heartbeat') {
             // Handle heartbeat
             resetHeartbeatMonitoring();
@@ -111,20 +113,19 @@ export function useRealtime(config: RealtimeConfig) {
           }));
 
           // Call registered event handlers
-          eventHandlersRef.current.forEach((handler) => {
+          eventHandlersRef.current.forEach(handler => {
             try {
               handler(realtimeEvent);
             } catch (error) {
               logger.error('[REALTIME] Error in event handler:', error);
             }
           });
-
         } catch (error) {
           logger.error('[REALTIME] Error parsing event data:', error);
         }
       };
 
-      eventSourceRef.current.onerror = (error) => {
+      eventSourceRef.current.onerror = error => {
         logger.error('[REALTIME] EventSource error:', error);
         setConnection(prev => ({
           ...prev,
@@ -134,11 +135,13 @@ export function useRealtime(config: RealtimeConfig) {
         }));
 
         // Attempt reconnection if enabled
-        if (autoReconnect && connection.reconnectAttempts < maxReconnectAttempts) {
+        if (
+          autoReconnect &&
+          connection.reconnectAttempts < maxReconnectAttempts
+        ) {
           scheduleReconnect();
         }
       };
-
     } catch (error) {
       logger.error('[REALTIME] Connection error:', error);
       setConnection(prev => ({
@@ -147,11 +150,19 @@ export function useRealtime(config: RealtimeConfig) {
         error: 'Bağlantı kurulamadı',
       }));
 
-      if (autoReconnect && connection.reconnectAttempts < maxReconnectAttempts) {
+      if (
+        autoReconnect &&
+        connection.reconnectAttempts < maxReconnectAttempts
+      ) {
         scheduleReconnect();
       }
     }
-  }, [topics, autoReconnect, maxReconnectAttempts, connection.reconnectAttempts]);
+  }, [
+    topics,
+    autoReconnect,
+    maxReconnectAttempts,
+    connection.reconnectAttempts,
+  ]);
 
   const disconnect = useCallback(() => {
     if (eventSourceRef.current) {
@@ -186,7 +197,9 @@ export function useRealtime(config: RealtimeConfig) {
     const attempt = connection.reconnectAttempts + 1;
     const delay = reconnectInterval * Math.pow(2, attempt - 1); // Exponential backoff
 
-    logger.info(`[REALTIME] Scheduling reconnect attempt ${attempt} in ${delay}ms`);
+    logger.info(
+      `[REALTIME] Scheduling reconnect attempt ${attempt} in ${delay}ms`
+    );
 
     setConnection(prev => ({
       ...prev,
@@ -214,13 +227,16 @@ export function useRealtime(config: RealtimeConfig) {
     }, heartbeatInterval + 5000); // 5 seconds grace period
   }, [disconnect, connect, heartbeatInterval]);
 
-  const subscribe = useCallback((eventType: string, handler: (event: RealtimeEvent) => void) => {
-    eventHandlersRef.current.set(eventType, handler);
-    
-    return () => {
-      eventHandlersRef.current.delete(eventType);
-    };
-  }, []);
+  const subscribe = useCallback(
+    (eventType: string, handler: (event: RealtimeEvent) => void) => {
+      eventHandlersRef.current.set(eventType, handler);
+
+      return () => {
+        eventHandlersRef.current.delete(eventType);
+      };
+    },
+    []
+  );
 
   const publishTestEvent = useCallback(async (message?: string) => {
     try {
@@ -287,28 +303,20 @@ export function useRealtimeEvent(
 
 // Hook for dashboard events
 export function useDashboardRealtime(handler: (event: RealtimeEvent) => void) {
-  return useRealtimeEvent(
-    'dashboard',
-    handler,
-    {
-      topics: ['user.dashboard', 'user.finance'],
-      autoReconnect: true,
-      reconnectInterval: 5000,
-      maxReconnectAttempts: 5,
-    }
-  );
+  return useRealtimeEvent('dashboard', handler, {
+    topics: ['user.dashboard', 'user.finance'],
+    autoReconnect: true,
+    reconnectInterval: 5000,
+    maxReconnectAttempts: 5,
+  });
 }
 
 // Hook for financial events
 export function useFinancialRealtime(handler: (event: RealtimeEvent) => void) {
-  return useRealtimeEvent(
-    'finance',
-    handler,
-    {
-      topics: ['user.finance'],
-      autoReconnect: true,
-      reconnectInterval: 5000,
-      maxReconnectAttempts: 5,
-    }
-  );
+  return useRealtimeEvent('finance', handler, {
+    topics: ['user.finance'],
+    autoReconnect: true,
+    reconnectInterval: 5000,
+    maxReconnectAttempts: 5,
+  });
 }

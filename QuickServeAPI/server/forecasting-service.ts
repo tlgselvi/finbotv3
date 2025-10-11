@@ -1,5 +1,10 @@
 import { randomUUID } from 'crypto';
-import type { Transaction, Account, Forecast, InsertForecast } from './db/schema';
+import type {
+  Transaction,
+  Account,
+  Forecast,
+  InsertForecast,
+} from './db/schema';
 import * as ss from 'simple-statistics';
 
 export interface SimulationParameters {
@@ -31,9 +36,9 @@ export class ForecastingService {
   /**
    * Monte Carlo simulation for financial forecasting
    */
-  static monteCarloSimulation (
+  static monteCarloSimulation(
     historicalData: number[],
-    parameters: SimulationParameters,
+    parameters: SimulationParameters
   ): ForecastResult {
     if (historicalData.length < 2) {
       throw new Error('Insufficient historical data for simulation');
@@ -55,7 +60,7 @@ export class ForecastingService {
       for (let month = 0; month < parameters.timeHorizon; month++) {
         // Generate random return (normal distribution)
         const randomReturn = this.generateNormalRandom(0, volatility);
-        scenarioValue *= (1 + randomReturn);
+        scenarioValue *= 1 + randomReturn;
       }
 
       scenarios.push(scenarioValue);
@@ -69,10 +74,10 @@ export class ForecastingService {
       mean: ss.mean(scenarios),
       median: ss.median(scenarios),
       percentiles: {
-        p10: this.percentile(scenarios, 0.10),
+        p10: this.percentile(scenarios, 0.1),
         p25: this.percentile(scenarios, 0.25),
         p75: this.percentile(scenarios, 0.75),
-        p90: this.percentile(scenarios, 0.90),
+        p90: this.percentile(scenarios, 0.9),
         p95: this.percentile(scenarios, 0.95),
         p99: this.percentile(scenarios, 0.99),
       },
@@ -89,10 +94,14 @@ export class ForecastingService {
   /**
    * Trend-based forecasting using linear regression
    */
-  static trendForecast (
+  static trendForecast(
     historicalData: { date: Date; value: number }[],
-    forecastMonths: number,
-  ): { predictions: { date: Date; value: number }[]; trend: number; rSquared: number } {
+    forecastMonths: number
+  ): {
+    predictions: { date: Date; value: number }[];
+    trend: number;
+    rSquared: number;
+  } {
     if (historicalData.length < 3) {
       throw new Error('Insufficient data for trend analysis');
     }
@@ -107,7 +116,10 @@ export class ForecastingService {
     // Perform linear regression - convert to number[][]
     const regressionData = dataPoints.map(p => [p.x, p.y]);
     const regression = ss.linearRegression(regressionData);
-    const rSquared = ss.rSquared(regressionData, (x: number) => regression.m * x + regression.b);
+    const rSquared = ss.rSquared(
+      regressionData,
+      (x: number) => regression.m * x + regression.b
+    );
 
     // Generate predictions
     const predictions: { date: Date; value: number }[] = [];
@@ -134,24 +146,26 @@ export class ForecastingService {
   /**
    * Generate scenario-based forecasts (optimistic, realistic, pessimistic)
    */
-  static generateScenarios (
+  static generateScenarios(
     currentValue: number,
     historicalGrowth: number,
-    volatility: number,
+    volatility: number
   ): { optimistic: number; realistic: number; pessimistic: number } {
     const timeHorizon = 12; // 12 months
 
     return {
-      optimistic: currentValue * Math.pow(1 + historicalGrowth + volatility, timeHorizon),
+      optimistic:
+        currentValue * Math.pow(1 + historicalGrowth + volatility, timeHorizon),
       realistic: currentValue * Math.pow(1 + historicalGrowth, timeHorizon),
-      pessimistic: currentValue * Math.pow(1 + historicalGrowth - volatility, timeHorizon),
+      pessimistic:
+        currentValue * Math.pow(1 + historicalGrowth - volatility, timeHorizon),
     };
   }
 
   /**
    * Create forecast record for database
    */
-  static createForecastRecord (
+  static createForecastRecord(
     title: string,
     type: 'monte_carlo' | 'prophet' | 'scenario' | 'trend',
     scenario: string | null,
@@ -163,7 +177,7 @@ export class ForecastingService {
     upperBound?: number,
     category?: string,
     accountId?: string,
-    parameters?: any,
+    parameters?: any
   ): InsertForecast {
     return {
       title,
@@ -187,7 +201,7 @@ export class ForecastingService {
   /**
    * Analyze transaction patterns for forecasting
    */
-  static analyzeTransactionPatterns (transactions: Transaction[]): {
+  static analyzeTransactionPatterns(transactions: Transaction[]): {
     monthlyIncome: number[];
     monthlyExpenses: number[];
     netCashFlow: number[];
@@ -230,11 +244,15 @@ export class ForecastingService {
     });
 
     // Calculate statistics
-    const volatility = monthlyIncome.length > 1 ? ss.standardDeviation(netCashFlow) : 0;
+    const volatility =
+      monthlyIncome.length > 1 ? ss.standardDeviation(netCashFlow) : 0;
 
     let trend = 0;
     if (netCashFlow.length > 1) {
-      const trendData = netCashFlow.map((value, index) => ({ x: index, y: value }));
+      const trendData = netCashFlow.map((value, index) => ({
+        x: index,
+        y: value,
+      }));
       const regressionData = trendData.map(p => [p.x, p.y]);
       const regression = ss.linearRegression(regressionData);
       trend = regression.m;
@@ -250,7 +268,7 @@ export class ForecastingService {
   }
 
   // Helper methods
-  private static generateNormalRandom (mean: number, stdDev: number): number {
+  private static generateNormalRandom(mean: number, stdDev: number): number {
     // Box-Muller transform for normal distribution
     const u1 = Math.random();
     const u2 = Math.random();
@@ -258,7 +276,7 @@ export class ForecastingService {
     return mean + stdDev * z0;
   }
 
-  private static percentile (sortedArray: number[], p: number): number {
+  private static percentile(sortedArray: number[], p: number): number {
     if (p < 0 || p > 1) {
       throw new Error('Percentile must be between 0 and 1');
     }
@@ -275,4 +293,3 @@ export class ForecastingService {
     return sortedArray[lower] * (1 - weight) + sortedArray[upper] * weight;
   }
 }
-

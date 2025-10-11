@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,18 +15,18 @@ import { RunwayWidget } from '@/components/runway-widget';
 import { CashGapWidget } from '@/components/cash-gap-widget';
 import { FinancialHealthWidget } from '@/components/financial-health-widget';
 import { ExportToolbar } from '@/components/export-toolbar';
-import { 
-  LayoutGrid, 
-  Settings, 
-  RefreshCw, 
-  Eye, 
+import {
+  LayoutGrid,
+  Settings,
+  RefreshCw,
+  Eye,
   EyeOff,
   TrendingUp,
   TrendingDown,
   BarChart3,
   Heart,
   Clock,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 import { useRealtimeDashboard } from '@/hooks/useRealtimeDashboard';
 import { ConnectionStatus } from '@/components/ui/error-display';
@@ -30,7 +36,12 @@ import { logger } from '@/lib/logger';
 
 interface WidgetConfig {
   id: string;
-  type: 'aging-summary' | 'aging-table' | 'runway' | 'cashgap' | 'financial-health';
+  type:
+    | 'aging-summary'
+    | 'aging-table'
+    | 'runway'
+    | 'cashgap'
+    | 'financial-health';
   title: string;
   description: string;
   enabled: boolean;
@@ -133,7 +144,7 @@ const getWidgetIcon = (type: string) => {
 
 const getWidgetComponent = (config: WidgetConfig) => {
   const { type, props } = config;
-  
+
   switch (type) {
     case 'financial-health':
       return <FinancialHealthWidget />;
@@ -171,7 +182,7 @@ export function DashboardExtended() {
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  
+
   // Realtime connection status
   const { isConnected, connectionError, reconnect } = useRealtimeDashboard();
 
@@ -185,10 +196,10 @@ export function DashboardExtended() {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/dashboard/layout', {
         headers: {
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-      
+
       if (response.ok) {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
@@ -217,7 +228,7 @@ export function DashboardExtended() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(newLayout),
       });
@@ -240,7 +251,7 @@ export function DashboardExtended() {
     const newWidgets = layout.widgets.map(widget =>
       widget.id === widgetId ? { ...widget, enabled: !widget.enabled } : widget
     );
-    
+
     const newLayout = {
       ...layout,
       widgets: newWidgets,
@@ -263,7 +274,9 @@ export function DashboardExtended() {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-muted-foreground">Dashboard yükleniyor...</p>
+          <p className="text-lg text-muted-foreground">
+            Dashboard yükleniyor...
+          </p>
         </div>
       </div>
     );
@@ -295,23 +308,24 @@ export function DashboardExtended() {
             <p className="text-muted-foreground text-lg">
               Yapay Zeka Destekli Finansal Analiz ve Yönetim Platformu
             </p>
-            <ConnectionStatus 
-              isConnected={isConnected} 
+            <ConnectionStatus
+              isConnected={isConnected}
               error={connectionError}
               onReconnect={reconnect}
             />
           </div>
           <div className="flex items-center gap-2 mt-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+            <Badge
+              variant="secondary"
+              className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+            >
               <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
               Canlı Veri
             </Badge>
-            <Badge variant="outline">
-              Real-time Analytics
-            </Badge>
+            <Badge variant="outline">Real-time Analytics</Badge>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <ExportToolbar />
           <Button
@@ -323,7 +337,7 @@ export function DashboardExtended() {
             Yenile
           </Button>
           <Button
-            variant={editMode ? "default" : "outline"}
+            variant={editMode ? 'default' : 'outline'}
             onClick={() => setEditMode(!editMode)}
             className="gap-2"
           >
@@ -351,8 +365,10 @@ export function DashboardExtended() {
           {/* Overview Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
             {enabledWidgets
-              .filter(widget => ['financial-health', 'runway', 'cashgap'].includes(widget.type))
-              .map((widget) => (
+              .filter(widget =>
+                ['financial-health', 'runway', 'cashgap'].includes(widget.type)
+              )
+              .map(widget => (
                 <div
                   key={widget.id}
                   className={`col-span-${widget.size.width} row-span-${widget.size.height}`}
@@ -362,7 +378,9 @@ export function DashboardExtended() {
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {getWidgetIcon(widget.type)}
-                        <span className="text-sm font-medium">{widget.title}</span>
+                        <span className="text-sm font-medium">
+                          {widget.title}
+                        </span>
                       </div>
                       <Button
                         variant="ghost"
@@ -389,13 +407,15 @@ export function DashboardExtended() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {enabledWidgets
               .filter(widget => widget.type === 'aging-summary')
-              .map((widget) => (
+              .map(widget => (
                 <div key={widget.id} data-testid={`widget-${widget.id}`}>
                   {editMode && (
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {getWidgetIcon(widget.type)}
-                        <span className="text-sm font-medium">{widget.title}</span>
+                        <span className="text-sm font-medium">
+                          {widget.title}
+                        </span>
                       </div>
                       <Button
                         variant="ghost"
@@ -419,13 +439,15 @@ export function DashboardExtended() {
           <div className="space-y-6">
             {enabledWidgets
               .filter(widget => widget.type === 'aging-table')
-              .map((widget) => (
+              .map(widget => (
                 <div key={widget.id} data-testid={`widget-${widget.id}`}>
                   {editMode && (
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {getWidgetIcon(widget.type)}
-                        <span className="text-sm font-medium">{widget.title}</span>
+                        <span className="text-sm font-medium">
+                          {widget.title}
+                        </span>
                       </div>
                       <Button
                         variant="ghost"
@@ -454,9 +476,15 @@ export function DashboardExtended() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Finansal Sağlık Skoru</p>
-                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">85/100</p>
-                    <p className="text-xs text-blue-600 dark:text-blue-400">+5% bu ay</p>
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Finansal Sağlık Skoru
+                    </p>
+                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
+                      85/100
+                    </p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      +5% bu ay
+                    </p>
                   </div>
                   <Heart className="h-8 w-8 text-blue-600" />
                 </div>
@@ -467,9 +495,15 @@ export function DashboardExtended() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Nakit Runway</p>
-                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">18 ay</p>
-                    <p className="text-xs text-green-600 dark:text-green-400">Güvenli seviye</p>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                      Nakit Runway
+                    </p>
+                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">
+                      18 ay
+                    </p>
+                    <p className="text-xs text-green-600 dark:text-green-400">
+                      Güvenli seviye
+                    </p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-green-600" />
                 </div>
@@ -480,9 +514,15 @@ export function DashboardExtended() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">AI Tahmin Doğruluğu</p>
-                    <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">94%</p>
-                    <p className="text-xs text-purple-600 dark:text-purple-400">Machine Learning</p>
+                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                      AI Tahmin Doğruluğu
+                    </p>
+                    <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+                      94%
+                    </p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">
+                      Machine Learning
+                    </p>
                   </div>
                   <BarChart3 className="h-8 w-8 text-purple-600" />
                 </div>
@@ -493,9 +533,15 @@ export function DashboardExtended() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Risk Skoru</p>
-                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">Düşük</p>
-                    <p className="text-xs text-orange-600 dark:text-orange-400">İyi yönetim</p>
+                    <p className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                      Risk Skoru
+                    </p>
+                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">
+                      Düşük
+                    </p>
+                    <p className="text-xs text-orange-600 dark:text-orange-400">
+                      İyi yönetim
+                    </p>
                   </div>
                   <AlertTriangle className="h-8 w-8 text-orange-600" />
                 </div>
@@ -513,40 +559,61 @@ export function DashboardExtended() {
                 Yapay Zeka Finansal Analiz
               </CardTitle>
               <CardDescription className="text-indigo-700 dark:text-indigo-300">
-                FinBot V3'ün gelişmiş algoritmaları ile gerçek zamanlı finansal öngörüler
+                FinBot V3'ün gelişmiş algoritmaları ile gerçek zamanlı finansal
+                öngörüler
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-indigo-900 dark:text-indigo-100">Tahmin Edilen Trendler</h4>
+                  <h4 className="font-semibold text-indigo-900 dark:text-indigo-100">
+                    Tahmin Edilen Trendler
+                  </h4>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg">
                       <TrendingUp className="h-5 w-5 text-green-600" />
                       <div>
-                        <p className="text-sm font-medium">Nakit Akışı Artışı</p>
-                        <p className="text-xs text-muted-foreground">Önümüzdeki 3 ay içinde %15 artış bekleniyor</p>
+                        <p className="text-sm font-medium">
+                          Nakit Akışı Artışı
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Önümüzdeki 3 ay içinde %15 artış bekleniyor
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg">
                       <AlertTriangle className="h-5 w-5 text-yellow-600" />
                       <div>
-                        <p className="text-sm font-medium">Dikkat Edilmesi Gereken Alan</p>
-                        <p className="text-xs text-muted-foreground">Müşteri ödemelerinde 30+ gün gecikme riski</p>
+                        <p className="text-sm font-medium">
+                          Dikkat Edilmesi Gereken Alan
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Müşteri ödemelerinde 30+ gün gecikme riski
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-indigo-900 dark:text-indigo-100">AI Önerileri</h4>
+                  <h4 className="font-semibold text-indigo-900 dark:text-indigo-100">
+                    AI Önerileri
+                  </h4>
                   <div className="space-y-3">
                     <div className="p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg">
-                      <p className="text-sm font-medium mb-1">Otomatik Tahsilat Sistemi</p>
-                      <p className="text-xs text-muted-foreground">Müşteri ödemelerini %25 hızlandırabilir</p>
+                      <p className="text-sm font-medium mb-1">
+                        Otomatik Tahsilat Sistemi
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Müşteri ödemelerini %25 hızlandırabilir
+                      </p>
                     </div>
                     <div className="p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg">
-                      <p className="text-sm font-medium mb-1">Dinamik Fiyatlandırma</p>
-                      <p className="text-xs text-muted-foreground">AI destekli fiyat optimizasyonu</p>
+                      <p className="text-sm font-medium mb-1">
+                        Dinamik Fiyatlandırma
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        AI destekli fiyat optimizasyonu
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -572,7 +639,9 @@ export function DashboardExtended() {
                     <span className="text-white font-bold">AI</span>
                   </div>
                   <p className="text-sm font-medium">Yapay Zeka</p>
-                  <p className="text-xs text-muted-foreground">Machine Learning</p>
+                  <p className="text-xs text-muted-foreground">
+                    Machine Learning
+                  </p>
                 </div>
                 <div className="text-center p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
                   <div className="w-12 h-12 bg-green-600 rounded-lg mx-auto mb-2 flex items-center justify-center">
@@ -586,14 +655,18 @@ export function DashboardExtended() {
                     <span className="text-white font-bold">SC</span>
                   </div>
                   <p className="text-sm font-medium">Scalable</p>
-                  <p className="text-xs text-muted-foreground">Ölçeklenebilir</p>
+                  <p className="text-xs text-muted-foreground">
+                    Ölçeklenebilir
+                  </p>
                 </div>
                 <div className="text-center p-4 bg-orange-50 dark:bg-orange-950/30 rounded-lg">
                   <div className="w-12 h-12 bg-orange-600 rounded-lg mx-auto mb-2 flex items-center justify-center">
                     <span className="text-white font-bold">SEC</span>
                   </div>
                   <p className="text-sm font-medium">Güvenli</p>
-                  <p className="text-xs text-muted-foreground">Enterprise Grade</p>
+                  <p className="text-xs text-muted-foreground">
+                    Enterprise Grade
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -615,19 +688,35 @@ export function DashboardExtended() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center p-4 bg-white/50 dark:bg-gray-900/50 rounded-lg">
-                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">₺2.5M</p>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">Toplam Varlık</p>
+                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                    ₺2.5M
+                  </p>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                    Toplam Varlık
+                  </p>
                   <p className="text-xs text-muted-foreground">+12% YoY</p>
                 </div>
                 <div className="text-center p-4 bg-white/50 dark:bg-gray-900/50 rounded-lg">
-                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">₺850K</p>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">Nakit Pozisyon</p>
-                  <p className="text-xs text-muted-foreground">Güçlü likidite</p>
+                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                    ₺850K
+                  </p>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                    Nakit Pozisyon
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Güçlü likidite
+                  </p>
                 </div>
                 <div className="text-center p-4 bg-white/50 dark:bg-gray-900/50 rounded-lg">
-                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">18 ay</p>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">Runway</p>
-                  <p className="text-xs text-muted-foreground">Güvenli seviye</p>
+                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                    18 ay
+                  </p>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                    Runway
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Güvenli seviye
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -651,14 +740,18 @@ export function DashboardExtended() {
                     <span className="text-blue-600 font-bold">PDF</span>
                   </div>
                   <p className="text-sm font-medium">PDF Raporu</p>
-                  <p className="text-xs text-muted-foreground">Yatırımcı sunumu</p>
+                  <p className="text-xs text-muted-foreground">
+                    Yatırımcı sunumu
+                  </p>
                 </div>
                 <div className="p-4 border-2 border-dashed border-green-200 dark:border-green-800 rounded-lg text-center hover:border-green-400 dark:hover:border-green-600 transition-colors cursor-pointer">
                   <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg mx-auto mb-2 flex items-center justify-center">
                     <span className="text-green-600 font-bold">XLS</span>
                   </div>
                   <p className="text-sm font-medium">Excel Raporu</p>
-                  <p className="text-xs text-muted-foreground">Detaylı analiz</p>
+                  <p className="text-xs text-muted-foreground">
+                    Detaylı analiz
+                  </p>
                 </div>
                 <div className="p-4 border-2 border-dashed border-purple-200 dark:border-purple-800 rounded-lg text-center hover:border-purple-400 dark:hover:border-purple-600 transition-colors cursor-pointer">
                   <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg mx-auto mb-2 flex items-center justify-center">
@@ -693,51 +786,83 @@ export function DashboardExtended() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-violet-900 dark:text-violet-100">Teknoloji Avantajları</h4>
+                  <h4 className="font-semibold text-violet-900 dark:text-violet-100">
+                    Teknoloji Avantajları
+                  </h4>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center">
-                        <span className="text-violet-600 text-sm font-bold">1</span>
+                        <span className="text-violet-600 text-sm font-bold">
+                          1
+                        </span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">AI Destekli Tahminler</p>
-                        <p className="text-xs text-muted-foreground">%94 doğruluk oranı</p>
+                        <p className="text-sm font-medium">
+                          AI Destekli Tahminler
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          %94 doğruluk oranı
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center">
-                        <span className="text-violet-600 text-sm font-bold">2</span>
+                        <span className="text-violet-600 text-sm font-bold">
+                          2
+                        </span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">Real-time Analytics</p>
-                        <p className="text-xs text-muted-foreground">Anlık veri işleme</p>
+                        <p className="text-sm font-medium">
+                          Real-time Analytics
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Anlık veri işleme
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center">
-                        <span className="text-violet-600 text-sm font-bold">3</span>
+                        <span className="text-violet-600 text-sm font-bold">
+                          3
+                        </span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">Enterprise Security</p>
-                        <p className="text-xs text-muted-foreground">Bank-level güvenlik</p>
+                        <p className="text-sm font-medium">
+                          Enterprise Security
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Bank-level güvenlik
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-violet-900 dark:text-violet-100">Pazar Fırsatları</h4>
+                  <h4 className="font-semibold text-violet-900 dark:text-violet-100">
+                    Pazar Fırsatları
+                  </h4>
                   <div className="space-y-3">
                     <div className="p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg">
-                      <p className="text-sm font-medium mb-1">₺50B+ Pazar Büyüklüğü</p>
-                      <p className="text-xs text-muted-foreground">Türkiye finansal teknoloji pazarı</p>
+                      <p className="text-sm font-medium mb-1">
+                        ₺50B+ Pazar Büyüklüğü
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Türkiye finansal teknoloji pazarı
+                      </p>
                     </div>
                     <div className="p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg">
-                      <p className="text-sm font-medium mb-1">%300 Büyüme Potansiyeli</p>
-                      <p className="text-xs text-muted-foreground">3 yıllık projeksiyon</p>
+                      <p className="text-sm font-medium mb-1">
+                        %300 Büyüme Potansiyeli
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        3 yıllık projeksiyon
+                      </p>
                     </div>
                     <div className="p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg">
                       <p className="text-sm font-medium mb-1">B2B SaaS Model</p>
-                      <p className="text-xs text-muted-foreground">Yüksek kar marjları</p>
+                      <p className="text-xs text-muted-foreground">
+                        Yüksek kar marjları
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -755,10 +880,10 @@ export function DashboardExtended() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {layout.widgets.map((widget) => (
+              {layout.widgets.map(widget => (
                 <Badge
                   key={widget.id}
-                  variant={widget.enabled ? "default" : "secondary"}
+                  variant={widget.enabled ? 'default' : 'secondary'}
                   className="gap-1"
                 >
                   {getWidgetIcon(widget.type)}

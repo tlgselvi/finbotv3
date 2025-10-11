@@ -6,12 +6,19 @@ import type { Transaction, InsertTransaction } from './db/schema';
 import { logger } from './utils/logger.ts';
 
 export class TransactionJsonService {
-  private readonly transactionsFilePath = path.join(process.cwd(), 'transactions.json');
+  private readonly transactionsFilePath = path.join(
+    process.cwd(),
+    'transactions.json'
+  );
 
   /**
    * Tüm işlemleri transactions.json dosyasına dışa aktar
    */
-  async exportTransactionsToJson (): Promise<{ success: boolean; message: string; filePath?: string }> {
+  async exportTransactionsToJson(): Promise<{
+    success: boolean;
+    message: string;
+    filePath?: string;
+  }> {
     try {
       const transactions = await storage.getTransactions();
       const accounts = await storage.getAccounts();
@@ -21,11 +28,13 @@ export class TransactionJsonService {
         const account = accounts.find(acc => acc.id === transaction.accountId);
         return {
           ...transaction,
-          accountInfo: account ? {
-            bankName: account.bankName,
-            accountName: account.accountName,
-            type: account.type,
-          } : null,
+          accountInfo: account
+            ? {
+                bankName: account.bankName,
+                accountName: account.accountName,
+                type: account.type,
+              }
+            : null,
         };
       });
 
@@ -49,10 +58,12 @@ export class TransactionJsonService {
       await fs.writeFile(
         this.transactionsFilePath,
         JSON.stringify(exportData, null, 2),
-        'utf8',
+        'utf8'
       );
 
-      logger.info(`${transactions.length} işlem transactions.json dosyasına aktarıldı`);
+      logger.info(
+        `${transactions.length} işlem transactions.json dosyasına aktarıldı`
+      );
 
       return {
         success: true,
@@ -71,7 +82,9 @@ export class TransactionJsonService {
   /**
    * transactions.json dosyasından işlemleri içe aktar
    */
-  async importTransactionsFromJson (overwriteExisting = false): Promise<{ success: boolean; message: string; importedCount?: number }> {
+  async importTransactionsFromJson(
+    overwriteExisting = false
+  ): Promise<{ success: boolean; message: string; importedCount?: number }> {
     try {
       // Dosya varlığını kontrol et
       try {
@@ -137,14 +150,20 @@ export class TransactionJsonService {
           };
 
           // Transfer işlemlerini özel olarak işle
-          if (cleanTransaction.type === 'transfer_in' || cleanTransaction.type === 'transfer_out') {
+          if (
+            cleanTransaction.type === 'transfer_in' ||
+            cleanTransaction.type === 'transfer_out'
+          ) {
             if (cleanTransaction.virmanPairId) {
               if (!transferPairs.has(cleanTransaction.virmanPairId)) {
                 transferPairs.set(cleanTransaction.virmanPairId, []);
               }
               transferPairs.get(cleanTransaction.virmanPairId)!.push({
                 ...cleanTransaction,
-                date: typeof cleanTransaction.date === 'string' ? new Date(cleanTransaction.date) : cleanTransaction.date,
+                date:
+                  typeof cleanTransaction.date === 'string'
+                    ? new Date(cleanTransaction.date)
+                    : cleanTransaction.date,
               });
             }
             continue; // Transfer işlemlerini daha sonra çiftler halinde işle
@@ -167,27 +186,42 @@ export class TransactionJsonService {
             updatedCount++;
           } else {
             // Yeni işlem oluştur ve bakiye ayarlaması yap
-            const transaction = await storage.performTransaction(insertData, balanceAdjustment);
+            const transaction = await storage.performTransaction(
+              insertData,
+              balanceAdjustment
+            );
             importedCount++;
           }
         } catch (error) {
-          errors.push(`İşlem hatası (ID: ${transactionData.id}): ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+          errors.push(
+            `İşlem hatası (ID: ${transactionData.id}): ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`
+          );
         }
       }
 
       // Transfer çiftlerini işle
-      for (const [virmanPairId, transferTransactions] of Array.from(transferPairs.entries())) {
+      for (const [virmanPairId, transferTransactions] of Array.from(
+        transferPairs.entries()
+      )) {
         try {
           if (transferTransactions.length !== 2) {
-            errors.push(`Eksik transfer çifti (virmanPairId: ${virmanPairId}): ${transferTransactions.length} işlem`);
+            errors.push(
+              `Eksik transfer çifti (virmanPairId: ${virmanPairId}): ${transferTransactions.length} işlem`
+            );
             continue;
           }
 
-          const outTransaction = transferTransactions.find((t: any) => t.type === 'transfer_out');
-          const inTransaction = transferTransactions.find((t: any) => t.type === 'transfer_in');
+          const outTransaction = transferTransactions.find(
+            (t: any) => t.type === 'transfer_out'
+          );
+          const inTransaction = transferTransactions.find(
+            (t: any) => t.type === 'transfer_in'
+          );
 
           if (!outTransaction || !inTransaction) {
-            errors.push(`Geçersiz transfer çifti (virmanPairId: ${virmanPairId})`);
+            errors.push(
+              `Geçersiz transfer çifti (virmanPairId: ${virmanPairId})`
+            );
             continue;
           }
 
@@ -207,12 +241,14 @@ export class TransactionJsonService {
             inTransaction.accountId,
             amount,
             outTransaction.description.replace('Virman: ', ''),
-            virmanPairId,
+            virmanPairId
           );
 
           importedCount += 2; // İki işlem eklendi
         } catch (error) {
-          errors.push(`Transfer çifti hatası (virmanPairId: ${virmanPairId}): ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+          errors.push(
+            `Transfer çifti hatası (virmanPairId: ${virmanPairId}): ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`
+          );
         }
       }
 
@@ -245,7 +281,12 @@ export class TransactionJsonService {
   /**
    * transactions.json dosyasının varlığını ve içeriğini kontrol et
    */
-  async checkJsonFile (): Promise<{ exists: boolean; isValid: boolean; transactionCount?: number; lastExport?: string }> {
+  async checkJsonFile(): Promise<{
+    exists: boolean;
+    isValid: boolean;
+    transactionCount?: number;
+    lastExport?: string;
+  }> {
     try {
       await fs.access(this.transactionsFilePath);
 
@@ -255,7 +296,8 @@ export class TransactionJsonService {
       return {
         exists: true,
         isValid: data.transactions && Array.isArray(data.transactions),
-        transactionCount: data.totalTransactions || data.transactions?.length || 0,
+        transactionCount:
+          data.totalTransactions || data.transactions?.length || 0,
         lastExport: data.exportDate,
       };
     } catch (error) {
@@ -269,7 +311,10 @@ export class TransactionJsonService {
   /**
    * Belirli tarih aralığındaki işlemleri JSON'a aktar
    */
-  async exportTransactionsByDateRange (startDate: Date, endDate: Date): Promise<{ success: boolean; message: string; filePath?: string }> {
+  async exportTransactionsByDateRange(
+    startDate: Date,
+    endDate: Date
+  ): Promise<{ success: boolean; message: string; filePath?: string }> {
     try {
       const allTransactions = await storage.getTransactions();
       const accounts = await storage.getAccounts();
@@ -292,11 +337,13 @@ export class TransactionJsonService {
         const account = accounts.find(acc => acc.id === transaction.accountId);
         return {
           ...transaction,
-          accountInfo: account ? {
-            bankName: account.bankName,
-            accountName: account.accountName,
-            type: account.type,
-          } : null,
+          accountInfo: account
+            ? {
+                bankName: account.bankName,
+                accountName: account.accountName,
+                type: account.type,
+              }
+            : null,
         };
       });
 
@@ -343,17 +390,24 @@ export class TransactionJsonService {
   /**
    * Kategori bazlı işlem analizi ile JSON dışa aktar
    */
-  async exportCategoryAnalysisToJson (): Promise<{ success: boolean; message: string; filePath?: string }> {
+  async exportCategoryAnalysisToJson(): Promise<{
+    success: boolean;
+    message: string;
+    filePath?: string;
+  }> {
     try {
       const transactions = await storage.getTransactions();
       const accounts = await storage.getAccounts();
 
       // Kategori bazlı analiz
-      const categoryAnalysis = new Map<string, {
-        totalAmount: number;
-        transactionCount: number;
-        transactions: Transaction[];
-      }>();
+      const categoryAnalysis = new Map<
+        string,
+        {
+          totalAmount: number;
+          transactionCount: number;
+          transactions: Transaction[];
+        }
+      >();
 
       // Kategorize et
       transactions.forEach(transaction => {
@@ -386,22 +440,28 @@ export class TransactionJsonService {
                 const account = accounts.find(acc => acc.id === t.accountId);
                 return {
                   ...t,
-                  accountInfo: account ? {
-                    bankName: account.bankName,
-                    accountName: account.accountName,
-                    type: account.type,
-                  } : null,
+                  accountInfo: account
+                    ? {
+                        bankName: account.bankName,
+                        accountName: account.accountName,
+                        type: account.type,
+                      }
+                    : null,
                 };
               }),
             },
-          ]),
+          ])
         ),
       };
 
       const fileName = 'transaction_category_analysis.json';
       const filePath = path.join(process.cwd(), fileName);
 
-      await fs.writeFile(filePath, JSON.stringify(analysisData, null, 2), 'utf8');
+      await fs.writeFile(
+        filePath,
+        JSON.stringify(analysisData, null, 2),
+        'utf8'
+      );
 
       return {
         success: true,

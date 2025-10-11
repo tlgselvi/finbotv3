@@ -1,13 +1,13 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../../db';
-import { 
-  userTwoFactorAuth, 
+import {
+  userTwoFactorAuth,
   userProfiles,
   insertUserTwoFactorAuthSchema,
   setupTwoFactorAuthSchema,
   enableTwoFactorAuthSchema,
   disableTwoFactorAuthSchema,
-  verifyTwoFactorAuthSchema
+  verifyTwoFactorAuthSchema,
 } from '../../db/schema';
 import { z } from 'zod';
 import * as crypto from 'crypto';
@@ -18,13 +18,15 @@ import { logger } from '../../utils/logger';
 // Two-Factor Authentication Service
 export class TwoFactorAuthService {
   // Generate TOTP secret for user
-  async generateSecret(userId: string): Promise<{ secret: string; qrCodeUrl: string; backupCodes: string[] }> {
+  async generateSecret(
+    userId: string
+  ): Promise<{ secret: string; qrCodeUrl: string; backupCodes: string[] }> {
     try {
       // Generate TOTP secret
       const secret = speakeasy.generateSecret({
         name: `FinBot (${userId})`,
         issuer: 'FinBot',
-        length: 32
+        length: 32,
       });
 
       // Generate backup codes
@@ -36,7 +38,7 @@ export class TwoFactorAuthService {
       return {
         secret: secret.base32!,
         qrCodeUrl,
-        backupCodes
+        backupCodes,
       };
     } catch (error) {
       logger.error('Error generating 2FA secret:', error);
@@ -45,16 +47,22 @@ export class TwoFactorAuthService {
   }
 
   // Setup 2FA for user
-  async setupTwoFactorAuth(userId: string, setupData: z.infer<typeof setupTwoFactorAuthSchema>): Promise<{
+  async setupTwoFactorAuth(
+    userId: string,
+    setupData: z.infer<typeof setupTwoFactorAuthSchema>
+  ): Promise<{
     secret: string;
     qrCodeUrl: string;
     backupCodes: string[];
   }> {
     try {
-      const { secret, qrCodeUrl, backupCodes } = await this.generateSecret(userId);
+      const { secret, qrCodeUrl, backupCodes } =
+        await this.generateSecret(userId);
 
       // Encrypt backup codes
-      const encryptedBackupCodes = backupCodes.map(code => this.encryptBackupCode(code));
+      const encryptedBackupCodes = backupCodes.map(code =>
+        this.encryptBackupCode(code)
+      );
 
       // Store 2FA setup (not enabled yet)
       const twoFactorData = insertUserTwoFactorAuthSchema.parse({
@@ -63,7 +71,7 @@ export class TwoFactorAuthService {
         isEnabled: false,
         backupCodes: encryptedBackupCodes,
         phoneNumber: setupData.phoneNumber,
-        smsEnabled: setupData.enableSMS
+        smsEnabled: setupData.enableSMS,
       });
 
       await db.insert(userTwoFactorAuth).values(twoFactorData);
@@ -71,7 +79,7 @@ export class TwoFactorAuthService {
       return {
         secret,
         qrCodeUrl,
-        backupCodes
+        backupCodes,
       };
     } catch (error) {
       logger.error('Error setting up 2FA:', error);
@@ -80,11 +88,18 @@ export class TwoFactorAuthService {
   }
 
   // Enable 2FA after verification
-  async enableTwoFactorAuth(userId: string, enableData: z.infer<typeof enableTwoFactorAuthSchema>): Promise<void> {
+  async enableTwoFactorAuth(
+    userId: string,
+    enableData: z.infer<typeof enableTwoFactorAuthSchema>
+  ): Promise<void> {
     try {
       // Verify the token
-      const isValid = await this.verifyToken(userId, enableData.token, enableData.secret);
-      
+      const isValid = await this.verifyToken(
+        userId,
+        enableData.token,
+        enableData.secret
+      );
+
       if (!isValid) {
         throw new Error('Invalid verification token');
       }
@@ -92,21 +107,20 @@ export class TwoFactorAuthService {
       // Enable 2FA
       await db
         .update(userTwoFactorAuth)
-        .set({ 
+        .set({
           isEnabled: true,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userTwoFactorAuth.userId, userId));
 
       // Update user profile
       await db
         .update(userProfiles)
-        .set({ 
+        .set({
           twoFactorEnabled: true,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, userId));
-
     } catch (error) {
       logger.error('Error enabling 2FA:', error);
       throw new Error('Failed to enable 2FA');
@@ -114,7 +128,10 @@ export class TwoFactorAuthService {
   }
 
   // Disable 2FA
-  async disableTwoFactorAuth(userId: string, disableData: z.infer<typeof disableTwoFactorAuthSchema>): Promise<void> {
+  async disableTwoFactorAuth(
+    userId: string,
+    disableData: z.infer<typeof disableTwoFactorAuthSchema>
+  ): Promise<void> {
     try {
       const twoFactorRecord = await db
         .select()
@@ -129,10 +146,10 @@ export class TwoFactorAuthService {
       // Verify backup code if provided
       if (disableData.backupCode) {
         const isValidBackupCode = this.verifyBackupCode(
-          disableData.backupCode, 
+          disableData.backupCode,
           twoFactorRecord[0].backupCodes || []
         );
-        
+
         if (!isValidBackupCode) {
           throw new Error('Invalid backup code');
         }
@@ -141,21 +158,20 @@ export class TwoFactorAuthService {
       // Disable 2FA
       await db
         .update(userTwoFactorAuth)
-        .set({ 
+        .set({
           isEnabled: false,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userTwoFactorAuth.userId, userId));
 
       // Update user profile
       await db
         .update(userProfiles)
-        .set({ 
+        .set({
           twoFactorEnabled: false,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, userId));
-
     } catch (error) {
       logger.error('Error disabling 2FA:', error);
       throw new Error('Failed to disable 2FA');
@@ -163,7 +179,10 @@ export class TwoFactorAuthService {
   }
 
   // Verify 2FA token
-  async verifyTwoFactorAuth(userId: string, verifyData: z.infer<typeof verifyTwoFactorAuthSchema>): Promise<boolean> {
+  async verifyTwoFactorAuth(
+    userId: string,
+    verifyData: z.infer<typeof verifyTwoFactorAuthSchema>
+  ): Promise<boolean> {
     try {
       const twoFactorRecord = await db
         .select()
@@ -179,21 +198,28 @@ export class TwoFactorAuthService {
 
       // Check backup code first
       if (verifyData.backupCode) {
-        const isValidBackupCode = this.verifyBackupCode(verifyData.backupCode, record.backupCodes || []);
+        const isValidBackupCode = this.verifyBackupCode(
+          verifyData.backupCode,
+          record.backupCodes || []
+        );
         if (isValidBackupCode) {
           // Update last used timestamp
           await db
             .update(userTwoFactorAuth)
             .set({ lastUsed: new Date() })
             .where(eq(userTwoFactorAuth.userId, userId));
-          
+
           return true;
         }
       }
 
       // Verify TOTP token
-      const isValid = await this.verifyToken(userId, verifyData.token, record.secret);
-      
+      const isValid = await this.verifyToken(
+        userId,
+        verifyData.token,
+        record.secret
+      );
+
       if (isValid) {
         // Update last used timestamp
         await db
@@ -235,16 +261,26 @@ export class TwoFactorAuthService {
   }> {
     try {
       const [profile, twoFactorRecord] = await Promise.all([
-        db.select().from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1),
-        db.select().from(userTwoFactorAuth).where(eq(userTwoFactorAuth.userId, userId)).limit(1)
+        db
+          .select()
+          .from(userProfiles)
+          .where(eq(userProfiles.userId, userId))
+          .limit(1),
+        db
+          .select()
+          .from(userTwoFactorAuth)
+          .where(eq(userTwoFactorAuth.userId, userId))
+          .limit(1),
       ]);
 
       return {
         isEnabled: profile.length > 0 && profile[0].twoFactorEnabled,
-        hasBackupCodes: twoFactorRecord.length > 0 && (twoFactorRecord[0].backupCodes?.length || 0) > 0,
+        hasBackupCodes:
+          twoFactorRecord.length > 0 &&
+          (twoFactorRecord[0].backupCodes?.length || 0) > 0,
         lastUsed: twoFactorRecord[0]?.lastUsed,
         phoneNumber: twoFactorRecord[0]?.phoneNumber,
-        smsEnabled: twoFactorRecord[0]?.smsEnabled || false
+        smsEnabled: twoFactorRecord[0]?.smsEnabled || false,
       };
     } catch (error) {
       logger.error('Error getting 2FA status:', error);
@@ -256,13 +292,15 @@ export class TwoFactorAuthService {
   async regenerateBackupCodes(userId: string): Promise<string[]> {
     try {
       const backupCodes = this.generateBackupCodes();
-      const encryptedBackupCodes = backupCodes.map(code => this.encryptBackupCode(code));
+      const encryptedBackupCodes = backupCodes.map(code =>
+        this.encryptBackupCode(code)
+      );
 
       await db
         .update(userTwoFactorAuth)
-        .set({ 
+        .set({
           backupCodes: encryptedBackupCodes,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userTwoFactorAuth.userId, userId));
 
@@ -274,13 +312,17 @@ export class TwoFactorAuthService {
   }
 
   // Private helper methods
-  private async verifyToken(userId: string, token: string, secret: string): Promise<boolean> {
+  private async verifyToken(
+    userId: string,
+    token: string,
+    secret: string
+  ): Promise<boolean> {
     try {
       const verified = speakeasy.totp.verify({
         secret,
         encoding: 'base32',
         token,
-        window: 2 // Allow 2 time windows for clock skew
+        window: 2, // Allow 2 time windows for clock skew
       });
 
       return verified;
@@ -301,13 +343,16 @@ export class TwoFactorAuthService {
   private encryptBackupCode(code: string): string {
     // Simple encryption (in production, use proper encryption)
     const algorithm = 'aes-256-cbc';
-    const key = Buffer.from(process.env.BACKUP_CODE_KEY || 'default-key-32-chars-long!!', 'utf8');
+    const key = Buffer.from(
+      process.env.BACKUP_CODE_KEY || 'default-key-32-chars-long!!',
+      'utf8'
+    );
     const iv = crypto.randomBytes(16);
-    
+
     const cipher = crypto.createCipher(algorithm, key);
     let encrypted = cipher.update(code, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-    
+
     return iv.toString('hex') + ':' + encrypted;
   }
 
@@ -327,12 +372,19 @@ export class TwoFactorAuthService {
     try {
       // Simple decryption (in production, use proper decryption)
       const algorithm = 'aes-256-cbc';
-      const key = Buffer.from(process.env.BACKUP_CODE_KEY || 'default-key-32-chars-long!!', 'utf8');
-      
+      const key = Buffer.from(
+        process.env.BACKUP_CODE_KEY || 'default-key-32-chars-long!!',
+        'utf8'
+      );
+
       const decipher = crypto.createDecipher(algorithm, key);
-      let decrypted = decipher.update(encryptedCode.split(':')[1], 'hex', 'utf8');
+      let decrypted = decipher.update(
+        encryptedCode.split(':')[1],
+        'hex',
+        'utf8'
+      );
       decrypted += decipher.final('utf8');
-      
+
       return decrypted;
     } catch (error) {
       logger.error('Backup code decryption error:', error);

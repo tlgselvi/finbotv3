@@ -4,11 +4,19 @@ import { logger } from './utils/logger.ts';
 
 // In-memory cache implementation (fallback when Redis is not available)
 class MemoryCache {
-  private cache = new Map<string, { data: any; expiresAt: number; tags: string[] }>();
+  private cache = new Map<
+    string,
+    { data: any; expiresAt: number; tags: string[] }
+  >();
   private tags = new Map<string, Set<string>>();
 
-  set(key: string, data: any, ttlSeconds: number = 300, tags: string[] = []): void {
-    const expiresAt = Date.now() + (ttlSeconds * 1000);
+  set(
+    key: string,
+    data: any,
+    ttlSeconds: number = 300,
+    tags: string[] = []
+  ): void {
+    const expiresAt = Date.now() + ttlSeconds * 1000;
     this.cache.set(key, { data, expiresAt, tags });
 
     // Track keys by tags for invalidation
@@ -64,7 +72,7 @@ class MemoryCache {
   stats(): { size: number; hitRate: number } {
     return {
       size: this.cache.size,
-      hitRate: 0 // Simplified implementation
+      hitRate: 0, // Simplified implementation
     };
   }
 }
@@ -72,7 +80,12 @@ class MemoryCache {
 // Cache interface
 interface CacheInterface {
   get(key: string): Promise<any>;
-  set(key: string, data: any, ttlSeconds?: number, tags?: string[]): Promise<void>;
+  set(
+    key: string,
+    data: any,
+    ttlSeconds?: number,
+    tags?: string[]
+  ): Promise<void>;
   delete(key: string): Promise<boolean>;
   invalidateByTag(tag: string): Promise<void>;
   clear(): Promise<void>;
@@ -86,7 +99,12 @@ class MemoryCacheAdapter implements CacheInterface {
     return this.cache.get(key);
   }
 
-  async set(key: string, data: any, ttlSeconds: number = 300, tags: string[] = []): Promise<void> {
+  async set(
+    key: string,
+    data: any,
+    ttlSeconds: number = 300,
+    tags: string[] = []
+  ): Promise<void> {
     this.cache.set(key, data, ttlSeconds, tags);
   }
 
@@ -115,11 +133,13 @@ class RedisCacheAdapter implements CacheInterface {
         url: process.env.REDIS_URL || 'redis://localhost:6379',
         retry_strategy: (options: any) => {
           if (options.error && options.error.code === 'ECONNREFUSED') {
-            logger.warn('Redis connection refused, falling back to memory cache');
+            logger.warn(
+              'Redis connection refused, falling back to memory cache'
+            );
             return null;
           }
           return Math.min(options.attempt * 100, 3000);
-        }
+        },
       });
 
       this.redis.on('error', (err: Error) => {
@@ -135,7 +155,7 @@ class RedisCacheAdapter implements CacheInterface {
 
   async get(key: string): Promise<any> {
     if (!this.redis) return null;
-    
+
     try {
       const data = await this.redis.get(key);
       return data ? JSON.parse(data) : null;
@@ -145,12 +165,17 @@ class RedisCacheAdapter implements CacheInterface {
     }
   }
 
-  async set(key: string, data: any, ttlSeconds: number = 300, tags: string[] = []): Promise<void> {
+  async set(
+    key: string,
+    data: any,
+    ttlSeconds: number = 300,
+    tags: string[] = []
+  ): Promise<void> {
     if (!this.redis) return;
 
     try {
       await this.redis.setEx(key, ttlSeconds, JSON.stringify(data));
-      
+
       // Store tags for invalidation
       if (tags.length > 0) {
         for (const tag of tags) {
@@ -207,7 +232,7 @@ class CacheManager {
     hits: 0,
     misses: 0,
     sets: 0,
-    deletes: 0
+    deletes: 0,
   };
 
   constructor() {
@@ -226,7 +251,12 @@ class CacheManager {
     return data;
   }
 
-  async set(key: string, data: any, ttlSeconds: number = 300, tags: string[] = []): Promise<void> {
+  async set(
+    key: string,
+    data: any,
+    ttlSeconds: number = 300,
+    tags: string[] = []
+  ): Promise<void> {
     await this.cache.set(key, data, ttlSeconds, tags);
     this.stats.sets++;
   }
@@ -251,7 +281,7 @@ class CacheManager {
     const total = this.stats.hits + this.stats.misses;
     return {
       ...this.stats,
-      hitRate: total > 0 ? (this.stats.hits / total) * 100 : 0
+      hitRate: total > 0 ? (this.stats.hits / total) * 100 : 0,
     };
   }
 
@@ -260,7 +290,11 @@ class CacheManager {
     return `${prefix}:${parts.join(':')}`;
   }
 
-  generateUserKey(userId: string, resource: string, ...parts: string[]): string {
+  generateUserKey(
+    userId: string,
+    resource: string,
+    ...parts: string[]
+  ): string {
     return this.generateKey('user', userId, resource, ...parts);
   }
 
@@ -277,7 +311,7 @@ class CacheManager {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return hash.toString(36);
@@ -299,7 +333,7 @@ export const cacheMiddleware = (options: {
       ttl = 300, // 5 minutes default
       tags = [],
       keyGenerator,
-      skipCache
+      skipCache,
     } = options;
 
     // Skip cache for write operations
@@ -313,7 +347,9 @@ export const cacheMiddleware = (options: {
     }
 
     // Generate cache key
-    const cacheKey = keyGenerator ? keyGenerator(req) : cache.generateRequestKey(req);
+    const cacheKey = keyGenerator
+      ? keyGenerator(req)
+      : cache.generateRequestKey(req);
 
     try {
       // Try to get from cache
@@ -326,7 +362,7 @@ export const cacheMiddleware = (options: {
 
       // Cache miss - override res.json to cache the response
       const originalJson = res.json;
-      res.json = function(body: any) {
+      res.json = function (body: any) {
         // Cache the response
         cache.set(cacheKey, body, ttl, tags).catch(error => {
           logger.error('Cache set error:', error);
@@ -350,10 +386,10 @@ export const cacheUserData = (resource: string, ttl: number = 600) => {
   return cacheMiddleware({
     ttl,
     tags: [`user:${resource}`],
-    keyGenerator: (req) => {
+    keyGenerator: req => {
       const userId = (req as any).user?.id;
       return cache.generateUserKey(userId, resource, JSON.stringify(req.query));
-    }
+    },
   });
 };
 
@@ -363,7 +399,10 @@ export const cacheDashboardData = cacheUserData('dashboard', 60);
 export const cacheCreditData = cacheUserData('credits', 600);
 
 // Cache invalidation helpers
-export const invalidateUserCache = async (userId: string, resource?: string) => {
+export const invalidateUserCache = async (
+  userId: string,
+  resource?: string
+) => {
   if (resource) {
     await cache.invalidateByTag(`user:${resource}`);
   } else {
@@ -396,7 +435,7 @@ export const warmCache = async (userId: string) => {
   try {
     // Pre-load common data
     const { storage } = await import('./storage');
-    
+
     // Warm dashboard cache
     const dashboardKey = cache.generateUserKey(userId, 'dashboard');
     const dashboardData = await storage.getDashboardStats();

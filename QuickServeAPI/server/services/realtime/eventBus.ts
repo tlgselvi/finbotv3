@@ -30,11 +30,14 @@ export class RealtimeEventBus extends EventEmitter {
   private constructor() {
     super();
     this.setMaxListeners(1000);
-    
+
     // Cleanup inactive subscriptions every 5 minutes
-    setInterval(() => {
-      this.cleanupInactiveSubscriptions();
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        this.cleanupInactiveSubscriptions();
+      },
+      5 * 60 * 1000
+    );
   }
 
   public static getInstance(): RealtimeEventBus {
@@ -87,7 +90,7 @@ export class RealtimeEventBus extends EventEmitter {
     socketId?: string
   ): string {
     const subscriptionId = this.generateSubscriptionId();
-    
+
     const subscription: RealtimeSubscription = {
       id: subscriptionId,
       userId,
@@ -112,7 +115,7 @@ export class RealtimeEventBus extends EventEmitter {
     if (subscription) {
       subscription.isActive = false;
       this.subscriptions.delete(subscriptionId);
-      
+
       logger.info(`[REALTIME] Unsubscribed:`, subscriptionId);
       return true;
     }
@@ -169,7 +172,9 @@ export class RealtimeEventBus extends EventEmitter {
     }
 
     // Sort by timestamp
-    return userEvents.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    return userEvents.sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+    );
   }
 
   /**
@@ -182,12 +187,15 @@ export class RealtimeEventBus extends EventEmitter {
     for (const [subscriptionId, subscription] of this.subscriptions.entries()) {
       if (
         subscription.isActive &&
-        (now.getTime() - subscription.lastActivity.getTime()) > inactiveThreshold
+        now.getTime() - subscription.lastActivity.getTime() > inactiveThreshold
       ) {
         subscription.isActive = false;
         this.subscriptions.delete(subscriptionId);
-        
-        logger.info(`[REALTIME] Cleaned up inactive subscription:`, subscriptionId);
+
+        logger.info(
+          `[REALTIME] Cleaned up inactive subscription:`,
+          subscriptionId
+        );
       }
     }
   }
@@ -235,13 +243,14 @@ export class RealtimeEventBus extends EventEmitter {
     ).length;
 
     const totalTopics = this.eventHistory.size;
-    
+
     let totalEvents = 0;
     for (const events of this.eventHistory.values()) {
       totalEvents += events.length;
     }
 
-    const averageEventsPerTopic = totalTopics > 0 ? totalEvents / totalTopics : 0;
+    const averageEventsPerTopic =
+      totalTopics > 0 ? totalEvents / totalTopics : 0;
 
     return {
       activeSubscriptions,
@@ -260,23 +269,23 @@ export const REALTIME_EVENTS = {
   // Dashboard events
   DASHBOARD_WIDGET_UPDATED: 'dashboard.widget.updated',
   DASHBOARD_LAYOUT_CHANGED: 'dashboard.layout.changed',
-  
+
   // Financial events
   AGING_DATA_UPDATED: 'finance.aging.updated',
   RUNWAY_DATA_UPDATED: 'finance.runway.updated',
   CASHGAP_DATA_UPDATED: 'finance.cashgap.updated',
   FINANCIAL_HEALTH_UPDATED: 'finance.health.updated',
-  
+
   // Account events
   ACCOUNT_CREATED: 'account.created',
   ACCOUNT_UPDATED: 'account.updated',
   ACCOUNT_DELETED: 'account.deleted',
-  
+
   // Transaction events
   TRANSACTION_CREATED: 'transaction.created',
   TRANSACTION_UPDATED: 'transaction.updated',
   TRANSACTION_DELETED: 'transaction.deleted',
-  
+
   // System events
   SYSTEM_MAINTENANCE: 'system.maintenance',
   SYSTEM_ERROR: 'system.error',

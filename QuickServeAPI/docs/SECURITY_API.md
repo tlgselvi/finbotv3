@@ -1,14 +1,17 @@
 # Security API Documentation
 
 ## Overview
+
 The Security API provides comprehensive authentication, authorization, and user management capabilities for FinBot v3. This includes role-based access control, two-factor authentication, password management, and activity logging.
 
 ## Base URL
+
 ```
 /api/security
 ```
 
 ## Authentication
+
 All endpoints require JWT authentication unless otherwise specified.
 
 ## Endpoints
@@ -16,12 +19,15 @@ All endpoints require JWT authentication unless otherwise specified.
 ### User Profile Management
 
 #### GET /profile
+
 Get current user's profile information.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -43,12 +49,15 @@ Get current user's profile information.
 ```
 
 #### PUT /profile
+
 Update user profile information.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Body:**
+
 ```json
 {
   "role": "finance",
@@ -58,6 +67,7 @@ Update user profile information.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -68,12 +78,15 @@ Update user profile information.
 ### Password Management
 
 #### POST /change-password
+
 Change user password.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Body:**
+
 ```json
 {
   "currentPassword": "CurrentPass123!",
@@ -83,14 +96,16 @@ Change user password.
 ```
 
 **Password Requirements:**
+
 - Minimum 8 characters
 - At least one uppercase letter
 - At least one lowercase letter
 - At least one number
-- At least one special character (!@#$%^&*)
+- At least one special character (!@#$%^&\*)
 - Cannot be a common weak pattern
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -99,9 +114,11 @@ Change user password.
 ```
 
 #### POST /request-password-reset
+
 Request password reset email.
 
 **Body:**
+
 ```json
 {
   "email": "user@example.com"
@@ -109,6 +126,7 @@ Request password reset email.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -117,9 +135,11 @@ Request password reset email.
 ```
 
 #### POST /reset-password
+
 Reset password using token.
 
 **Body:**
+
 ```json
 {
   "token": "reset-token-from-email",
@@ -129,6 +149,7 @@ Reset password using token.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -139,12 +160,15 @@ Reset password using token.
 ### Two-Factor Authentication
 
 #### POST /2fa/setup
+
 Setup 2FA for user account.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Body:**
+
 ```json
 {
   "phoneNumber": "+1234567890",
@@ -153,6 +177,7 @@ Setup 2FA for user account.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -163,12 +188,15 @@ Setup 2FA for user account.
 ```
 
 #### POST /2fa/enable
+
 Enable 2FA after verification.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Body:**
+
 ```json
 {
   "secret": "MOCK_SECRET_BASE32",
@@ -177,6 +205,7 @@ Enable 2FA after verification.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -185,12 +214,15 @@ Enable 2FA after verification.
 ```
 
 #### POST /2fa/disable
+
 Disable 2FA.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Body:**
+
 ```json
 {
   "password": "CurrentPassword123!",
@@ -199,6 +231,7 @@ Disable 2FA.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -207,12 +240,15 @@ Disable 2FA.
 ```
 
 #### POST /2fa/verify
+
 Verify 2FA token.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Body:**
+
 ```json
 {
   "token": "123456",
@@ -221,6 +257,7 @@ Verify 2FA token.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -229,12 +266,15 @@ Verify 2FA token.
 ```
 
 #### GET /2fa/status
+
 Get 2FA status for user.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -249,12 +289,15 @@ Get 2FA status for user.
 ```
 
 #### POST /2fa/regenerate-backup-codes
+
 Regenerate backup codes.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -265,12 +308,15 @@ Regenerate backup codes.
 ### Permission Management
 
 #### POST /check-permission
+
 Check if user has specific permission.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Body:**
+
 ```json
 {
   "permission": "manage_cashboxes",
@@ -280,6 +326,7 @@ Check if user has specific permission.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -290,12 +337,15 @@ Check if user has specific permission.
 ```
 
 #### GET /permissions
+
 Get user's permissions.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -320,18 +370,22 @@ Get user's permissions.
 ### Activity Logging
 
 #### GET /activity-logs
+
 Get user's activity logs.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 50)
 - `action` (optional): Filter by action
 - `resource` (optional): Filter by resource
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -362,12 +416,15 @@ Get user's activity logs.
 ```
 
 #### GET /activity-logs/all
+
 Get all activity logs (admin only).
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 100)
 - `userId` (optional): Filter by user ID
@@ -375,6 +432,7 @@ Get all activity logs (admin only).
 - `resource` (optional): Filter by resource
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -390,12 +448,15 @@ Get all activity logs (admin only).
 ### System Status
 
 #### GET /status
+
 Get security status for user.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -415,9 +476,11 @@ Get security status for user.
 ### Roles
 
 #### ADMIN
+
 Full system access including user management and system administration.
 
 **Permissions:**
+
 - `view_dashboard`
 - `manage_dashboard`
 - `view_cashboxes`
@@ -438,9 +501,11 @@ Full system access including user management and system administration.
 - `view_system_status`
 
 #### FINANCE
+
 Financial operations and cash management.
 
 **Permissions:**
+
 - `view_dashboard`
 - `view_cashboxes`
 - `manage_cashboxes`
@@ -454,9 +519,11 @@ Financial operations and cash management.
 - `view_analytics`
 
 #### VIEWER
+
 Read-only access to financial data.
 
 **Permissions:**
+
 - `view_dashboard`
 - `view_cashboxes`
 - `view_bank_integrations`
@@ -465,9 +532,11 @@ Read-only access to financial data.
 - `view_analytics`
 
 #### AUDITOR
+
 Read-only access with audit capabilities.
 
 **Permissions:**
+
 - `view_dashboard`
 - `view_cashboxes`
 - `view_bank_integrations`
@@ -480,6 +549,7 @@ Read-only access with audit capabilities.
 ## Error Responses
 
 ### 400 Bad Request
+
 ```json
 {
   "error": "Validation error message"
@@ -487,6 +557,7 @@ Read-only access with audit capabilities.
 ```
 
 ### 401 Unauthorized
+
 ```json
 {
   "error": "Authentication required"
@@ -494,6 +565,7 @@ Read-only access with audit capabilities.
 ```
 
 ### 403 Forbidden
+
 ```json
 {
   "error": "Insufficient permissions",
@@ -503,6 +575,7 @@ Read-only access with audit capabilities.
 ```
 
 ### 423 Locked
+
 ```json
 {
   "error": "Account is locked",
@@ -511,6 +584,7 @@ Read-only access with audit capabilities.
 ```
 
 ### 500 Internal Server Error
+
 ```json
 {
   "error": "Internal server error"
@@ -520,6 +594,7 @@ Read-only access with audit capabilities.
 ## Security Features
 
 ### Password Policy
+
 - Minimum 8 characters
 - Maximum 128 characters
 - At least one uppercase letter
@@ -531,6 +606,7 @@ Read-only access with audit capabilities.
 - 90-day expiration policy
 
 ### Account Security
+
 - Failed login attempt tracking
 - Account lockout after 5 failed attempts
 - 30-minute lockout duration
@@ -539,6 +615,7 @@ Read-only access with audit capabilities.
 - User agent tracking
 
 ### Two-Factor Authentication
+
 - TOTP-based 2FA using Google Authenticator
 - QR code generation for easy setup
 - Backup codes (10 single-use codes)
@@ -546,6 +623,7 @@ Read-only access with audit capabilities.
 - Phone number verification
 
 ### Activity Logging
+
 - Login/logout events
 - API call tracking
 - Critical action logging
@@ -554,6 +632,7 @@ Read-only access with audit capabilities.
 - Metadata storage for context
 
 ## Rate Limiting
+
 Different rate limits apply based on user role:
 
 - **ADMIN**: 1000 requests per hour
@@ -562,7 +641,9 @@ Different rate limits apply based on user role:
 - **AUDITOR**: 300 requests per hour
 
 ## Security Headers
+
 All responses include security headers:
+
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: DENY`
 - `X-XSS-Protection: 1; mode=block`

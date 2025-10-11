@@ -1,6 +1,6 @@
 /**
  * Input Validation Utilities
- * 
+ *
  * Provides validation functions for runway & cash gap analysis
  * Prevents SQL injection, XSS, and invalid inputs
  */
@@ -18,28 +18,44 @@ export class ValidationError extends Error {
 
 /**
  * Validates user ID
- * 
+ *
  * @param userId - User ID to validate
  * @throws {ValidationError} If user ID is invalid
  */
 export function validateUserId(userId: string): void {
   // Check if exists
   if (!userId) {
-    throw new ValidationError('User ID is required', 'MISSING_USER_ID', 'userId');
+    throw new ValidationError(
+      'User ID is required',
+      'MISSING_USER_ID',
+      'userId'
+    );
   }
 
   // Check type
   if (typeof userId !== 'string') {
-    throw new ValidationError('User ID must be a string', 'INVALID_TYPE', 'userId');
+    throw new ValidationError(
+      'User ID must be a string',
+      'INVALID_TYPE',
+      'userId'
+    );
   }
 
   // Check length
   if (userId.length === 0) {
-    throw new ValidationError('User ID cannot be empty', 'EMPTY_USER_ID', 'userId');
+    throw new ValidationError(
+      'User ID cannot be empty',
+      'EMPTY_USER_ID',
+      'userId'
+    );
   }
 
   if (userId.length > 100) {
-    throw new ValidationError('User ID is too long (max 100 characters)', 'USER_ID_TOO_LONG', 'userId');
+    throw new ValidationError(
+      'User ID is too long (max 100 characters)',
+      'USER_ID_TOO_LONG',
+      'userId'
+    );
   }
 
   // Prevent SQL injection
@@ -54,7 +70,16 @@ export function validateUserId(userId: string): void {
 
   // Additional safety: check for common SQL keywords
   const lowerUserId = userId.toLowerCase();
-  const sqlKeywords = ['select', 'drop', 'delete', 'insert', 'update', 'union', '--', '/*'];
+  const sqlKeywords = [
+    'select',
+    'drop',
+    'delete',
+    'insert',
+    'update',
+    'union',
+    '--',
+    '/*',
+  ];
   for (const keyword of sqlKeywords) {
     if (lowerUserId.includes(keyword)) {
       throw new ValidationError(
@@ -68,34 +93,54 @@ export function validateUserId(userId: string): void {
 
 /**
  * Validates months parameter
- * 
+ *
  * @param months - Number of months to validate
  * @throws {ValidationError} If months is invalid
  */
 export function validateMonths(months: number): void {
   // Check if exists
   if (months === null || months === undefined) {
-    throw new ValidationError('Months parameter is required', 'MISSING_MONTHS', 'months');
+    throw new ValidationError(
+      'Months parameter is required',
+      'MISSING_MONTHS',
+      'months'
+    );
   }
 
   // Check type
   if (typeof months !== 'number') {
-    throw new ValidationError('Months must be a number', 'INVALID_TYPE', 'months');
+    throw new ValidationError(
+      'Months must be a number',
+      'INVALID_TYPE',
+      'months'
+    );
   }
 
   // Check if NaN
   if (isNaN(months)) {
-    throw new ValidationError('Months cannot be NaN', 'INVALID_NUMBER', 'months');
+    throw new ValidationError(
+      'Months cannot be NaN',
+      'INVALID_NUMBER',
+      'months'
+    );
   }
 
   // Check if finite
   if (!isFinite(months)) {
-    throw new ValidationError('Months must be finite', 'INVALID_NUMBER', 'months');
+    throw new ValidationError(
+      'Months must be finite',
+      'INVALID_NUMBER',
+      'months'
+    );
   }
 
   // Check range
   if (months < 1) {
-    throw new ValidationError('Months must be at least 1', 'MONTHS_TOO_LOW', 'months');
+    throw new ValidationError(
+      'Months must be at least 1',
+      'MONTHS_TOO_LOW',
+      'months'
+    );
   }
 
   if (months > 60) {
@@ -108,18 +153,25 @@ export function validateMonths(months: number): void {
 
   // Check if integer
   if (!Number.isInteger(months)) {
-    throw new ValidationError('Months must be an integer', 'NOT_INTEGER', 'months');
+    throw new ValidationError(
+      'Months must be an integer',
+      'NOT_INTEGER',
+      'months'
+    );
   }
 }
 
 /**
  * Validates amount/balance values
- * 
+ *
  * @param amount - Amount to validate
  * @param fieldName - Name of the field for error messages
  * @throws {ValidationError} If amount is invalid
  */
-export function validateAmount(amount: number | string, fieldName: string = 'amount'): number {
+export function validateAmount(
+  amount: number | string,
+  fieldName: string = 'amount'
+): number {
   let numericAmount: number;
 
   // Convert string to number if needed
@@ -137,11 +189,19 @@ export function validateAmount(amount: number | string, fieldName: string = 'amo
 
   // Check if valid number
   if (isNaN(numericAmount)) {
-    throw new ValidationError(`${fieldName} is not a valid number`, 'INVALID_NUMBER', fieldName);
+    throw new ValidationError(
+      `${fieldName} is not a valid number`,
+      'INVALID_NUMBER',
+      fieldName
+    );
   }
 
   if (!isFinite(numericAmount)) {
-    throw new ValidationError(`${fieldName} must be finite`, 'INVALID_NUMBER', fieldName);
+    throw new ValidationError(
+      `${fieldName} must be finite`,
+      'INVALID_NUMBER',
+      fieldName
+    );
   }
 
   // Check precision (max 2 decimal places for currency)
@@ -169,7 +229,7 @@ export function validateAmount(amount: number | string, fieldName: string = 'amo
 
 /**
  * Sanitizes string input to prevent XSS
- * 
+ *
  * @param input - Input string to sanitize
  * @returns Sanitized string
  */
@@ -195,23 +255,38 @@ export function sanitizeInput(input: string): string {
 
 /**
  * Validates date string
- * 
+ *
  * @param dateStr - Date string to validate (ISO 8601)
  * @throws {ValidationError} If date is invalid
  */
-export function validateDateString(dateStr: string, fieldName: string = 'date'): Date {
+export function validateDateString(
+  dateStr: string,
+  fieldName: string = 'date'
+): Date {
   if (!dateStr) {
-    throw new ValidationError(`${fieldName} is required`, 'MISSING_DATE', fieldName);
+    throw new ValidationError(
+      `${fieldName} is required`,
+      'MISSING_DATE',
+      fieldName
+    );
   }
 
   if (typeof dateStr !== 'string') {
-    throw new ValidationError(`${fieldName} must be a string`, 'INVALID_TYPE', fieldName);
+    throw new ValidationError(
+      `${fieldName} must be a string`,
+      'INVALID_TYPE',
+      fieldName
+    );
   }
 
   const date = new Date(dateStr);
 
   if (isNaN(date.getTime())) {
-    throw new ValidationError(`${fieldName} is not a valid date`, 'INVALID_DATE', fieldName);
+    throw new ValidationError(
+      `${fieldName} is not a valid date`,
+      'INVALID_DATE',
+      fieldName
+    );
   }
 
   // Check reasonable bounds (not in distant past or future)
@@ -231,21 +306,38 @@ export function validateDateString(dateStr: string, fieldName: string = 'date'):
 
 /**
  * Validates currency code
- * 
+ *
  * @param currency - Currency code (ISO 4217)
  * @throws {ValidationError} If currency is invalid
  */
 export function validateCurrency(currency: string): void {
   if (!currency) {
-    throw new ValidationError('Currency is required', 'MISSING_CURRENCY', 'currency');
+    throw new ValidationError(
+      'Currency is required',
+      'MISSING_CURRENCY',
+      'currency'
+    );
   }
 
   if (typeof currency !== 'string') {
-    throw new ValidationError('Currency must be a string', 'INVALID_TYPE', 'currency');
+    throw new ValidationError(
+      'Currency must be a string',
+      'INVALID_TYPE',
+      'currency'
+    );
   }
 
   // Common currencies (extend as needed)
-  const validCurrencies = ['TRY', 'USD', 'EUR', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD'];
+  const validCurrencies = [
+    'TRY',
+    'USD',
+    'EUR',
+    'GBP',
+    'JPY',
+    'CHF',
+    'CAD',
+    'AUD',
+  ];
 
   if (!validCurrencies.includes(currency.toUpperCase())) {
     throw new ValidationError(
@@ -258,11 +350,14 @@ export function validateCurrency(currency: string): void {
 
 /**
  * Validates pagination parameters
- * 
+ *
  * @param page - Page number (1-based)
  * @param limit - Items per page
  */
-export function validatePagination(page?: number, limit?: number): { page: number; limit: number } {
+export function validatePagination(
+  page?: number,
+  limit?: number
+): { page: number; limit: number } {
   const defaultPage = 1;
   const defaultLimit = 20;
   const maxLimit = 100;
@@ -272,14 +367,22 @@ export function validatePagination(page?: number, limit?: number): { page: numbe
 
   if (page !== undefined) {
     if (typeof page !== 'number' || isNaN(page) || page < 1) {
-      throw new ValidationError('Page must be a positive integer', 'INVALID_PAGE', 'page');
+      throw new ValidationError(
+        'Page must be a positive integer',
+        'INVALID_PAGE',
+        'page'
+      );
     }
     validPage = Math.floor(page);
   }
 
   if (limit !== undefined) {
     if (typeof limit !== 'number' || isNaN(limit) || limit < 1) {
-      throw new ValidationError('Limit must be a positive integer', 'INVALID_LIMIT', 'limit');
+      throw new ValidationError(
+        'Limit must be a positive integer',
+        'INVALID_LIMIT',
+        'limit'
+      );
     }
     if (limit > maxLimit) {
       throw new ValidationError(
@@ -293,4 +396,3 @@ export function validatePagination(page?: number, limit?: number): { page: numbe
 
   return { page: validPage, limit: validLimit };
 }
-

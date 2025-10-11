@@ -18,8 +18,14 @@ interface PerformanceMetrics {
 const performanceCache = new Map<string, PerformanceMetrics>();
 
 // Performance monitoring middleware
-export const performanceMonitor = (req: Request, res: Response, next: NextFunction) => {
-  const requestId = req.headers['x-request-id'] as string || `perf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+export const performanceMonitor = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const requestId =
+    (req.headers['x-request-id'] as string) ||
+    `perf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
 
   const metrics: PerformanceMetrics = {
@@ -46,12 +52,16 @@ export const performanceMonitor = (req: Request, res: Response, next: NextFuncti
 
     // Log slow requests (> 1 second)
     if (duration > 1000) {
-      logger.warn(`🐌 Slow request detected: ${req.method} ${req.url} took ${duration}ms`);
+      logger.warn(
+        `🐌 Slow request detected: ${req.method} ${req.url} took ${duration}ms`
+      );
     }
 
     // Log performance metrics for API routes
     if (req.url.startsWith('/api')) {
-      logger.info(`📊 Performance: ${req.method} ${req.url} - ${duration}ms - ${metrics.memoryUsage.heapUsed / 1024 / 1024}MB`);
+      logger.info(
+        `📊 Performance: ${req.method} ${req.url} - ${duration}ms - ${metrics.memoryUsage.heapUsed / 1024 / 1024}MB`
+      );
     }
 
     // Clean up cache (keep only last 100 entries)
@@ -67,7 +77,11 @@ export const performanceMonitor = (req: Request, res: Response, next: NextFuncti
 };
 
 // Database query optimization middleware
-export const queryOptimizer = (req: Request, res: Response, next: NextFunction) => {
+export const queryOptimizer = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // Add query optimization headers
   res.set({
     'X-Content-Type-Options': 'nosniff',
@@ -91,14 +105,21 @@ export const queryOptimizer = (req: Request, res: Response, next: NextFunction) 
 };
 
 // Memory usage monitoring
-export const memoryMonitor = (req: Request, res: Response, next: NextFunction) => {
+export const memoryMonitor = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const memUsage = process.memoryUsage();
   const heapUsedMB = memUsage.heapUsed / 1024 / 1024;
   const heapTotalMB = memUsage.heapTotal / 1024 / 1024;
 
   // Warn if memory usage is high
-  if (heapUsedMB > 500) { // 500MB threshold
-    logger.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB / ${heapTotalMB.toFixed(2)}MB`);
+  if (heapUsedMB > 500) {
+    // 500MB threshold
+    logger.warn(
+      `⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB / ${heapTotalMB.toFixed(2)}MB`
+    );
   }
 
   // Add memory info to response headers in development
@@ -110,7 +131,11 @@ export const memoryMonitor = (req: Request, res: Response, next: NextFunction) =
 };
 
 // Response compression middleware
-export const responseCompression = (req: Request, res: Response, next: NextFunction) => {
+export const responseCompression = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const originalSend = res.send;
   const originalJson = res.json;
 
@@ -140,7 +165,11 @@ export const responseCompression = (req: Request, res: Response, next: NextFunct
 };
 
 // Database connection pooling optimization
-export const dbConnectionOptimizer = (req: Request, res: Response, next: NextFunction) => {
+export const dbConnectionOptimizer = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // Add database connection info to response headers
   if (process.env.NODE_ENV === 'development') {
     res.setHeader('X-DB-Status', 'connected');
@@ -174,7 +203,11 @@ export const cacheControl = (maxAge: number = 300) => {
 // Request deduplication middleware
 const pendingRequests = new Map<string, Promise<any>>();
 
-export const requestDeduplication = (req: Request, res: Response, next: NextFunction) => {
+export const requestDeduplication = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // Only apply to GET requests
   if (req.method !== 'GET') {
     return next();
@@ -187,11 +220,14 @@ export const requestDeduplication = (req: Request, res: Response, next: NextFunc
     logger.info(`🔄 Deduplicating request: ${requestKey}`);
 
     // Wait for the pending request to complete
-    pendingRequests.get(requestKey)!.then((result) => {
-      res.json(result);
-    }).catch((error) => {
-      res.status(500).json({ error: 'Request failed' });
-    });
+    pendingRequests
+      .get(requestKey)!
+      .then(result => {
+        res.json(result);
+      })
+      .catch(error => {
+        res.status(500).json({ error: 'Request failed' });
+      });
 
     return;
   }
@@ -233,8 +269,12 @@ export const getPerformanceMetrics = (req: Request, res: Response) => {
 
   const stats = {
     totalRequests: metrics.length,
-    averageResponseTime: metrics.reduce((sum, m) => sum + (m.duration || 0), 0) / metrics.length,
-    slowestRequest: metrics.reduce((max, m) => (m.duration || 0) > (max.duration || 0) ? m : max, metrics[0]),
+    averageResponseTime:
+      metrics.reduce((sum, m) => sum + (m.duration || 0), 0) / metrics.length,
+    slowestRequest: metrics.reduce(
+      (max, m) => ((m.duration || 0) > (max.duration || 0) ? m : max),
+      metrics[0]
+    ),
     memoryUsage: {
       heapUsed: `${(memUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
       heapTotal: `${(memUsage.heapTotal / 1024 / 1024).toFixed(2)}MB`,
@@ -253,8 +293,8 @@ export const cleanupPerformanceCache = () => {
   const now = Date.now();
   const maxAge = 5 * 60 * 1000; // 5 minutes
 
-    for (const [key, metrics] of Array.from(performanceCache.entries())) {
-    if (metrics.startTime && (now - metrics.startTime) > maxAge) {
+  for (const [key, metrics] of Array.from(performanceCache.entries())) {
+    if (metrics.startTime && now - metrics.startTime > maxAge) {
       performanceCache.delete(key);
     }
   }

@@ -36,12 +36,13 @@ function categorizeAccounts(accounts: Account[]): ConsolidationBreakdown {
   const breakdown: ConsolidationBreakdown = {
     company: { bank: 0, cash: 0, credit: 0, invest: 0 },
     personal: { bank: 0, cash: 0, credit: 0, invest: 0 },
-    total: { bank: 0, cash: 0, credit: 0, invest: 0 }
+    total: { bank: 0, cash: 0, credit: 0, invest: 0 },
   };
 
   accounts.forEach(account => {
-    const targetCategory = account.type === 'company' ? breakdown.company : breakdown.personal;
-    
+    const targetCategory =
+      account.type === 'company' ? breakdown.company : breakdown.personal;
+
     // Ana hesap bakiyesi - bank kategorisine ekle
     const balance = parseFloat(account.balance || '0');
     targetCategory.bank += balance;
@@ -112,31 +113,40 @@ function categorizeAccounts(accounts: Account[]): ConsolidationBreakdown {
 /**
  * Breakdown verilerini tablo formatına dönüştürür
  */
-export function formatBreakdownTable(breakdown: ConsolidationBreakdown): BreakdownTable {
+export function formatBreakdownTable(
+  breakdown: ConsolidationBreakdown
+): BreakdownTable {
   const categories = [
     { key: 'bank', label: 'Banka Hesapları' },
     { key: 'cash', label: 'Nakit/Vadesiz' },
     { key: 'credit', label: 'Kredi/Borç' },
-    { key: 'invest', label: 'Yatırım/Vadeli' }
+    { key: 'invest', label: 'Yatırım/Vadeli' },
   ];
 
   const calculateTotal = (category: BreakdownCategory) => {
-    return Math.abs(category.bank) + Math.abs(category.cash) + 
-           Math.abs(category.credit) + Math.abs(category.invest);
+    return (
+      Math.abs(category.bank) +
+      Math.abs(category.cash) +
+      Math.abs(category.credit) +
+      Math.abs(category.invest)
+    );
   };
 
-  const formatCategory = (category: BreakdownCategory, type: 'company' | 'personal' | 'total') => {
+  const formatCategory = (
+    category: BreakdownCategory,
+    type: 'company' | 'personal' | 'total'
+  ) => {
     const total = calculateTotal(category);
-    
+
     return categories.map(cat => {
       const amount = category[cat.key as keyof BreakdownCategory];
       const percentage = total > 0 ? (Math.abs(amount) / total) * 100 : 0;
-      
+
       return {
         category: cat.label,
         amount,
         formattedAmount: formatCurrency(amount, 'TRY'),
-        percentage: Math.round(percentage * 100) / 100
+        percentage: Math.round(percentage * 100) / 100,
       };
     });
   };
@@ -144,7 +154,7 @@ export function formatBreakdownTable(breakdown: ConsolidationBreakdown): Breakdo
   return {
     company: formatCategory(breakdown.company, 'company'),
     personal: formatCategory(breakdown.personal, 'personal'),
-    total: formatCategory(breakdown.total, 'total')
+    total: formatCategory(breakdown.total, 'total'),
   };
 }
 
@@ -164,18 +174,25 @@ export function calculateConsolidationBreakdown(accounts: Account[]): {
 } {
   const breakdown = categorizeAccounts(accounts);
   const table = formatBreakdownTable(breakdown);
-  
+
   // Özet hesaplamalar
-  const totalAssets = breakdown.total.bank + breakdown.total.cash + breakdown.total.invest;
+  const totalAssets =
+    breakdown.total.bank + breakdown.total.cash + breakdown.total.invest;
   const totalLiabilities = Math.abs(breakdown.total.credit);
   const netWorth = totalAssets - totalLiabilities;
-  
-  const companyTotal = breakdown.company.bank + breakdown.company.cash + 
-                      breakdown.company.invest - Math.abs(breakdown.company.credit);
-  const personalTotal = breakdown.personal.bank + breakdown.personal.cash + 
-                       breakdown.personal.invest - Math.abs(breakdown.personal.credit);
+
+  const companyTotal =
+    breakdown.company.bank +
+    breakdown.company.cash +
+    breakdown.company.invest -
+    Math.abs(breakdown.company.credit);
+  const personalTotal =
+    breakdown.personal.bank +
+    breakdown.personal.cash +
+    breakdown.personal.invest -
+    Math.abs(breakdown.personal.credit);
   const grandTotal = companyTotal + personalTotal;
-  
+
   return {
     breakdown,
     table,
@@ -183,9 +200,15 @@ export function calculateConsolidationBreakdown(accounts: Account[]): {
       totalAssets: Math.round(totalAssets * 100) / 100,
       totalLiabilities: Math.round(totalLiabilities * 100) / 100,
       netWorth: Math.round(netWorth * 100) / 100,
-      companyRatio: grandTotal > 0 ? Math.round((companyTotal / grandTotal) * 10000) / 100 : 0,
-      personalRatio: grandTotal > 0 ? Math.round((personalTotal / grandTotal) * 10000) / 100 : 0
-    }
+      companyRatio:
+        grandTotal > 0
+          ? Math.round((companyTotal / grandTotal) * 10000) / 100
+          : 0,
+      personalRatio:
+        grandTotal > 0
+          ? Math.round((personalTotal / grandTotal) * 10000) / 100
+          : 0,
+    },
   };
 }
 
@@ -194,7 +217,7 @@ export function calculateConsolidationBreakdown(accounts: Account[]): {
  */
 export function prepareBreakdownChartData(breakdown: ConsolidationBreakdown) {
   const categories = ['Banka', 'Nakit', 'Kredi', 'Yatırım'];
-  
+
   return {
     labels: categories,
     datasets: [
@@ -204,11 +227,11 @@ export function prepareBreakdownChartData(breakdown: ConsolidationBreakdown) {
           breakdown.company.bank,
           breakdown.company.cash,
           Math.abs(breakdown.company.credit),
-          breakdown.company.invest
+          breakdown.company.invest,
         ],
         backgroundColor: 'rgba(59, 130, 246, 0.8)',
         borderColor: 'rgba(59, 130, 246, 1)',
-        borderWidth: 1
+        borderWidth: 1,
       },
       {
         label: 'Kişisel',
@@ -216,12 +239,12 @@ export function prepareBreakdownChartData(breakdown: ConsolidationBreakdown) {
           breakdown.personal.bank,
           breakdown.personal.cash,
           Math.abs(breakdown.personal.credit),
-          breakdown.personal.invest
+          breakdown.personal.invest,
         ],
         backgroundColor: 'rgba(16, 185, 129, 0.8)',
         borderColor: 'rgba(16, 185, 129, 1)',
-        borderWidth: 1
-      }
-    ]
+        borderWidth: 1,
+      },
+    ],
   };
 }

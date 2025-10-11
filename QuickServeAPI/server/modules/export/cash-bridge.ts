@@ -24,7 +24,10 @@ export interface CashBridgeReport {
     totalInflows: number;
     totalOutflows: number;
     netChange: number;
-    categories: Record<string, { inflows: number; outflows: number; net: number }>;
+    categories: Record<
+      string,
+      { inflows: number; outflows: number; net: number }
+    >;
   };
 }
 
@@ -51,13 +54,16 @@ export function generateCashBridgeReport(
   // Process transactions into cash bridge items
   const inflows: CashBridgeItem[] = [];
   const outflows: CashBridgeItem[] = [];
-  const categories: Record<string, { inflows: number; outflows: number; net: number }> = {};
+  const categories: Record<
+    string,
+    { inflows: number; outflows: number; net: number }
+  > = {};
 
   periodTransactions.forEach(transaction => {
     const account = accounts.find(acc => acc.id === transaction.accountId);
     const amount = parseFloat(transaction.amount);
     const isInflow = amount > 0;
-    
+
     const item: CashBridgeItem = {
       category: transaction.category || 'Diğer',
       description: transaction.description || '',
@@ -79,13 +85,14 @@ export function generateCashBridgeReport(
     if (!categories[category]) {
       categories[category] = { inflows: 0, outflows: 0, net: 0 };
     }
-    
+
     if (isInflow) {
       categories[category].inflows += amount;
     } else {
       categories[category].outflows += Math.abs(amount);
     }
-    categories[category].net = categories[category].inflows - categories[category].outflows;
+    categories[category].net =
+      categories[category].inflows - categories[category].outflows;
   });
 
   // Sort by date
@@ -126,9 +133,9 @@ export function exportCashBridgeToCSV(
 ): string {
   const isTurkish = locale === 'tr-TR';
   const separator = isTurkish ? ';' : ',';
-  
+
   let csv = '';
-  
+
   // Add BOM for UTF-8
   if (isTurkish) {
     csv += '\uFEFF';
@@ -148,8 +155,8 @@ export function exportCashBridgeToCSV(
   // Cash inflows
   const inflowsTitle = isTurkish ? 'Nakit Girişleri' : 'Cash Inflows';
   csv += `${inflowsTitle}\n`;
-  
-  const inflowHeaders = isTurkish 
+
+  const inflowHeaders = isTurkish
     ? ['Tarih', 'Kategori', 'Açıklama', 'Tutar', 'Hesap']
     : ['Date', 'Category', 'Description', 'Amount', 'Account'];
   csv += inflowHeaders.join(separator) + '\n';
@@ -170,8 +177,8 @@ export function exportCashBridgeToCSV(
   // Cash outflows
   const outflowsTitle = isTurkish ? 'Nakit Çıkışları' : 'Cash Outflows';
   csv += `${outflowsTitle}\n`;
-  
-  const outflowHeaders = isTurkish 
+
+  const outflowHeaders = isTurkish
     ? ['Tarih', 'Kategori', 'Açıklama', 'Tutar', 'Hesap']
     : ['Date', 'Category', 'Description', 'Amount', 'Account'];
   csv += outflowHeaders.join(separator) + '\n';
@@ -192,8 +199,8 @@ export function exportCashBridgeToCSV(
   // Category summary
   const summaryTitle = isTurkish ? 'Kategori Özeti' : 'Category Summary';
   csv += `${summaryTitle}\n`;
-  
-  const summaryHeaders = isTurkish 
+
+  const summaryHeaders = isTurkish
     ? ['Kategori', 'Girişler', 'Çıkışlar', 'Net']
     : ['Category', 'Inflows', 'Outflows', 'Net'];
   csv += summaryHeaders.join(separator) + '\n';
@@ -216,12 +223,14 @@ export function exportCashBridgeToCSV(
  */
 function formatCurrency(amount: number, locale: 'tr-TR' | 'en-US'): string {
   const isTurkish = locale === 'tr-TR';
-  
+
   if (isTurkish) {
-    return Math.abs(amount).toLocaleString('tr-TR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).replace('.', ',');
+    return Math.abs(amount)
+      .toLocaleString('tr-TR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+      .replace('.', ',');
   } else {
     return Math.abs(amount).toLocaleString('en-US', {
       minimumFractionDigits: 2,
@@ -233,7 +242,11 @@ function formatCurrency(amount: number, locale: 'tr-TR' | 'en-US'): string {
 /**
  * Get Cash Bridge report periods
  */
-export function getCashBridgePeriods(): Array<{ label: string; startDate: Date; endDate: Date }> {
+export function getCashBridgePeriods(): Array<{
+  label: string;
+  startDate: Date;
+  endDate: Date;
+}> {
   const now = new Date();
   const periods = [];
 
@@ -282,4 +295,3 @@ export function getCashBridgePeriods(): Array<{ label: string; startDate: Date; 
 
   return periods;
 }
-

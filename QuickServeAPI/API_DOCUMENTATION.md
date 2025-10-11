@@ -14,6 +14,7 @@
 ## 🔐 Authentication
 
 ### Login
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -25,6 +26,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -38,6 +40,7 @@ Content-Type: application/json
 ```
 
 ### Logout
+
 ```http
 POST /api/auth/logout
 Authorization: Bearer <token>
@@ -46,12 +49,14 @@ Authorization: Bearer <token>
 ## 📊 Dashboard
 
 ### Get Dashboard Data
+
 ```http
 GET /api/dashboard
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "accounts": [
@@ -85,12 +90,14 @@ Authorization: Bearer <token>
 ## 🏢 Consolidation
 
 ### Get Consolidation Breakdown
+
 ```http
 GET /api/consolidation/breakdown
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "breakdown": {
@@ -134,18 +141,21 @@ Authorization: Bearer <token>
 ## ⚠️ Risk Analysis
 
 ### Get Risk Analysis
+
 ```http
 GET /api/risk/analysis?fxDelta=5&rateDelta=-2&inflationDelta=8&liquidityGap=5
 Authorization: Bearer <token>
 ```
 
 **Query Parameters:**
+
 - `fxDelta` (number): Döviz kuru değişimi yüzdesi (default: 0)
 - `rateDelta` (number): Faiz oranı değişimi yüzdesi (default: 0)
 - `inflationDelta` (number): Enflasyon değişimi yüzdesi (default: 0)
 - `liquidityGap` (number): Likidite açığı yüzdesi (default: 0)
 
 **Response:**
+
 ```json
 {
   "best": {
@@ -182,12 +192,14 @@ Authorization: Bearer <token>
 ```
 
 ### Validate Risk Parameters
+
 ```http
 GET /api/risk/parameters/validate?fxDelta=150&rateDelta=200
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "valid": false,
@@ -197,7 +209,7 @@ Authorization: Bearer <token>
       "message": "Döviz kuru değişimi -100 ile +100 arasında olmalıdır"
     },
     {
-      "parameter": "rateDelta", 
+      "parameter": "rateDelta",
       "message": "Faiz oranı değişimi -50 ile +50 arasında olmalıdır"
     }
   ]
@@ -205,6 +217,7 @@ Authorization: Bearer <token>
 ```
 
 ### Compare Risk Scenarios
+
 ```http
 POST /api/risk/scenarios/compare
 Authorization: Bearer <token>
@@ -231,6 +244,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "comparison": [
@@ -241,7 +255,7 @@ Content-Type: application/json
       "cashProjection": 115000
     },
     {
-      "name": "Pessimistic", 
+      "name": "Pessimistic",
       "riskScore": 35,
       "riskLevel": "high",
       "cashProjection": 65000
@@ -253,6 +267,7 @@ Content-Type: application/json
 ## 🎯 Simulation
 
 ### Run Simulation
+
 ```http
 POST /api/simulation/run
 Authorization: Bearer <token>
@@ -267,12 +282,14 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 - `fxDelta` (number): Döviz kuru değişimi yüzdesi
 - `rateDelta` (number): Faiz oranı değişimi yüzdesi
 - `inflationDelta` (number): Enflasyon değişimi yüzdesi
 - `horizonMonths` (number): Simülasyon süresi (3, 6, veya 12)
 
 **Response:**
+
 ```json
 {
   "id": "simulation-id",
@@ -312,16 +329,19 @@ Content-Type: application/json
 ```
 
 ### Get Simulation History
+
 ```http
 GET /api/simulation/history?limit=10&offset=0
 Authorization: Bearer <token>
 ```
 
 **Query Parameters:**
+
 - `limit` (number): Maksimum sonuç sayısı (default: 10)
 - `offset` (number): Başlangıç offset'i (default: 0)
 
 **Response:**
+
 ```json
 {
   "runs": [
@@ -340,6 +360,7 @@ Authorization: Bearer <token>
 ## 💼 Portfolio Advisor
 
 ### Get Portfolio Recommendations
+
 ```http
 POST /api/advisor/portfolio
 Authorization: Bearer <token>
@@ -361,10 +382,12 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 - `portfolio`: Mevcut portföy dağılımı (tüm değerler pozitif)
 - `riskProfile`: Risk profili ("low", "medium", "high")
 
 **Response:**
+
 ```json
 {
   "riskScore": 75,
@@ -411,12 +434,12 @@ Content-Type: application/json
   },
   "chartData": {
     "current": [
-      {"name": "Nakit", "value": 100000, "color": "#3b82f6"},
-      {"name": "Mevduat", "value": 200000, "color": "#10b981"}
+      { "name": "Nakit", "value": 100000, "color": "#3b82f6" },
+      { "name": "Mevduat", "value": 200000, "color": "#10b981" }
     ],
     "target": [
-      {"name": "Nakit", "value": 75000, "color": "#3b82f6"},
-      {"name": "Mevduat", "value": 150000, "color": "#10b981"}
+      { "name": "Nakit", "value": 75000, "color": "#3b82f6" },
+      { "name": "Mevduat", "value": 150000, "color": "#10b981" }
     ]
   }
 }
@@ -425,17 +448,20 @@ Content-Type: application/json
 ## 📤 Export
 
 ### Export CSV Summary
+
 ```http
 GET /api/export/summary.csv?locale=tr-TR
 Authorization: Bearer <token>
 ```
 
 **Query Parameters:**
+
 - `locale` (string): Locale kodu ("tr-TR", "en-US", "de-DE")
 
 **Response:** CSV file download
 
 ### Export PDF Report
+
 ```http
 GET /api/export/report.pdf
 Authorization: Bearer <token>
@@ -444,12 +470,14 @@ Authorization: Bearer <token>
 **Response:** PDF file download
 
 ### Export Transactions CSV
+
 ```http
 GET /api/export/transactions.csv?startDate=2024-01-01&endDate=2024-01-31&locale=tr-TR
 Authorization: Bearer <token>
 ```
 
 **Query Parameters:**
+
 - `startDate` (string): Başlangıç tarihi (YYYY-MM-DD)
 - `endDate` (string): Bitiş tarihi (YYYY-MM-DD)
 - `locale` (string): Locale kodu
@@ -459,6 +487,7 @@ Authorization: Bearer <token>
 ## ❌ Error Handling
 
 ### Error Response Format
+
 ```json
 {
   "error": "ERROR_CODE",
@@ -474,6 +503,7 @@ Authorization: Bearer <token>
 ### Common Error Codes
 
 #### 400 Bad Request
+
 ```json
 {
   "error": "VALIDATION_ERROR",
@@ -485,6 +515,7 @@ Authorization: Bearer <token>
 ```
 
 #### 401 Unauthorized
+
 ```json
 {
   "error": "UNAUTHORIZED",
@@ -496,6 +527,7 @@ Authorization: Bearer <token>
 ```
 
 #### 403 Forbidden
+
 ```json
 {
   "error": "FORBIDDEN",
@@ -508,6 +540,7 @@ Authorization: Bearer <token>
 ```
 
 #### 404 Not Found
+
 ```json
 {
   "error": "NOT_FOUND",
@@ -520,6 +553,7 @@ Authorization: Bearer <token>
 ```
 
 #### 429 Too Many Requests
+
 ```json
 {
   "error": "RATE_LIMITED",
@@ -531,6 +565,7 @@ Authorization: Bearer <token>
 ```
 
 #### 500 Internal Server Error
+
 ```json
 {
   "error": "INTERNAL_ERROR",
@@ -569,11 +604,13 @@ Liste endpoint'leri için pagination desteği:
 ## 🔍 Filtering & Sorting
 
 ### Query Parameters
+
 - `sort`: Sıralama alanı (`createdAt`, `amount`, `date`)
 - `order`: Sıralama yönü (`asc`, `desc`)
 - `filter`: Filtreleme kriterleri (JSON string)
 
 ### Example
+
 ```http
 GET /api/transactions?sort=date&order=desc&filter={"category":"income","amount":{"gte":1000}}
 ```
@@ -581,13 +618,14 @@ GET /api/transactions?sort=date&order=desc&filter={"category":"income","amount":
 ## 📊 WebSocket Events
 
 ### Real-time Updates
+
 ```javascript
 const ws = new WebSocket('ws://localhost:5000/ws');
 
-ws.onmessage = (event) => {
+ws.onmessage = event => {
   const data = JSON.parse(event.data);
-  
-  switch(data.type) {
+
+  switch (data.type) {
     case 'ACCOUNT_UPDATE':
       // Handle account balance update
       break;
@@ -602,6 +640,7 @@ ws.onmessage = (event) => {
 ```
 
 ### Event Types
+
 - `ACCOUNT_UPDATE`: Hesap bakiye güncellemesi
 - `TRANSACTION_ADDED`: Yeni işlem eklendi
 - `TRANSACTION_UPDATED`: İşlem güncellendi

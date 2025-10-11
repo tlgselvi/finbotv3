@@ -3,21 +3,27 @@
 ## ⚡ EN ÇOK KULLANILAN KOMUTLAR
 
 ### 1️⃣ Hızlı Test (2 dakika)
+
 ```bash
 pnpm test:quick
 ```
+
 Sadece critical testler - Her commit'te çalıştır ⚡
 
 ### 2️⃣ Deploy Hazırlık (4 dakika) ⭐
+
 ```bash
 pnpm test1
 ```
+
 **Deploy öncesi ZORUNLU!** Critical + Coverage + Performance
 
 ### 3️⃣ Deploy Kontrol (5 dakika)
+
 ```bash
 pnpm test:deploy
 ```
+
 Deploy öncesi son kontrol - Tests + Lint + Types
 
 ---
@@ -35,20 +41,21 @@ pnpm test4    # Phase 4: Görsel & AI (20 dk)
 
 ## 🎯 NE ZAMAN HANGİ KOMUTU?
 
-| Durum | Komut | Süre |
-|-------|-------|------|
-| 💻 **Kod yazdım** | `test:quick` | 2 dk |
-| 📝 **Commit yapacağım** | `test1` | 4 dk |
-| 🔀 **PR açacağım** | `test2` | 5 dk |
-| 🚀 **Deploy edeceğim** | `test:deploy` | 5 dk |
-| 📦 **Release** | `test3` | 15 dk |
-| 📊 **Sprint sonu** | `test4` | 20 dk |
+| Durum                   | Komut         | Süre  |
+| ----------------------- | ------------- | ----- |
+| 💻 **Kod yazdım**       | `test:quick`  | 2 dk  |
+| 📝 **Commit yapacağım** | `test1`       | 4 dk  |
+| 🔀 **PR açacağım**      | `test2`       | 5 dk  |
+| 🚀 **Deploy edeceğim**  | `test:deploy` | 5 dk  |
+| 📦 **Release**          | `test3`       | 15 dk |
+| 📊 **Sprint sonu**      | `test4`       | 20 dk |
 
 ---
 
 ## ⚡ TAVSİYE EDİLEN WORKFLOW
 
 ### Günlük Geliştirme
+
 ```bash
 # 1. Kod yaz
 # 2. Hızlı test
@@ -60,6 +67,7 @@ git commit -m "feat: new feature"
 ```
 
 ### Deploy Öncesi
+
 ```bash
 # 1. Temel kontrol
 pnpm test1
@@ -71,6 +79,7 @@ pnpm test:deploy
 ```
 
 ### PR Öncesi
+
 ```bash
 # 1. Full phase 1
 pnpm test1
@@ -134,4 +143,3 @@ pnpm test3            # Akıllı analiz + öneriler
 ---
 
 **UNUTMA:** Deploy öncesi **MUTLAKA** `pnpm test1` çalıştır! ⭐
-

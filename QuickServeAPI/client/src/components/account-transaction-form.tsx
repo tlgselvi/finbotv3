@@ -3,11 +3,30 @@ import { useFormatCurrency } from '@/lib/utils/formatCurrency';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CreditCard, Calendar, AlertTriangle, PiggyBank, Building, Clock } from 'lucide-react';
+import {
+  CreditCard,
+  Calendar,
+  AlertTriangle,
+  PiggyBank,
+  Building,
+  Clock,
+} from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import type { Account } from '@/lib/types';
 import type { SubAccount } from '@shared/schema';
@@ -73,36 +92,56 @@ const getSubAccountCategories = (subAccount?: SubAccount) => {
   }
 };
 
-export default function AccountTransactionForm ({
-  formatCurrency = useFormatCurrency(), account, subAccount, onAddTransaction, onClose }: AccountTransactionFormProps) {
-  const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
+export default function AccountTransactionForm({
+  formatCurrency = useFormatCurrency(),
+  account,
+  subAccount,
+  onAddTransaction,
+  onClose,
+}: AccountTransactionFormProps) {
+  const [transactionType, setTransactionType] = useState<'income' | 'expense'>(
+    'expense'
+  );
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
 
   const categories = getSubAccountCategories(subAccount);
-  const defaultTransactionType = subAccount?.type === 'deposit' ? 'income' : 'expense';
+  const defaultTransactionType =
+    subAccount?.type === 'deposit' ? 'income' : 'expense';
 
   // Helper functions for sub-account
   const getSubAccountIcon = (type: string) => {
     switch (type) {
-      case 'checking': return <Building className="w-4 h-4" />;
-      case 'creditCard': return <CreditCard className="w-4 h-4" />;
-      case 'loan': return <Calendar className="w-4 h-4" />;
-      case 'kmh': return <AlertTriangle className="w-4 h-4" />;
-      case 'deposit': return <PiggyBank className="w-4 h-4" />;
-      default: return <Building className="w-4 h-4" />;
+      case 'checking':
+        return <Building className="w-4 h-4" />;
+      case 'creditCard':
+        return <CreditCard className="w-4 h-4" />;
+      case 'loan':
+        return <Calendar className="w-4 h-4" />;
+      case 'kmh':
+        return <AlertTriangle className="w-4 h-4" />;
+      case 'deposit':
+        return <PiggyBank className="w-4 h-4" />;
+      default:
+        return <Building className="w-4 h-4" />;
     }
   };
 
   const getSubAccountName = (type: string) => {
     switch (type) {
-      case 'checking': return 'Vadesiz Hesap';
-      case 'creditCard': return 'Kredi Kartı';
-      case 'loan': return 'Kredi';
-      case 'kmh': return 'KMH (Kredi Mevduat Hesabı)';
-      case 'deposit': return 'Vadeli Hesap';
-      default: return 'Hesap';
+      case 'checking':
+        return 'Vadesiz Hesap';
+      case 'creditCard':
+        return 'Kredi Kartı';
+      case 'loan':
+        return 'Kredi';
+      case 'kmh':
+        return 'KMH (Kredi Mevduat Hesabı)';
+      case 'deposit':
+        return 'Vadeli Hesap';
+      default:
+        return 'Hesap';
     }
   };
 
@@ -132,11 +171,11 @@ export default function AccountTransactionForm ({
   const getSuggestedCategories = () => {
     if (transactionType === 'income') {
       return categories.filter(cat =>
-        ['salary', 'freelance', 'sales'].includes(cat.value),
+        ['salary', 'freelance', 'sales'].includes(cat.value)
       );
     } else {
-      return categories.filter(cat =>
-        !['salary', 'freelance', 'sales'].includes(cat.value),
+      return categories.filter(
+        cat => !['salary', 'freelance', 'sales'].includes(cat.value)
       );
     }
   };
@@ -147,14 +186,18 @@ export default function AccountTransactionForm ({
       <Card className="bg-blue-50/50 border-blue-200">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm text-blue-700">
-            {subAccount ? `${getSubAccountName(subAccount.type)} Bilgileri` : 'Hesap Bilgileri'}
+            {subAccount
+              ? `${getSubAccountName(subAccount.type)} Bilgileri`
+              : 'Hesap Bilgileri'}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">{account.accountName}</p>
-              <p className="text-sm text-muted-foreground">{account.bankName}</p>
+              <p className="text-sm text-muted-foreground">
+                {account.bankName}
+              </p>
               {subAccount && (
                 <div className="flex items-center gap-2 mt-1">
                   {getSubAccountIcon(subAccount.type)}
@@ -177,11 +220,18 @@ export default function AccountTransactionForm ({
                   <>
                     <div className="flex items-center gap-1 mb-1">
                       <CreditCard className="w-3 h-3" />
-                      <span>Limit: {formatCurrency((subAccount as any).limit)} | Kullanılan: {formatCurrency((subAccount as any).used)}</span>
+                      <span>
+                        Limit: {formatCurrency((subAccount as any).limit)} |
+                        Kullanılan: {formatCurrency((subAccount as any).used)}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      <span>Son ödeme: Ayın {(subAccount as any).paymentDueDate}'i | Asgari: {formatCurrency((subAccount as any).minimumPayment)}</span>
+                      <span>
+                        Son ödeme: Ayın {(subAccount as any).paymentDueDate}'i |
+                        Asgari:{' '}
+                        {formatCurrency((subAccount as any).minimumPayment)}
+                      </span>
                     </div>
                   </>
                 )}
@@ -189,11 +239,18 @@ export default function AccountTransactionForm ({
                   <>
                     <div className="flex items-center gap-1 mb-1">
                       <Calendar className="w-3 h-3" />
-                      <span>Kalan: {formatCurrency((subAccount as any).principalRemaining)} | Taksit: {formatCurrency((subAccount as any).monthlyPayment)}</span>
+                      <span>
+                        Kalan:{' '}
+                        {formatCurrency((subAccount as any).principalRemaining)}{' '}
+                        | Taksit:{' '}
+                        {formatCurrency((subAccount as any).monthlyPayment)}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      <span>Ödeme tarihi: Ayın {(subAccount as any).dueDate}'i</span>
+                      <span>
+                        Ödeme tarihi: Ayın {(subAccount as any).dueDate}'i
+                      </span>
                     </div>
                   </>
                 )}
@@ -201,7 +258,10 @@ export default function AccountTransactionForm ({
                   <>
                     <div className="flex items-center gap-1 mb-1">
                       <AlertTriangle className="w-3 h-3" />
-                      <span>Limit: {formatCurrency((subAccount as any).limit)} | Kullanılan: {formatCurrency((subAccount as any).used)}</span>
+                      <span>
+                        Limit: {formatCurrency((subAccount as any).limit)} |
+                        Kullanılan: {formatCurrency((subAccount as any).used)}
+                      </span>
                     </div>
                   </>
                 )}
@@ -209,7 +269,10 @@ export default function AccountTransactionForm ({
                   <>
                     <div className="flex items-center gap-1 mb-1">
                       <PiggyBank className="w-3 h-3" />
-                      <span>Bakiye: {formatCurrency((subAccount as any).balance)} | Faiz: %{(subAccount as any).interestRate}</span>
+                      <span>
+                        Bakiye: {formatCurrency((subAccount as any).balance)} |
+                        Faiz: %{(subAccount as any).interestRate}
+                      </span>
                     </div>
                   </>
                 )}
@@ -224,7 +287,12 @@ export default function AccountTransactionForm ({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="type">İşlem Tipi</Label>
-            <Select value={transactionType} onValueChange={(value: 'income' | 'expense') => setTransactionType(value)}>
+            <Select
+              value={transactionType}
+              onValueChange={(value: 'income' | 'expense') =>
+                setTransactionType(value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -247,7 +315,7 @@ export default function AccountTransactionForm ({
               step="0.01"
               placeholder="0.00"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={e => setAmount(e.target.value)}
               required
             />
           </div>
@@ -259,7 +327,7 @@ export default function AccountTransactionForm ({
             id="description"
             placeholder="İşlem açıklaması..."
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             required
           />
         </div>
@@ -274,7 +342,7 @@ export default function AccountTransactionForm ({
               className="max-h-60 overflow-y-auto"
               style={{ maxHeight: '240px', overflowY: 'auto' }}
             >
-              {categories.map((cat) => (
+              {categories.map(cat => (
                 <SelectItem key={cat.value} value={cat.value}>
                   {cat.label}
                 </SelectItem>
@@ -284,10 +352,18 @@ export default function AccountTransactionForm ({
         </div>
 
         <div className="flex gap-2 pt-4">
-          <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
+          <Button
+            type="submit"
+            className="flex-1 bg-blue-600 hover:bg-blue-700"
+          >
             İşlem Ekle
           </Button>
-          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="flex-1"
+          >
             İptal
           </Button>
         </div>

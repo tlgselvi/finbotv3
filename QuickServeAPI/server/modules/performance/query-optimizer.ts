@@ -22,14 +22,18 @@ export interface OptimizationSuggestion {
 class QueryOptimizer {
   private static instance: QueryOptimizer;
   private queryMetrics: Map<string, QueryMetrics[]> = new Map();
-  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
+  private cache: Map<string, { data: any; timestamp: number; ttl: number }> =
+    new Map();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   private constructor() {
     // Cleanup old metrics every hour
-    setInterval(() => {
-      this.cleanupOldMetrics();
-    }, 60 * 60 * 1000);
+    setInterval(
+      () => {
+        this.cleanupOldMetrics();
+      },
+      60 * 60 * 1000
+    );
 
     // Cleanup expired cache entries every minute
     setInterval(() => {
@@ -58,7 +62,13 @@ class QueryOptimizer {
     if (useCache) {
       const cached = this.getFromCache(queryId);
       if (cached) {
-        this.recordMetrics(queryId, 'cached', performance.now() - startTime, 0, true);
+        this.recordMetrics(
+          queryId,
+          'cached',
+          performance.now() - startTime,
+          0,
+          true
+        );
         return cached as T[];
       }
     }
@@ -69,7 +79,13 @@ class QueryOptimizer {
       const executionTime = performance.now() - startTime;
 
       // Record metrics
-      this.recordMetrics(queryId, 'executed', executionTime, result.length, false);
+      this.recordMetrics(
+        queryId,
+        'executed',
+        executionTime,
+        result.length,
+        false
+      );
 
       // Cache result
       if (useCache && result.length > 0) {
@@ -77,7 +93,8 @@ class QueryOptimizer {
       }
 
       // Check for optimization suggestions
-      if (executionTime > 100) { // > 100ms
+      if (executionTime > 100) {
+        // > 100ms
         this.analyzeSlowQuery(queryId, executionTime, result.length);
       }
 
@@ -114,26 +131,43 @@ class QueryOptimizer {
       let query = db
         .select()
         .from(agingReports)
-        .where(and(
-          eq(agingReports.userId, userId),
-          eq(agingReports.reportType, reportType)
-        ));
+        .where(
+          and(
+            eq(agingReports.userId, userId),
+            eq(agingReports.reportType, reportType)
+          )
+        );
 
       // Apply filters
       if (options.filters) {
-        const conditions = [eq(agingReports.userId, userId), eq(agingReports.reportType, reportType)];
+        const conditions = [
+          eq(agingReports.userId, userId),
+          eq(agingReports.reportType, reportType),
+        ];
 
         if (options.filters.status) {
           conditions.push(eq(agingReports.status, options.filters.status));
         }
         if (options.filters.agingBucket) {
-          conditions.push(eq(agingReports.agingBucket, options.filters.agingBucket));
+          conditions.push(
+            eq(agingReports.agingBucket, options.filters.agingBucket)
+          );
         }
         if (options.filters.minAmount !== undefined) {
-          conditions.push(gte(agingReports.currentAmount, options.filters.minAmount.toString()));
+          conditions.push(
+            gte(
+              agingReports.currentAmount,
+              options.filters.minAmount.toString()
+            )
+          );
         }
         if (options.filters.maxAmount !== undefined) {
-          conditions.push(lte(agingReports.currentAmount, options.filters.maxAmount.toString()));
+          conditions.push(
+            lte(
+              agingReports.currentAmount,
+              options.filters.maxAmount.toString()
+            )
+          );
         }
 
         query = query.where(and(...conditions));
@@ -173,7 +207,8 @@ class QueryOptimizer {
       // Get accounts and transactions in parallel
       const [accountsData, transactionsData] = await Promise.all([
         db.select().from(accounts).where(eq(accounts.userId, userId)),
-        db.select()
+        db
+          .select()
           .from(transactions)
           .where(eq(transactions.userId, userId))
           .orderBy(desc(transactions.createdAt))
@@ -228,13 +263,17 @@ class QueryOptimizer {
     }
 
     const executionTime = performance.now() - startTime;
-    logger.info(`Batch insert completed: ${data.length} rows in ${executionTime.toFixed(2)}ms`);
+    logger.info(
+      `Batch insert completed: ${data.length} rows in ${executionTime.toFixed(2)}ms`
+    );
   }
 
   /**
    * Get query performance metrics
    */
-  public getQueryMetrics(queryId?: string): QueryMetrics[] | Map<string, QueryMetrics[]> {
+  public getQueryMetrics(
+    queryId?: string
+  ): QueryMetrics[] | Map<string, QueryMetrics[]> {
     if (queryId) {
       return this.queryMetrics.get(queryId) || [];
     }
@@ -249,15 +288,18 @@ class QueryOptimizer {
 
     // Analyze slow queries
     for (const [queryId, metrics] of this.queryMetrics.entries()) {
-      const recentMetrics = metrics.filter(m => 
-        Date.now() - m.timestamp.getTime() < 24 * 60 * 60 * 1000 // Last 24 hours
+      const recentMetrics = metrics.filter(
+        m => Date.now() - m.timestamp.getTime() < 24 * 60 * 60 * 1000 // Last 24 hours
       );
 
       if (recentMetrics.length === 0) continue;
 
-      const avgExecutionTime = recentMetrics.reduce((sum, m) => sum + m.executionTime, 0) / recentMetrics.length;
+      const avgExecutionTime =
+        recentMetrics.reduce((sum, m) => sum + m.executionTime, 0) /
+        recentMetrics.length;
 
-      if (avgExecutionTime > 500) { // > 500ms
+      if (avgExecutionTime > 500) {
+        // > 500ms
         suggestions.push({
           type: 'index',
           description: `Query ${queryId} is slow (${avgExecutionTime.toFixed(2)}ms avg). Consider adding indexes.`,
@@ -266,7 +308,8 @@ class QueryOptimizer {
         });
       }
 
-      if (recentMetrics.length > 100) { // Called frequently
+      if (recentMetrics.length > 100) {
+        // Called frequently
         suggestions.push({
           type: 'cache',
           description: `Query ${queryId} is called frequently (${recentMetrics.length} times). Consider caching.`,
@@ -278,21 +321,24 @@ class QueryOptimizer {
     // General suggestions
     suggestions.push({
       type: 'index',
-      description: 'Add index on aging_reports(user_id, report_type, created_at) for better performance',
+      description:
+        'Add index on aging_reports(user_id, report_type, created_at) for better performance',
       impact: 'high',
       sql: 'CREATE INDEX idx_aging_reports_user_type_created ON aging_reports(user_id, report_type, created_at);',
     });
 
     suggestions.push({
       type: 'index',
-      description: 'Add index on accounts(user_id, account_type) for faster account queries',
+      description:
+        'Add index on accounts(user_id, account_type) for faster account queries',
       impact: 'medium',
       sql: 'CREATE INDEX idx_accounts_user_type ON accounts(user_id, account_type);',
     });
 
     suggestions.push({
       type: 'index',
-      description: 'Add index on transactions(user_id, created_at) for transaction history',
+      description:
+        'Add index on transactions(user_id, created_at) for transaction history',
       impact: 'medium',
       sql: 'CREATE INDEX idx_transactions_user_created ON transactions(user_id, created_at);',
     });
@@ -359,7 +405,11 @@ class QueryOptimizer {
     }
   }
 
-  private analyzeSlowQuery(queryId: string, executionTime: number, rowsReturned: number): void {
+  private analyzeSlowQuery(
+    queryId: string,
+    executionTime: number,
+    rowsReturned: number
+  ): void {
     logger.warn(`Slow query detected: ${queryId}`, {
       executionTime: `${executionTime.toFixed(2)}ms`,
       rowsReturned,
@@ -430,7 +480,7 @@ export function createPerformanceMiddleware() {
     const startTime = performance.now();
     const originalSend = res.send;
 
-    res.send = function(data: any) {
+    res.send = function (data: any) {
       const endTime = performance.now();
       const executionTime = endTime - startTime;
 

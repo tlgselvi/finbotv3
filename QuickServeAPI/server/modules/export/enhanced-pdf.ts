@@ -1,4 +1,8 @@
-import { generateCashFlowBridgePDF, generateAgingTablePDF, generateRunwayPDF } from './pdf-export';
+import {
+  generateCashFlowBridgePDF,
+  generateAgingTablePDF,
+  generateRunwayPDF,
+} from './pdf-export';
 
 export interface PDFTemplate {
   title: string;
@@ -30,15 +34,16 @@ export function generateEnhancedPDF(
   template: PDFTemplate,
   style: PDFStyle = getDefaultStyle()
 ): string {
-  const logoSection = style.showLogo && template.logo 
-    ? `<img src="${template.logo}" alt="Logo" style="height: ${style.logoHeight}; margin-bottom: 20px;">`
-    : '';
+  const logoSection =
+    style.showLogo && template.logo
+      ? `<img src="${template.logo}" alt="Logo" style="height: ${style.logoHeight}; margin-bottom: 20px;">`
+      : '';
 
-  const watermarkSection = style.watermark 
+  const watermarkSection = style.watermark
     ? `<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 72px; color: rgba(0,0,0,0.1); z-index: -1; pointer-events: none;">${style.watermark}</div>`
     : '';
 
-  const footerSection = style.showFooter 
+  const footerSection = style.showFooter
     ? generateFooter(template.footer || 'FinBot Financial Management System')
     : '';
 
@@ -322,18 +327,20 @@ function getDefaultStyle(): PDFStyle {
  * Generate summary section
  */
 function generateSummarySection(summary: any, currency: string): string {
-  const summaryItems = Object.entries(summary).map(([key, value]) => {
-    const label = getSummaryLabel(key);
-    const formattedValue = formatValue(value, currency);
-    const className = getSummaryClassName(key, value);
-    
-    return `
+  const summaryItems = Object.entries(summary)
+    .map(([key, value]) => {
+      const label = getSummaryLabel(key);
+      const formattedValue = formatValue(value, currency);
+      const className = getSummaryClassName(key, value);
+
+      return `
       <div class="summary-item">
         <div class="summary-label">${label}</div>
         <div class="summary-value ${className}">${formattedValue}</div>
       </div>
     `;
-  }).join('');
+    })
+    .join('');
 
   return `
     <div class="summary">
@@ -387,7 +394,9 @@ function generateCashFlowBridgeTable(data: any[]): string {
         </tr>
       </thead>
       <tbody>
-        ${data.map(item => `
+        ${data
+          .map(
+            item => `
           <tr>
             <td>${item.period}</td>
             <td>${new Date(item.date).toLocaleDateString('tr-TR')}</td>
@@ -405,7 +414,9 @@ function generateCashFlowBridgeTable(data: any[]): string {
             <td class="${item.variance >= 0 ? 'positive' : 'negative'}">${item.variance.toLocaleString('tr-TR')}</td>
             <td class="${item.variancePercent >= 0 ? 'positive' : 'negative'}">${item.variancePercent.toFixed(1)}%</td>
           </tr>
-        `).join('')}
+        `
+          )
+          .join('')}
       </tbody>
     </table>
   `;
@@ -430,7 +441,9 @@ function generateAgingTable(data: any[]): string {
         </tr>
       </thead>
       <tbody>
-        ${data.map(item => `
+        ${data
+          .map(
+            item => `
           <tr>
             <td>${item.customerVendorName}</td>
             <td>${item.invoiceNumber || '-'}</td>
@@ -441,7 +454,9 @@ function generateAgingTable(data: any[]): string {
             <td><span class="status-badge ${getAgingStatusClass(item.agingBucket)}">${item.agingBucket}</span></td>
             <td><span class="status-badge ${getPaymentStatusClass(item.status)}">${item.status}</span></td>
           </tr>
-        `).join('')}
+        `
+          )
+          .join('')}
       </tbody>
     </table>
   `;
@@ -465,7 +480,9 @@ function generateRunwayTable(data: any[]): string {
         </tr>
       </thead>
       <tbody>
-        ${data.map(item => `
+        ${data
+          .map(
+            item => `
           <tr>
             <td>${item.period}</td>
             <td>${item.openingBalance.toLocaleString('tr-TR')}</td>
@@ -475,7 +492,9 @@ function generateRunwayTable(data: any[]): string {
             <td>${item.closingBalance.toLocaleString('tr-TR')}</td>
             <td><span class="status-badge ${getRunwayStatusClass(item.runwayMonths)}">${item.runwayMonths.toFixed(1)} ay</span></td>
           </tr>
-        `).join('')}
+        `
+          )
+          .join('')}
       </tbody>
     </table>
   `;
@@ -490,7 +509,7 @@ function generateGenericTable(data: any[]): string {
   }
 
   const headers = Object.keys(data[0]);
-  
+
   return `
     <table class="table">
       <thead>
@@ -499,11 +518,15 @@ function generateGenericTable(data: any[]): string {
         </tr>
       </thead>
       <tbody>
-        ${data.map(item => `
+        ${data
+          .map(
+            item => `
           <tr>
             ${headers.map(header => `<td>${formatCellValue(item[header])}</td>`).join('')}
           </tr>
-        `).join('')}
+        `
+          )
+          .join('')}
       </tbody>
     </table>
   `;
@@ -532,19 +555,23 @@ function generateAssumptionsSection(): string {
  */
 function generateMethodologySection(reportType: string): string {
   let methodology = '';
-  
+
   switch (reportType.toLowerCase()) {
     case 'cash flow bridge report':
-      methodology = 'Cash Flow Bridge metodu ile nakit akışı analizi yapılmıştır. İşlemler operasyonel, yatırım ve finansman faaliyetleri olarak sınıflandırılmıştır.';
+      methodology =
+        'Cash Flow Bridge metodu ile nakit akışı analizi yapılmıştır. İşlemler operasyonel, yatırım ve finansman faaliyetleri olarak sınıflandırılmıştır.';
       break;
     case 'aging analysis report':
-      methodology = 'Yaşlandırma analizi, alacak ve borçların vade tarihlerine göre gruplandırılması ile yapılmıştır. 0-30, 30-60, 60-90 ve 90+ günlük segmentler kullanılmıştır.';
+      methodology =
+        'Yaşlandırma analizi, alacak ve borçların vade tarihlerine göre gruplandırılması ile yapılmıştır. 0-30, 30-60, 60-90 ve 90+ günlük segmentler kullanılmıştır.';
       break;
     case 'runway analysis report':
-      methodology = 'Runway analizi, mevcut nakit pozisyonunun aylık giderlere bölünmesi ile hesaplanmıştır. Gelecek dönem projeksiyonları geçmiş trendlere dayanmaktadır.';
+      methodology =
+        'Runway analizi, mevcut nakit pozisyonunun aylık giderlere bölünmesi ile hesaplanmıştır. Gelecek dönem projeksiyonları geçmiş trendlere dayanmaktadır.';
       break;
     default:
-      methodology = 'Rapor, FinBot sisteminin gelişmiş analitik motoru kullanılarak oluşturulmuştur.';
+      methodology =
+        'Rapor, FinBot sisteminin gelişmiş analitik motoru kullanılarak oluşturulmuştur.';
   }
 
   return `
@@ -618,20 +645,29 @@ function getSummaryClassName(key: string, value: any): string {
 
 function getAgingStatusClass(bucket: string): string {
   switch (bucket) {
-    case '0-30': return 'status-good';
-    case '30-60': return 'status-warning';
-    case '60-90': return 'status-warning';
-    case '90+': return 'status-danger';
-    default: return 'status-warning';
+    case '0-30':
+      return 'status-good';
+    case '30-60':
+      return 'status-warning';
+    case '60-90':
+      return 'status-warning';
+    case '90+':
+      return 'status-danger';
+    default:
+      return 'status-warning';
   }
 }
 
 function getPaymentStatusClass(status: string): string {
   switch (status.toLowerCase()) {
-    case 'paid': return 'status-good';
-    case 'outstanding': return 'status-warning';
-    case 'overdue': return 'status-danger';
-    default: return 'status-warning';
+    case 'paid':
+      return 'status-good';
+    case 'outstanding':
+      return 'status-warning';
+    case 'overdue':
+      return 'status-danger';
+    default:
+      return 'status-warning';
   }
 }
 

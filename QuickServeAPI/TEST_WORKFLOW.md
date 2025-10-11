@@ -3,6 +3,7 @@
 ## 🎯 TEK KOMUTLA TÜM SÜREÇ
 
 ### Komut:
+
 ```bash
 pnpm test:smart
 # veya
@@ -14,11 +15,13 @@ pnpm test:smart
 ## 📋 NE YAPAR?
 
 ### 1️⃣ **Testleri Çalıştır** 🧪
+
 - Tüm testleri otomatik çalıştırır
 - Sonuçları parse eder
 - Başarı/başarısızlık sayılarını toplar
 
 ### 2️⃣ **README.md Güncelle** 📝
+
 - `tests/README.md` otomatik güncellenir
 - Test sayıları güncellenir
 - Başarı oranları güncellenir
@@ -26,6 +29,7 @@ pnpm test:smart
 - `package.json` description güncellenir
 
 **Örnek:**
+
 ```markdown
 ## 📊 Test Suite Özeti
 
@@ -36,11 +40,13 @@ pnpm test:smart
 ```
 
 ### 3️⃣ **Eksik Testleri Tespit Et** 🔍
+
 - `server/` dizinindeki tüm `.ts` dosyalarını tarar
 - Her dosya için karşılık gelen test dosyasını arar
 - Eksik testleri listeler
 
 **Örnek Çıktı:**
+
 ```
 ⚠️  104 dosya için test eksik
 
@@ -52,11 +58,13 @@ pnpm test:smart
 ```
 
 ### 4️⃣ **Test Şablonları Oluştur** 🏗️
+
 - En fazla 5 yeni test dosyası oluşturur
 - Otomatik olarak temel test yapısını hazırlar
 - TODO yorumları ekler
 
 **Oluşturulan Test Şablonu:**
+
 ```typescript
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -66,7 +74,7 @@ describe('FileName', () => {
   });
 
   it.todo('should be implemented');
-  
+
   // TODO: Implement tests
   // 1. Test basic functionality
   // 2. Test edge cases
@@ -75,13 +83,16 @@ describe('FileName', () => {
 ```
 
 ### 5️⃣ **Geçici Dosyaları Temizle** 🧹
+
 Otomatik olarak temizlenir:
+
 - ✅ `coverage/` klasörü
 - ✅ `test-results/` klasörü
 - ✅ `.vitest-cache/` klasörü
 - ✅ Diğer geçici dosyalar
 
 ### 6️⃣ **Özet Rapor Göster** 📊
+
 Güzel formatlı rapor:
 
 ```
@@ -160,30 +171,35 @@ TEK KOMUT: pnpm test:smart
 ## 💡 KULLANIM ÖRNEKLERİ
 
 ### Örnek 1: Normal Kullanım
+
 ```bash
 cd QuickServeAPI
 pnpm test:smart
 ```
 
 **Sonuç:**
+
 - ✅ 949 test çalıştırıldı
 - ✅ README güncellendi
 - ✅ 5 yeni test şablonu oluşturuldu
 - ✅ Geçici dosyalar temizlendi
 
 ### Örnek 2: Windows Batch
+
 ```batch
 cd QuickServeAPI
 .\test.bat
 ```
 
 ### Örnek 3: PowerShell
+
 ```powershell
 cd QuickServeAPI
 .\test.ps1
 ```
 
 ### Örnek 4: İnteraktif Menü (Seçenek 1)
+
 ```bash
 .\run-tests.ps1
 # "1" seçin
@@ -192,6 +208,7 @@ cd QuickServeAPI
 ## 📊 NE GÜNCELLENIR?
 
 ### README.md Bölümleri:
+
 1. ✅ **Test Suite Özeti**
    - Toplam test sayısı
    - Geçen test sayısı
@@ -206,11 +223,13 @@ cd QuickServeAPI
    - Test istatistikleri
 
 ### Oluşturulan Yeni Dosyalar:
+
 - ✅ Test şablonları (`tests/*.test.ts`)
 - ✅ Otomatik TODO yorumları
 - ✅ Temel test yapısı
 
 ### Temizlenen Dosyalar:
+
 - ✅ Coverage raporları
 - ✅ Test sonuç dosyaları
 - ✅ Vitest cache
@@ -218,21 +237,25 @@ cd QuickServeAPI
 ## 🎯 ÖZELLİKLER
 
 ### ✅ Otomatik
+
 - Hiçbir manuel işlem yok
 - Tek komutla çalışır
 - Her şey otomatik
 
 ### ✅ Akıllı
+
 - Eksik testleri tespit eder
 - Yeni şablonlar oluşturur
 - Gereksiz dosyaları temizler
 
 ### ✅ Hızlı
+
 - ~1 saniyede tamamlanır (testler hariç)
 - Paralel işlemler
 - Optimize edilmiş
 
 ### ✅ Güvenli
+
 - Sadece geçici dosyaları siler
 - Kaynak kodlara dokunmaz
 - Max 5 test şablonu (spam önleme)
@@ -240,6 +263,7 @@ cd QuickServeAPI
 ## 🚀 YENİ ÖZELLIKLER
 
 ### Test Sonrası Otomatik:
+
 1. README güncellemesi ✅
 2. Eksik test tespiti ✅
 3. Test şablonu oluşturma ✅
@@ -249,6 +273,7 @@ cd QuickServeAPI
 ### Önceki vs Şimdi:
 
 **ÖNCEDEN:**
+
 ```bash
 pnpm test                    # 1. Testleri çalıştır
 # Manuel README güncelle      # 2. Elle düzenle
@@ -258,6 +283,7 @@ pnpm test                    # 1. Testleri çalıştır
 ```
 
 **ŞİMDİ:**
+
 ```bash
 pnpm test:smart              # HEPSİ OTOMATIK! 🎉
 ```
@@ -265,16 +291,19 @@ pnpm test:smart              # HEPSİ OTOMATIK! 🎉
 ## 📝 GÜNLÜK KULLANIM
 
 ### Her Gün:
+
 ```bash
 pnpm test:smart
 ```
 
 ### Deploy Öncesi:
+
 ```bash
 pnpm test:critical  # Sadece kritik testler
 ```
 
 ### PR Öncesi:
+
 ```bash
 pnpm test:smart     # Tam analiz
 ```
@@ -282,6 +311,7 @@ pnpm test:smart     # Tam analiz
 ## 🎊 SONUÇ
 
 **TEK KOMUT = TÜM İŞ**
+
 - Testler çalışır ✅
 - README güncellenir ✅
 - Eksikler tespit edilir ✅
@@ -290,4 +320,3 @@ pnpm test:smart     # Tam analiz
 - Rapor gösterilir ✅
 
 **Artık test yazmayı unutmak imkansız! 🚀**
-

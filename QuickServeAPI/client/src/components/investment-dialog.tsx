@@ -33,8 +33,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Plus, Edit, DollarSign, TrendingUp, Target } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  CalendarIcon,
+  Plus,
+  Edit,
+  DollarSign,
+  TrendingUp,
+  Target,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -47,12 +58,18 @@ const investmentSchema = z.object({
     required_error: 'Yatırım türü seçmelisiniz',
   }),
   symbol: z.string().optional(),
-  quantity: z.string().min(1, 'Miktar gereklidir').refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-    message: 'Geçerli bir miktar girin',
-  }),
-  purchasePrice: z.string().min(1, 'Alış fiyatı gereklidir').refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-    message: 'Geçerli bir fiyat girin',
-  }),
+  quantity: z
+    .string()
+    .min(1, 'Miktar gereklidir')
+    .refine(val => !isNaN(Number(val)) && Number(val) > 0, {
+      message: 'Geçerli bir miktar girin',
+    }),
+  purchasePrice: z
+    .string()
+    .min(1, 'Alış fiyatı gereklidir')
+    .refine(val => !isNaN(Number(val)) && Number(val) > 0, {
+      message: 'Geçerli bir fiyat girin',
+    }),
   currentPrice: z.string().optional(),
   currency: z.string().default('TRY'),
   category: z.string().optional(),
@@ -85,7 +102,12 @@ interface InvestmentDialogProps {
   mode: 'create' | 'edit';
 }
 
-export function InvestmentDialog ({ open, onOpenChange, investment, mode }: InvestmentDialogProps) {
+export function InvestmentDialog({
+  open,
+  onOpenChange,
+  investment,
+  mode,
+}: InvestmentDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
 
@@ -129,7 +151,9 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
         currency: investment.currency,
         category: investment.category || '',
         riskLevel: investment.riskLevel,
-        purchaseDate: investment.purchaseDate ? new Date(investment.purchaseDate) : undefined,
+        purchaseDate: investment.purchaseDate
+          ? new Date(investment.purchaseDate)
+          : undefined,
         accountId: investment.accountId,
       });
     } else {
@@ -144,7 +168,9 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
         ...data,
         quantity: parseFloat(data.quantity),
         purchasePrice: parseFloat(data.purchasePrice),
-        currentPrice: data.currentPrice ? parseFloat(data.currentPrice) : undefined,
+        currentPrice: data.currentPrice
+          ? parseFloat(data.currentPrice)
+          : undefined,
         purchaseDate: data.purchaseDate?.toISOString(),
       };
 
@@ -180,41 +206,61 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'stock': return <TrendingUp className="w-4 h-4" />;
-      case 'crypto': return <DollarSign className="w-4 h-4" />;
-      case 'bond': return <Target className="w-4 h-4" />;
-      case 'fund': return <DollarSign className="w-4 h-4" />;
-      case 'real_estate': return <Target className="w-4 h-4" />;
-      default: return <DollarSign className="w-4 h-4" />;
+      case 'stock':
+        return <TrendingUp className="w-4 h-4" />;
+      case 'crypto':
+        return <DollarSign className="w-4 h-4" />;
+      case 'bond':
+        return <Target className="w-4 h-4" />;
+      case 'fund':
+        return <DollarSign className="w-4 h-4" />;
+      case 'real_estate':
+        return <Target className="w-4 h-4" />;
+      default:
+        return <DollarSign className="w-4 h-4" />;
     }
   };
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'stock': return 'Hisse Senedi';
-      case 'crypto': return 'Kripto Para';
-      case 'bond': return 'Tahvil';
-      case 'fund': return 'Fon';
-      case 'real_estate': return 'Gayrimenkul';
-      default: return type;
+      case 'stock':
+        return 'Hisse Senedi';
+      case 'crypto':
+        return 'Kripto Para';
+      case 'bond':
+        return 'Tahvil';
+      case 'fund':
+        return 'Fon';
+      case 'real_estate':
+        return 'Gayrimenkul';
+      default:
+        return type;
     }
   };
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
-      case 'low': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'high': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getRiskLabel = (risk: string) => {
     switch (risk) {
-      case 'low': return 'Düşük Risk';
-      case 'medium': return 'Orta Risk';
-      case 'high': return 'Yüksek Risk';
-      default: return risk;
+      case 'low':
+        return 'Düşük Risk';
+      case 'medium':
+        return 'Orta Risk';
+      case 'high':
+        return 'Yüksek Risk';
+      default:
+        return risk;
     }
   };
 
@@ -238,8 +284,7 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
           <DialogDescription>
             {mode === 'create'
               ? 'Portföyünüze yeni bir yatırım ekleyin'
-              : 'Yatırım bilgilerini güncelleyin'
-            }
+              : 'Yatırım bilgilerini güncelleyin'}
           </DialogDescription>
         </DialogHeader>
 
@@ -255,7 +300,10 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
                     <FormItem>
                       <FormLabel>Başlık *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Örn: Apple Hisse Senedi" {...field} />
+                        <Input
+                          placeholder="Örn: Apple Hisse Senedi"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -410,9 +458,13 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="TRY">TRY (Türk Lirası)</SelectItem>
-                        <SelectItem value="USD">USD (Amerikan Doları)</SelectItem>
+                        <SelectItem value="USD">
+                          USD (Amerikan Doları)
+                        </SelectItem>
                         <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                        <SelectItem value="GBP">GBP (İngiliz Sterlini)</SelectItem>
+                        <SelectItem value="GBP">
+                          GBP (İngiliz Sterlini)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -502,7 +554,7 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
                             variant="outline"
                             className={cn(
                               'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground',
+                              !field.value && 'text-muted-foreground'
                             )}
                           >
                             {field.value ? (
@@ -519,7 +571,7 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) =>
+                          disabled={date =>
                             date > new Date() || date < new Date('1900-01-01')
                           }
                           initialFocus
@@ -540,7 +592,10 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
                     <FormItem>
                       <FormLabel>Kategori</FormLabel>
                       <FormControl>
-                        <Input placeholder="Örn: Teknoloji, Kripto Para" {...field} />
+                        <Input
+                          placeholder="Örn: Teknoloji, Kripto Para"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Yatırımı kategorize etmek için kullanılır
@@ -562,7 +617,11 @@ export function InvestmentDialog ({ open, onOpenChange, investment, mode }: Inve
                 İptal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Kaydediliyor...' : mode === 'create' ? 'Ekle' : 'Güncelle'}
+                {isSubmitting
+                  ? 'Kaydediliyor...'
+                  : mode === 'create'
+                    ? 'Ekle'
+                    : 'Güncelle'}
               </Button>
             </DialogFooter>
           </form>

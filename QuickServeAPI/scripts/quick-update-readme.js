@@ -22,18 +22,18 @@ const currentResults = {
   failingFiles: 15,
   skippedFiles: 29,
   passRate: '47.1%',
-  timestamp: new Date().toLocaleString('tr-TR', { 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit', 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  })
+  timestamp: new Date().toLocaleString('tr-TR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }),
 };
 
 function updateReadme(results) {
   const readmePath = path.join(__dirname, '..', 'tests', 'README.md');
-  
+
   if (!fs.existsSync(readmePath)) {
     console.error('❌ README.md bulunamadı:', readmePath);
     return false;
@@ -42,8 +42,9 @@ function updateReadme(results) {
   let content = fs.readFileSync(readmePath, 'utf-8');
 
   // Test Suite Özeti bölümünü güncelle
-  const summaryRegex = /## 📊 Test Suite Özeti\s*\n\s*\*\*Toplam:\*\*[^\n]*\n\s*\*\*Son Güncelleme:\*\*[^\n]*\n\s*\*\*Critical Tests:\*\*[^\n]*\n\s*\*\*Test Files:\*\*[^\n]*/;
-  
+  const summaryRegex =
+    /## 📊 Test Suite Özeti\s*\n\s*\*\*Toplam:\*\*[^\n]*\n\s*\*\*Son Güncelleme:\*\*[^\n]*\n\s*\*\*Critical Tests:\*\*[^\n]*\n\s*\*\*Test Files:\*\*[^\n]*/;
+
   const newSummary = `## 📊 Test Suite Özeti
 
 **Toplam:** ${results.totalTests} test | **Geçen:** ${results.passing} (${results.passRate}) | **Skip:** ${results.skipped} (${((results.skipped / results.totalTests) * 100).toFixed(0)}%) | **Coverage:** ~75%
@@ -65,4 +66,3 @@ function updateReadme(results) {
 console.log('📝 README hızlı güncelleniyor...\n');
 updateReadme(currentResults);
 console.log('✅ Güncelleme tamamlandı!');
-

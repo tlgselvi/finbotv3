@@ -6,13 +6,14 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { apiRequest } from '../../client/src/lib/queryClient';
 
-const BACKEND_AVAILABLE = !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
+const BACKEND_AVAILABLE =
+  !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
 
 describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
   const testUser = {
     email: 'workflow-test@example.com',
     password: 'WorkflowTest123!',
-    name: 'Workflow Test User'
+    name: 'Workflow Test User',
   };
 
   let accessToken: string;
@@ -20,7 +21,9 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
 
   beforeAll(() => {
     if (!BACKEND_AVAILABLE) {
-      console.warn('Skipping Dashboard E2E tests - Backend not available. Set TEST_BASE_URL or E2E_TEST_ENABLED.');
+      console.warn(
+        'Skipping Dashboard E2E tests - Backend not available. Set TEST_BASE_URL or E2E_TEST_ENABLED.'
+      );
     }
   });
 
@@ -31,7 +34,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
       const response = await apiRequest('POST', '/api/auth/register', {
         email: testUser.email,
         password: testUser.password,
-        name: testUser.name
+        name: testUser.name,
       });
 
       expect(response.ok).toBe(true);
@@ -45,7 +48,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
 
       const response = await apiRequest('POST', '/api/auth/login', {
         email: testUser.email,
-        password: testUser.password
+        password: testUser.password,
       });
 
       expect(response.ok).toBe(true);
@@ -61,11 +64,11 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
         name: 'Business Checking',
         balance: 100000,
         currency: 'TRY',
-        accountType: 'bank'
+        accountType: 'bank',
       };
 
       const response = await apiRequest('POST', '/api/accounts', account, {
-        headers: { Authorization: `Bearer ${accessToken}` }
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       expect(response.ok).toBe(true);
@@ -80,20 +83,20 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
           type: 'expense',
           category: 'Rent',
           description: 'Monthly rent payment',
-          date: new Date().toISOString()
+          date: new Date().toISOString(),
         },
         {
           amount: 15000,
           type: 'income',
           category: 'Sales',
           description: 'Product sales',
-          date: new Date().toISOString()
-        }
+          date: new Date().toISOString(),
+        },
       ];
 
       for (const tx of transactions) {
         const response = await apiRequest('POST', '/api/transactions', tx, {
-          headers: { Authorization: `Bearer ${accessToken}` }
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
         expect(response.ok).toBe(true);
       }
@@ -102,13 +105,18 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
     it('Step 5: User views dashboard', async () => {
       if (!BACKEND_AVAILABLE) return;
 
-      const response = await apiRequest('GET', `/api/dashboard/${userId}`, undefined, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const response = await apiRequest(
+        'GET',
+        `/api/dashboard/${userId}`,
+        undefined,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
       expect(response.ok).toBe(true);
       const data = await response.json();
-      
+
       expect(data).toHaveProperty('runway');
       expect(data).toHaveProperty('cashGap');
       expect(data).toHaveProperty('overallRisk');
@@ -117,13 +125,18 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
     it('Step 6: User views runway details', async () => {
       if (!BACKEND_AVAILABLE) return;
 
-      const response = await apiRequest('GET', `/api/dashboard/runway/${userId}`, undefined, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const response = await apiRequest(
+        'GET',
+        `/api/dashboard/runway/${userId}`,
+        undefined,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
       expect(response.ok).toBe(true);
       const data = await response.json();
-      
+
       expect(data.runway).toBeGreaterThan(0);
       expect(data.currentCash).toBeGreaterThan(0);
       expect(data.riskLevel).toBeDefined();
@@ -132,13 +145,18 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
     it('Step 7: User views cash gap analysis', async () => {
       if (!BACKEND_AVAILABLE) return;
 
-      const response = await apiRequest('GET', `/api/dashboard/cash-gap/${userId}`, undefined, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const response = await apiRequest(
+        'GET',
+        `/api/dashboard/cash-gap/${userId}`,
+        undefined,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
       expect(response.ok).toBe(true);
       const data = await response.json();
-      
+
       expect(data).toHaveProperty('gap');
       expect(data).toHaveProperty('receivables');
       expect(data).toHaveProperty('payables');
@@ -147,9 +165,14 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
     it('Step 8: User exports dashboard data', async () => {
       if (!BACKEND_AVAILABLE) return;
 
-      const response = await apiRequest('GET', `/api/export/dashboard/${userId}`, undefined, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const response = await apiRequest(
+        'GET',
+        `/api/export/dashboard/${userId}`,
+        undefined,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
       // Export might return 200 or 404 depending on implementation
       expect([200, 404, 501]).toContain(response.status);
@@ -158,9 +181,14 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
     it('Step 9: User logs out', async () => {
       if (!BACKEND_AVAILABLE) return;
 
-      const response = await apiRequest('POST', '/api/auth/logout', {}, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const response = await apiRequest(
+        'POST',
+        '/api/auth/logout',
+        {},
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
       expect([200, 204]).toContain(response.status);
     });
@@ -192,7 +220,7 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
       if (!BACKEND_AVAILABLE) return;
 
       const startTime = Date.now();
-      
+
       try {
         await apiRequest('GET', '/api/health');
         const duration = Date.now() - startTime;
@@ -212,13 +240,9 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
     it('should handle concurrent data loads', async () => {
       if (!BACKEND_AVAILABLE) return;
 
-      const endpoints = [
-        '/api/health',
-        '/api/health',
-        '/api/health'
-      ];
+      const endpoints = ['/api/health', '/api/health', '/api/health'];
 
-      const promises = endpoints.map(endpoint => 
+      const promises = endpoints.map(endpoint =>
         apiRequest('GET', endpoint).catch(() => null)
       );
 
@@ -227,4 +251,3 @@ describe.skipIf(!BACKEND_AVAILABLE)('Dashboard Complete Workflow E2E', () => {
     });
   });
 });
-

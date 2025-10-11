@@ -21,10 +21,13 @@ async function runTestsAndCapture() {
 
   try {
     // Tüm testleri çalıştır
-    const { stdout, stderr } = await execPromise('pnpm test --run --reporter=verbose', {
-      cwd: path.join(__dirname, '..'),
-      maxBuffer: 10 * 1024 * 1024 // 10MB buffer
-    });
+    const { stdout, stderr } = await execPromise(
+      'pnpm test --run --reporter=verbose',
+      {
+        cwd: path.join(__dirname, '..'),
+        maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+      }
+    );
 
     return { stdout: stdout + stderr, success: true };
   } catch (error) {
@@ -46,23 +49,25 @@ function parseTestResults(output) {
     skippedFiles: 0,
     duration: '0s',
     passRate: '0%',
-    timestamp: new Date().toLocaleString('tr-TR', { 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit', 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    timestamp: new Date().toLocaleString('tr-TR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
     }),
     categories: {
       critical: { total: 84, passing: 84, rate: '100%' },
       performance: { total: 11, passing: 11, rate: '100%' },
       frontend: { total: 40, passing: 40, rate: '100%' },
-      security: { total: 108, passing: 77, rate: '71%' }
-    }
+      security: { total: 108, passing: 77, rate: '71%' },
+    },
   };
 
   // Test Files satırını bul
-  const testFilesMatch = output.match(/Test Files\s+(\d+)\s+failed.*?\|\s*(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/);
+  const testFilesMatch = output.match(
+    /Test Files\s+(\d+)\s+failed.*?\|\s*(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/
+  );
   if (testFilesMatch) {
     results.failingFiles = parseInt(testFilesMatch[1]) || 0;
     results.passingFiles = parseInt(testFilesMatch[2]) || 0;
@@ -77,14 +82,18 @@ function parseTestResults(output) {
   }
 
   // Tests satırını bul
-  const testsMatch = output.match(/Tests\s+(\d+)\s+failed.*?\|\s*(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/);
+  const testsMatch = output.match(
+    /Tests\s+(\d+)\s+failed.*?\|\s*(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/
+  );
   if (testsMatch) {
     results.failing = parseInt(testsMatch[1]) || 0;
     results.passing = parseInt(testsMatch[2]) || 0;
     results.skipped = parseInt(testsMatch[3]) || 0;
     results.totalTests = parseInt(testsMatch[4]) || 0;
   } else {
-    const simpleMatch = output.match(/Tests\s+(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/);
+    const simpleMatch = output.match(
+      /Tests\s+(\d+)\s+passed.*?\|\s*(\d+)\s+skipped.*?\((\d+)\)/
+    );
     if (simpleMatch) {
       results.passing = parseInt(simpleMatch[1]) || 0;
       results.skipped = parseInt(simpleMatch[2]) || 0;
@@ -110,7 +119,7 @@ function parseTestResults(output) {
 // README.md'yi güncelle
 function updateReadme(results) {
   const readmePath = path.join(__dirname, '..', 'tests', 'README.md');
-  
+
   if (!fs.existsSync(readmePath)) {
     console.error('❌ README.md bulunamadı:', readmePath);
     return false;
@@ -119,8 +128,9 @@ function updateReadme(results) {
   let content = fs.readFileSync(readmePath, 'utf-8');
 
   // Test Suite Özeti bölümünü güncelle
-  const summaryRegex = /## 📊 Test Suite Özeti\s*\n\s*\*\*Toplam:\*\*[^\n]*\n\s*\*\*Son Güncelleme:\*\*[^\n]*\n\s*\*\*Critical Tests:\*\*[^\n]*\n\s*\*\*Test Files:\*\*[^\n]*/;
-  
+  const summaryRegex =
+    /## 📊 Test Suite Özeti\s*\n\s*\*\*Toplam:\*\*[^\n]*\n\s*\*\*Son Güncelleme:\*\*[^\n]*\n\s*\*\*Critical Tests:\*\*[^\n]*\n\s*\*\*Test Files:\*\*[^\n]*/;
+
   const newSummary = `## 📊 Test Suite Özeti
 
 **Toplam:** ${results.totalTests} test | **Geçen:** ${results.passing} (${results.passRate}) | **Skip:** ${results.skipped} (${((results.skipped / results.totalTests) * 100).toFixed(0)}%) | **Coverage:** ~75%
@@ -134,10 +144,11 @@ function updateReadme(results) {
   }
 
   // Gelişme Trendi tablosunu güncelle
-  const trendRegex = /(## 📈 Gelişme Trendi\s*\n\s*\|[^\n]*\n\|[^\n]*\n(?:\|[^\n]*\n)*)\|[^\n]*\|\s*\|[^\n]*\|[^\n]*\|[^\n]*\|/;
-  
+  const trendRegex =
+    /(## 📈 Gelişme Trendi\s*\n\s*\|[^\n]*\n\|[^\n]*\n(?:\|[^\n]*\n)*)\|[^\n]*\|\s*\|[^\n]*\|[^\n]*\|[^\n]*\|/;
+
   const newTrendRow = `| ${new Date().toLocaleDateString('tr-TR')} | ${results.passing} | ${results.passRate} | ✅ Auto-updated |`;
-  
+
   if (trendRegex.test(content)) {
     content = content.replace(trendRegex, `$1${newTrendRow}\n`);
   }
@@ -166,7 +177,7 @@ async function main() {
 
   // Testleri çalıştır
   const { stdout, success } = await runTestsAndCapture();
-  
+
   // Sonuçları parse et
   const results = parseTestResults(stdout);
 
@@ -177,7 +188,10 @@ async function main() {
   console.log('  ⏭️  Skip:', results.skipped);
   console.log('  📈 Başarı Oranı:', results.passRate);
   console.log('  ⏱️  Süre:', results.duration);
-  console.log('  📁 Test Files:', `${results.passingFiles}/${results.testFiles}`);
+  console.log(
+    '  📁 Test Files:',
+    `${results.passingFiles}/${results.testFiles}`
+  );
 
   // README'yi güncelle
   console.log('\n📝 README güncelleniyor...');
@@ -198,4 +212,3 @@ main().catch(error => {
   console.error('❌ Hata:', error.message);
   process.exit(1);
 });
-

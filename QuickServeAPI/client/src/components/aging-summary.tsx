@@ -69,7 +69,11 @@ const getBucketIcon = (bucket: string) => {
   }
 };
 
-export function AgingSummary({ reportType, title, description }: AgingSummaryProps) {
+export function AgingSummary({
+  reportType,
+  title,
+  description,
+}: AgingSummaryProps) {
   const [summary, setSummary] = useState<AgingSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,13 +87,13 @@ export function AgingSummary({ reportType, title, description }: AgingSummaryPro
     try {
       setLoading(true);
       const response = await fetch(`/api/aging/summary/${reportType}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setSummary(data.data);
       } else {
@@ -153,21 +157,27 @@ export function AgingSummary({ reportType, title, description }: AgingSummaryPro
           )}
           {title}
         </CardTitle>
-        <CardDescription className="text-green-700 dark:text-green-300">{description}</CardDescription>
+        <CardDescription className="text-green-700 dark:text-green-300">
+          {description}
+        </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
-            <p className="text-sm text-blue-700 dark:text-blue-300">Toplam Tutar</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Toplam Tutar
+            </p>
             <p className="text-xl font-bold text-blue-900 dark:text-blue-100">
               {formatCurrency(summary.totalAmount)}
             </p>
           </div>
-          
+
           <div className="bg-red-50 dark:bg-red-950/30 p-4 rounded-lg">
-            <p className="text-sm text-red-700 dark:text-red-300">Gecikmiş Tutar</p>
+            <p className="text-sm text-red-700 dark:text-red-300">
+              Gecikmiş Tutar
+            </p>
             <p className="text-xl font-bold text-red-900 dark:text-red-100">
               {formatCurrency(summary.overdueAmount)}
             </p>
@@ -175,16 +185,20 @@ export function AgingSummary({ reportType, title, description }: AgingSummaryPro
               %{summary.overduePercentage.toFixed(1)}
             </p>
           </div>
-          
+
           <div className="bg-gray-50 dark:bg-gray-950/30 p-4 rounded-lg">
-            <p className="text-sm text-gray-700 dark:text-gray-300">Toplam Kayıt</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              Toplam Kayıt
+            </p>
             <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {summary.totalCount}
             </p>
           </div>
-          
+
           <div className="bg-orange-50 dark:bg-orange-950/30 p-4 rounded-lg">
-            <p className="text-sm text-orange-700 dark:text-orange-300">Ortalama Gün</p>
+            <p className="text-sm text-orange-700 dark:text-orange-300">
+              Ortalama Gün
+            </p>
             <p className="text-xl font-bold text-orange-900 dark:text-orange-100">
               {summary.averageAgingDays}
             </p>
@@ -197,14 +211,12 @@ export function AgingSummary({ reportType, title, description }: AgingSummaryPro
             Yaşlandırma Dağılımı
           </h4>
           <div className="space-y-3">
-            {summary.buckets.map((bucket) => (
+            {summary.buckets.map(bucket => (
               <div key={bucket.bucket} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {getBucketIcon(bucket.bucket)}
-                    <span className="text-sm font-medium">
-                      {bucket.days}
-                    </span>
+                    <span className="text-sm font-medium">{bucket.days}</span>
                     <Badge variant="outline" className="text-xs">
                       {bucket.count} kayıt
                     </Badge>
@@ -218,10 +230,7 @@ export function AgingSummary({ reportType, title, description }: AgingSummaryPro
                     </p>
                   </div>
                 </div>
-                <Progress 
-                  value={bucket.percentage} 
-                  className="h-2"
-                />
+                <Progress value={bucket.percentage} className="h-2" />
               </div>
             ))}
           </div>
@@ -234,10 +243,12 @@ export function AgingSummary({ reportType, title, description }: AgingSummaryPro
           </h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Gecikmiş Oranı</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Gecikmiş Oranı
+              </p>
               <div className="flex items-center gap-2">
-                <Progress 
-                  value={summary.overduePercentage} 
+                <Progress
+                  value={summary.overduePercentage}
                   className="flex-1 h-2"
                 />
                 <span className="text-sm font-medium">
@@ -246,15 +257,25 @@ export function AgingSummary({ reportType, title, description }: AgingSummaryPro
               </div>
             </div>
             <div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Ortalama Gecikme</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Ortalama Gecikme
+              </p>
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${
-                  summary.averageAgingDays > 60 ? 'bg-red-500' :
-                  summary.averageAgingDays > 30 ? 'bg-orange-500' :
-                  summary.averageAgingDays > 0 ? 'bg-yellow-500' : 'bg-green-500'
-                }`} />
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    summary.averageAgingDays > 60
+                      ? 'bg-red-500'
+                      : summary.averageAgingDays > 30
+                        ? 'bg-orange-500'
+                        : summary.averageAgingDays > 0
+                          ? 'bg-yellow-500'
+                          : 'bg-green-500'
+                  }`}
+                />
                 <span className="text-sm font-medium">
-                  {summary.averageAgingDays > 0 ? `${summary.averageAgingDays} gün` : 'Güncel'}
+                  {summary.averageAgingDays > 0
+                    ? `${summary.averageAgingDays} gün`
+                    : 'Güncel'}
                 </span>
               </div>
             </div>

@@ -64,7 +64,10 @@ export const DashboardSkeleton = () => (
 export const TransactionListSkeleton = () => (
   <div className="space-y-4">
     {Array.from({ length: 10 }).map((_, i) => (
-      <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+      <div
+        key={i}
+        className="flex items-center justify-between p-3 border rounded-lg"
+      >
         <div className="flex-1 space-y-2">
           <Skeleton className="h-4 w-48" />
           <Skeleton className="h-3 w-32" />
@@ -113,7 +116,10 @@ export const ChartSkeleton = () => (
 );
 
 // Loading spinner components
-export const LoadingSpinner = ({ size = 'default', className = '' }: {
+export const LoadingSpinner = ({
+  size = 'default',
+  className = '',
+}: {
   size?: 'sm' | 'default' | 'lg';
   className?: string;
 }) => {
@@ -195,7 +201,10 @@ export const useLoadingState = (initialState = false) => {
 
   const startLoading = React.useCallback(() => setIsLoading(true), []);
   const stopLoading = React.useCallback(() => setIsLoading(false), []);
-  const toggleLoading = React.useCallback(() => setIsLoading(prev => !prev), []);
+  const toggleLoading = React.useCallback(
+    () => setIsLoading(prev => !prev),
+    []
+  );
 
   return {
     isLoading,
@@ -209,13 +218,17 @@ export const useLoadingState = (initialState = false) => {
 // Async loading wrapper
 export const withLoading = <P extends object>(
   Component: React.ComponentType<P>,
-  loadingComponent?: React.ComponentType,
+  loadingComponent?: React.ComponentType
 ) => {
   return React.forwardRef<any, P & { isLoading?: boolean }>((props, ref) => {
     const { isLoading, ...restProps } = props;
 
     if (isLoading) {
-      return loadingComponent ? React.createElement(loadingComponent) : <DashboardSkeleton />;
+      return loadingComponent ? (
+        React.createElement(loadingComponent)
+      ) : (
+        <DashboardSkeleton />
+      );
     }
 
     return <Component {...(restProps as P)} ref={ref} />;
@@ -230,11 +243,17 @@ interface LoadingContextType {
   setLoadingState: (key: string, loading: boolean) => void;
 }
 
-const LoadingContext = React.createContext<LoadingContextType | undefined>(undefined);
+const LoadingContext = React.createContext<LoadingContextType | undefined>(
+  undefined
+);
 
-export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [globalLoading, setGlobalLoading] = React.useState(false);
-  const [loadingStates, setLoadingStates] = React.useState<Record<string, boolean>>({});
+  const [loadingStates, setLoadingStates] = React.useState<
+    Record<string, boolean>
+  >({});
 
   const setLoadingState = React.useCallback((key: string, loading: boolean) => {
     setLoadingStates(prev => ({
@@ -243,17 +262,18 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }));
   }, []);
 
-  const value = React.useMemo(() => ({
-    globalLoading,
-    setGlobalLoading,
-    loadingStates,
-    setLoadingState,
-  }), [globalLoading, loadingStates, setLoadingState]);
+  const value = React.useMemo(
+    () => ({
+      globalLoading,
+      setGlobalLoading,
+      loadingStates,
+      setLoadingState,
+    }),
+    [globalLoading, loadingStates, setLoadingState]
+  );
 
   return (
-    <LoadingContext.Provider value={value}>
-      {children}
-    </LoadingContext.Provider>
+    <LoadingContext.Provider value={value}>{children}</LoadingContext.Provider>
   );
 };
 

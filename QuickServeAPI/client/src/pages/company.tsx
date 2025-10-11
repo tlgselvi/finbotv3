@@ -1,13 +1,48 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from '@/components/ui/use-toast';
 import BankAccountDialog from '@/components/bank-account-dialog';
 import BankAccountCard from '@/components/bank-account-card';
@@ -21,26 +56,33 @@ import type { Account, Transaction } from '@shared/schema';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { memo, useMemo } from 'react';
 
-export default function Company () {
+export default function Company() {
   const formatCurrency = useFormatCurrency();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAccount, setSelectedAccount] = useState<string>('all');
   const [showAddAccountDialog, setShowAddAccountDialog] = useState(false);
-  const [selectedAccountForTransaction, setSelectedAccountForTransaction] = useState<string | null>(null);
+  const [selectedAccountForTransaction, setSelectedAccountForTransaction] =
+    useState<string | null>(null);
   const [isAddingAccount, setIsAddingAccount] = useState(false);
-  
+
   // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editTransactionDialogOpen, setEditTransactionDialogOpen] = useState(false);
-  const [deleteTransactionDialogOpen, setDeleteTransactionDialogOpen] = useState(false);
+  const [editTransactionDialogOpen, setEditTransactionDialogOpen] =
+    useState(false);
+  const [deleteTransactionDialogOpen, setDeleteTransactionDialogOpen] =
+    useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-  const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
+  const [deletingAccountId, setDeletingAccountId] = useState<string | null>(
+    null
+  );
   const [newAccountName, setNewAccountName] = useState('');
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
-
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
+  const [deletingTransactionId, setDeletingTransactionId] = useState<
+    string | null
+  >(null);
 
   // Fetch company accounts
   const { data: accounts = [], isLoading: accountsLoading } = useQuery({
@@ -49,7 +91,9 @@ export default function Company () {
       const response = await apiRequest('GET', '/api/accounts');
       const data = await response.json();
       logger.info('🏢 Company: Fetched all accounts:', data);
-      const companyAccounts = data.filter((account: Account) => account.type === 'company');
+      const companyAccounts = data.filter(
+        (account: Account) => account.type === 'company'
+      );
       logger.info('🏢 Company: Filtered company accounts:', companyAccounts);
       return companyAccounts;
     },
@@ -73,25 +117,39 @@ export default function Company () {
     staleTime: 30000,
   });
 
-  const filteredAccounts = useMemo(() => 
-    accounts.filter((account: Account) =>
-      account.accountName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.bankName?.toLowerCase().includes(searchTerm.toLowerCase()),
-    ), [accounts, searchTerm]
+  const filteredAccounts = useMemo(
+    () =>
+      accounts.filter(
+        (account: Account) =>
+          account.accountName
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          account.bankName?.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    [accounts, searchTerm]
   );
 
-  const totalCompanyBalance = accounts.reduce((sum: number, account: Account) =>
-    sum + parseFloat(account.balance), 0,
+  const totalCompanyBalance = accounts.reduce(
+    (sum: number, account: Account) => sum + parseFloat(account.balance),
+    0
   );
 
   // Add transaction function
   const handleAddTransaction = async (transactionData: any) => {
     try {
-      const response = await apiRequest('POST', '/api/transactions', transactionData);
+      const response = await apiRequest(
+        'POST',
+        '/api/transactions',
+        transactionData
+      );
       if (response.ok) {
         // Invalidate and refetch data instead of reloading page
-        await queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'company'] });
-        await queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'personal'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/accounts', 'company'],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/accounts', 'personal'],
+        });
         await queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       }
     } catch (error) {
@@ -102,7 +160,11 @@ export default function Company () {
   // Add account function
   const handleAddAccount = async (accountData: any) => {
     // Validate required fields
-    if (!accountData.name || !accountData.type || accountData.balance === undefined) {
+    if (
+      !accountData.name ||
+      !accountData.type ||
+      accountData.balance === undefined
+    ) {
       alert('Lütfen tüm alanları doldurun!');
       return;
     }
@@ -112,19 +174,25 @@ export default function Company () {
       logger.info('Sending account data:', accountData);
       const response = await apiRequest('POST', '/api/accounts', accountData);
       logger.info('Account response:', response);
-      
+
       if (response.ok) {
         logger.info('✅ Company: Account added successfully');
         setShowAddAccountDialog(false);
         // Invalidate and refetch accounts data instead of reloading page
-        await queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'company'] });
-        await queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'personal'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/accounts', 'company'],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/accounts', 'personal'],
+        });
         await queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
         logger.info('🔄 Company: Cache invalidated, data will refresh');
       } else {
         const errorData = await response.json();
         logger.error('❌ Company: API error:', errorData);
-        alert(`❌ Hesap eklenirken hata: ${errorData.error || errorData.message || 'Bilinmeyen hata'}`);
+        alert(
+          `❌ Hesap eklenirken hata: ${errorData.error || errorData.message || 'Bilinmeyen hata'}`
+        );
       }
     } catch (error) {
       logger.error('Error adding account:', error);
@@ -137,16 +205,24 @@ export default function Company () {
   // Edit account function
   const handleEditAccount = async (accountId: string, updatedData: any) => {
     try {
-      const response = await apiRequest('PUT', `/api/accounts/${accountId}`, updatedData);
+      const response = await apiRequest(
+        'PUT',
+        `/api/accounts/${accountId}`,
+        updatedData
+      );
       if (response.ok) {
         logger.info('✅ Company: Account updated successfully');
         toast({
-          title: "✅ Başarılı",
-          description: "Hesap başarıyla güncellendi!",
+          title: '✅ Başarılı',
+          description: 'Hesap başarıyla güncellendi!',
         });
         // Invalidate and refetch accounts data
-        await queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'company'] });
-        await queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'personal'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/accounts', 'company'],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/accounts', 'personal'],
+        });
         await queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
         setEditDialogOpen(false);
         setEditingAccount(null);
@@ -155,17 +231,17 @@ export default function Company () {
         const errorData = await response.json();
         logger.error('❌ Company: API error:', errorData);
         toast({
-          title: "❌ Hata",
+          title: '❌ Hata',
           description: `Hesap güncellenirken hata: ${errorData.error || 'Bilinmeyen hata'}`,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
     } catch (error) {
       logger.error('❌ Company: Error updating account:', error);
       toast({
-        title: "❌ Hata",
-        description: "Hesap güncellenirken hata oluştu!",
-        variant: "destructive",
+        title: '❌ Hata',
+        description: 'Hesap güncellenirken hata oluştu!',
+        variant: 'destructive',
       });
     }
   };
@@ -177,12 +253,16 @@ export default function Company () {
       if (response.ok) {
         logger.info('✅ Company: Account deleted successfully');
         toast({
-          title: "✅ Başarılı",
-          description: "Hesap başarıyla silindi!",
+          title: '✅ Başarılı',
+          description: 'Hesap başarıyla silindi!',
         });
         // Invalidate and refetch accounts data
-        await queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'company'] });
-        await queryClient.invalidateQueries({ queryKey: ['/api/accounts', 'personal'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/accounts', 'company'],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/accounts', 'personal'],
+        });
         await queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
         setDeleteDialogOpen(false);
         setDeletingAccountId(null);
@@ -190,50 +270,59 @@ export default function Company () {
         const errorData = await response.json();
         logger.error('❌ Company: API error:', errorData);
         toast({
-          title: "❌ Hata",
+          title: '❌ Hata',
           description: `Hesap silinirken hata: ${errorData.error || 'Bilinmeyen hata'}`,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
     } catch (error) {
       logger.error('❌ Company: Error deleting account:', error);
       toast({
-        title: "❌ Hata",
-        description: "Hesap silinirken hata oluştu!",
-        variant: "destructive",
+        title: '❌ Hata',
+        description: 'Hesap silinirken hata oluştu!',
+        variant: 'destructive',
       });
     }
   };
 
   // Edit transaction function
-  const handleEditTransaction = async (transactionId: string, updatedData: any) => {
+  const handleEditTransaction = async (
+    transactionId: string,
+    updatedData: any
+  ) => {
     try {
-      const response = await apiRequest('PUT', `/api/transactions/${transactionId}`, updatedData);
+      const response = await apiRequest(
+        'PUT',
+        `/api/transactions/${transactionId}`,
+        updatedData
+      );
       if (response.ok) {
         logger.info('✅ Company: Transaction updated successfully');
         toast({
-          title: "✅ Başarılı",
-          description: "İşlem başarıyla güncellendi!",
+          title: '✅ Başarılı',
+          description: 'İşlem başarıyla güncellendi!',
         });
         // Invalidate and refetch transactions data
-        await queryClient.invalidateQueries({ queryKey: ['/api/transactions', selectedAccount] });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/transactions', selectedAccount],
+        });
         setEditTransactionDialogOpen(false);
         setEditingTransaction(null);
       } else {
         const errorData = await response.json();
         logger.error('❌ Company: API error:', errorData);
         toast({
-          title: "❌ Hata",
+          title: '❌ Hata',
           description: `İşlem güncellenirken hata: ${errorData.error || 'Bilinmeyen hata'}`,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
     } catch (error) {
       logger.error('❌ Company: Error updating transaction:', error);
       toast({
-        title: "❌ Hata",
-        description: "İşlem güncellenirken hata oluştu!",
-        variant: "destructive",
+        title: '❌ Hata',
+        description: 'İşlem güncellenirken hata oluştu!',
+        variant: 'destructive',
       });
     }
   };
@@ -241,32 +330,37 @@ export default function Company () {
   // Delete transaction function
   const handleDeleteTransaction = async (transactionId: string) => {
     try {
-      const response = await apiRequest('DELETE', `/api/transactions/${transactionId}`);
+      const response = await apiRequest(
+        'DELETE',
+        `/api/transactions/${transactionId}`
+      );
       if (response.ok) {
         logger.info('✅ Company: Transaction deleted successfully');
         toast({
-          title: "✅ Başarılı",
-          description: "İşlem başarıyla silindi!",
+          title: '✅ Başarılı',
+          description: 'İşlem başarıyla silindi!',
         });
         // Invalidate and refetch transactions data
-        await queryClient.invalidateQueries({ queryKey: ['/api/transactions', selectedAccount] });
+        await queryClient.invalidateQueries({
+          queryKey: ['/api/transactions', selectedAccount],
+        });
         setDeleteTransactionDialogOpen(false);
         setDeletingTransactionId(null);
       } else {
         const errorData = await response.json();
         logger.error('❌ Company: API error:', errorData);
         toast({
-          title: "❌ Hata",
+          title: '❌ Hata',
           description: `İşlem silinirken hata: ${errorData.error || 'Bilinmeyen hata'}`,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
     } catch (error) {
       logger.error('❌ Company: Error deleting transaction:', error);
       toast({
-        title: "❌ Hata",
-        description: "İşlem silinirken hata oluştu!",
-        variant: "destructive",
+        title: '❌ Hata',
+        description: 'İşlem silinirken hata oluştu!',
+        variant: 'destructive',
       });
     }
   };
@@ -274,7 +368,9 @@ export default function Company () {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="page-title">Şirket Hesapları</h1>
+        <h1 className="text-3xl font-bold" data-testid="page-title">
+          Şirket Hesapları
+        </h1>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-sm">
             Toplam: {formatCurrency(totalCompanyBalance)}
@@ -294,7 +390,7 @@ export default function Company () {
         <Input
           placeholder="Hesap ara..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
         <Select value={selectedAccount} onValueChange={setSelectedAccount}>
@@ -333,24 +429,45 @@ export default function Company () {
             type: account.type as 'personal' | 'company',
             currency: account.currency || 'TRY',
             hasCheckingAccount: true, // Main account is always checking
-            hasCreditCard: subAccounts.some((sub: any) => sub.type === 'creditCard'),
+            hasCreditCard: subAccounts.some(
+              (sub: any) => sub.type === 'creditCard'
+            ),
             hasLoan: subAccounts.some((sub: any) => sub.type === 'loan'),
             hasOverdraft: subAccounts.some((sub: any) => sub.type === 'kmh'),
             hasSavings: subAccounts.some((sub: any) => sub.type === 'deposit'),
             // Credit card details from subAccounts
-            creditCardCutOffDate: subAccounts.find((sub: any) => sub.type === 'creditCard')?.cutOffDate,
-            creditCardDueDate: subAccounts.find((sub: any) => sub.type === 'creditCard')?.paymentDueDate,
-            creditCardGracePeriod: subAccounts.find((sub: any) => sub.type === 'creditCard')?.gracePeriod,
-            creditCardMinimumPayment: subAccounts.find((sub: any) => sub.type === 'creditCard')?.minimumPayment,
-            creditCardInterestRate: subAccounts.find((sub: any) => sub.type === 'creditCard')?.interestRate,
+            creditCardCutOffDate: subAccounts.find(
+              (sub: any) => sub.type === 'creditCard'
+            )?.cutOffDate,
+            creditCardDueDate: subAccounts.find(
+              (sub: any) => sub.type === 'creditCard'
+            )?.paymentDueDate,
+            creditCardGracePeriod: subAccounts.find(
+              (sub: any) => sub.type === 'creditCard'
+            )?.gracePeriod,
+            creditCardMinimumPayment: subAccounts.find(
+              (sub: any) => sub.type === 'creditCard'
+            )?.minimumPayment,
+            creditCardInterestRate: subAccounts.find(
+              (sub: any) => sub.type === 'creditCard'
+            )?.interestRate,
             // Loan details from subAccounts
-            loanDueDate: subAccounts.find((sub: any) => sub.type === 'loan')?.dueDate,
-            loanGracePeriod: subAccounts.find((sub: any) => sub.type === 'loan')?.gracePeriod,
-            loanMinimumPayment: subAccounts.find((sub: any) => sub.type === 'loan')?.monthlyPayment,
-            loanInterestRate: subAccounts.find((sub: any) => sub.type === 'loan')?.interestRate,
+            loanDueDate: subAccounts.find((sub: any) => sub.type === 'loan')
+              ?.dueDate,
+            loanGracePeriod: subAccounts.find((sub: any) => sub.type === 'loan')
+              ?.gracePeriod,
+            loanMinimumPayment: subAccounts.find(
+              (sub: any) => sub.type === 'loan'
+            )?.monthlyPayment,
+            loanInterestRate: subAccounts.find(
+              (sub: any) => sub.type === 'loan'
+            )?.interestRate,
             // Overdraft details from subAccounts
-            overdraftLimit: subAccounts.find((sub: any) => sub.type === 'kmh')?.limit,
-            overdraftInterestRate: subAccounts.find((sub: any) => sub.type === 'kmh')?.interestRate,
+            overdraftLimit: subAccounts.find((sub: any) => sub.type === 'kmh')
+              ?.limit,
+            overdraftInterestRate: subAccounts.find(
+              (sub: any) => sub.type === 'kmh'
+            )?.interestRate,
           };
 
           return (
@@ -358,17 +475,19 @@ export default function Company () {
               key={account.id}
               bank={bankProduct}
               onAddTransaction={handleAddTransaction}
-              onViewHistory={(bankId) => {
+              onViewHistory={bankId => {
                 setSelectedAccount(bankId);
                 // Scroll to transactions table
                 setTimeout(() => {
-                  const transactionsSection = document.querySelector('[data-testid="transactions-section"]');
+                  const transactionsSection = document.querySelector(
+                    '[data-testid="transactions-section"]'
+                  );
                   if (transactionsSection) {
                     transactionsSection.scrollIntoView({ behavior: 'smooth' });
                   }
                 }, 100);
               }}
-              onEditAccount={(bank) => {
+              onEditAccount={bank => {
                 // Open edit dialog with current account data
                 const account = accounts.find((a: Account) => a.id === bank.id);
                 if (account) {
@@ -377,7 +496,7 @@ export default function Company () {
                   setEditDialogOpen(true);
                 }
               }}
-              onDeleteAccount={(accountId) => {
+              onDeleteAccount={accountId => {
                 setDeletingAccountId(accountId);
                 setDeleteDialogOpen(true);
               }}
@@ -392,7 +511,8 @@ export default function Company () {
           <CardHeader>
             <CardTitle>İşlem Geçmişi</CardTitle>
             <CardDescription>
-              {accounts.find((a: Account) => a.id === selectedAccount)?.name} hesabının son işlemleri
+              {accounts.find((a: Account) => a.id === selectedAccount)?.name}{' '}
+              hesabının son işlemleri
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -411,51 +531,59 @@ export default function Company () {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactionsData.transactions.map((transaction: Transaction) => (
-                    <TableRow key={transaction.id}>
-                      <TableCell>
-                        {new Date(transaction.date).toLocaleDateString('tr-TR')}
-                      </TableCell>
-                      <TableCell>{transaction.description}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={transaction.type === 'income' ? 'default' : 'destructive'}
-                        >
-                          {transaction.type === 'income' ? 'Gelir' : 'Gider'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(parseFloat(transaction.amount))}
-                      </TableCell>
-                      <TableCell>{transaction.category}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditingTransaction(transaction);
-                              setEditTransactionDialogOpen(true);
-                            }}
-                            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                  {transactionsData.transactions.map(
+                    (transaction: Transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell>
+                          {new Date(transaction.date).toLocaleDateString(
+                            'tr-TR'
+                          )}
+                        </TableCell>
+                        <TableCell>{transaction.description}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              transaction.type === 'income'
+                                ? 'default'
+                                : 'destructive'
+                            }
                           >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setDeletingTransactionId(transaction.id);
-                              setDeleteTransactionDialogOpen(true);
-                            }}
-                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            {transaction.type === 'income' ? 'Gelir' : 'Gider'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(parseFloat(transaction.amount))}
+                        </TableCell>
+                        <TableCell>{transaction.category}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setEditingTransaction(transaction);
+                                setEditTransactionDialogOpen(true);
+                              }}
+                              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setDeletingTransactionId(transaction.id);
+                                setDeleteTransactionDialogOpen(true);
+                              }}
+                              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  )}
                 </TableBody>
               </Table>
             ) : (
@@ -470,7 +598,9 @@ export default function Company () {
       {filteredAccounts.length === 0 && !accountsLoading && (
         <Card>
           <CardContent className="text-center py-16">
-            <h3 className="text-lg font-semibold mb-2">Şirket Hesabı Bulunamadı</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              Şirket Hesabı Bulunamadı
+            </h3>
             <p className="text-muted-foreground">
               Henüz şirket hesabınız bulunmuyor. Yeni hesap ekleyebilirsiniz.
             </p>
@@ -488,14 +618,18 @@ export default function Company () {
         allowTypeChange={false}
       />
 
-
       {/* Account Specific Transaction Form */}
       {selectedAccountForTransaction && (
         <Card className="border-blue-200 bg-blue-50/30">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-blue-700">
-                {accounts.find((a: Account) => a.id === selectedAccountForTransaction)?.accountName} - Yeni İşlem
+                {
+                  accounts.find(
+                    (a: Account) => a.id === selectedAccountForTransaction
+                  )?.accountName
+                }{' '}
+                - Yeni İşlem
               </CardTitle>
               <Button
                 variant="ghost"
@@ -506,12 +640,21 @@ export default function Company () {
               </Button>
             </div>
             <CardDescription>
-              {accounts.find((a: Account) => a.id === selectedAccountForTransaction)?.bankName} hesabına işlem ekleyin
+              {
+                accounts.find(
+                  (a: Account) => a.id === selectedAccountForTransaction
+                )?.bankName
+              }{' '}
+              hesabına işlem ekleyin
             </CardDescription>
           </CardHeader>
           <CardContent>
             <AccountTransactionForm
-              account={accounts.find((a: Account) => a.id === selectedAccountForTransaction)!}
+              account={
+                accounts.find(
+                  (a: Account) => a.id === selectedAccountForTransaction
+                )!
+              }
               onAddTransaction={handleAddTransaction}
               onClose={() => setSelectedAccountForTransaction(null)}
             />
@@ -534,7 +677,8 @@ export default function Company () {
           <AlertDialogHeader>
             <AlertDialogTitle>Hesabı Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              Bu hesabı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve hesaptaki tüm veriler silinecektir.
+              Bu hesabı silmek istediğinizden emin misiniz? Bu işlem geri
+              alınamaz ve hesaptaki tüm veriler silinecektir.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -571,12 +715,16 @@ export default function Company () {
       />
 
       {/* Delete Transaction Dialog */}
-      <AlertDialog open={deleteTransactionDialogOpen} onOpenChange={setDeleteTransactionDialogOpen}>
+      <AlertDialog
+        open={deleteTransactionDialogOpen}
+        onOpenChange={setDeleteTransactionDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>İşlemi Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              Bu işlemi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+              Bu işlemi silmek istediğinizden emin misiniz? Bu işlem geri
+              alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

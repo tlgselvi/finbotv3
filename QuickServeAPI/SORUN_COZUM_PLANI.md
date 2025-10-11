@@ -11,16 +11,19 @@
 ### 1. Frontend Server Çalışmıyor (KRİTİK)
 
 **Sorun:**
+
 ```
 ERR_CONNECTION_REFUSED at http://localhost:5173/
 ```
 
 **Etki:**
+
 - Login testi yapılamıyor
 - Frontend testleri başarısız
 - Browser testleri çalışmıyor
 
 **Çözüm:**
+
 ```bash
 # Server'ı başlat
 cd C:\Projects\finbotv3
@@ -30,7 +33,7 @@ pnpm dev
 # Terminal 1: Backend
 cd QuickServeAPI && pnpm dev:server
 
-# Terminal 2: Frontend  
+# Terminal 2: Frontend
 cd QuickServeAPI && pnpm dev:client
 ```
 
@@ -41,12 +44,14 @@ cd QuickServeAPI && pnpm dev:client
 ### 2. Login İşlemi Başarısız
 
 **Sorun:**
+
 ```
 Login yapıldı ama URL değişmedi
 Hala: http://localhost:5173/login
 ```
 
 **Olası Nedenler:**
+
 1. ❓ Kullanıcı veritabanında yok
 2. ❓ Şifre hatalı
 3. ❓ Backend auth servisi yanıt vermiyor
@@ -159,12 +164,12 @@ curl -X POST http://localhost:5000/api/login \
 
 ## 📊 MEVCUT DURUM
 
-| Sistem | Port | Durum | Not |
-|--------|------|-------|-----|
-| Backend | 5000 | ✅ Çalışıyor | API OK |
-| Frontend | 5173 | ❌ Durdu | Başlatılmalı |
-| Database | - | ✅ Çalışıyor | SQLite OK |
-| WebSocket | 5050 | ✅ Çalışıyor | WS OK |
+| Sistem    | Port | Durum        | Not          |
+| --------- | ---- | ------------ | ------------ |
+| Backend   | 5000 | ✅ Çalışıyor | API OK       |
+| Frontend  | 5173 | ❌ Durdu     | Başlatılmalı |
+| Database  | -    | ✅ Çalışıyor | SQLite OK    |
+| WebSocket | 5050 | ✅ Çalışıyor | WS OK        |
 
 ---
 
@@ -173,12 +178,14 @@ curl -X POST http://localhost:5000/api/login \
 **Ana Hedef:** Login sistemini çalıştır
 
 **Alt Hedefler:**
+
 1. Frontend server'ı stabil tutmak
 2. Login credentials doğrulamak
 3. Auth flow'u test etmek
 4. Error handling iyileştirmek
 
 **Başarı Kriteri:**
+
 ```
 ✅ Login formu görünür
 ✅ Credentials girilir
@@ -195,12 +202,14 @@ curl -X POST http://localhost:5000/api/login \
 **Sorun Devam Ederse:**
 
 1. **Backend Logları Kontrol Et**
+
    ```bash
    cd QuickServeAPI
    # Server çıktısına bak
    ```
 
 2. **Database Kontrol Et**
+
    ```bash
    sqlite3 dev.db
    SELECT * FROM users;
@@ -208,10 +217,11 @@ curl -X POST http://localhost:5000/api/login \
    ```
 
 3. **Port Çakışması**
+
    ```bash
    # Port 5173'ü kullanan process'i bul
    netstat -ano | findstr :5173
-   
+
    # Gerekirse öldür
    taskkill /PID <PID> /F
    ```
@@ -221,6 +231,7 @@ curl -X POST http://localhost:5000/api/login \
 ## 📈 İLERLEME TAKİBİ
 
 **11.10.2025 19:30:**
+
 - ✅ Sorunlar tespit edildi
 - ✅ Test raporu oluşturuldu
 - ✅ Çözüm planı hazırlandı
@@ -230,6 +241,5 @@ curl -X POST http://localhost:5000/api/login \
 
 ---
 
-*Bu plan otomatik test sonuçlarına göre oluşturulmuştur.*
-*Gerçek zamanlı güncellenecektir.*
-
+_Bu plan otomatik test sonuçlarına göre oluşturulmuştur._
+_Gerçek zamanlı güncellenecektir._

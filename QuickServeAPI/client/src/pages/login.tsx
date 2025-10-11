@@ -6,15 +6,28 @@ import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { loginSchema, type LoginRequest } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
 
-export default function Login () {
+export default function Login() {
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
@@ -70,7 +83,7 @@ export default function Login () {
         title: 'Giriş Hatası',
         description: error.message || 'Giriş sırasında bir hata oluştu',
       });
-    }
+    },
   });
 
   const onSubmit = (data: LoginRequest) => {
@@ -153,7 +166,8 @@ export default function Login () {
               {loginMutation.error && (
                 <Alert variant="destructive" data-testid="alert-login-error">
                   <AlertDescription>
-                    {(loginMutation.error as any)?.message || 'Giriş sırasında bir hata oluştu'}
+                    {(loginMutation.error as any)?.message ||
+                      'Giriş sırasında bir hata oluştu'}
                   </AlertDescription>
                 </Alert>
               )}

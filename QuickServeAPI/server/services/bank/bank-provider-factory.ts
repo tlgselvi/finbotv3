@@ -3,7 +3,10 @@
  * Creates and manages bank integration providers
  */
 
-import { BaseBankProvider, BankCredentials } from './providers/base-provider.ts';
+import {
+  BaseBankProvider,
+  BankCredentials,
+} from './providers/base-provider.ts';
 import { OpenBankingProvider } from './providers/open-banking-provider.ts';
 import { TurkishBankProvider } from './providers/turkish-bank-provider.ts';
 
@@ -23,7 +26,9 @@ export class BankProviderFactory {
   /**
    * Create a bank provider instance
    */
-  static async createProvider(config: ProviderConfig): Promise<BaseBankProvider> {
+  static async createProvider(
+    config: ProviderConfig
+  ): Promise<BaseBankProvider> {
     const providerKey = this.getProviderKey(config);
 
     // Return existing provider if available
@@ -50,7 +55,9 @@ export class BankProviderFactory {
     // Validate credentials
     const validation = await provider.validateCredentials();
     if (!validation.success) {
-      throw new Error(`Invalid credentials for provider ${config.name}: ${validation.error?.message}`);
+      throw new Error(
+        `Invalid credentials for provider ${config.name}: ${validation.error?.message}`
+      );
     }
 
     // Cache the provider
@@ -94,31 +101,56 @@ export class BankProviderFactory {
       {
         type: 'open-banking',
         name: 'Open Banking (PSD2)',
-        features: ['accounts', 'transactions', 'transfers', 'balance', 'statements', 'webhooks', 'oauth'],
+        features: [
+          'accounts',
+          'transactions',
+          'transfers',
+          'balance',
+          'statements',
+          'webhooks',
+          'oauth',
+        ],
         supportedCurrencies: ['TRY', 'USD', 'EUR', 'GBP'],
-        supportedAccountTypes: ['checking', 'savings', 'credit', 'loan']
+        supportedAccountTypes: ['checking', 'savings', 'credit', 'loan'],
       },
       {
         type: 'turkish-bank',
         name: 'Turkish Banks',
-        features: ['accounts', 'transactions', 'transfers', 'balance', 'statements', 'cards', 'webhooks'],
+        features: [
+          'accounts',
+          'transactions',
+          'transfers',
+          'balance',
+          'statements',
+          'cards',
+          'webhooks',
+        ],
         supportedCurrencies: ['TRY', 'USD', 'EUR'],
-        supportedAccountTypes: ['checking', 'savings', 'credit', 'loan']
+        supportedAccountTypes: ['checking', 'savings', 'credit', 'loan'],
       },
       {
         type: 'mock',
         name: 'Mock Provider (Testing)',
-        features: ['accounts', 'transactions', 'transfers', 'balance', 'statements'],
+        features: [
+          'accounts',
+          'transactions',
+          'transfers',
+          'balance',
+          'statements',
+        ],
         supportedCurrencies: ['TRY', 'USD', 'EUR'],
-        supportedAccountTypes: ['checking', 'savings', 'credit', 'loan']
-      }
+        supportedAccountTypes: ['checking', 'savings', 'credit', 'loan'],
+      },
     ];
   }
 
   /**
    * Validate provider configuration
    */
-  static validateProviderConfig(config: ProviderConfig): { valid: boolean; errors: string[] } {
+  static validateProviderConfig(config: ProviderConfig): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!config.type) {
@@ -160,7 +192,7 @@ export class BankProviderFactory {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -174,7 +206,9 @@ export class BankProviderFactory {
   /**
    * Create mock provider for testing
    */
-  private static async createMockProvider(credentials: BankCredentials): Promise<BaseBankProvider> {
+  private static async createMockProvider(
+    credentials: BankCredentials
+  ): Promise<BaseBankProvider> {
     return new MockBankProvider(credentials);
   }
 }
@@ -187,17 +221,23 @@ class MockBankProvider extends BaseBankProvider {
     return {
       name: 'Mock Provider',
       version: '1.0.0',
-      supportedFeatures: ['accounts', 'transactions', 'transfers', 'balance', 'statements'],
+      supportedFeatures: [
+        'accounts',
+        'transactions',
+        'transfers',
+        'balance',
+        'statements',
+      ],
       rateLimits: {
         requestsPerMinute: 1000,
         requestsPerHour: 10000,
-        requestsPerDay: 100000
+        requestsPerDay: 100000,
       },
       supportedCurrencies: ['TRY', 'USD', 'EUR'],
       supportedAccountTypes: ['checking', 'savings', 'credit', 'loan'],
       webhookSupported: false,
       oauthSupported: false,
-      sandboxSupported: true
+      sandboxSupported: true,
     };
   }
 
@@ -213,25 +253,25 @@ class MockBankProvider extends BaseBankProvider {
           id: 'MOCK_001',
           name: 'Mock Checking Account',
           type: 'checking',
-          balance: 15000.50,
+          balance: 15000.5,
           currency: 'TRY',
           accountNumber: '1234567890',
           iban: 'TR1234567890123456789012345',
           lastUpdated: new Date(),
-          metadata: { source: 'mock' }
+          metadata: { source: 'mock' },
         },
         {
           id: 'MOCK_002',
           name: 'Mock Savings Account',
           type: 'savings',
-          balance: 50000.00,
+          balance: 50000.0,
           currency: 'TRY',
           accountNumber: '0987654321',
           iban: 'TR0987654321098765432109876',
           lastUpdated: new Date(),
-          metadata: { source: 'mock' }
-        }
-      ]
+          metadata: { source: 'mock' },
+        },
+      ],
     };
   }
 
@@ -247,8 +287,8 @@ class MockBankProvider extends BaseBankProvider {
         success: false,
         error: {
           code: 'ACCOUNT_NOT_FOUND',
-          message: `Account ${accountId} not found`
-        }
+          message: `Account ${accountId} not found`,
+        },
       };
     }
 
@@ -269,30 +309,30 @@ class MockBankProvider extends BaseBankProvider {
         id: 'TXN_001',
         accountId,
         date: new Date(Date.now() - 86400000), // 1 day ago
-        amount: 1000.00,
+        amount: 1000.0,
         currency: 'TRY',
         description: 'Mock Credit Transaction',
         reference: 'MOCK_REF_001',
         category: 'Income',
-        balance: 15000.50,
+        balance: 15000.5,
         type: 'credit',
         status: 'completed',
-        metadata: { source: 'mock' }
+        metadata: { source: 'mock' },
       },
       {
         id: 'TXN_002',
         accountId,
         date: new Date(Date.now() - 172800000), // 2 days ago
-        amount: 500.00,
+        amount: 500.0,
         currency: 'TRY',
         description: 'Mock Debit Transaction',
         reference: 'MOCK_REF_002',
         category: 'Expense',
-        balance: 14000.50,
+        balance: 14000.5,
         type: 'debit',
         status: 'completed',
-        metadata: { source: 'mock' }
-      }
+        metadata: { source: 'mock' },
+      },
     ];
 
     return { success: true, data: mockTransactions };
@@ -313,8 +353,8 @@ class MockBankProvider extends BaseBankProvider {
         success: false,
         error: {
           code: 'TRANSACTION_NOT_FOUND',
-          message: `Transaction ${transactionId} not found`
-        }
+          message: `Transaction ${transactionId} not found`,
+        },
       };
     }
 
@@ -332,8 +372,8 @@ class MockBankProvider extends BaseBankProvider {
         success: true,
         accountsUpdated: 2,
         transactionsCount: 10,
-        lastSyncDate: new Date()
-      }
+        lastSyncDate: new Date(),
+      },
     };
   }
 
@@ -357,27 +397,29 @@ class MockBankProvider extends BaseBankProvider {
         initiatedAt: new Date(),
         completedAt: new Date(),
         reference: `MOCK_REF_${Date.now()}`,
-        metadata: { ...metadata, source: 'mock' }
-      }
+        metadata: { ...metadata, source: 'mock' },
+      },
     };
   }
 
-  async getTransfer(transferId: string): Promise<BankApiResponse<BankTransfer>> {
+  async getTransfer(
+    transferId: string
+  ): Promise<BankApiResponse<BankTransfer>> {
     return {
       success: true,
       data: {
         id: transferId,
         fromAccountId: 'MOCK_001',
         toAccountId: 'MOCK_002',
-        amount: 1000.00,
+        amount: 1000.0,
         currency: 'TRY',
         description: 'Mock Transfer',
         status: 'completed',
         initiatedAt: new Date(Date.now() - 3600000), // 1 hour ago
         completedAt: new Date(Date.now() - 3000000), // 50 minutes ago
         reference: `MOCK_REF_${transferId}`,
-        metadata: { source: 'mock' }
-      }
+        metadata: { source: 'mock' },
+      },
     };
   }
 
@@ -396,9 +438,9 @@ class MockBankProvider extends BaseBankProvider {
           status: 'active',
           limit: 10000,
           availableLimit: 8500,
-          metadata: { source: 'mock' }
-        }
-      ]
+          metadata: { source: 'mock' },
+        },
+      ],
     };
   }
 
@@ -417,8 +459,8 @@ class MockBankProvider extends BaseBankProvider {
       data: {
         ...card,
         status,
-        metadata: { ...card.metadata, statusUpdatedAt: new Date() }
-      }
+        metadata: { ...card.metadata, statusUpdatedAt: new Date() },
+      },
     };
   }
 
@@ -449,8 +491,8 @@ class MockBankProvider extends BaseBankProvider {
       success: false,
       error: {
         code: 'NOT_SUPPORTED',
-        message: 'Webhooks are not supported by mock provider'
-      }
+        message: 'Webhooks are not supported by mock provider',
+      },
     };
   }
 
@@ -470,18 +512,20 @@ class MockBankProvider extends BaseBankProvider {
       success: false,
       error: {
         code: 'NOT_SUPPORTED',
-        message: 'Webhooks are not supported by mock provider'
-      }
+        message: 'Webhooks are not supported by mock provider',
+      },
     };
   }
 
-  async refreshToken(): Promise<BankApiResponse<{ token: string; expiresAt: Date }>> {
+  async refreshToken(): Promise<
+    BankApiResponse<{ token: string; expiresAt: Date }>
+  > {
     return {
       success: true,
       data: {
         token: 'mock_token',
-        expiresAt: new Date(Date.now() + 3600000) // 1 hour from now
-      }
+        expiresAt: new Date(Date.now() + 3600000), // 1 hour from now
+      },
     };
   }
 
@@ -505,11 +549,18 @@ class MockBankProvider extends BaseBankProvider {
       data: {} as T,
       metadata: {
         requestId: `mock_${Date.now()}`,
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      },
     };
   }
 }
 
 // Import types from base provider
-import type { BankApiResponse, BankAccount, BankTransaction, BankTransfer, BankCard, SyncResult } from './providers/base-provider.ts';
+import type {
+  BankApiResponse,
+  BankAccount,
+  BankTransaction,
+  BankTransfer,
+  BankCard,
+  SyncResult,
+} from './providers/base-provider.ts';

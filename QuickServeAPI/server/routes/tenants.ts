@@ -19,21 +19,25 @@ router.get('/', requireRole('admin'), async (req: Request, res: Response) => {
 });
 
 // Get tenant by ID
-router.get('/:id', requireRole('admin'), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const tenant = await storage.getTenant(id);
+router.get(
+  '/:id',
+  requireRole('admin'),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const tenant = await storage.getTenant(id);
 
-    if (!tenant) {
-      return res.status(404).json({ error: 'Tenant not found' });
+      if (!tenant) {
+        return res.status(404).json({ error: 'Tenant not found' });
+      }
+
+      res.json(tenant);
+    } catch (error) {
+      logger.error('Error fetching tenant:', error);
+      res.status(500).json({ error: 'Failed to fetch tenant' });
     }
-
-    res.json(tenant);
-  } catch (error) {
-    logger.error('Error fetching tenant:', error);
-    res.status(500).json({ error: 'Failed to fetch tenant' });
   }
-});
+);
 
 // Create new tenant (admin only)
 router.post('/', requireRole('admin'), async (req: Request, res: Response) => {
@@ -49,40 +53,48 @@ router.post('/', requireRole('admin'), async (req: Request, res: Response) => {
 });
 
 // Update tenant (admin only)
-router.put('/:id', requireRole('admin'), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const validatedData = insertTenantSchema.partial().parse(req.body);
+router.put(
+  '/:id',
+  requireRole('admin'),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertTenantSchema.partial().parse(req.body);
 
-    const tenant = await storage.updateTenant(id, validatedData);
+      const tenant = await storage.updateTenant(id, validatedData);
 
-    if (!tenant) {
-      return res.status(404).json({ error: 'Tenant not found' });
+      if (!tenant) {
+        return res.status(404).json({ error: 'Tenant not found' });
+      }
+
+      res.json(tenant);
+    } catch (error) {
+      logger.error('Error updating tenant:', error);
+      res.status(400).json({ error: 'Failed to update tenant' });
     }
-
-    res.json(tenant);
-  } catch (error) {
-    logger.error('Error updating tenant:', error);
-    res.status(400).json({ error: 'Failed to update tenant' });
   }
-});
+);
 
 // Delete tenant (admin only)
-router.delete('/:id', requireRole('admin'), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const success = await storage.deleteTenant(id);
+router.delete(
+  '/:id',
+  requireRole('admin'),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteTenant(id);
 
-    if (!success) {
-      return res.status(404).json({ error: 'Tenant not found' });
+      if (!success) {
+        return res.status(404).json({ error: 'Tenant not found' });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      logger.error('Error deleting tenant:', error);
+      res.status(500).json({ error: 'Failed to delete tenant' });
     }
-
-    res.status(204).send();
-  } catch (error) {
-    logger.error('Error deleting tenant:', error);
-    res.status(500).json({ error: 'Failed to delete tenant' });
   }
-});
+);
 
 // Get tenant by domain (public endpoint for white-label)
 router.get('/domain/:domain', async (req: Request, res: Response) => {

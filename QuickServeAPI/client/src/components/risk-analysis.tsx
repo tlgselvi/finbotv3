@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  CheckCircle,
   DollarSign,
   BarChart3,
-  Settings
+  Settings,
 } from 'lucide-react';
 
 interface RiskScenario {
@@ -56,13 +56,17 @@ interface RiskAnalysisProps {
   }) => void;
 }
 
-export default function RiskAnalysis({ data, isLoading, onParameterChange }: RiskAnalysisProps) {
+export default function RiskAnalysis({
+  data,
+  isLoading,
+  onParameterChange,
+}: RiskAnalysisProps) {
   const [showParameters, setShowParameters] = useState(false);
   const [parameters, setParameters] = useState({
     fxDelta: data?.parameters.fxDelta || 0,
     rateDelta: data?.parameters.rateDelta || 0,
     inflationDelta: data?.parameters.inflationDelta || 0,
-    liquidityGap: data?.parameters.liquidityGap || 0
+    liquidityGap: data?.parameters.liquidityGap || 0,
   });
 
   const handleParameterChange = (key: string, value: number) => {
@@ -112,7 +116,9 @@ export default function RiskAnalysis({ data, isLoading, onParameterChange }: Ris
     <div className="space-y-6">
       {/* Risk Level Alert */}
       {data?.riskLevel && (
-        <Alert className={`border-${data.riskLevel.color}-200 bg-${data.riskLevel.color}-50`}>
+        <Alert
+          className={`border-${data.riskLevel.color}-200 bg-${data.riskLevel.color}-50`}
+        >
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             <div className="flex items-center justify-between">
@@ -120,7 +126,10 @@ export default function RiskAnalysis({ data, isLoading, onParameterChange }: Ris
                 <strong>Risk Seviyesi: {data.riskLevel.level}</strong>
                 <p className="text-sm mt-1">{data.riskLevel.description}</p>
               </div>
-              <Badge variant="outline" className={`text-${data.riskLevel.color}-600 border-${data.riskLevel.color}-300`}>
+              <Badge
+                variant="outline"
+                className={`text-${data.riskLevel.color}-600 border-${data.riskLevel.color}-300`}
+              >
                 {data.riskLevel.level}
               </Badge>
             </div>
@@ -228,7 +237,12 @@ export default function RiskAnalysis({ data, isLoading, onParameterChange }: Ris
                   type="number"
                   step="0.1"
                   value={parameters.fxDelta}
-                  onChange={(e) => handleParameterChange('fxDelta', parseFloat(e.target.value) || 0)}
+                  onChange={e =>
+                    handleParameterChange(
+                      'fxDelta',
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
                 />
               </div>
               <div>
@@ -238,7 +252,12 @@ export default function RiskAnalysis({ data, isLoading, onParameterChange }: Ris
                   type="number"
                   step="0.1"
                   value={parameters.rateDelta}
-                  onChange={(e) => handleParameterChange('rateDelta', parseFloat(e.target.value) || 0)}
+                  onChange={e =>
+                    handleParameterChange(
+                      'rateDelta',
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
                 />
               </div>
               <div>
@@ -248,7 +267,12 @@ export default function RiskAnalysis({ data, isLoading, onParameterChange }: Ris
                   type="number"
                   step="0.1"
                   value={parameters.inflationDelta}
-                  onChange={(e) => handleParameterChange('inflationDelta', parseFloat(e.target.value) || 0)}
+                  onChange={e =>
+                    handleParameterChange(
+                      'inflationDelta',
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
                 />
               </div>
               <div>
@@ -258,7 +282,12 @@ export default function RiskAnalysis({ data, isLoading, onParameterChange }: Ris
                   type="number"
                   step="0.1"
                   value={parameters.liquidityGap}
-                  onChange={(e) => handleParameterChange('liquidityGap', parseFloat(e.target.value) || 0)}
+                  onChange={e =>
+                    handleParameterChange(
+                      'liquidityGap',
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
                 />
               </div>
             </div>
@@ -266,20 +295,32 @@ export default function RiskAnalysis({ data, isLoading, onParameterChange }: Ris
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-muted/20 rounded-lg">
-              <div className="text-sm text-muted-foreground mb-1">Döviz Kuru</div>
+              <div className="text-sm text-muted-foreground mb-1">
+                Döviz Kuru
+              </div>
               <div className="text-lg font-semibold">{data?.factors.fx}</div>
             </div>
             <div className="text-center p-3 bg-muted/20 rounded-lg">
-              <div className="text-sm text-muted-foreground mb-1">Faiz Oranı</div>
+              <div className="text-sm text-muted-foreground mb-1">
+                Faiz Oranı
+              </div>
               <div className="text-lg font-semibold">{data?.factors.rate}</div>
             </div>
             <div className="text-center p-3 bg-muted/20 rounded-lg">
-              <div className="text-sm text-muted-foreground mb-1">Enflasyon</div>
-              <div className="text-lg font-semibold">{data?.factors.inflation}</div>
+              <div className="text-sm text-muted-foreground mb-1">
+                Enflasyon
+              </div>
+              <div className="text-lg font-semibold">
+                {data?.factors.inflation}
+              </div>
             </div>
             <div className="text-center p-3 bg-muted/20 rounded-lg">
-              <div className="text-sm text-muted-foreground mb-1">Likidite Açığı</div>
-              <div className="text-lg font-semibold">{data?.factors.liquidity}</div>
+              <div className="text-sm text-muted-foreground mb-1">
+                Likidite Açığı
+              </div>
+              <div className="text-lg font-semibold">
+                {data?.factors.liquidity}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -297,7 +338,10 @@ export default function RiskAnalysis({ data, isLoading, onParameterChange }: Ris
           <CardContent>
             <div className="space-y-2">
               {data.recommendations.map((recommendation, index) => (
-                <div key={index} className="flex items-start gap-2 p-3 bg-muted/20 rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-start gap-2 p-3 bg-muted/20 rounded-lg"
+                >
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                   <p className="text-sm">{recommendation}</p>
                 </div>

@@ -1,14 +1,18 @@
 import { eq, and, desc, sql, isNull, or } from 'drizzle-orm';
 import { db } from '../../db';
-import { cashboxes, cashboxTransactions, cashboxAuditLogs } from '../../db/schema';
-import type { 
-  Cashbox, 
-  InsertCashbox, 
-  UpdateCashbox, 
-  CashboxTransaction, 
+import {
+  cashboxes,
+  cashboxTransactions,
+  cashboxAuditLogs,
+} from '../../db/schema';
+import type {
+  Cashbox,
+  InsertCashbox,
+  UpdateCashbox,
+  CashboxTransaction,
   InsertCashboxTransaction,
   TransferCashbox,
-  CashboxAuditLog 
+  CashboxAuditLog,
 } from '../../db/schema';
 
 export interface CashboxWithBalance extends Cashbox {
@@ -76,7 +80,7 @@ export async function getCashboxes(
 ): Promise<CashboxWithBalance[]> {
   const whereConditions = [
     eq(cashboxes.userId, userId),
-    includeDeleted ? sql`1=1` : eq(cashboxes.isDeleted, false)
+    includeDeleted ? sql`1=1` : eq(cashboxes.isDeleted, false),
   ];
 
   const result = await db
@@ -122,10 +126,7 @@ export async function getCashboxById(
       )`,
     })
     .from(cashboxes)
-    .where(and(
-      eq(cashboxes.id, cashboxId),
-      eq(cashboxes.userId, userId)
-    ))
+    .where(and(eq(cashboxes.id, cashboxId), eq(cashboxes.userId, userId)))
     .limit(1);
 
   return result || null;
@@ -152,11 +153,13 @@ export async function updateCashbox(
       ...data,
       updatedAt: new Date(),
     })
-    .where(and(
-      eq(cashboxes.id, cashboxId),
-      eq(cashboxes.userId, userId),
-      eq(cashboxes.isDeleted, false)
-    ))
+    .where(
+      and(
+        eq(cashboxes.id, cashboxId),
+        eq(cashboxes.userId, userId),
+        eq(cashboxes.isDeleted, false)
+      )
+    )
     .returning();
 
   if (updatedCashbox) {
@@ -200,11 +203,13 @@ export async function deleteCashbox(
       deletedAt: new Date(),
       updatedAt: new Date(),
     })
-    .where(and(
-      eq(cashboxes.id, cashboxId),
-      eq(cashboxes.userId, userId),
-      eq(cashboxes.isDeleted, false)
-    ))
+    .where(
+      and(
+        eq(cashboxes.id, cashboxId),
+        eq(cashboxes.userId, userId),
+        eq(cashboxes.isDeleted, false)
+      )
+    )
     .returning();
 
   if (deletedCashbox) {
@@ -248,11 +253,13 @@ export async function restoreCashbox(
       deletedAt: null,
       updatedAt: new Date(),
     })
-    .where(and(
-      eq(cashboxes.id, cashboxId),
-      eq(cashboxes.userId, userId),
-      eq(cashboxes.isDeleted, true)
-    ))
+    .where(
+      and(
+        eq(cashboxes.id, cashboxId),
+        eq(cashboxes.userId, userId),
+        eq(cashboxes.isDeleted, true)
+      )
+    )
     .returning();
 
   if (restoredCashbox) {
@@ -301,7 +308,7 @@ export async function createCashboxTransaction(
   }
 
   // Start transaction
-  const result = await db.transaction(async (tx) => {
+  const result = await db.transaction(async tx => {
     // Create transaction record
     const [transaction] = await tx
       .insert(cashboxTransactions)
@@ -367,7 +374,7 @@ export async function transferBetweenCashboxes(
   }
 
   // Start transaction
-  const result = await db.transaction(async (tx) => {
+  const result = await db.transaction(async tx => {
     // Create withdrawal transaction
     const [fromTransaction] = await tx
       .insert(cashboxTransactions)
@@ -377,7 +384,8 @@ export async function transferBetweenCashboxes(
         type: 'transfer_out',
         amount: transferData.amount,
         currency: transferData.currency,
-        description: transferData.description || `Transfer to ${toCashbox.name}`,
+        description:
+          transferData.description || `Transfer to ${toCashbox.name}`,
         reference: transferData.reference,
         transferToCashboxId: transferData.toCashboxId,
         balanceAfter: (fromBalance - transferData.amount).toString(),
@@ -395,7 +403,8 @@ export async function transferBetweenCashboxes(
         type: 'transfer_in',
         amount: transferData.amount,
         currency: transferData.currency,
-        description: transferData.description || `Transfer from ${fromCashbox.name}`,
+        description:
+          transferData.description || `Transfer from ${fromCashbox.name}`,
         reference: transferData.reference,
         transferFromCashboxId: transferData.fromCashboxId,
         balanceAfter: (toBalance + transferData.amount).toString(),
@@ -463,7 +472,7 @@ export async function getCashboxTransactions(
 
   const whereConditions = [
     eq(cashboxTransactions.userId, userId),
-    eq(cashboxTransactions.cashboxId, cashboxId)
+    eq(cashboxTransactions.cashboxId, cashboxId),
   ];
 
   if (type) {
@@ -500,7 +509,9 @@ export async function getCashboxTransactions(
 /**
  * Get cashbox summary
  */
-export async function getCashboxSummary(userId: string): Promise<CashboxSummary> {
+export async function getCashboxSummary(
+  userId: string
+): Promise<CashboxSummary> {
   const result = await db
     .select({
       totalCashboxes: sql<number>`COUNT(*)`,
@@ -613,7 +624,7 @@ async function logAuditEvent(data: {
  */
 function getChanges(oldValues: any, newValues: any): any {
   const changes: any = {};
-  
+
   for (const key in newValues) {
     if (oldValues[key] !== newValues[key]) {
       changes[key] = {
@@ -622,6 +633,6 @@ function getChanges(oldValues: any, newValues: any): any {
       };
     }
   }
-  
+
   return changes;
 }

@@ -1,40 +1,21 @@
-# Dependencies
-node_modules
-.pnpm-debug.log
-
-# Build outputs
-dist
-build
-.vite
-
-# Environment
+node_modules/
+dist/
+coverage/
+reports/
+artifacts/
+backups/
+attest/
 .env
 .env.local
 .env.production
-
-# Logs
-logs
+.env.development
 *.log
-npm-debug.log*
-pnpm-debug.log*
-
-# OS
+*.db
 .DS_Store
-Thumbs.db
-
-# IDE
-.vscode/*
-!.vscode/extensions.json
-.idea
+.vscode/
+.idea/
 *.swp
 *.swo
-
-# Testing
-coverage
-.nyc_output
-
-# Database
-*.db
-*.sqlite
-drizzle
-
+.vitest/
+test-results/
+playwright-report/

@@ -1,13 +1,40 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -15,7 +42,7 @@ import { useFormatCurrency } from '@/lib/utils/formatCurrency';
 import { Plus, Calendar, DollarSign, AlertCircle } from 'lucide-react';
 import type { FixedExpense } from '@shared/schema';
 
-export default function FixedExpenses () {
+export default function FixedExpenses() {
   const formatCurrency = useFormatCurrency();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newExpense, setNewExpense] = useState({
@@ -38,8 +65,12 @@ export default function FixedExpenses () {
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/fixed-expenses');
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Sabit giderler alınamadı.' }));
-        throw new Error(errorData.message || 'Sabit giderler alınırken bir hata oluştu.');
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: 'Sabit giderler alınamadı.' }));
+        throw new Error(
+          errorData.message || 'Sabit giderler alınırken bir hata oluştu.'
+        );
       }
       return response.json();
     },
@@ -49,7 +80,11 @@ export default function FixedExpenses () {
   // Add fixed expense mutation
   const addExpenseMutation = useMutation({
     mutationFn: async (expenseData: any) => {
-      const response = await apiRequest('POST', '/api/fixed-expenses', expenseData);
+      const response = await apiRequest(
+        'POST',
+        '/api/fixed-expenses',
+        expenseData
+      );
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Sabit gider eklenemedi');
@@ -137,33 +172,47 @@ export default function FixedExpenses () {
   };
 
   const totalMonthlyExpenses = fixedExpenses
-    .filter((expense: FixedExpense) => expense.type === 'expense' && expense.isActive)
+    .filter(
+      (expense: FixedExpense) => expense.type === 'expense' && expense.isActive
+    )
     .reduce((sum: number, expense: FixedExpense) => {
       const amount = parseFloat(expense.amount);
       switch (expense.recurrence) {
-        case 'weekly': return sum + (amount * 4.33); // Average weeks per month
-        case 'monthly': return sum + amount;
-        case 'yearly': return sum + (amount / 12);
-        default: return sum + amount;
+        case 'weekly':
+          return sum + amount * 4.33; // Average weeks per month
+        case 'monthly':
+          return sum + amount;
+        case 'yearly':
+          return sum + amount / 12;
+        default:
+          return sum + amount;
       }
     }, 0);
 
   const totalMonthlyIncome = fixedExpenses
-    .filter((expense: FixedExpense) => expense.type === 'income' && expense.isActive)
+    .filter(
+      (expense: FixedExpense) => expense.type === 'income' && expense.isActive
+    )
     .reduce((sum: number, expense: FixedExpense) => {
       const amount = parseFloat(expense.amount);
       switch (expense.recurrence) {
-        case 'weekly': return sum + (amount * 4.33);
-        case 'monthly': return sum + amount;
-        case 'yearly': return sum + (amount / 12);
-        default: return sum + amount;
+        case 'weekly':
+          return sum + amount * 4.33;
+        case 'monthly':
+          return sum + amount;
+        case 'yearly':
+          return sum + amount / 12;
+        default:
+          return sum + amount;
       }
     }, 0);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="page-title">Sabit Giderler</h1>
+        <h1 className="text-3xl font-bold" data-testid="page-title">
+          Sabit Giderler
+        </h1>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -184,7 +233,9 @@ export default function FixedExpenses () {
                 <Input
                   id="title"
                   value={newExpense.title}
-                  onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })}
+                  onChange={e =>
+                    setNewExpense({ ...newExpense, title: e.target.value })
+                  }
                   placeholder="Örn: Kira, Maaş, Abonelik"
                   required
                 />
@@ -195,7 +246,12 @@ export default function FixedExpenses () {
                 <Input
                   id="description"
                   value={newExpense.description}
-                  onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
+                  onChange={e =>
+                    setNewExpense({
+                      ...newExpense,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="Detaylı açıklama (opsiyonel)"
                 />
               </div>
@@ -207,7 +263,9 @@ export default function FixedExpenses () {
                     id="amount"
                     type="number"
                     value={newExpense.amount}
-                    onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
+                    onChange={e =>
+                      setNewExpense({ ...newExpense, amount: e.target.value })
+                    }
                     placeholder="0.00"
                     step="0.01"
                     min="0"
@@ -217,7 +275,12 @@ export default function FixedExpenses () {
 
                 <div>
                   <Label htmlFor="currency">Para Birimi</Label>
-                  <Select value={newExpense.currency} onValueChange={(value) => setNewExpense({ ...newExpense, currency: value })}>
+                  <Select
+                    value={newExpense.currency}
+                    onValueChange={value =>
+                      setNewExpense({ ...newExpense, currency: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -233,7 +296,12 @@ export default function FixedExpenses () {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="type">Tür</Label>
-                  <Select value={newExpense.type} onValueChange={(value: 'expense' | 'income') => setNewExpense({ ...newExpense, type: value })}>
+                  <Select
+                    value={newExpense.type}
+                    onValueChange={(value: 'expense' | 'income') =>
+                      setNewExpense({ ...newExpense, type: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -246,7 +314,12 @@ export default function FixedExpenses () {
 
                 <div>
                   <Label htmlFor="recurrence">Tekrar</Label>
-                  <Select value={newExpense.recurrence} onValueChange={(value: 'monthly' | 'weekly' | 'yearly') => setNewExpense({ ...newExpense, recurrence: value })}>
+                  <Select
+                    value={newExpense.recurrence}
+                    onValueChange={(value: 'monthly' | 'weekly' | 'yearly') =>
+                      setNewExpense({ ...newExpense, recurrence: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -264,17 +337,28 @@ export default function FixedExpenses () {
                 <Input
                   id="category"
                   value={newExpense.category}
-                  onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value })}
+                  onChange={e =>
+                    setNewExpense({ ...newExpense, category: e.target.value })
+                  }
                   placeholder="Örn: Kira, Maaş, Faturalar"
                 />
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddDialogOpen(false)}
+                >
                   İptal
                 </Button>
-                <Button type="submit" disabled={isSubmitting || addExpenseMutation.isPending}>
-                  {isSubmitting || addExpenseMutation.isPending ? 'Ekleniyor...' : 'Ekle'}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || addExpenseMutation.isPending}
+                >
+                  {isSubmitting || addExpenseMutation.isPending
+                    ? 'Ekleniyor...'
+                    : 'Ekle'}
                 </Button>
               </DialogFooter>
             </form>
@@ -286,7 +370,9 @@ export default function FixedExpenses () {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aylık Toplam Gider</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Aylık Toplam Gider
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -298,7 +384,9 @@ export default function FixedExpenses () {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aylık Toplam Gelir</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Aylık Toplam Gelir
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -313,9 +401,7 @@ export default function FixedExpenses () {
       <Card>
         <CardHeader>
           <CardTitle>Sabit Giderler ve Gelirler</CardTitle>
-          <CardDescription>
-            Düzenli gider ve gelir kayıtlarınız
-          </CardDescription>
+          <CardDescription>Düzenli gider ve gelir kayıtlarınız</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -336,16 +422,22 @@ export default function FixedExpenses () {
               <TableBody>
                 {fixedExpenses.map((expense: FixedExpense) => (
                   <TableRow key={expense.id}>
-                    <TableCell className="font-medium">{expense.title}</TableCell>
+                    <TableCell className="font-medium">
+                      {expense.title}
+                    </TableCell>
                     <TableCell>{expense.description || '-'}</TableCell>
                     <TableCell>{getTypeBadge(expense.type)}</TableCell>
                     <TableCell className="text-right">
                       {formatCurrency(parseFloat(expense.amount))}
                     </TableCell>
-                    <TableCell>{getRecurrenceBadge(expense.recurrence)}</TableCell>
+                    <TableCell>
+                      {getRecurrenceBadge(expense.recurrence)}
+                    </TableCell>
                     <TableCell>{expense.category || '-'}</TableCell>
                     <TableCell>
-                      <Badge variant={expense.isActive ? 'default' : 'secondary'}>
+                      <Badge
+                        variant={expense.isActive ? 'default' : 'secondary'}
+                      >
                         {expense.isActive ? 'Aktif' : 'Pasif'}
                       </Badge>
                     </TableCell>
@@ -356,9 +448,12 @@ export default function FixedExpenses () {
           ) : (
             <div className="text-center py-16">
               <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Henüz Sabit Gider Yok</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Henüz Sabit Gider Yok
+              </h3>
               <p className="text-muted-foreground mb-4">
-                Düzenli gider ve gelirlerinizi takip etmek için sabit gider ekleyin.
+                Düzenli gider ve gelirlerinizi takip etmek için sabit gider
+                ekleyin.
               </p>
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />

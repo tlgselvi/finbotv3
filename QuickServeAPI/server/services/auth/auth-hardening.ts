@@ -1,9 +1,9 @@
 import { eq, and, gt, lt } from 'drizzle-orm';
 import { db } from '../../db';
-import { 
+import {
   userProfiles,
   passwordResetTokens,
-  userActivityLogs
+  userActivityLogs,
 } from '../../db/schema';
 import { z } from 'zod';
 import * as argon2 from 'argon2';
@@ -21,7 +21,7 @@ export const ARGON2_CONFIG = {
   timeCost: 3, // 3 iterations
   parallelism: 1,
   hashLength: 32,
-  saltLength: 16
+  saltLength: 16,
 };
 
 // JWT Configuration
@@ -30,7 +30,7 @@ export const JWT_CONFIG = {
   refreshTokenExpiry: '7d',
   algorithm: 'HS256' as const,
   issuer: 'finbot-v3',
-  audience: 'finbot-users'
+  audience: 'finbot-users',
 };
 
 // Security Configuration
@@ -41,7 +41,7 @@ export const SECURITY_CONFIG = {
   jtiLength: 32,
   maxFailedAttempts: 5,
   lockoutDuration: 30 * 60 * 1000, // 30 minutes
-  sessionTimeout: 15 * 60 * 1000 // 15 minutes
+  sessionTimeout: 15 * 60 * 1000, // 15 minutes
 };
 
 // Enhanced Authentication Service
@@ -70,7 +70,10 @@ export class AuthHardeningService {
   }
 
   // Enhanced password verification with Argon2id + pepper
-  async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  async verifyPassword(
+    password: string,
+    hashedPassword: string
+  ): Promise<boolean> {
     try {
       const pepperedPassword = password + this.pepper;
       return await argon2.verify(hashedPassword, pepperedPassword);
@@ -86,7 +89,11 @@ export class AuthHardeningService {
   }
 
   // Generate access token with JTI
-  async generateAccessToken(userId: string, role: string, permissions: string[]): Promise<string> {
+  async generateAccessToken(
+    userId: string,
+    role: string,
+    permissions: string[]
+  ): Promise<string> {
     try {
       const jti = this.generateJTI();
       const payload = {
@@ -95,14 +102,14 @@ export class AuthHardeningService {
         permissions,
         jti,
         iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + (15 * 60), // 15 minutes
+        exp: Math.floor(Date.now() / 1000) + 15 * 60, // 15 minutes
         iss: JWT_CONFIG.issuer,
-        aud: JWT_CONFIG.audience
+        aud: JWT_CONFIG.audience,
       };
 
       const token = jwt.sign(payload, process.env.JWT_SECRET!, {
         algorithm: JWT_CONFIG.algorithm,
-        expiresIn: JWT_CONFIG.accessTokenExpiry
+        expiresIn: JWT_CONFIG.accessTokenExpiry,
       });
 
       return token;
@@ -113,22 +120,24 @@ export class AuthHardeningService {
   }
 
   // Generate refresh token with rotation
-  async generateRefreshToken(userId: string): Promise<{ token: string; jti: string }> {
+  async generateRefreshToken(
+    userId: string
+  ): Promise<{ token: string; jti: string }> {
     try {
       const jti = this.generateJTI();
       const payload = {
         sub: userId,
         jti,
         iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60), // 7 days
+        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days
         iss: JWT_CONFIG.issuer,
         aud: JWT_CONFIG.audience,
-        type: 'refresh'
+        type: 'refresh',
       };
 
       const token = jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, {
         algorithm: JWT_CONFIG.algorithm,
-        expiresIn: JWT_CONFIG.refreshTokenExpiry
+        expiresIn: JWT_CONFIG.refreshTokenExpiry,
       });
 
       // Store refresh token in database
@@ -142,7 +151,11 @@ export class AuthHardeningService {
   }
 
   // Store refresh token in database
-  private async storeRefreshToken(userId: string, token: string, jti: string): Promise<void> {
+  private async storeRefreshToken(
+    userId: string,
+    token: string,
+    jti: string
+  ): Promise<void> {
     try {
       // In a real implementation, you would insert into refresh_tokens table
       // For now, we'll simulate this with user_activity_logs
@@ -152,8 +165,8 @@ export class AuthHardeningService {
         resource: 'authentication',
         metadata: {
           jti,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        }
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
       });
 
       // Clean up old refresh tokens
@@ -176,11 +189,16 @@ export class AuthHardeningService {
   }
 
   // Verify refresh token and rotate if valid
-  async verifyAndRotateRefreshToken(token: string): Promise<{ userId: string; newTokens: { accessToken: string; refreshToken: string } } | null> {
+  async verifyAndRotateRefreshToken(
+    token: string
+  ): Promise<{
+    userId: string;
+    newTokens: { accessToken: string; refreshToken: string };
+  } | null> {
     try {
       // Verify refresh token
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as any;
-      
+
       if (decoded.type !== 'refresh') {
         throw new Error('Invalid token type');
       }
@@ -194,7 +212,7 @@ export class AuthHardeningService {
       }
 
       // Check if token exists in database
-      if (!await this.refreshTokenExists(userId, jti)) {
+      if (!(await this.refreshTokenExists(userId, jti))) {
         throw new Error('Token not found in database');
       }
 
@@ -227,8 +245,8 @@ export class AuthHardeningService {
         userId,
         newTokens: {
           accessToken: newAccessToken,
-          refreshToken: newRefreshTokenData.token
-        }
+          refreshToken: newRefreshTokenData.token,
+        },
       };
     } catch (error) {
       logger.error('Refresh token verification error:', error);
@@ -237,7 +255,10 @@ export class AuthHardeningService {
   }
 
   // Check if refresh token exists in database
-  private async refreshTokenExists(userId: string, jti: string): Promise<boolean> {
+  private async refreshTokenExists(
+    userId: string,
+    jti: string
+  ): Promise<boolean> {
     try {
       // In a real implementation, you would check refresh_tokens table
       // This is a simplified version
@@ -249,7 +270,11 @@ export class AuthHardeningService {
   }
 
   // Revoke token (add to revoked list)
-  async revokeToken(jti: string, userId: string, reason: string = 'user_logout'): Promise<void> {
+  async revokeToken(
+    jti: string,
+    userId: string,
+    reason: string = 'user_logout'
+  ): Promise<void> {
     try {
       // In a real implementation, you would insert into revoked_tokens table
       // For now, we'll simulate this with user_activity_logs
@@ -260,11 +285,13 @@ export class AuthHardeningService {
         metadata: {
           jti,
           reason,
-          revokedAt: new Date()
-        }
+          revokedAt: new Date(),
+        },
       });
 
-      logger.info(`Token revoked: ${jti} for user: ${userId}, reason: ${reason}`);
+      logger.info(
+        `Token revoked: ${jti} for user: ${userId}, reason: ${reason}`
+      );
     } catch (error) {
       logger.error('Token revocation error:', error);
       throw new Error('Failed to revoke token');
@@ -284,7 +311,10 @@ export class AuthHardeningService {
   }
 
   // Revoke all tokens for user (forced logout)
-  async revokeAllUserTokens(userId: string, reason: string = 'forced_logout'): Promise<void> {
+  async revokeAllUserTokens(
+    userId: string,
+    reason: string = 'forced_logout'
+  ): Promise<void> {
     try {
       // In a real implementation, you would revoke all tokens for the user
       // This is a simplified version
@@ -294,8 +324,8 @@ export class AuthHardeningService {
         resource: 'authentication',
         metadata: {
           reason,
-          revokedAt: new Date()
-        }
+          revokedAt: new Date(),
+        },
       });
 
       logger.info(`All tokens revoked for user: ${userId}, reason: ${reason}`);
@@ -306,10 +336,17 @@ export class AuthHardeningService {
   }
 
   // Verify access token
-  async verifyAccessToken(token: string): Promise<{ userId: string; role: string; permissions: string[]; jti: string } | null> {
+  async verifyAccessToken(
+    token: string
+  ): Promise<{
+    userId: string;
+    role: string;
+    permissions: string[];
+    jti: string;
+  } | null> {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-      
+
       // Check if token is revoked
       if (await this.isTokenRevoked(decoded.jti)) {
         throw new Error('Token has been revoked');
@@ -319,7 +356,7 @@ export class AuthHardeningService {
         userId: decoded.sub,
         role: decoded.role,
         permissions: decoded.permissions || [],
-        jti: decoded.jti
+        jti: decoded.jti,
       };
     } catch (error) {
       logger.error('Access token verification error:', error);
@@ -328,7 +365,11 @@ export class AuthHardeningService {
   }
 
   // Enhanced login with rate limiting and lockout
-  async authenticateUser(email: string, password: string, ipAddress: string): Promise<{
+  async authenticateUser(
+    email: string,
+    password: string,
+    ipAddress: string
+  ): Promise<{
     success: boolean;
     user?: any;
     tokens?: { accessToken: string; refreshToken: string };
@@ -342,7 +383,7 @@ export class AuthHardeningService {
         return {
           success: false,
           error: 'Account is locked',
-          lockoutUntil: lockoutCheck.lockoutUntil
+          lockoutUntil: lockoutCheck.lockoutUntil,
         };
       }
 
@@ -353,7 +394,7 @@ export class AuthHardeningService {
         await this.incrementFailedAttempts(email, ipAddress);
         return {
           success: false,
-          error: 'Invalid credentials'
+          error: 'Invalid credentials',
         };
       }
 
@@ -377,8 +418,8 @@ export class AuthHardeningService {
         metadata: {
           ipAddress,
           userAgent: 'unknown', // Would be passed from request
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       });
 
       return {
@@ -386,20 +427,23 @@ export class AuthHardeningService {
         user,
         tokens: {
           accessToken,
-          refreshToken: refreshTokenData.token
-        }
+          refreshToken: refreshTokenData.token,
+        },
       };
     } catch (error) {
       logger.error('Authentication error:', error);
       return {
         success: false,
-        error: 'Authentication failed'
+        error: 'Authentication failed',
       };
     }
   }
 
   // Verify user credentials
-  private async verifyCredentials(email: string, password: string): Promise<any> {
+  private async verifyCredentials(
+    email: string,
+    password: string
+  ): Promise<any> {
     try {
       // In a real implementation, you would query users table
       // This is a simplified version
@@ -407,7 +451,7 @@ export class AuthHardeningService {
         userId: 'test-user-id',
         email,
         role: 'finance',
-        permissions: ['view_cashboxes', 'manage_cashboxes']
+        permissions: ['view_cashboxes', 'manage_cashboxes'],
       };
     } catch (error) {
       logger.error('Credential verification error:', error);
@@ -416,7 +460,9 @@ export class AuthHardeningService {
   }
 
   // Check account lockout status
-  private async checkAccountLockout(email: string): Promise<{ isLocked: boolean; lockoutUntil?: Date }> {
+  private async checkAccountLockout(
+    email: string
+  ): Promise<{ isLocked: boolean; lockoutUntil?: Date }> {
     try {
       // In a real implementation, you would check user lockout status
       // This is a simplified version
@@ -428,7 +474,10 @@ export class AuthHardeningService {
   }
 
   // Increment failed login attempts
-  private async incrementFailedAttempts(email: string, ipAddress: string): Promise<void> {
+  private async incrementFailedAttempts(
+    email: string,
+    ipAddress: string
+  ): Promise<void> {
     try {
       // In a real implementation, you would increment failed attempts
       logger.info(`Failed login attempt for ${email} from ${ipAddress}`);
@@ -446,7 +495,7 @@ export class AuthHardeningService {
           failedLoginAttempts: 0,
           lockedUntil: null,
           lastLogin: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(userProfiles.userId, userId));
     } catch (error) {
@@ -458,7 +507,7 @@ export class AuthHardeningService {
   async cleanupExpiredTokens(): Promise<void> {
     try {
       const now = new Date();
-      
+
       // Clean up expired password reset tokens
       await db
         .delete(passwordResetTokens)
@@ -489,7 +538,7 @@ export class AuthHardeningService {
         activeTokens: 0,
         revokedTokens: 0,
         failedAttempts: 0,
-        lockedAccounts: 0
+        lockedAccounts: 0,
       };
     } catch (error) {
       logger.error('Security metrics error:', error);
@@ -497,12 +546,15 @@ export class AuthHardeningService {
         activeTokens: 0,
         revokedTokens: 0,
         failedAttempts: 0,
-        lockedAccounts: 0
+        lockedAccounts: 0,
       };
     }
   }
   // Generate token pair (access + refresh)
-  async generateTokenPair(userId: string, metadata?: Partial<TokenMetadata>): Promise<{ accessToken: string; refreshToken: string }> {
+  async generateTokenPair(
+    userId: string,
+    metadata?: Partial<TokenMetadata>
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       // Get user info for access token
       const userProfile = await db
@@ -519,12 +571,12 @@ export class AuthHardeningService {
       const tokenPair = await tokenService.generateTokenPair({
         userId,
         ipAddress: metadata?.ipAddress,
-        userAgent: metadata?.userAgent
+        userAgent: metadata?.userAgent,
       });
 
       return {
         accessToken: tokenPair.accessToken,
-        refreshToken: tokenPair.refreshToken
+        refreshToken: tokenPair.refreshToken,
       };
     } catch (error) {
       logger.error('Token pair generation error:', error);
@@ -533,7 +585,10 @@ export class AuthHardeningService {
   }
 
   // Rotate refresh token
-  async rotateRefreshToken(refreshToken: string, metadata?: Partial<TokenMetadata>): Promise<{
+  async rotateRefreshToken(
+    refreshToken: string,
+    metadata?: Partial<TokenMetadata>
+  ): Promise<{
     success: boolean;
     accessToken?: string;
     refreshToken?: string;
@@ -542,35 +597,47 @@ export class AuthHardeningService {
     try {
       const tokenPair = await tokenService.rotateRefreshToken(refreshToken, {
         ipAddress: metadata?.ipAddress,
-        userAgent: metadata?.userAgent
+        userAgent: metadata?.userAgent,
       });
 
       return {
         success: true,
         accessToken: tokenPair.accessToken,
-        refreshToken: tokenPair.refreshToken
+        refreshToken: tokenPair.refreshToken,
       };
     } catch (error) {
       logger.error('Refresh token rotation error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to rotate refresh token'
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to rotate refresh token',
       };
     }
   }
 
   // Revoke refresh token
-  async revokeToken(token: string, userId: string, reason: string = 'logout'): Promise<void> {
+  async revokeToken(
+    token: string,
+    userId: string,
+    reason: string = 'logout'
+  ): Promise<void> {
     await tokenService.revokeRefreshToken(token, userId, reason);
   }
 
   // Revoke all user tokens
-  async revokeAllUserTokens(userId: string, reason: string = 'security'): Promise<void> {
+  async revokeAllUserTokens(
+    userId: string,
+    reason: string = 'security'
+  ): Promise<void> {
     await tokenService.revokeAllUserTokens(userId, reason);
   }
 
   // Verify access token
-  verifyAccessToken(token: string): { userId: string; familyId: string } | null {
+  verifyAccessToken(
+    token: string
+  ): { userId: string; familyId: string } | null {
     return tokenService.verifyAccessToken(token);
   }
 }

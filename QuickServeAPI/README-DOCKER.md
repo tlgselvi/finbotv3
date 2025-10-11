@@ -16,12 +16,14 @@ Bu kılavuz FinBot v3 uygulamasını Docker ile çalıştırmak için gerekli t�
 ## 🔧 Gereksinimler
 
 ### Zorunlu:
+
 - **Docker** >= 24.0.0
 - **Docker Compose** >= 2.20.0
 - En az **4GB RAM**
 - En az **10GB disk alanı**
 
 ### Kurulum Kontrolü:
+
 ```bash
 docker --version
 docker-compose --version
@@ -45,6 +47,7 @@ docker-compose -f docker-compose.dev.yml up -d
 ```
 
 **Erişim Adresleri:**
+
 - 🌐 Frontend: http://localhost:5173
 - 🔌 Backend API: http://localhost:5000
 - 🗄️ PostgreSQL: localhost:5432
@@ -52,6 +55,7 @@ docker-compose -f docker-compose.dev.yml up -d
 - 🔴 Redis: localhost:6379
 
 **PgAdmin Giriş:**
+
 - Email: `admin@finbot.local`
 - Şifre: `admin`
 
@@ -66,6 +70,7 @@ docker-compose up -d
 ```
 
 **Erişim:**
+
 - 🌐 Uygulama: http://localhost:5000
 
 ---
@@ -73,13 +78,15 @@ docker-compose up -d
 ## 💻 Development Ortamı Detayları
 
 ### Özellikler:
+
 ✅ Hot-reload (kod değişikliklerinde otomatik yenileme)  
 ✅ Source code volume mount  
 ✅ Debug mode etkin  
 ✅ PgAdmin dahil  
-✅ Verbose logging  
+✅ Verbose logging
 
 ### Klasör Yapısı:
+
 ```
 QuickServeAPI/
 ├── Dockerfile.dev          # Development image
@@ -125,13 +132,15 @@ docker-compose -f docker-compose.dev.yml down -v
 ## 🏭 Production Ortamı Detayları
 
 ### Özellikler:
+
 ✅ Multi-stage optimized build  
 ✅ Minimal image size (~150MB)  
 ✅ Security best practices  
 ✅ Health checks  
-✅ Automatic restarts  
+✅ Automatic restarts
 
 ### Build Aşamaları:
+
 1. **base**: Node.js + pnpm
 2. **deps**: All dependencies
 3. **builder**: TypeScript build
@@ -306,6 +315,7 @@ docker-compose exec app ps aux
 ### Sık Karşılaşılan Sorunlar:
 
 #### 1. Port zaten kullanımda
+
 ```bash
 # Portu kullanan process'i bul
 lsof -i :5000
@@ -319,6 +329,7 @@ ports:
 ```
 
 #### 2. Database bağlantı hatası
+
 ```bash
 # PostgreSQL health check
 docker-compose exec postgres pg_isready -U finbot_user
@@ -331,6 +342,7 @@ docker-compose restart postgres
 ```
 
 #### 3. Build hatası
+
 ```bash
 # Cache'i temizle ve yeniden build
 docker-compose build --no-cache
@@ -341,6 +353,7 @@ docker-compose up --build
 ```
 
 #### 4. Volume permission sorunları
+
 ```bash
 # Linux/Mac'te
 sudo chown -R $USER:$USER .
@@ -350,6 +363,7 @@ docker-compose exec app whoami
 ```
 
 #### 5. Out of memory hatası
+
 ```bash
 # Docker'a daha fazla memory ver
 # Docker Desktop -> Settings -> Resources -> Memory: 4GB+
@@ -363,6 +377,7 @@ services:
 ```
 
 #### 6. Slow performance
+
 ```bash
 # Volume yerine bind mount kullan (development)
 # docker-compose.dev.yml zaten bind mount kullanıyor
@@ -381,6 +396,7 @@ docker system prune -a
 ### Production için öneriler:
 
 1. **Environment Variables:**
+
 ```bash
 # .env dosyası oluştur (asla git'e commit etme!)
 cp .env.example .env
@@ -388,12 +404,14 @@ cp .env.example .env
 ```
 
 2. **Secrets Management:**
+
 ```bash
 # Docker secrets kullan
 docker secret create jwt_secret ./jwt_secret.txt
 ```
 
 3. **Network Isolation:**
+
 ```yaml
 # docker-compose.yml içinde
 networks:
@@ -401,10 +419,11 @@ networks:
     driver: bridge
   backend:
     driver: bridge
-    internal: true  # External erişim yok
+    internal: true # External erişim yok
 ```
 
 4. **Non-root User:**
+
 ```dockerfile
 # Dockerfile'da zaten yapıldı
 USER nodejs  # UID 1001
@@ -488,11 +507,13 @@ docker push your-registry/finbot-v3:latest
 ## 🆘 Yardım
 
 ### Dökümantasyon:
+
 - [Docker Docs](https://docs.docker.com/)
 - [Docker Compose Docs](https://docs.docker.com/compose/)
 - [PostgreSQL Docker](https://hub.docker.com/_/postgres)
 
 ### Komut Yardımı:
+
 ```bash
 docker --help
 docker-compose --help
@@ -500,6 +521,7 @@ docker-compose up --help
 ```
 
 ### Logs & Debug:
+
 ```bash
 docker-compose logs -f
 docker-compose exec app sh
@@ -517,4 +539,3 @@ FinBot v3 - © 2024
 **🎉 Artık Docker ile FinBot v3 kullanmaya hazırsın!**
 
 Sorularınız için: [GitHub Issues](https://github.com/your-repo/finbot-v3/issues)
-

@@ -58,7 +58,7 @@ import {
   Download,
   Upload,
   Activity,
-  Zap
+  Zap,
 } from 'lucide-react';
 
 interface BankAccount {
@@ -106,7 +106,12 @@ const defaultBanks: Bank[] = [
     id: '1',
     name: 'Garanti BBVA',
     logo: '🏦',
-    supportedFeatures: ['Open Banking', 'Real-time Sync', 'Multi-currency', 'API Access'],
+    supportedFeatures: [
+      'Open Banking',
+      'Real-time Sync',
+      'Multi-currency',
+      'API Access',
+    ],
     connectionStatus: 'available',
     apiStatus: 'active',
     accounts: [
@@ -123,9 +128,9 @@ const defaultBanks: Bank[] = [
         transactionCount: 234,
         connectionType: 'open_banking',
         permissions: ['read_transactions', 'read_balance', 'read_account_info'],
-        isActive: true
-      }
-    ]
+        isActive: true,
+      },
+    ],
   },
   {
     id: '2',
@@ -148,9 +153,9 @@ const defaultBanks: Bank[] = [
         transactionCount: 89,
         connectionType: 'api',
         permissions: ['read_transactions', 'read_balance'],
-        isActive: true
-      }
-    ]
+        isActive: true,
+      },
+    ],
   },
   {
     id: '3',
@@ -173,10 +178,10 @@ const defaultBanks: Bank[] = [
         transactionCount: 67,
         connectionType: 'open_banking',
         permissions: ['read_transactions', 'read_balance'],
-        isActive: false
-      }
-    ]
-  }
+        isActive: false,
+      },
+    ],
+  },
 ];
 
 const defaultTransactions: BankTransaction[] = [
@@ -191,7 +196,7 @@ const defaultTransactions: BankTransaction[] = [
     type: 'income',
     balance: 850000,
     reference: 'INV-2024-001',
-    status: 'completed'
+    status: 'completed',
   },
   {
     id: '2',
@@ -203,7 +208,7 @@ const defaultTransactions: BankTransaction[] = [
     category: 'Operasyonel Gider',
     type: 'expense',
     balance: 700000,
-    status: 'completed'
+    status: 'completed',
   },
   {
     id: '3',
@@ -216,13 +221,14 @@ const defaultTransactions: BankTransaction[] = [
     type: 'income',
     balance: 250000,
     reference: 'TRF-001',
-    status: 'completed'
-  }
+    status: 'completed',
+  },
 ];
 
 export function BankIntegration() {
   const [banks, setBanks] = useState<Bank[]>(defaultBanks);
-  const [transactions, setTransactions] = useState<BankTransaction[]>(defaultTransactions);
+  const [transactions, setTransactions] =
+    useState<BankTransaction[]>(defaultTransactions);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAddBank, setShowAddBank] = useState(false);
@@ -230,16 +236,24 @@ export function BankIntegration() {
   const formatCurrency = useFormatCurrency();
 
   // Calculate totals
-  const totalAccounts = banks.reduce((sum, bank) => sum + bank.accounts.length, 0);
-  const connectedAccounts = banks.reduce((sum, bank) => 
-    sum + bank.accounts.filter(acc => acc.status === 'connected').length, 0
+  const totalAccounts = banks.reduce(
+    (sum, bank) => sum + bank.accounts.length,
+    0
   );
-  const totalBalance = banks.reduce((sum, bank) => 
-    sum + bank.accounts.reduce((accSum, acc) => accSum + acc.balance, 0), 0
+  const connectedAccounts = banks.reduce(
+    (sum, bank) =>
+      sum + bank.accounts.filter(acc => acc.status === 'connected').length,
+    0
+  );
+  const totalBalance = banks.reduce(
+    (sum, bank) =>
+      sum + bank.accounts.reduce((accSum, acc) => accSum + acc.balance, 0),
+    0
   );
   const lastSyncTime = banks.reduce((latest, bank) => {
-    const bankLatest = bank.accounts.reduce((accLatest, acc) => 
-      acc.lastSync > accLatest ? acc.lastSync : accLatest, ''
+    const bankLatest = bank.accounts.reduce(
+      (accLatest, acc) => (acc.lastSync > accLatest ? acc.lastSync : accLatest),
+      ''
     );
     return bankLatest > latest ? bankLatest : latest;
   }, '');
@@ -353,7 +367,7 @@ export function BankIntegration() {
             Açık bankacılık ve API entegrasyonları
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <Button
             onClick={() => setShowAddBank(true)}
@@ -363,9 +377,7 @@ export function BankIntegration() {
             <Plus className="h-4 w-4" />
             Banka Ekle
           </Button>
-          <Button
-            className="gap-2 bg-blue-600 hover:bg-blue-700"
-          >
+          <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
             <RefreshCw className="h-4 w-4" />
             Tümünü Senkronize Et
           </Button>
@@ -378,7 +390,9 @@ export function BankIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Toplam Hesap</p>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                  Toplam Hesap
+                </p>
                 <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
                   {totalAccounts}
                 </p>
@@ -392,12 +406,18 @@ export function BankIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-700 dark:text-green-300">Bağlı Hesap</p>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                  Bağlı Hesap
+                </p>
                 <p className="text-3xl font-bold text-green-900 dark:text-green-100">
                   {connectedAccounts}
                 </p>
                 <p className="text-xs text-green-600 dark:text-green-400">
-                  %{totalAccounts > 0 ? Math.round((connectedAccounts / totalAccounts) * 100) : 0} bağlantı oranı
+                  %
+                  {totalAccounts > 0
+                    ? Math.round((connectedAccounts / totalAccounts) * 100)
+                    : 0}{' '}
+                  bağlantı oranı
                 </p>
               </div>
               <Wifi className="h-8 w-8 text-green-600" />
@@ -409,7 +429,9 @@ export function BankIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Toplam Bakiye</p>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                  Toplam Bakiye
+                </p>
                 <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
                   {formatCurrency(totalBalance)}
                 </p>
@@ -423,12 +445,18 @@ export function BankIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Son Senkronizasyon</p>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                  Son Senkronizasyon
+                </p>
                 <p className="text-lg font-bold text-orange-900 dark:text-orange-100">
-                  {lastSyncTime ? new Date(lastSyncTime).toLocaleDateString('tr-TR') : 'Bilinmiyor'}
+                  {lastSyncTime
+                    ? new Date(lastSyncTime).toLocaleDateString('tr-TR')
+                    : 'Bilinmiyor'}
                 </p>
                 <p className="text-xs text-orange-600 dark:text-orange-400">
-                  {lastSyncTime ? new Date(lastSyncTime).toLocaleTimeString('tr-TR') : ''}
+                  {lastSyncTime
+                    ? new Date(lastSyncTime).toLocaleTimeString('tr-TR')
+                    : ''}
                 </p>
               </div>
               <Activity className="h-8 w-8 text-orange-600" />
@@ -460,7 +488,7 @@ export function BankIntegration() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {banks.map((bank) => (
+                {banks.map(bank => (
                   <Card key={bank.id} className="border-l-4 border-l-blue-500">
                     <CardHeader className="pb-3">
                       <CardTitle className="flex items-center gap-2 text-sm">
@@ -471,23 +499,44 @@ export function BankIntegration() {
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Hesap Sayısı</span>
-                          <span className="font-medium">{bank.accounts.length}</span>
+                          <span className="text-muted-foreground">
+                            Hesap Sayısı
+                          </span>
+                          <span className="font-medium">
+                            {bank.accounts.length}
+                          </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Bağlantı Durumu</span>
-                          <Badge variant={bank.connectionStatus === 'available' ? 'default' : 'secondary'}>
-                            {bank.connectionStatus === 'available' ? 'Mevcut' : 
-                             bank.connectionStatus === 'maintenance' ? 'Bakımda' : 'Mevcut Değil'}
+                          <span className="text-muted-foreground">
+                            Bağlantı Durumu
+                          </span>
+                          <Badge
+                            variant={
+                              bank.connectionStatus === 'available'
+                                ? 'default'
+                                : 'secondary'
+                            }
+                          >
+                            {bank.connectionStatus === 'available'
+                              ? 'Mevcut'
+                              : bank.connectionStatus === 'maintenance'
+                                ? 'Bakımda'
+                                : 'Mevcut Değil'}
                           </Badge>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Desteklenen Özellikler</p>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Desteklenen Özellikler
+                        </p>
                         <div className="flex flex-wrap gap-1">
                           {bank.supportedFeatures.map((feature, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {feature}
                             </Badge>
                           ))}
@@ -496,8 +545,8 @@ export function BankIntegration() {
 
                       <div className="flex gap-2">
                         {bank.connectionStatus === 'available' ? (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="flex-1"
                             onClick={() => connectBank(bank.id)}
                           >
@@ -505,7 +554,12 @@ export function BankIntegration() {
                             Bağlan
                           </Button>
                         ) : (
-                          <Button size="sm" variant="outline" disabled className="flex-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled
+                            className="flex-1"
+                          >
                             <WifiOff className="h-4 w-4 mr-1" />
                             Mevcut Değil
                           </Button>
@@ -547,19 +601,25 @@ export function BankIntegration() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {banks.flatMap(bank => 
+                  {banks.flatMap(bank =>
                     bank.accounts.map(account => (
                       <TableRow key={account.id}>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <span className="text-lg">{bank.logo}</span>
-                            <span className="font-medium">{account.bankName}</span>
+                            <span className="font-medium">
+                              {account.bankName}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div>
-                            <div className="font-medium">{account.accountName}</div>
-                            <div className="text-sm text-muted-foreground">{account.iban}</div>
+                            <div className="font-medium">
+                              {account.accountName}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {account.iban}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -567,27 +627,35 @@ export function BankIntegration() {
                             ****{account.accountNumber.slice(-4)}
                           </div>
                         </TableCell>
-                        <TableCell className={`font-medium ${
-                          account.balance >= 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                        <TableCell
+                          className={`font-medium ${
+                            account.balance >= 0
+                              ? 'text-green-600'
+                              : 'text-red-600'
+                          }`}
+                        >
                           {formatCurrency(account.balance)}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">
                             {getConnectionTypeIcon(account.connectionType)}
-                            <span className="ml-1">{getConnectionTypeText(account.connectionType)}</span>
+                            <span className="ml-1">
+                              {getConnectionTypeText(account.connectionType)}
+                            </span>
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(account.status)}>
                             {getStatusIcon(account.status)}
-                            <span className="ml-1">{getStatusText(account.status)}</span>
+                            <span className="ml-1">
+                              {getStatusText(account.status)}
+                            </span>
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => syncAccount(account.id)}
                               disabled={syncInProgress === account.id}
@@ -640,44 +708,68 @@ export function BankIntegration() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.map((transaction) => (
+                  {transactions.map(transaction => (
                     <TableRow key={transaction.id}>
                       <TableCell>
                         {new Date(transaction.date).toLocaleDateString('tr-TR')}
                       </TableCell>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{transaction.description}</div>
+                          <div className="font-medium">
+                            {transaction.description}
+                          </div>
                           {transaction.reference && (
-                            <div className="text-sm text-muted-foreground">Ref: {transaction.reference}</div>
+                            <div className="text-sm text-muted-foreground">
+                              Ref: {transaction.reference}
+                            </div>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{transaction.accountName}</Badge>
+                        <Badge variant="outline">
+                          {transaction.accountName}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
                           {getTransactionTypeIcon(transaction.type)}
                           <span className="ml-1">
-                            {transaction.type === 'income' ? 'Gelir' : 
-                             transaction.type === 'expense' ? 'Gider' : 'Transfer'}
+                            {transaction.type === 'income'
+                              ? 'Gelir'
+                              : transaction.type === 'expense'
+                                ? 'Gider'
+                                : 'Transfer'}
                           </span>
                         </Badge>
                       </TableCell>
-                      <TableCell className={`font-medium ${
-                        transaction.type === 'income' ? 'text-green-600' : 
-                        transaction.type === 'expense' ? 'text-red-600' : 'text-blue-600'
-                      }`}>
-                        {transaction.type === 'expense' ? '-' : '+'}{formatCurrency(transaction.amount)}
+                      <TableCell
+                        className={`font-medium ${
+                          transaction.type === 'income'
+                            ? 'text-green-600'
+                            : transaction.type === 'expense'
+                              ? 'text-red-600'
+                              : 'text-blue-600'
+                        }`}
+                      >
+                        {transaction.type === 'expense' ? '-' : '+'}
+                        {formatCurrency(transaction.amount)}
                       </TableCell>
                       <TableCell className="font-medium">
                         {formatCurrency(transaction.balance)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={transaction.status === 'completed' ? 'default' : 'secondary'}>
-                          {transaction.status === 'completed' ? 'Tamamlandı' : 
-                           transaction.status === 'pending' ? 'Beklemede' : 'Başarısız'}
+                        <Badge
+                          variant={
+                            transaction.status === 'completed'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {transaction.status === 'completed'
+                            ? 'Tamamlandı'
+                            : transaction.status === 'pending'
+                              ? 'Beklemede'
+                              : 'Başarısız'}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -721,7 +813,9 @@ export function BankIntegration() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="enabled">Aktif (15 dakikada bir)</SelectItem>
+                      <SelectItem value="enabled">
+                        Aktif (15 dakikada bir)
+                      </SelectItem>
                       <SelectItem value="hourly">Saatlik</SelectItem>
                       <SelectItem value="daily">Günlük</SelectItem>
                       <SelectItem value="disabled">Pasif</SelectItem>

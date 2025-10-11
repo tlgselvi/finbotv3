@@ -42,7 +42,7 @@ export class SimulationAgentService {
   /**
    * Get available simulation parameters
    */
-  getSimulationParameters (): SimulationParameter[] {
+  getSimulationParameters(): SimulationParameter[] {
     return [
       {
         name: 'exchange_rate',
@@ -95,11 +95,11 @@ export class SimulationAgentService {
   /**
    * Run Monte Carlo simulation with 2 parameters
    */
-  async runSimulation (
+  async runSimulation(
     userId: string,
     param1: { name: string; value: number },
     param2: { name: string; value: number },
-    timeHorizon: number = 12, // months
+    timeHorizon: number = 12 // months
   ): Promise<SimulationResult> {
     try {
       // Get user's current portfolio
@@ -121,7 +121,7 @@ export class SimulationAgentService {
         baseCase,
         param1,
         param2,
-        timeHorizon,
+        timeHorizon
       );
 
       // Run AI analysis on scenarios
@@ -130,11 +130,15 @@ export class SimulationAgentService {
       return {
         scenarios,
         bestCase: scenarios.reduce((best, current) =>
-          current.results.gainPercentage > best.results.gainPercentage ? current : best,
+          current.results.gainPercentage > best.results.gainPercentage
+            ? current
+            : best
         ),
         baseCase: scenarios.find(s => s.name === 'Base Case') || scenarios[0],
         worstCase: scenarios.reduce((worst, current) =>
-          current.results.gainPercentage < worst.results.gainPercentage ? current : worst,
+          current.results.gainPercentage < worst.results.gainPercentage
+            ? current
+            : worst
         ),
         insights: analysis.insights,
         recommendations: analysis.recommendations,
@@ -148,22 +152,26 @@ export class SimulationAgentService {
   /**
    * Calculate base case scenario
    */
-  private calculateBaseCase (investments: any[], accounts: any[]) {
-    const totalInvested = investments.reduce((sum, inv) =>
-      sum + (inv.quantity * inv.purchasePrice), 0,
+  private calculateBaseCase(investments: any[], accounts: any[]) {
+    const totalInvested = investments.reduce(
+      (sum, inv) => sum + inv.quantity * inv.purchasePrice,
+      0
     );
 
-    const totalCurrentValue = investments.reduce((sum, inv) =>
-      sum + (inv.quantity * (inv.currentPrice || inv.purchasePrice)), 0,
+    const totalCurrentValue = investments.reduce(
+      (sum, inv) =>
+        sum + inv.quantity * (inv.currentPrice || inv.purchasePrice),
+      0
     );
 
     const totalGain = totalCurrentValue - totalInvested;
-    const gainPercentage = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
+    const gainPercentage =
+      totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
 
     // Calculate monthly cash flow from accounts
     const monthlyCashFlow = accounts.reduce((sum, acc) => {
       if (acc.type === 'checking' || acc.type === 'savings') {
-        return sum + (acc.balance * 0.005); // Assume 0.5% monthly return
+        return sum + acc.balance * 0.005; // Assume 0.5% monthly return
       }
       return sum;
     }, 0);
@@ -180,11 +188,11 @@ export class SimulationAgentService {
   /**
    * Generate different scenarios based on parameter changes
    */
-  private generateScenarios (
+  private generateScenarios(
     baseCase: any,
     param1: { name: string; value: number },
     param2: { name: string; value: number },
-    timeHorizon: number,
+    timeHorizon: number
   ): SimulationScenario[] {
     const scenarios: SimulationScenario[] = [];
 
@@ -206,7 +214,13 @@ export class SimulationAgentService {
         [param1.name]: param1.value * 1.1,
         [param2.name]: param2.value,
       },
-      results: this.calculateScenarioResults(baseCase, param1.name, 1.1, param2.name, 1.0),
+      results: this.calculateScenarioResults(
+        baseCase,
+        param1.name,
+        1.1,
+        param2.name,
+        1.0
+      ),
       summary: `${param1.name} parametresinin %10 artışı senaryosu`,
     });
 
@@ -216,7 +230,13 @@ export class SimulationAgentService {
         [param1.name]: param1.value * 0.9,
         [param2.name]: param2.value,
       },
-      results: this.calculateScenarioResults(baseCase, param1.name, 0.9, param2.name, 1.0),
+      results: this.calculateScenarioResults(
+        baseCase,
+        param1.name,
+        0.9,
+        param2.name,
+        1.0
+      ),
       summary: `${param1.name} parametresinin %10 azalışı senaryosu`,
     });
 
@@ -227,7 +247,13 @@ export class SimulationAgentService {
         [param1.name]: param1.value,
         [param2.name]: param2.value * 1.1,
       },
-      results: this.calculateScenarioResults(baseCase, param1.name, 1.0, param2.name, 1.1),
+      results: this.calculateScenarioResults(
+        baseCase,
+        param1.name,
+        1.0,
+        param2.name,
+        1.1
+      ),
       summary: `${param2.name} parametresinin %10 artışı senaryosu`,
     });
 
@@ -237,7 +263,13 @@ export class SimulationAgentService {
         [param1.name]: param1.value,
         [param2.name]: param2.value * 0.9,
       },
-      results: this.calculateScenarioResults(baseCase, param1.name, 1.0, param2.name, 0.9),
+      results: this.calculateScenarioResults(
+        baseCase,
+        param1.name,
+        1.0,
+        param2.name,
+        0.9
+      ),
       summary: `${param2.name} parametresinin %10 azalışı senaryosu`,
     });
 
@@ -248,7 +280,13 @@ export class SimulationAgentService {
         [param1.name]: param1.value * 1.1,
         [param2.name]: param2.value * 1.1,
       },
-      results: this.calculateScenarioResults(baseCase, param1.name, 1.1, param2.name, 1.1),
+      results: this.calculateScenarioResults(
+        baseCase,
+        param1.name,
+        1.1,
+        param2.name,
+        1.1
+      ),
       summary: 'Her iki parametrenin olumlu yönde değişimi',
     });
 
@@ -258,7 +296,13 @@ export class SimulationAgentService {
         [param1.name]: param1.value * 0.9,
         [param2.name]: param2.value * 0.9,
       },
-      results: this.calculateScenarioResults(baseCase, param1.name, 0.9, param2.name, 0.9),
+      results: this.calculateScenarioResults(
+        baseCase,
+        param1.name,
+        0.9,
+        param2.name,
+        0.9
+      ),
       summary: 'Her iki parametrenin olumsuz yönde değişimi',
     });
 
@@ -268,12 +312,12 @@ export class SimulationAgentService {
   /**
    * Calculate scenario results based on parameter changes
    */
-  private calculateScenarioResults (
+  private calculateScenarioResults(
     baseCase: any,
     param1Name: string,
     param1Multiplier: number,
     param2Name: string,
-    param2Multiplier: number,
+    param2Multiplier: number
   ) {
     let { portfolioValue } = baseCase;
     let { monthlyCashFlow } = baseCase;
@@ -282,41 +326,42 @@ export class SimulationAgentService {
     // Apply parameter effects
     if (param1Name === 'exchange_rate') {
       // USD denominated investments affected
-      portfolioValue *= (1 + (param1Multiplier - 1) * 0.3);
+      portfolioValue *= 1 + (param1Multiplier - 1) * 0.3;
     } else if (param1Name === 'interest_rate') {
       // Bond investments and cash flow affected
       monthlyCashFlow *= param1Multiplier;
-      portfolioValue *= (1 + (param1Multiplier - 1) * 0.2);
+      portfolioValue *= 1 + (param1Multiplier - 1) * 0.2;
     } else if (param1Name === 'inflation_rate') {
       // All investments affected by inflation
-      portfolioValue *= (1 - (param1Multiplier - 1) * 0.1);
+      portfolioValue *= 1 - (param1Multiplier - 1) * 0.1;
     } else if (param1Name === 'stock_market_return') {
       // Stock investments affected
-      portfolioValue *= (1 + (param1Multiplier - 1) * 0.4);
+      portfolioValue *= 1 + (param1Multiplier - 1) * 0.4;
     } else if (param1Name === 'crypto_volatility') {
       // Crypto investments affected
-      portfolioValue *= (1 + (param1Multiplier - 1) * 0.2);
+      portfolioValue *= 1 + (param1Multiplier - 1) * 0.2;
       riskScore += (param1Multiplier - 1) * 2;
     }
 
     // Apply second parameter effects
     if (param2Name === 'exchange_rate') {
-      portfolioValue *= (1 + (param2Multiplier - 1) * 0.2);
+      portfolioValue *= 1 + (param2Multiplier - 1) * 0.2;
     } else if (param2Name === 'interest_rate') {
       monthlyCashFlow *= param2Multiplier;
-      portfolioValue *= (1 + (param2Multiplier - 1) * 0.15);
+      portfolioValue *= 1 + (param2Multiplier - 1) * 0.15;
     } else if (param2Name === 'inflation_rate') {
-      portfolioValue *= (1 - (param2Multiplier - 1) * 0.08);
+      portfolioValue *= 1 - (param2Multiplier - 1) * 0.08;
     } else if (param2Name === 'stock_market_return') {
-      portfolioValue *= (1 + (param2Multiplier - 1) * 0.3);
+      portfolioValue *= 1 + (param2Multiplier - 1) * 0.3;
     } else if (param2Name === 'crypto_volatility') {
-      portfolioValue *= (1 + (param2Multiplier - 1) * 0.15);
+      portfolioValue *= 1 + (param2Multiplier - 1) * 0.15;
       riskScore += (param2Multiplier - 1) * 1.5;
     }
 
     const totalInvested = baseCase.portfolioValue - baseCase.totalGain;
     const totalGain = portfolioValue - totalInvested;
-    const gainPercentage = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
+    const gainPercentage =
+      totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
 
     return {
       portfolioValue: Math.round(portfolioValue),
@@ -330,14 +375,17 @@ export class SimulationAgentService {
   /**
    * Calculate risk score based on portfolio composition
    */
-  private calculateRiskScore (investments: any[]): number {
+  private calculateRiskScore(investments: any[]): number {
     if (investments.length === 0) {
       return 5;
     }
 
-    const cryptoRatio = investments.filter(i => i.type === 'crypto').length / investments.length;
-    const stockRatio = investments.filter(i => i.type === 'stock').length / investments.length;
-    const bondRatio = investments.filter(i => i.type === 'bond').length / investments.length;
+    const cryptoRatio =
+      investments.filter(i => i.type === 'crypto').length / investments.length;
+    const stockRatio =
+      investments.filter(i => i.type === 'stock').length / investments.length;
+    const bondRatio =
+      investments.filter(i => i.type === 'bond').length / investments.length;
 
     let riskScore = 5;
     riskScore += cryptoRatio * 3; // Crypto adds risk
@@ -350,15 +398,18 @@ export class SimulationAgentService {
   /**
    * AI analysis of simulation scenarios
    */
-  private async analyzeScenarios (
+  private async analyzeScenarios(
     scenarios: SimulationScenario[],
     param1: { name: string; value: number },
-    param2: { name: string; value: number },
+    param2: { name: string; value: number }
   ) {
     try {
-      const scenarioSummary = scenarios.map(s =>
-        `${s.name}: ${s.results.gainPercentage}% getiri, ${s.results.riskScore}/10 risk`,
-      ).join('\n');
+      const scenarioSummary = scenarios
+        .map(
+          s =>
+            `${s.name}: ${s.results.gainPercentage}% getiri, ${s.results.riskScore}/10 risk`
+        )
+        .join('\n');
 
       const analysisPrompt = `
         Analyze the following portfolio simulation results and provide insights:

@@ -1,15 +1,39 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Edit, Save, X, CreditCard, Building, User, DollarSign } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  CalendarIcon,
+  Edit,
+  Save,
+  X,
+  CreditCard,
+  Building,
+  User,
+  DollarSign,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { logger } from '@/lib/logger';
@@ -17,7 +41,12 @@ import { logger } from '@/lib/logger';
 interface Credit {
   id: string;
   name: string;
-  type: 'credit_card' | 'personal_loan' | 'business_loan' | 'mortgage' | 'line_of_credit';
+  type:
+    | 'credit_card'
+    | 'personal_loan'
+    | 'business_loan'
+    | 'mortgage'
+    | 'line_of_credit';
   bankName: string;
   accountNumber: string;
   totalLimit: number;
@@ -42,12 +71,12 @@ interface EditCreditDialogProps {
   isLoading: boolean;
 }
 
-export default function EditCreditDialog({ 
-  open, 
-  onOpenChange, 
-  onUpdateCredit, 
-  credit, 
-  isLoading 
+export default function EditCreditDialog({
+  open,
+  onOpenChange,
+  onUpdateCredit,
+  credit,
+  isLoading,
 }: EditCreditDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
@@ -62,7 +91,7 @@ export default function EditCreditDialog({
     dueDate: new Date(),
     gracePeriod: '',
     isActive: true,
-    description: ''
+    description: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -84,7 +113,7 @@ export default function EditCreditDialog({
         dueDate: credit.dueDate ? new Date(credit.dueDate) : new Date(),
         gracePeriod: credit.gracePeriod?.toString() || '',
         isActive: credit.isActive ?? true,
-        description: credit.description || ''
+        description: credit.description || '',
       });
       setErrors({});
     }
@@ -115,13 +144,19 @@ export default function EditCreditDialog({
 
     if (!formData.totalLimit.trim()) {
       newErrors.totalLimit = 'Toplam limit zorunludur';
-    } else if (isNaN(Number(formData.totalLimit)) || Number(formData.totalLimit) <= 0) {
+    } else if (
+      isNaN(Number(formData.totalLimit)) ||
+      Number(formData.totalLimit) <= 0
+    ) {
       newErrors.totalLimit = 'Geçerli bir limit giriniz';
     }
 
     if (!formData.usedAmount.trim()) {
       newErrors.usedAmount = 'Kullanılan tutar zorunludur';
-    } else if (isNaN(Number(formData.usedAmount)) || Number(formData.usedAmount) < 0) {
+    } else if (
+      isNaN(Number(formData.usedAmount)) ||
+      Number(formData.usedAmount) < 0
+    ) {
       newErrors.usedAmount = 'Geçerli bir tutar giriniz';
     }
 
@@ -160,14 +195,17 @@ export default function EditCreditDialog({
         accountNumber: formData.accountNumber.trim(),
         totalLimit: Number(formData.totalLimit),
         usedAmount: Number(formData.usedAmount),
-        availableAmount: Number(formData.totalLimit) - Number(formData.usedAmount),
+        availableAmount:
+          Number(formData.totalLimit) - Number(formData.usedAmount),
         currency: formData.currency,
         interestRate: formData.interestRate ? Number(formData.interestRate) : 0,
-        minimumPayment: formData.minimumPayment ? Number(formData.minimumPayment) : 0,
+        minimumPayment: formData.minimumPayment
+          ? Number(formData.minimumPayment)
+          : 0,
         dueDate: formData.dueDate.toISOString(),
         gracePeriod: formData.gracePeriod ? Number(formData.gracePeriod) : 0,
         isActive: formData.isActive,
-        description: formData.description.trim() || undefined
+        description: formData.description.trim() || undefined,
       };
 
       await onUpdateCredit(credit.id, updateData);
@@ -217,7 +255,8 @@ export default function EditCreditDialog({
     }
   };
 
-  const availableAmount = Number(formData.totalLimit) - Number(formData.usedAmount || 0);
+  const availableAmount =
+    Number(formData.totalLimit) - Number(formData.usedAmount || 0);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -237,23 +276,28 @@ export default function EditCreditDialog({
                 {getCreditTypeIcon(formData.type)}
                 Temel Bilgiler
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Kredi Adı *</Label>
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={e => handleInputChange('name', e.target.value)}
                     placeholder="Örn: Ana İşletme Kredi Kartı"
                     className={errors.name ? 'border-red-500' : ''}
                   />
-                  {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                  {errors.name && (
+                    <p className="text-sm text-red-500">{errors.name}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="type">Kredi Türü *</Label>
-                  <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
+                  <Select
+                    value={formData.type}
+                    onValueChange={value => handleInputChange('type', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -297,11 +341,15 @@ export default function EditCreditDialog({
                   <Input
                     id="bankName"
                     value={formData.bankName}
-                    onChange={(e) => handleInputChange('bankName', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('bankName', e.target.value)
+                    }
                     placeholder="Örn: Garanti BBVA"
                     className={errors.bankName ? 'border-red-500' : ''}
                   />
-                  {errors.bankName && <p className="text-sm text-red-500">{errors.bankName}</p>}
+                  {errors.bankName && (
+                    <p className="text-sm text-red-500">{errors.bankName}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -309,16 +357,27 @@ export default function EditCreditDialog({
                   <Input
                     id="accountNumber"
                     value={formData.accountNumber}
-                    onChange={(e) => handleInputChange('accountNumber', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('accountNumber', e.target.value)
+                    }
                     placeholder="Örn: 1234567890"
                     className={errors.accountNumber ? 'border-red-500' : ''}
                   />
-                  {errors.accountNumber && <p className="text-sm text-red-500">{errors.accountNumber}</p>}
+                  {errors.accountNumber && (
+                    <p className="text-sm text-red-500">
+                      {errors.accountNumber}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Para Birimi</Label>
-                  <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
+                  <Select
+                    value={formData.currency}
+                    onValueChange={value =>
+                      handleInputChange('currency', value)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -336,7 +395,9 @@ export default function EditCreditDialog({
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={e =>
+                    handleInputChange('description', e.target.value)
+                  }
                   placeholder="Kredi hakkında ek bilgiler..."
                   rows={3}
                 />
@@ -346,7 +407,9 @@ export default function EditCreditDialog({
                 <Switch
                   id="isActive"
                   checked={formData.isActive}
-                  onCheckedChange={(checked) => handleInputChange('isActive', checked)}
+                  onCheckedChange={checked =>
+                    handleInputChange('isActive', checked)
+                  }
                 />
                 <Label htmlFor="isActive">Kredi aktif</Label>
               </div>
@@ -360,7 +423,7 @@ export default function EditCreditDialog({
                 <DollarSign className="h-5 w-5 text-green-600" />
                 Finansal Bilgiler
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="totalLimit">Toplam Limit *</Label>
@@ -369,11 +432,15 @@ export default function EditCreditDialog({
                     type="number"
                     step="0.01"
                     value={formData.totalLimit}
-                    onChange={(e) => handleInputChange('totalLimit', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('totalLimit', e.target.value)
+                    }
                     placeholder="0.00"
                     className={errors.totalLimit ? 'border-red-500' : ''}
                   />
-                  {errors.totalLimit && <p className="text-sm text-red-500">{errors.totalLimit}</p>}
+                  {errors.totalLimit && (
+                    <p className="text-sm text-red-500">{errors.totalLimit}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -383,11 +450,15 @@ export default function EditCreditDialog({
                     type="number"
                     step="0.01"
                     value={formData.usedAmount}
-                    onChange={(e) => handleInputChange('usedAmount', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('usedAmount', e.target.value)
+                    }
                     placeholder="0.00"
                     className={errors.usedAmount ? 'border-red-500' : ''}
                   />
-                  {errors.usedAmount && <p className="text-sm text-red-500">{errors.usedAmount}</p>}
+                  {errors.usedAmount && (
+                    <p className="text-sm text-red-500">{errors.usedAmount}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -397,7 +468,9 @@ export default function EditCreditDialog({
                     disabled
                     className="bg-gray-50 dark:bg-gray-900"
                   />
-                  <p className={`text-xs ${availableAmount < 0 ? 'text-red-500' : 'text-green-600'}`}>
+                  <p
+                    className={`text-xs ${availableAmount < 0 ? 'text-red-500' : 'text-green-600'}`}
+                  >
                     {availableAmount < 0 ? 'Limit aşıldı!' : 'Limit dahilinde'}
                   </p>
                 </div>
@@ -409,11 +482,17 @@ export default function EditCreditDialog({
                     type="number"
                     step="0.01"
                     value={formData.interestRate}
-                    onChange={(e) => handleInputChange('interestRate', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('interestRate', e.target.value)
+                    }
                     placeholder="0.00"
                     className={errors.interestRate ? 'border-red-500' : ''}
                   />
-                  {errors.interestRate && <p className="text-sm text-red-500">{errors.interestRate}</p>}
+                  {errors.interestRate && (
+                    <p className="text-sm text-red-500">
+                      {errors.interestRate}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -423,11 +502,17 @@ export default function EditCreditDialog({
                     type="number"
                     step="0.01"
                     value={formData.minimumPayment}
-                    onChange={(e) => handleInputChange('minimumPayment', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('minimumPayment', e.target.value)
+                    }
                     placeholder="0.00"
                     className={errors.minimumPayment ? 'border-red-500' : ''}
                   />
-                  {errors.minimumPayment && <p className="text-sm text-red-500">{errors.minimumPayment}</p>}
+                  {errors.minimumPayment && (
+                    <p className="text-sm text-red-500">
+                      {errors.minimumPayment}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -436,11 +521,15 @@ export default function EditCreditDialog({
                     id="gracePeriod"
                     type="number"
                     value={formData.gracePeriod}
-                    onChange={(e) => handleInputChange('gracePeriod', e.target.value)}
+                    onChange={e =>
+                      handleInputChange('gracePeriod', e.target.value)
+                    }
                     placeholder="30"
                     className={errors.gracePeriod ? 'border-red-500' : ''}
                   />
-                  {errors.gracePeriod && <p className="text-sm text-red-500">{errors.gracePeriod}</p>}
+                  {errors.gracePeriod && (
+                    <p className="text-sm text-red-500">{errors.gracePeriod}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -452,14 +541,16 @@ export default function EditCreditDialog({
                         className="w-full justify-start text-left font-normal"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {format(formData.dueDate, 'dd MMMM yyyy', { locale: tr })}
+                        {format(formData.dueDate, 'dd MMMM yyyy', {
+                          locale: tr,
+                        })}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={formData.dueDate}
-                        onSelect={(date) => {
+                        onSelect={date => {
                           if (date) {
                             handleInputChange('dueDate', date);
                             setCalendarOpen(false);
@@ -477,7 +568,9 @@ export default function EditCreditDialog({
           {/* Error Message */}
           {errors.submit && (
             <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
-              <p className="text-red-700 dark:text-red-300 text-sm">{errors.submit}</p>
+              <p className="text-red-700 dark:text-red-300 text-sm">
+                {errors.submit}
+              </p>
             </div>
           )}
 

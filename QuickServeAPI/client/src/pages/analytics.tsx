@@ -1,10 +1,36 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
-import { TrendingUp, TrendingDown, PieChart as PieChartIcon, BarChart3, Calendar } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  LineChart,
+  Line,
+} from 'recharts';
+import {
+  TrendingUp,
+  TrendingDown,
+  PieChart as PieChartIcon,
+  BarChart3,
+  Calendar,
+} from 'lucide-react';
 import { getCategoryLabel } from '@shared/schema';
 import type { Account, Transaction } from '@/lib/types';
 
@@ -21,17 +47,31 @@ interface MonthlyData {
   net: number;
 }
 
-const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316'];
+const COLORS = [
+  '#3b82f6',
+  '#ef4444',
+  '#10b981',
+  '#f59e0b',
+  '#8b5cf6',
+  '#06b6d4',
+  '#84cc16',
+  '#f97316',
+];
 
-export default function Analytics () {
+export default function Analytics() {
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('3months');
 
-  const { data: accounts = [], isLoading: accountsLoading } = useQuery<Account[]>({
+  const { data: accounts = [], isLoading: accountsLoading } = useQuery<
+    Account[]
+  >({
     queryKey: ['/api/accounts'],
     staleTime: 300000, // 5 minutes cache
   });
 
-  const { data: transactionsData = { transactions: [] }, isLoading: transactionsLoading } = useQuery<{
+  const {
+    data: transactionsData = { transactions: [] },
+    isLoading: transactionsLoading,
+  } = useQuery<{
     transactions: Transaction[];
     total: number;
     totalPages: number;
@@ -64,18 +104,23 @@ export default function Analytics () {
     if (selectedTimeRange === 'all') {
       return transactions;
     }
-    return transactions.filter(transaction => new Date(transaction.date) >= dateCutoff);
+    return transactions.filter(
+      transaction => new Date(transaction.date) >= dateCutoff
+    );
   }, [transactions, selectedTimeRange, dateCutoff]);
 
   // Memoized expense breakdown by category
   const expenseCategoryData = useMemo(() => {
     const expensesByCategory = filteredTransactions
       .filter(t => t.type === 'expense' && t.category)
-      .reduce((acc, transaction) => {
-        const category = transaction.category!;
-        acc[category] = (acc[category] || 0) + parseFloat(transaction.amount);
-        return acc;
-      }, {} as Record<string, number>);
+      .reduce(
+        (acc, transaction) => {
+          const category = transaction.category!;
+          acc[category] = (acc[category] || 0) + parseFloat(transaction.amount);
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
     return Object.entries(expensesByCategory).map(([category, amount]) => ({
       name: category,
@@ -88,11 +133,14 @@ export default function Analytics () {
   const incomeCategoryData = useMemo(() => {
     const incomesByCategory = filteredTransactions
       .filter(t => t.type === 'income' && t.category)
-      .reduce((acc, transaction) => {
-        const category = transaction.category!;
-        acc[category] = (acc[category] || 0) + parseFloat(transaction.amount);
-        return acc;
-      }, {} as Record<string, number>);
+      .reduce(
+        (acc, transaction) => {
+          const category = transaction.category!;
+          acc[category] = (acc[category] || 0) + parseFloat(transaction.amount);
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
     return Object.entries(incomesByCategory).map(([category, amount]) => ({
       name: category,
@@ -103,28 +151,41 @@ export default function Analytics () {
 
   // Memoized monthly income vs expense trends
   const monthlyTrends = useMemo(() => {
-    const monthlyData = filteredTransactions.reduce((acc, transaction) => {
-      const date = new Date(transaction.date);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      const monthLabel = date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'short' });
+    const monthlyData = filteredTransactions.reduce(
+      (acc, transaction) => {
+        const date = new Date(transaction.date);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const monthLabel = date.toLocaleDateString('tr-TR', {
+          year: 'numeric',
+          month: 'short',
+        });
 
-      if (!acc[monthKey]) {
-        acc[monthKey] = { month: monthLabel, monthKey, income: 0, expense: 0, net: 0 };
-      }
+        if (!acc[monthKey]) {
+          acc[monthKey] = {
+            month: monthLabel,
+            monthKey,
+            income: 0,
+            expense: 0,
+            net: 0,
+          };
+        }
 
-      const amount = parseFloat(transaction.amount);
-      if (transaction.type === 'income') {
-        acc[monthKey].income += amount;
-      } else if (transaction.type === 'expense') {
-        acc[monthKey].expense += amount;
-      }
+        const amount = parseFloat(transaction.amount);
+        if (transaction.type === 'income') {
+          acc[monthKey].income += amount;
+        } else if (transaction.type === 'expense') {
+          acc[monthKey].expense += amount;
+        }
 
-      return acc;
-    }, {} as Record<string, MonthlyData & { monthKey: string }>);
+        return acc;
+      },
+      {} as Record<string, MonthlyData & { monthKey: string }>
+    );
 
     // Sort by actual chronological order and calculate cumulative balance
-    const sortedMonthlyData = Object.values(monthlyData)
-      .sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+    const sortedMonthlyData = Object.values(monthlyData).sort((a, b) =>
+      a.monthKey.localeCompare(b.monthKey)
+    );
 
     let runningBalance = 0;
     return sortedMonthlyData.map(month => {
@@ -182,7 +243,9 @@ export default function Analytics () {
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold" data-testid="analytics-title">Finansal Analiz</h1>
+          <h1 className="text-3xl font-bold" data-testid="analytics-title">
+            Finansal Analiz
+          </h1>
           <div className="w-40 h-10 bg-muted animate-pulse rounded-md" />
         </div>
 
@@ -190,7 +253,8 @@ export default function Analytics () {
           <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-xl font-semibold mb-2">Henüz İşlem Bulunmuyor</h3>
           <p className="text-muted-foreground mb-6">
-            Finansal analizlerinizi görmek için önce bazı işlemler eklemeniz gerekiyor.
+            Finansal analizlerinizi görmek için önce bazı işlemler eklemeniz
+            gerekiyor.
           </p>
           <div className="space-y-2 text-sm text-muted-foreground">
             <p>• Şirket veya Şahsi sayfalarından hesap ekleyebilirsiniz</p>
@@ -206,13 +270,15 @@ export default function Analytics () {
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold" data-testid="analytics-title">Finansal Analiz</h1>
+          <h1 className="text-3xl font-bold" data-testid="analytics-title">
+            Finansal Analiz
+          </h1>
           <div className="w-40 h-10 bg-muted animate-pulse rounded-md" />
         </div>
 
         {/* Loading skeletons for summary cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map(i => (
             <Card key={i}>
               <CardHeader className="space-y-2">
                 <div className="h-4 bg-muted animate-pulse rounded w-24" />
@@ -224,7 +290,7 @@ export default function Analytics () {
 
         {/* Loading skeletons for charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4].map(i => (
             <Card key={i}>
               <CardHeader>
                 <div className="h-5 bg-muted animate-pulse rounded w-48" />
@@ -242,7 +308,9 @@ export default function Analytics () {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold" data-testid="analytics-title">Finansal Analiz</h1>
+        <h1 className="text-3xl font-bold" data-testid="analytics-title">
+          Finansal Analiz
+        </h1>
         <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
           <SelectTrigger className="w-40" data-testid="select-time-range">
             <SelectValue />
@@ -265,7 +333,10 @@ export default function Analytics () {
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600" data-testid="total-income">
+            <div
+              className="text-2xl font-bold text-green-600"
+              data-testid="total-income"
+            >
               {formatCurrency(totalIncome)}
             </div>
           </CardContent>
@@ -277,7 +348,10 @@ export default function Analytics () {
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600" data-testid="total-expenses">
+            <div
+              className="text-2xl font-bold text-red-600"
+              data-testid="total-expenses"
+            >
               {formatCurrency(totalExpenses)}
             </div>
           </CardContent>
@@ -293,7 +367,10 @@ export default function Analytics () {
             )}
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${netBalance >= 0 ? 'text-green-600' : 'text-red-600'}`} data-testid="net-balance">
+            <div
+              className={`text-2xl font-bold ${netBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              data-testid="net-balance"
+            >
               {formatCurrency(netBalance)}
             </div>
           </CardContent>
@@ -340,10 +417,15 @@ export default function Analytics () {
                   cy="50%"
                   outerRadius={80}
                   dataKey="value"
-                  label={({ label, percent }) => `${label} (${(percent * 100).toFixed(1)}%)`}
+                  label={({ label, percent }) =>
+                    `${label} (${(percent * 100).toFixed(1)}%)`
+                  }
                 >
                   {expenseCategoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <ChartTooltip content={<ChartTooltipContent />} />
@@ -369,10 +451,15 @@ export default function Analytics () {
                   cy="50%"
                   outerRadius={80}
                   dataKey="value"
-                  label={({ label, percent }) => `${label} (${(percent * 100).toFixed(1)}%)`}
+                  label={({ label, percent }) =>
+                    `${label} (${(percent * 100).toFixed(1)}%)`
+                  }
                 >
                   {incomeCategoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <ChartTooltip content={<ChartTooltipContent />} />
@@ -395,7 +482,12 @@ export default function Analytics () {
                 <XAxis dataKey="month" />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Line type="monotone" dataKey="net" stroke="#3b82f6" strokeWidth={2} />
+                <Line
+                  type="monotone"
+                  dataKey="net"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ChartContainer>
           </CardContent>

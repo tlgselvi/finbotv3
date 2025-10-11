@@ -15,7 +15,7 @@ import * as schema from '../shared/schema-sqlite.js';
 const logger = {
   info: (msg, ...args) => console.log(`[INFO] ${msg}`, ...args),
   error: (msg, ...args) => console.error(`[ERROR] ${msg}`, ...args),
-  warn: (msg, ...args) => console.warn(`[WARN] ${msg}`, ...args)
+  warn: (msg, ...args) => console.warn(`[WARN] ${msg}`, ...args),
 };
 
 async function seedSQLiteDatabase() {
@@ -30,8 +30,12 @@ async function seedSQLiteDatabase() {
     sqlite.exec('PRAGMA foreign_keys = ON;');
 
     // Get admin user
-    const adminUsers = await db.select().from(schema.users).where(schema.users.role.eq('admin')).limit(1);
-    
+    const adminUsers = await db
+      .select()
+      .from(schema.users)
+      .where(schema.users.role.eq('admin'))
+      .limit(1);
+
     if (adminUsers.length === 0) {
       logger.error('❌ No admin user found. Please run setup-sqlite.js first.');
       process.exit(1);
@@ -50,7 +54,7 @@ async function seedSQLiteDatabase() {
         balance: 1000000,
         currency: 'TRY',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -60,7 +64,7 @@ async function seedSQLiteDatabase() {
         balance: 500000,
         currency: 'TRY',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -70,7 +74,7 @@ async function seedSQLiteDatabase() {
         balance: 25000,
         currency: 'USD',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -80,15 +84,17 @@ async function seedSQLiteDatabase() {
         balance: 15000,
         currency: 'EUR',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      },
     ];
 
     // Insert demo accounts
     for (const account of demoAccounts) {
       try {
         await db.insert(schema.accounts).values(account);
-        logger.info(`✅ Demo account created: ${account.name} (${account.balance} ${account.currency})`);
+        logger.info(
+          `✅ Demo account created: ${account.name} (${account.balance} ${account.currency})`
+        );
       } catch (error) {
         if (error.message.includes('UNIQUE constraint failed')) {
           logger.info(`ℹ️  Account already exists: ${account.name}`);
@@ -110,7 +116,7 @@ async function seedSQLiteDatabase() {
         category: 'revenue',
         date: new Date('2024-01-15').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -121,7 +127,7 @@ async function seedSQLiteDatabase() {
         category: 'rent',
         date: new Date('2024-01-01').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -132,7 +138,7 @@ async function seedSQLiteDatabase() {
         category: 'utilities',
         date: new Date('2024-01-05').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -143,9 +149,9 @@ async function seedSQLiteDatabase() {
         category: 'salary',
         date: new Date('2024-01-30').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
-      
+
       // Personal transactions
       {
         id: crypto.randomUUID(),
@@ -156,7 +162,7 @@ async function seedSQLiteDatabase() {
         category: 'salary',
         date: new Date('2024-01-30').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -167,7 +173,7 @@ async function seedSQLiteDatabase() {
         category: 'groceries',
         date: new Date('2024-01-20').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -178,7 +184,7 @@ async function seedSQLiteDatabase() {
         category: 'transportation',
         date: new Date('2024-01-25').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
 
       // Investment transactions
@@ -191,7 +197,7 @@ async function seedSQLiteDatabase() {
         category: 'investment',
         date: new Date('2024-01-10').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
 
       // Savings transactions
@@ -204,18 +210,22 @@ async function seedSQLiteDatabase() {
         category: 'interest',
         date: new Date('2024-01-15').toISOString(),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      },
     ];
 
     // Insert demo transactions
     for (const transaction of demoTransactions) {
       try {
         await db.insert(schema.transactions).values(transaction);
-        logger.info(`✅ Demo transaction created: ${transaction.description} (${transaction.amount} ${transaction.type})`);
+        logger.info(
+          `✅ Demo transaction created: ${transaction.description} (${transaction.amount} ${transaction.type})`
+        );
       } catch (error) {
         if (error.message.includes('UNIQUE constraint failed')) {
-          logger.info(`ℹ️  Transaction already exists: ${transaction.description}`);
+          logger.info(
+            `ℹ️  Transaction already exists: ${transaction.description}`
+          );
         } else {
           throw error;
         }
@@ -235,7 +245,7 @@ async function seedSQLiteDatabase() {
         endDate: new Date('2024-12-31').toISOString(),
         isActive: true,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       {
         id: crypto.randomUUID(),
@@ -248,15 +258,17 @@ async function seedSQLiteDatabase() {
         endDate: new Date('2024-12-31').toISOString(),
         isActive: true,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      },
     ];
 
     // Insert demo budgets
     for (const budget of demoBudgets) {
       try {
         await db.insert(schema.budgets).values(budget);
-        logger.info(`✅ Demo budget created: ${budget.name} (${budget.spent}/${budget.amount})`);
+        logger.info(
+          `✅ Demo budget created: ${budget.name} (${budget.spent}/${budget.amount})`
+        );
       } catch (error) {
         if (error.message.includes('UNIQUE constraint failed')) {
           logger.info(`ℹ️  Budget already exists: ${budget.name}`);
@@ -271,9 +283,8 @@ async function seedSQLiteDatabase() {
     logger.info(`   - ${demoAccounts.length} accounts created`);
     logger.info(`   - ${demoTransactions.length} transactions created`);
     logger.info(`   - ${demoBudgets.length} budgets created`);
-    
-    sqlite.close();
 
+    sqlite.close();
   } catch (error) {
     logger.error('❌ Database seeding failed:', error.message);
     process.exit(1);

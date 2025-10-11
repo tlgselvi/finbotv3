@@ -1,5 +1,9 @@
 import { describe, test, expect } from 'vitest';
-import { runSimulation, validateSimulationParameters, SimulationParameters } from '../../server/src/modules/simulation/engine';
+import {
+  runSimulation,
+  validateSimulationParameters,
+  SimulationParameters,
+} from '../../server/src/modules/simulation/engine';
 
 describe('Simulation Engine', () => {
   describe('runSimulation', () => {
@@ -10,7 +14,7 @@ describe('Simulation Engine', () => {
         fxDelta: 10,
         rateDelta: -5,
         inflationDelta: 5,
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = runSimulation(baseCash, baseDebt, parameters);
@@ -23,14 +27,14 @@ describe('Simulation Engine', () => {
       // Nakit projeksiyonu kontrolü
       const initialCash = result.projections[0].cash;
       const finalCash = result.projections[5].cash;
-      
+
       expect(initialCash).toBeGreaterThan(baseCash);
       expect(finalCash).toBeGreaterThan(initialCash);
 
       // Borç artışı kontrolü (faiz etkisi ile)
       const initialDebt = result.projections[0].debt;
       const finalDebt = result.projections[5].debt;
-      
+
       expect(finalDebt).toBeGreaterThanOrEqual(initialDebt);
 
       // Net değer hesaplama kontrolü (rounding tolerance için toBeCloseTo kullan)
@@ -48,13 +52,13 @@ describe('Simulation Engine', () => {
         fxDelta: 0,
         rateDelta: 0,
         inflationDelta: 0,
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = runSimulation(100000, 50000, parameters);
 
       expect(result.projections).toHaveLength(6);
-      
+
       const months = result.projections.map(p => p.month);
       expect(months).toEqual([1, 2, 3, 4, 5, 6]);
     });
@@ -64,7 +68,7 @@ describe('Simulation Engine', () => {
         fxDelta: 5,
         rateDelta: 2,
         inflationDelta: 3,
-        horizonMonths: 3
+        horizonMonths: 3,
       };
 
       const result = runSimulation(200000, 100000, parameters);
@@ -79,7 +83,7 @@ describe('Simulation Engine', () => {
         fxDelta: -5,
         rateDelta: 3,
         inflationDelta: 8,
-        horizonMonths: 12
+        horizonMonths: 12,
       };
 
       const result = runSimulation(150000, 75000, parameters);
@@ -93,7 +97,7 @@ describe('Simulation Engine', () => {
         fxDelta: -20, // Güçlü TRL değer kaybı
         rateDelta: -10, // Düşük faiz
         inflationDelta: 20, // Yüksek enflasyon
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = runSimulation(50000, 30000, parameters); // Düşük nakit
@@ -112,7 +116,7 @@ describe('Simulation Engine', () => {
         fxDelta: 0,
         rateDelta: 0,
         inflationDelta: 0,
-        horizonMonths: 3
+        horizonMonths: 3,
       };
 
       const baseCash = 100000;
@@ -122,7 +126,7 @@ describe('Simulation Engine', () => {
       // Sıfır parametrelerle bile sabit gelir/gider varsayımı var (monthlyNet = 15000)
       // 3 ayda ~45000 değişim beklenir (artı minimum rate effects)
       const cashChange = Math.abs(result.totalCashChange);
-      
+
       expect(cashChange).toBeGreaterThan(40000); // En az 3 * 15000
       expect(cashChange).toBeLessThan(baseCash); // Base cash'den az
       expect(result.projections[2].cash).toBeGreaterThan(baseCash);
@@ -135,7 +139,7 @@ describe('Simulation Engine', () => {
         fxDelta: 10,
         rateDelta: -5,
         inflationDelta: 8,
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = validateSimulationParameters(validParams);
@@ -150,7 +154,7 @@ describe('Simulation Engine', () => {
         fxDelta: 60, // 50'den büyük
         rateDelta: 0,
         inflationDelta: 0,
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = validateSimulationParameters(invalidParams);
@@ -164,13 +168,15 @@ describe('Simulation Engine', () => {
         fxDelta: 0,
         rateDelta: 25, // 20'den büyük
         inflationDelta: 0,
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = validateSimulationParameters(invalidParams);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('rateDelta -20 ile +20 arasında olmalıdır');
+      expect(result.errors).toContain(
+        'rateDelta -20 ile +20 arasında olmalıdır'
+      );
     });
 
     test('geçersiz inflationDelta → hata döndür', () => {
@@ -178,13 +184,15 @@ describe('Simulation Engine', () => {
         fxDelta: 0,
         rateDelta: 0,
         inflationDelta: 150, // 100'den büyük
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = validateSimulationParameters(invalidParams);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('inflationDelta 0 ile 100 arasında olmalıdır');
+      expect(result.errors).toContain(
+        'inflationDelta 0 ile 100 arasında olmalıdır'
+      );
     });
 
     test('geçersiz horizonMonths → hata döndür', () => {
@@ -192,7 +200,7 @@ describe('Simulation Engine', () => {
         fxDelta: 0,
         rateDelta: 0,
         inflationDelta: 0,
-        horizonMonths: 9 // Geçersiz değer
+        horizonMonths: 9, // Geçersiz değer
       };
 
       const result = validateSimulationParameters(invalidParams);
@@ -206,7 +214,7 @@ describe('Simulation Engine', () => {
         fxDelta: 10,
         // rateDelta eksik
         inflationDelta: 5,
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = validateSimulationParameters(incompleteParams);
@@ -222,7 +230,7 @@ describe('Simulation Engine', () => {
         fxDelta: 5,
         rateDelta: 3,
         inflationDelta: 2,
-        horizonMonths: 6
+        horizonMonths: 6,
       };
 
       const result = runSimulation(10000000, 1000000, parameters); // 10M nakit
@@ -236,7 +244,7 @@ describe('Simulation Engine', () => {
         fxDelta: 0,
         rateDelta: 0,
         inflationDelta: 0,
-        horizonMonths: 3
+        horizonMonths: 3,
       };
 
       const result = runSimulation(0, 50000, parameters);
@@ -250,13 +258,15 @@ describe('Simulation Engine', () => {
         fxDelta: 0,
         rateDelta: 0,
         inflationDelta: 0,
-        horizonMonths: 3
+        horizonMonths: 3,
       };
 
       const result = runSimulation(100000, -50000, parameters); // Negatif borç
 
       expect(result.projections).toHaveLength(3);
-      expect(result.projections[0].netWorth).toBe(result.projections[0].cash - result.projections[0].debt);
+      expect(result.projections[0].netWorth).toBe(
+        result.projections[0].cash - result.projections[0].debt
+      );
     });
   });
 });

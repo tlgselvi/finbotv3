@@ -1,22 +1,22 @@
 import { eq, and, desc, sql, isNull, or, like } from 'drizzle-orm';
 import { db } from '../../db';
-import { 
-  bankIntegrations, 
-  bankTransactions, 
-  importBatches, 
+import {
+  bankIntegrations,
+  bankTransactions,
+  importBatches,
   reconciliationLogs,
   transactions,
-  accounts 
+  accounts,
 } from '../../db/schema';
 import { logger } from '../../utils/logger';
-import type { 
-  BankIntegration, 
-  InsertBankIntegration, 
-  UpdateBankIntegration, 
+import type {
+  BankIntegration,
+  InsertBankIntegration,
+  UpdateBankIntegration,
   BankTransaction,
   ImportBatch,
   ReconciliationLog,
-  Reconciliation
+  Reconciliation,
 } from '@shared/schema';
 
 export interface BankIntegrationWithStats extends BankIntegration {
@@ -77,7 +77,7 @@ export async function getBankIntegrations(
 ): Promise<BankIntegrationWithStats[]> {
   const whereConditions = [
     eq(bankIntegrations.userId, userId),
-    includeInactive ? sql`1=1` : eq(bankIntegrations.isActive, true)
+    includeInactive ? sql`1=1` : eq(bankIntegrations.isActive, true),
   ];
 
   const result = await db
@@ -137,10 +137,12 @@ export async function getBankIntegrationById(
       )`,
     })
     .from(bankIntegrations)
-    .where(and(
-      eq(bankIntegrations.id, integrationId),
-      eq(bankIntegrations.userId, userId)
-    ))
+    .where(
+      and(
+        eq(bankIntegrations.id, integrationId),
+        eq(bankIntegrations.userId, userId)
+      )
+    )
     .limit(1);
 
   return result || null;
@@ -160,10 +162,12 @@ export async function updateBankIntegration(
       ...data,
       updatedAt: new Date(),
     })
-    .where(and(
-      eq(bankIntegrations.id, integrationId),
-      eq(bankIntegrations.userId, userId)
-    ))
+    .where(
+      and(
+        eq(bankIntegrations.id, integrationId),
+        eq(bankIntegrations.userId, userId)
+      )
+    )
     .returning();
 
   return updatedIntegration || null;
@@ -182,10 +186,12 @@ export async function deleteBankIntegration(
       isActive: false,
       updatedAt: new Date(),
     })
-    .where(and(
-      eq(bankIntegrations.id, integrationId),
-      eq(bankIntegrations.userId, userId)
-    ))
+    .where(
+      and(
+        eq(bankIntegrations.id, integrationId),
+        eq(bankIntegrations.userId, userId)
+      )
+    )
     .returning();
 
   return !!deletedIntegration;
@@ -208,14 +214,19 @@ export async function syncBankData(
         syncError: null,
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(bankIntegrations.id, integrationId),
-        eq(bankIntegrations.userId, userId)
-      ));
+      .where(
+        and(
+          eq(bankIntegrations.id, integrationId),
+          eq(bankIntegrations.userId, userId)
+        )
+      );
 
     // Use real provider or fallback to mock
-    const transactions = await syncBankDataWithProvider(integrationId, credentials);
-    
+    const transactions = await syncBankDataWithProvider(
+      integrationId,
+      credentials
+    );
+
     // Process transactions
     let transactionsCount = 0;
     for (const transactionData of transactions) {
@@ -259,10 +270,10 @@ export async function syncBankData(
       })
       .where(eq(bankIntegrations.id, integrationId));
 
-    return { 
-      success: false, 
-      transactionsCount: 0, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return {
+      success: false,
+      transactionsCount: 0,
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -281,7 +292,11 @@ export async function importTransactionsFromFile(
     duplicateHandling?: 'skip' | 'update' | 'create';
   } = {}
 ): Promise<ImportResult> {
-  const { fileName, autoReconcile = false, duplicateHandling = 'skip' } = options;
+  const {
+    fileName,
+    autoReconcile = false,
+    duplicateHandling = 'skip',
+  } = options;
 
   // Create import batch
   const [batch] = await db
@@ -299,7 +314,7 @@ export async function importTransactionsFromFile(
   try {
     // Parse file based on type
     const transactions = await parseTransactionFile(fileData, fileType);
-    
+
     let successfulRecords = 0;
     let failedRecords = 0;
     let duplicateRecords = 0;
@@ -323,10 +338,12 @@ export async function importTransactionsFromFile(
         const existingTransaction = await db
           .select()
           .from(bankTransactions)
-          .where(and(
-            eq(bankTransactions.bankIntegrationId, integrationId),
-            eq(bankTransactions.externalTransactionId, transactionData.id)
-          ))
+          .where(
+            and(
+              eq(bankTransactions.bankIntegrationId, integrationId),
+              eq(bankTransactions.externalTransactionId, transactionData.id)
+            )
+          )
           .limit(1);
 
         if (existingTransaction.length > 0) {
@@ -371,7 +388,11 @@ export async function importTransactionsFromFile(
 
         // Auto-reconcile if enabled
         if (autoReconcile) {
-          await attemptAutoReconciliation(userId, integrationId, transactionData);
+          await attemptAutoReconciliation(
+            userId,
+            integrationId,
+            transactionData
+          );
         }
       } catch (error) {
         validationErrors.push({
@@ -392,7 +413,8 @@ export async function importTransactionsFromFile(
         successfulRecords,
         failedRecords,
         validationErrors,
-        duplicateRecords: duplicateRecords > 0 ? { count: duplicateRecords } : null,
+        duplicateRecords:
+          duplicateRecords > 0 ? { count: duplicateRecords } : null,
         updatedAt: new Date(),
       })
       .where(eq(importBatches.id, batch.id));
@@ -436,19 +458,19 @@ export async function getBankTransactions(
     search?: string;
   } = {}
 ): Promise<BankTransaction[]> {
-  const { 
-    limit = 50, 
-    offset = 0, 
-    startDate, 
-    endDate, 
-    transactionType, 
+  const {
+    limit = 50,
+    offset = 0,
+    startDate,
+    endDate,
+    transactionType,
     isReconciled,
-    search 
+    search,
   } = options;
 
   const whereConditions = [
     eq(bankTransactions.userId, userId),
-    eq(bankTransactions.bankIntegrationId, integrationId)
+    eq(bankTransactions.bankIntegrationId, integrationId),
   ];
 
   if (startDate) {
@@ -540,7 +562,9 @@ export async function getReconciliationSummary(
   const whereConditions = [eq(reconciliationLogs.userId, userId)];
 
   if (integrationId) {
-    whereConditions.push(eq(reconciliationLogs.bankIntegrationId, integrationId));
+    whereConditions.push(
+      eq(reconciliationLogs.bankIntegrationId, integrationId)
+    );
   }
 
   const result = await db
@@ -611,18 +635,23 @@ async function syncBankDataWithProvider(
 ): Promise<any[]> {
   try {
     // Import the provider factory
-    const { BankProviderFactory } = await import('../../services/bank/bank-provider-factory.js');
-    
+    const { BankProviderFactory } = await import(
+      '../../services/bank/bank-provider-factory.js'
+    );
+
     // Determine provider type based on credentials or configuration
-    const providerType = credentials.apiKey ? 'open-banking' : 
-                        credentials.username ? 'turkish-bank' : 'mock';
-    
+    const providerType = credentials.apiKey
+      ? 'open-banking'
+      : credentials.username
+        ? 'turkish-bank'
+        : 'mock';
+
     // Create provider configuration
     const providerConfig = {
       type: providerType as any,
       name: `Bank Integration ${integrationId}`,
       credentials,
-      isActive: true
+      isActive: true,
     };
 
     // Create provider instance
@@ -632,7 +661,7 @@ async function syncBankDataWithProvider(
     const syncResult = await provider.syncData({
       includeTransactions: true,
       transactionDaysBack: 30,
-      forceRefresh: false
+      forceRefresh: false,
     });
 
     if (!syncResult.success || !syncResult.data) {
@@ -652,27 +681,29 @@ async function syncBankDataWithProvider(
       const transactionsResponse = await provider.getTransactions(account.id, {
         startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
         endDate: new Date(),
-        limit: 1000
+        limit: 1000,
       });
 
       if (transactionsResponse.success && transactionsResponse.data) {
-        allTransactions.push(...transactionsResponse.data.map(txn => ({
-          id: txn.id,
-          date: txn.date,
-          amount: txn.amount.toString(),
-          currency: txn.currency,
-          description: txn.description,
-          reference: txn.reference,
-          category: txn.category,
-          balance: txn.balance.toString(),
-          type: txn.type,
-          metadata: { 
-            ...txn.metadata,
-            source: 'real_provider',
-            provider: provider.getProviderName(),
-            accountId: account.id
-          }
-        })));
+        allTransactions.push(
+          ...transactionsResponse.data.map(txn => ({
+            id: txn.id,
+            date: txn.date,
+            amount: txn.amount.toString(),
+            currency: txn.currency,
+            description: txn.description,
+            reference: txn.reference,
+            category: txn.category,
+            balance: txn.balance.toString(),
+            type: txn.type,
+            metadata: {
+              ...txn.metadata,
+              source: 'real_provider',
+              provider: provider.getProviderName(),
+              accountId: account.id,
+            },
+          }))
+        );
       }
     }
 
@@ -687,7 +718,9 @@ async function syncBankDataWithProvider(
 /**
  * Mock bank API call (fallback implementation)
  */
-async function mockBankApiCall(credentials: BankApiCredentials): Promise<any[]> {
+async function mockBankApiCall(
+  credentials: BankApiCredentials
+): Promise<any[]> {
   // Mock implementation - used as fallback
   return [
     {
@@ -721,7 +754,7 @@ async function mockBankApiCall(credentials: BankApiCredentials): Promise<any[]> 
  * Parse transaction file based on type
  */
 async function parseTransactionFile(
-  fileData: string, 
+  fileData: string,
   fileType: 'csv' | 'ofx' | 'xml'
 ): Promise<any[]> {
   switch (fileType) {
@@ -803,7 +836,10 @@ function parseXMLTransactions(xmlData: string): any[] {
 /**
  * Validate transaction data
  */
-function validateTransactionData(transaction: any): { valid: boolean; errors: string[] } {
+function validateTransactionData(transaction: any): {
+  valid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   if (!transaction.id) errors.push('Transaction ID is required');
@@ -832,11 +868,13 @@ async function attemptAutoReconciliation(
   const matchingTransactions = await db
     .select()
     .from(transactions)
-    .where(and(
-      eq(transactions.userId, userId),
-      eq(transactions.amount, bankTransaction.amount),
-      sql`DATE(${transactions.createdAt}) = DATE(${bankTransaction.date})`
-    ))
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        eq(transactions.amount, bankTransaction.amount),
+        sql`DATE(${transactions.createdAt}) = DATE(${bankTransaction.date})`
+      )
+    )
     .limit(1);
 
   if (matchingTransactions.length > 0) {

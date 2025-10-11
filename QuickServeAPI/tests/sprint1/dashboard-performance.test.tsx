@@ -42,7 +42,8 @@ vi.mock('../../shared/schema', () => ({
 
 // Mock the useFormatCurrency hook
 vi.mock('../../client/src/lib/utils/formatCurrency', () => ({
-  useFormatCurrency: () => (value: number) => `₺${value.toLocaleString('tr-TR')}`,
+  useFormatCurrency: () => (value: number) =>
+    `₺${value.toLocaleString('tr-TR')}`,
 }));
 
 // Mock API responses
@@ -119,7 +120,9 @@ describe.skip('Dashboard Performance', () => {
           gcTime: 0,
           // Provide a default queryFn to satisfy useQuery without queryFn
           queryFn: async ({ queryKey }) => {
-            const key = Array.isArray(queryKey) ? String(queryKey[0]) : String(queryKey);
+            const key = Array.isArray(queryKey)
+              ? String(queryKey[0])
+              : String(queryKey);
             const res = await fetch(key as any);
             if (!(res as any).ok) throw new Error('Network error');
             return (res as any).json();
@@ -146,8 +149,8 @@ describe.skip('Dashboard Performance', () => {
   describe('Loading States', () => {
     it('should show loading skeleton when data is loading', async () => {
       // Mock loading state
-      vi.mocked(fetch).mockImplementation(() => 
-        new Promise(() => {}) // Never resolves, keeps loading
+      vi.mocked(fetch).mockImplementation(
+        () => new Promise(() => {}) // Never resolves, keeps loading
       );
 
       renderDashboard();
@@ -167,7 +170,9 @@ describe.skip('Dashboard Performance', () => {
       renderDashboard();
 
       await waitFor(() => {
-        expect(screen.getByText('Veri yüklenirken hata oluştu')).toBeInTheDocument();
+        expect(
+          screen.getByText('Veri yüklenirken hata oluştu')
+        ).toBeInTheDocument();
         expect(screen.getByText('Network error')).toBeInTheDocument();
         expect(screen.getByText('Tekrar Dene')).toBeInTheDocument();
       });
@@ -177,7 +182,7 @@ describe.skip('Dashboard Performance', () => {
   describe('Data Rendering', () => {
     beforeEach(() => {
       // Mock successful API responses
-      vi.mocked(fetch).mockImplementation((url) => {
+      vi.mocked(fetch).mockImplementation(url => {
         if (url.includes('/api/dashboard')) {
           return Promise.resolve({
             ok: true,
@@ -209,13 +214,16 @@ describe.skip('Dashboard Performance', () => {
     it('should render dashboard with financial summary (header or summary visible)', async () => {
       renderDashboard();
 
-      await waitFor(() => {
-        expect(
-          screen.queryByText('Finansal Yönetim Panosu') ||
-          screen.queryByText('Toplam Varlık') ||
-          screen.queryByText('Net Değer')
-        ).toBeTruthy();
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.queryByText('Finansal Yönetim Panosu') ||
+              screen.queryByText('Toplam Varlık') ||
+              screen.queryByText('Net Değer')
+          ).toBeTruthy();
+        },
+        { timeout: 5000 }
+      );
     });
 
     it('should render tabs correctly', async () => {
@@ -236,13 +244,16 @@ describe.skip('Dashboard Performance', () => {
       const txTab = await screen.findByText('İşlemler');
       txTab.click();
 
-      await waitFor(() => {
-        expect(
-          screen.queryByText('Admin - Finansal Yönetim Panosu') ||
-          screen.queryByTestId('transactions-title') ||
-          screen.queryByText('Son İşlemler')
-        ).toBeTruthy();
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.queryByText('Admin - Finansal Yönetim Panosu') ||
+              screen.queryByTestId('transactions-title') ||
+              screen.queryByText('Son İşlemler')
+          ).toBeTruthy();
+        },
+        { timeout: 5000 }
+      );
     });
   });
 
@@ -251,9 +262,15 @@ describe.skip('Dashboard Performance', () => {
       const { rerender } = renderDashboard();
 
       // First render
-      await waitFor(() => {
-        expect(screen.queryByText('Toplam Varlık') || screen.getByText(/Varlık|Net Değer|Aylık Ödeme/)).toBeTruthy();
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.queryByText('Toplam Varlık') ||
+              screen.getByText(/Varlık|Net Değer|Aylık Ödeme/)
+          ).toBeTruthy();
+        },
+        { timeout: 5000 }
+      );
 
       // Rerender with same data
       rerender(
@@ -275,9 +292,15 @@ describe.skip('Dashboard Performance', () => {
     it('should handle filter changes efficiently', async () => {
       renderDashboard();
 
-      await waitFor(() => {
-        expect(screen.queryByText('Son İşlemler') || screen.getByTestId('transactions-title')).toBeTruthy();
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.queryByText('Son İşlemler') ||
+              screen.getByTestId('transactions-title')
+          ).toBeTruthy();
+        },
+        { timeout: 5000 }
+      );
 
       // Filter changes should not cause unnecessary re-renders
       // This is tested by ensuring the component doesn't crash
@@ -294,11 +317,16 @@ describe.skip('Dashboard Performance', () => {
 
       // Should render container (title may be skeleton in loading)
       expect(screen.getByRole('main')).toBeTruthy();
-      
+
       // Wait for error state to appear
-      await waitFor(() => {
-        expect(screen.getByText('Veri yüklenirken hata oluştu')).toBeInTheDocument();
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.getByText('Veri yüklenirken hata oluştu')
+          ).toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
     });
 
     it('should allow retry on error', async () => {
@@ -308,9 +336,12 @@ describe.skip('Dashboard Performance', () => {
       renderDashboard();
 
       // Wait for error state to appear
-      await waitFor(() => {
-        expect(screen.getByText('Tekrar Dene')).toBeInTheDocument();
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Tekrar Dene')).toBeInTheDocument();
+        },
+        { timeout: 5000 }
+      );
 
       // Click retry button
       const retryButton = screen.getByText('Tekrar Dene');

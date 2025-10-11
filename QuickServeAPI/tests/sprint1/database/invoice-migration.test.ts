@@ -16,7 +16,7 @@ describe.skip('Invoice Migration Tests', () => {
         FROM information_schema.tables 
         WHERE table_name = 'invoice_ar'
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
     });
@@ -28,10 +28,10 @@ describe.skip('Invoice Migration Tests', () => {
         WHERE table_name = 'invoice_ar' 
         ORDER BY ordinal_position
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
-      
+
       // Temel alanların varlığını kontrol et
       const columns = result.rows.map((row: any) => row.column_name);
       expect(columns).toContain('id');
@@ -50,42 +50,55 @@ describe.skip('Invoice Migration Tests', () => {
         amount: '5000.00',
         due_date: new Date('2024-12-31'),
         status: 'pending',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
-      const [insertedInvoice] = await db.execute(`
+      const [insertedInvoice] = await db.execute(
+        `
         INSERT INTO invoice_ar (customer_name, invoice_number, amount, due_date, status, created_at)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
-      `, [
-        testInvoiceAR.customer_name,
-        testInvoiceAR.invoice_number,
-        testInvoiceAR.amount,
-        testInvoiceAR.due_date,
-        testInvoiceAR.status,
-        testInvoiceAR.created_at
-      ]);
+      `,
+        [
+          testInvoiceAR.customer_name,
+          testInvoiceAR.invoice_number,
+          testInvoiceAR.amount,
+          testInvoiceAR.due_date,
+          testInvoiceAR.status,
+          testInvoiceAR.created_at,
+        ]
+      );
 
       expect(insertedInvoice.rows).toBeDefined();
       expect(insertedInvoice.rows.length).toBe(1);
-      expect(insertedInvoice.rows[0].customer_name).toBe(testInvoiceAR.customer_name);
-      expect(insertedInvoice.rows[0].invoice_number).toBe(testInvoiceAR.invoice_number);
+      expect(insertedInvoice.rows[0].customer_name).toBe(
+        testInvoiceAR.customer_name
+      );
+      expect(insertedInvoice.rows[0].invoice_number).toBe(
+        testInvoiceAR.invoice_number
+      );
       expect(insertedInvoice.rows[0].amount).toBe(testInvoiceAR.amount);
 
       // Test query çalıştır
-      const queryResult = await db.execute(`
+      const queryResult = await db.execute(
+        `
         SELECT * FROM invoice_ar 
         WHERE customer_name = $1
-      `, [testInvoiceAR.customer_name]);
+      `,
+        [testInvoiceAR.customer_name]
+      );
 
       expect(queryResult.rows).toBeDefined();
       expect(queryResult.rows.length).toBe(1);
 
       // Test verisini temizle
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM invoice_ar 
         WHERE customer_name = $1
-      `, [testInvoiceAR.customer_name]);
+      `,
+        [testInvoiceAR.customer_name]
+      );
     });
 
     test('InvoiceAR CRUD operasyonları çalışmalı', async () => {
@@ -95,53 +108,71 @@ describe.skip('Invoice Migration Tests', () => {
         invoice_number: 'INV-AR-CRUD-001',
         amount: '7500.00',
         due_date: new Date('2024-12-31'),
-        status: 'pending'
+        status: 'pending',
       };
 
-      const [createdInvoice] = await db.execute(`
+      const [createdInvoice] = await db.execute(
+        `
         INSERT INTO invoice_ar (customer_name, invoice_number, amount, due_date, status)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *
-      `, [
-        newInvoice.customer_name,
-        newInvoice.invoice_number,
-        newInvoice.amount,
-        newInvoice.due_date,
-        newInvoice.status
-      ]);
+      `,
+        [
+          newInvoice.customer_name,
+          newInvoice.invoice_number,
+          newInvoice.amount,
+          newInvoice.due_date,
+          newInvoice.status,
+        ]
+      );
 
       expect(createdInvoice.rows[0].id).toBeDefined();
       const invoiceId = createdInvoice.rows[0].id;
 
       // Read
-      const [readInvoice] = await db.execute(`
+      const [readInvoice] = await db.execute(
+        `
         SELECT * FROM invoice_ar WHERE id = $1
-      `, [invoiceId]);
+      `,
+        [invoiceId]
+      );
 
       expect(readInvoice.rows[0].customer_name).toBe(newInvoice.customer_name);
 
       // Update
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE invoice_ar 
         SET status = $1, amount = $2
         WHERE id = $3
-      `, ['paid', '8000.00', invoiceId]);
+      `,
+        ['paid', '8000.00', invoiceId]
+      );
 
-      const [updatedInvoice] = await db.execute(`
+      const [updatedInvoice] = await db.execute(
+        `
         SELECT * FROM invoice_ar WHERE id = $1
-      `, [invoiceId]);
+      `,
+        [invoiceId]
+      );
 
       expect(updatedInvoice.rows[0].status).toBe('paid');
       expect(updatedInvoice.rows[0].amount).toBe('8000.00');
 
       // Delete
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM invoice_ar WHERE id = $1
-      `, [invoiceId]);
+      `,
+        [invoiceId]
+      );
 
-      const [deletedInvoice] = await db.execute(`
+      const [deletedInvoice] = await db.execute(
+        `
         SELECT * FROM invoice_ar WHERE id = $1
-      `, [invoiceId]);
+      `,
+        [invoiceId]
+      );
 
       expect(deletedInvoice.rows.length).toBe(0);
     });
@@ -155,7 +186,7 @@ describe.skip('Invoice Migration Tests', () => {
         FROM information_schema.tables 
         WHERE table_name = 'invoice_ap'
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
     });
@@ -167,10 +198,10 @@ describe.skip('Invoice Migration Tests', () => {
         WHERE table_name = 'invoice_ap' 
         ORDER BY ordinal_position
       `);
-      
+
       expect(result.rows).toBeDefined();
       expect(result.rows.length).toBeGreaterThan(0);
-      
+
       // Temel alanların varlığını kontrol et
       const columns = result.rows.map((row: any) => row.column_name);
       expect(columns).toContain('id');
@@ -189,42 +220,55 @@ describe.skip('Invoice Migration Tests', () => {
         amount: '3000.00',
         due_date: new Date('2024-12-31'),
         status: 'pending',
-        created_at: new Date()
+        created_at: new Date(),
       };
 
-      const [insertedInvoice] = await db.execute(`
+      const [insertedInvoice] = await db.execute(
+        `
         INSERT INTO invoice_ap (supplier_name, invoice_number, amount, due_date, status, created_at)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
-      `, [
-        testInvoiceAP.supplier_name,
-        testInvoiceAP.invoice_number,
-        testInvoiceAP.amount,
-        testInvoiceAP.due_date,
-        testInvoiceAP.status,
-        testInvoiceAP.created_at
-      ]);
+      `,
+        [
+          testInvoiceAP.supplier_name,
+          testInvoiceAP.invoice_number,
+          testInvoiceAP.amount,
+          testInvoiceAP.due_date,
+          testInvoiceAP.status,
+          testInvoiceAP.created_at,
+        ]
+      );
 
       expect(insertedInvoice.rows).toBeDefined();
       expect(insertedInvoice.rows.length).toBe(1);
-      expect(insertedInvoice.rows[0].supplier_name).toBe(testInvoiceAP.supplier_name);
-      expect(insertedInvoice.rows[0].invoice_number).toBe(testInvoiceAP.invoice_number);
+      expect(insertedInvoice.rows[0].supplier_name).toBe(
+        testInvoiceAP.supplier_name
+      );
+      expect(insertedInvoice.rows[0].invoice_number).toBe(
+        testInvoiceAP.invoice_number
+      );
       expect(insertedInvoice.rows[0].amount).toBe(testInvoiceAP.amount);
 
       // Test query çalıştır
-      const queryResult = await db.execute(`
+      const queryResult = await db.execute(
+        `
         SELECT * FROM invoice_ap 
         WHERE supplier_name = $1
-      `, [testInvoiceAP.supplier_name]);
+      `,
+        [testInvoiceAP.supplier_name]
+      );
 
       expect(queryResult.rows).toBeDefined();
       expect(queryResult.rows.length).toBe(1);
 
       // Test verisini temizle
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM invoice_ap 
         WHERE supplier_name = $1
-      `, [testInvoiceAP.supplier_name]);
+      `,
+        [testInvoiceAP.supplier_name]
+      );
     });
 
     test('InvoiceAP CRUD operasyonları çalışmalı', async () => {
@@ -234,53 +278,71 @@ describe.skip('Invoice Migration Tests', () => {
         invoice_number: 'INV-AP-CRUD-001',
         amount: '4500.00',
         due_date: new Date('2024-12-31'),
-        status: 'pending'
+        status: 'pending',
       };
 
-      const [createdInvoice] = await db.execute(`
+      const [createdInvoice] = await db.execute(
+        `
         INSERT INTO invoice_ap (supplier_name, invoice_number, amount, due_date, status)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *
-      `, [
-        newInvoice.supplier_name,
-        newInvoice.invoice_number,
-        newInvoice.amount,
-        newInvoice.due_date,
-        newInvoice.status
-      ]);
+      `,
+        [
+          newInvoice.supplier_name,
+          newInvoice.invoice_number,
+          newInvoice.amount,
+          newInvoice.due_date,
+          newInvoice.status,
+        ]
+      );
 
       expect(createdInvoice.rows[0].id).toBeDefined();
       const invoiceId = createdInvoice.rows[0].id;
 
       // Read
-      const [readInvoice] = await db.execute(`
+      const [readInvoice] = await db.execute(
+        `
         SELECT * FROM invoice_ap WHERE id = $1
-      `, [invoiceId]);
+      `,
+        [invoiceId]
+      );
 
       expect(readInvoice.rows[0].supplier_name).toBe(newInvoice.supplier_name);
 
       // Update
-      await db.execute(`
+      await db.execute(
+        `
         UPDATE invoice_ap 
         SET status = $1, amount = $2
         WHERE id = $3
-      `, ['paid', '5000.00', invoiceId]);
+      `,
+        ['paid', '5000.00', invoiceId]
+      );
 
-      const [updatedInvoice] = await db.execute(`
+      const [updatedInvoice] = await db.execute(
+        `
         SELECT * FROM invoice_ap WHERE id = $1
-      `, [invoiceId]);
+      `,
+        [invoiceId]
+      );
 
       expect(updatedInvoice.rows[0].status).toBe('paid');
       expect(updatedInvoice.rows[0].amount).toBe('5000.00');
 
       // Delete
-      await db.execute(`
+      await db.execute(
+        `
         DELETE FROM invoice_ap WHERE id = $1
-      `, [invoiceId]);
+      `,
+        [invoiceId]
+      );
 
-      const [deletedInvoice] = await db.execute(`
+      const [deletedInvoice] = await db.execute(
+        `
         SELECT * FROM invoice_ap WHERE id = $1
-      `, [invoiceId]);
+      `,
+        [invoiceId]
+      );
 
       expect(deletedInvoice.rows.length).toBe(0);
     });
@@ -292,7 +354,7 @@ describe.skip('Invoice Migration Tests', () => {
       const arResult = await db.execute(`
         SELECT COUNT(*) as count FROM invoice_ar
       `);
-      
+
       const apResult = await db.execute(`
         SELECT COUNT(*) as count FROM invoice_ap
       `);
@@ -337,12 +399,15 @@ describe.skip('Invoice Migration Tests', () => {
   describe('Invoice Data Validation', () => {
     test('InvoiceAR amount alanı decimal olmalı', async () => {
       const testAmount = '12345.67';
-      
-      const [result] = await db.execute(`
+
+      const [result] = await db.execute(
+        `
         INSERT INTO invoice_ar (customer_name, invoice_number, amount, due_date, status)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING amount
-      `, ['Test Customer', 'INV-001', testAmount, new Date(), 'pending']);
+      `,
+        ['Test Customer', 'INV-001', testAmount, new Date(), 'pending']
+      );
 
       expect(result.rows[0].amount).toBe(testAmount);
 
@@ -354,12 +419,15 @@ describe.skip('Invoice Migration Tests', () => {
 
     test('InvoiceAP amount alanı decimal olmalı', async () => {
       const testAmount = '9876.54';
-      
-      const [result] = await db.execute(`
+
+      const [result] = await db.execute(
+        `
         INSERT INTO invoice_ap (supplier_name, invoice_number, amount, due_date, status)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING amount
-      `, ['Test Supplier', 'INV-AP-001', testAmount, new Date(), 'pending']);
+      `,
+        ['Test Supplier', 'INV-AP-001', testAmount, new Date(), 'pending']
+      );
 
       expect(result.rows[0].amount).toBe(testAmount);
 
@@ -371,20 +439,32 @@ describe.skip('Invoice Migration Tests', () => {
 
     test('Invoice status alanı geçerli değerler kabul etmeli', async () => {
       const validStatuses = ['pending', 'paid', 'overdue', 'cancelled'];
-      
+
       for (const status of validStatuses) {
-        const [result] = await db.execute(`
+        const [result] = await db.execute(
+          `
           INSERT INTO invoice_ar (customer_name, invoice_number, amount, due_date, status)
           VALUES ($1, $2, $3, $4, $5)
           RETURNING status
-        `, [`Test Customer ${status}`, `INV-${status}`, '1000.00', new Date(), status]);
+        `,
+          [
+            `Test Customer ${status}`,
+            `INV-${status}`,
+            '1000.00',
+            new Date(),
+            status,
+          ]
+        );
 
         expect(result.rows[0].status).toBe(status);
 
         // Temizle
-        await db.execute(`
+        await db.execute(
+          `
           DELETE FROM invoice_ar WHERE customer_name = $1
-        `, [`Test Customer ${status}`]);
+        `,
+          [`Test Customer ${status}`]
+        );
       }
     });
   });
@@ -399,13 +479,16 @@ describe.skip('Invoice Migration Tests', () => {
         `INV-AR-${i.toString().padStart(4, '0')}`,
         (Math.random() * 10000).toFixed(2),
         new Date(),
-        'pending'
+        'pending',
       ]);
 
-      await db.execute(`
+      await db.execute(
+        `
         INSERT INTO invoice_ar (customer_name, invoice_number, amount, due_date, status)
         VALUES ${arInvoices.map((_, i) => `($${i * 5 + 1}, $${i * 5 + 2}, $${i * 5 + 3}, $${i * 5 + 4}, $${i * 5 + 5})`).join(', ')}
-      `, arInvoices.flat());
+      `,
+        arInvoices.flat()
+      );
 
       // 1000 InvoiceAP kaydı oluştur
       const apInvoices = Array.from({ length: 1000 }, (_, i) => [
@@ -413,13 +496,16 @@ describe.skip('Invoice Migration Tests', () => {
         `INV-AP-${i.toString().padStart(4, '0')}`,
         (Math.random() * 10000).toFixed(2),
         new Date(),
-        'pending'
+        'pending',
       ]);
 
-      await db.execute(`
+      await db.execute(
+        `
         INSERT INTO invoice_ap (supplier_name, invoice_number, amount, due_date, status)
         VALUES ${apInvoices.map((_, i) => `($${i * 5 + 1}, $${i * 5 + 2}, $${i * 5 + 3}, $${i * 5 + 4}, $${i * 5 + 5})`).join(', ')}
-      `, apInvoices.flat());
+      `,
+        apInvoices.flat()
+      );
 
       const endTime = Date.now();
       const duration = endTime - startTime;
@@ -428,16 +514,24 @@ describe.skip('Invoice Migration Tests', () => {
       expect(duration).toBeLessThan(10000);
 
       // Temizle
-      await db.execute(`DELETE FROM invoice_ar WHERE customer_name LIKE 'Customer AR %'`);
-      await db.execute(`DELETE FROM invoice_ap WHERE supplier_name LIKE 'Supplier AP %'`);
+      await db.execute(
+        `DELETE FROM invoice_ar WHERE customer_name LIKE 'Customer AR %'`
+      );
+      await db.execute(
+        `DELETE FROM invoice_ap WHERE supplier_name LIKE 'Supplier AP %'`
+      );
     });
 
     test('Invoice sorgulama performansı', async () => {
       const startTime = Date.now();
 
       // Tüm invoice'ları getir
-      const [arResult] = await db.execute(`SELECT COUNT(*) as count FROM invoice_ar`);
-      const [apResult] = await db.execute(`SELECT COUNT(*) as count FROM invoice_ap`);
+      const [arResult] = await db.execute(
+        `SELECT COUNT(*) as count FROM invoice_ar`
+      );
+      const [apResult] = await db.execute(
+        `SELECT COUNT(*) as count FROM invoice_ap`
+      );
 
       const endTime = Date.now();
       const duration = endTime - startTime;

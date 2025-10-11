@@ -29,7 +29,9 @@ router.get('/', async (req, res) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     const userInvestments = await db
@@ -52,7 +54,9 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     const investment = await db
@@ -77,7 +81,9 @@ router.post('/', async (req, res) => {
   try {
     const userId = (req as any).user?.id;
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     const validatedData = createInvestmentSchema.parse(req.body);
@@ -92,7 +98,9 @@ router.post('/', async (req, res) => {
         quantity: validatedData.quantity.toString(),
         purchasePrice: validatedData.purchasePrice.toString(),
         currentPrice: validatedData.currentPrice?.toString(),
-        purchaseDate: validatedData.purchaseDate ? new Date(validatedData.purchaseDate) : new Date(),
+        purchaseDate: validatedData.purchaseDate
+          ? new Date(validatedData.purchaseDate)
+          : new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -106,7 +114,9 @@ router.post('/', async (req, res) => {
       amount: (validatedData.quantity * validatedData.purchasePrice).toString(),
       description: `${validatedData.title} yatırım alımı`,
       category: 'investment',
-      date: validatedData.purchaseDate ? new Date(validatedData.purchaseDate) : new Date(),
+      date: validatedData.purchaseDate
+        ? new Date(validatedData.purchaseDate)
+        : new Date(),
       investmentId: newInvestment.id,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -132,7 +142,9 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     const validatedData = updateInvestmentSchema.parse(req.body);
@@ -140,15 +152,31 @@ router.put('/:id', async (req, res) => {
     const [updatedInvestment] = await db
       .update(investments)
       .set({
-        ...(validatedData.quantity != null ? { quantity: String(validatedData.quantity) } : {}),
-        ...(validatedData.purchasePrice != null ? { purchasePrice: String(validatedData.purchasePrice) } : {}),
-        ...(validatedData.currentPrice != null ? { currentPrice: String(validatedData.currentPrice) } : {}),
-        ...(validatedData.symbol != null ? { symbol: validatedData.symbol } : {}),
+        ...(validatedData.quantity != null
+          ? { quantity: String(validatedData.quantity) }
+          : {}),
+        ...(validatedData.purchasePrice != null
+          ? { purchasePrice: String(validatedData.purchasePrice) }
+          : {}),
+        ...(validatedData.currentPrice != null
+          ? { currentPrice: String(validatedData.currentPrice) }
+          : {}),
+        ...(validatedData.symbol != null
+          ? { symbol: validatedData.symbol }
+          : {}),
         ...(validatedData.type != null ? { type: validatedData.type } : {}),
-        ...(validatedData.currency != null ? { currency: validatedData.currency } : {}),
-        ...(validatedData.accountId != null ? { accountId: validatedData.accountId } : {}),
-        ...(validatedData.category != null ? { category: validatedData.category } : {}),
-        ...(validatedData.riskLevel != null ? { riskLevel: validatedData.riskLevel } : {}),
+        ...(validatedData.currency != null
+          ? { currency: validatedData.currency }
+          : {}),
+        ...(validatedData.accountId != null
+          ? { accountId: validatedData.accountId }
+          : {}),
+        ...(validatedData.category != null
+          ? { category: validatedData.category }
+          : {}),
+        ...(validatedData.riskLevel != null
+          ? { riskLevel: validatedData.riskLevel }
+          : {}),
         updatedAt: new Date(),
       })
       .where(and(eq(investments.id, id), eq(investments.userId, userId)))
@@ -178,7 +206,9 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
+      return res
+        .status(401)
+        .json({ error: 'Kullanıcı kimlik doğrulaması gerekli' });
     }
 
     const [deletedInvestment] = await db

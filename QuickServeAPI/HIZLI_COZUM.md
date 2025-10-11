@@ -10,6 +10,7 @@ pnpm dev
 ```
 
 Bu komut:
+
 - ✅ Backend'i başlatır (Port 5000)
 - ✅ Frontend'i başlatır (Port 5173)
 - ✅ Her ikisini birlikte çalıştırır
@@ -39,16 +40,19 @@ http://localhost:5173
 ### 2. Login Test Et
 
 **Browser'da:**
+
 1. http://localhost:5173 aç
 2. Email: `admin@finbot.com`
 3. Password: `admin123`
 4. Login'e tıkla
 
 **Başarılı ise:**
+
 - ✅ Dashboard'a yönlendirileceksiniz
 - ✅ URL değişecek (örn: /dashboard)
 
 **Başarısız ise:**
+
 - ❌ Hala /login sayfasındasınız
 - ❌ Hata mesajı görünür
 
@@ -62,6 +66,7 @@ pnpm test:smart
 ```
 
 **Beklenen Sonuç:**
+
 ```
 ✅ API Health Check
 ✅ Frontend Yükleme
@@ -127,4 +132,3 @@ netstat -ano | findstr ":5000 :5173"
 4. ✅ `pnpm test:smart` çalıştır
 
 **Hepsi bu kadar!** 🚀
-

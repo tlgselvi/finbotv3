@@ -1,14 +1,18 @@
 import { Router } from 'express';
-import { requireAuth, requirePermission, AuthenticatedRequest } from '../middleware/auth';
+import {
+  requireAuth,
+  requirePermission,
+  AuthenticatedRequest,
+} from '../middleware/auth';
 import { Permission } from '@shared/schema';
 import { storage } from '../storage';
 import { db } from '../db';
 import { simulationRuns } from '../db/schema';
 import { eq, desc, and } from 'drizzle-orm';
-import { 
-  runSimulation, 
+import {
+  runSimulation,
   validateSimulationParameters,
-  SimulationParameters 
+  SimulationParameters,
 } from '../src/modules/simulation/engine';
 import { formatCurrency } from '../lib/utils/formatCurrency';
 import { logger } from '../utils/logger';
@@ -17,8 +21,13 @@ const simulationRouter = (router: Router) => {
   /**
    * POST /api/simulation/run - Simülasyon çalıştır
    */
-  router.post('/run',
-    requirePermission(Permission.VIEW_ALL_REPORTS, Permission.VIEW_COMPANY_REPORTS, Permission.VIEW_PERSONAL_REPORTS),
+  router.post(
+    '/run',
+    requirePermission(
+      Permission.VIEW_ALL_REPORTS,
+      Permission.VIEW_COMPANY_REPORTS,
+      Permission.VIEW_PERSONAL_REPORTS
+    ),
     async (req: AuthenticatedRequest, res) => {
       try {
         const { fxDelta, rateDelta, inflationDelta, horizonMonths } = req.body;
@@ -28,13 +37,13 @@ const simulationRouter = (router: Router) => {
           fxDelta,
           rateDelta,
           inflationDelta,
-          horizonMonths
+          horizonMonths,
         });
 
         if (!validation.valid) {
           return res.status(400).json({
             error: 'Geçersiz parametreler',
-            details: validation.errors
+            details: validation.errors,
           });
         }
 
@@ -42,12 +51,14 @@ const simulationRouter = (router: Router) => {
 
         // Kullanıcının mevcut hesaplarını al
         const accounts = await storage.getAccounts();
-        const userAccounts = accounts.filter(account => account.userId === req.user!.id);
+        const userAccounts = accounts.filter(
+          account => account.userId === req.user!.id
+        );
 
         if (userAccounts.length === 0) {
           return res.status(404).json({
             error: 'Hesap bulunamadı',
-            message: 'Simülasyon için en az bir hesap gereklidir'
+            message: 'Simülasyon için en az bir hesap gereklidir',
           });
         }
 
@@ -57,8 +68,12 @@ const simulationRouter = (router: Router) => {
 
         userAccounts.forEach(account => {
           const balance = parseFloat(account.balance);
-          
-          if (account.type === 'checking' || account.type === 'savings' || account.type === 'investment') {
+
+          if (
+            account.type === 'checking' ||
+            account.type === 'savings' ||
+            account.type === 'investment'
+          ) {
             totalCash += balance;
           } else if (account.type === 'credit' || account.type === 'loan') {
             totalDebt += Math.abs(balance); // Borç pozitif olarak al
@@ -72,7 +87,7 @@ const simulationRouter = (router: Router) => {
         const simulationRun = {
           userId: req.user!.id,
           parameters: parameters,
-          results: results
+          results: results,
         };
 
         const [savedRun] = await db
@@ -87,7 +102,7 @@ const simulationRouter = (router: Router) => {
             fxDelta: parameters.fxDelta,
             rateDelta: parameters.rateDelta,
             inflationDelta: parameters.inflationDelta,
-            horizonMonths: parameters.horizonMonths
+            horizonMonths: parameters.horizonMonths,
           },
           currentState: {
             cash: totalCash,
@@ -95,7 +110,7 @@ const simulationRouter = (router: Router) => {
             netWorth: totalCash - totalDebt,
             formattedCash: formatCurrency(totalCash, 'TRY'),
             formattedDebt: formatCurrency(totalDebt, 'TRY'),
-            formattedNetWorth: formatCurrency(totalCash - totalDebt, 'TRY')
+            formattedNetWorth: formatCurrency(totalCash - totalDebt, 'TRY'),
           },
           projections: results.projections.map(proj => ({
             month: proj.month,
@@ -104,7 +119,7 @@ const simulationRouter = (router: Router) => {
             netWorth: proj.netWorth,
             formattedCash: formatCurrency(proj.cash, 'TRY'),
             formattedDebt: formatCurrency(proj.debt, 'TRY'),
-            formattedNetWorth: formatCurrency(proj.netWorth, 'TRY')
+            formattedNetWorth: formatCurrency(proj.netWorth, 'TRY'),
           })),
           summary: {
             text: results.summary,
@@ -115,18 +130,20 @@ const simulationRouter = (router: Router) => {
             totalNetWorthChange: results.totalNetWorthChange,
             formattedCashChange: formatCurrency(results.totalCashChange, 'TRY'),
             formattedDebtChange: formatCurrency(results.totalDebtChange, 'TRY'),
-            formattedNetWorthChange: formatCurrency(results.totalNetWorthChange, 'TRY')
+            formattedNetWorthChange: formatCurrency(
+              results.totalNetWorthChange,
+              'TRY'
+            ),
           },
-          createdAt: savedRun.createdAt
+          createdAt: savedRun.createdAt,
         };
 
         res.json(response);
-
       } catch (error) {
         logger.error('Simulation run error:', error);
         res.status(500).json({
           error: 'Simülasyon çalıştırılırken hata oluştu',
-          details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+          details: error instanceof Error ? error.message : 'Bilinmeyen hata',
         });
       }
     }
@@ -135,11 +152,16 @@ const simulationRouter = (router: Router) => {
   /**
    * GET /api/simulation/history - Simülasyon geçmişi
    */
-  router.get('/history',
-    requirePermission(Permission.VIEW_ALL_REPORTS, Permission.VIEW_COMPANY_REPORTS, Permission.VIEW_PERSONAL_REPORTS),
+  router.get(
+    '/history',
+    requirePermission(
+      Permission.VIEW_ALL_REPORTS,
+      Permission.VIEW_COMPANY_REPORTS,
+      Permission.VIEW_PERSONAL_REPORTS
+    ),
     async (req: AuthenticatedRequest, res) => {
       const { limit = 10, offset = 0 } = req.query;
-      
+
       try {
         const runs = await db
           .select()
@@ -155,16 +177,15 @@ const simulationRouter = (router: Router) => {
           summary: run.results.summary,
           cashDeficitMonth: run.results.cashDeficitMonth,
           createdAt: run.createdAt,
-          formattedCreatedAt: new Date(run.createdAt).toLocaleString('tr-TR')
+          formattedCreatedAt: new Date(run.createdAt).toLocaleString('tr-TR'),
         }));
 
         res.json({
           runs: formattedRuns,
           total: formattedRuns.length,
           limit: Number(limit),
-          offset: Number(offset)
+          offset: Number(offset),
         });
-
       } catch (error) {
         logger.debug('Simulation history error (table may not exist):', error);
         // Return empty history if table doesn't exist
@@ -172,7 +193,7 @@ const simulationRouter = (router: Router) => {
           runs: [],
           total: 0,
           limit: Number(limit),
-          offset: Number(offset)
+          offset: Number(offset),
         });
       }
     }
@@ -181,8 +202,13 @@ const simulationRouter = (router: Router) => {
   /**
    * GET /api/simulation/parameters - Desteklenen parametreler
    */
-  router.get('/parameters',
-    requirePermission(Permission.VIEW_ALL_REPORTS, Permission.VIEW_COMPANY_REPORTS, Permission.VIEW_PERSONAL_REPORTS),
+  router.get(
+    '/parameters',
+    requirePermission(
+      Permission.VIEW_ALL_REPORTS,
+      Permission.VIEW_COMPANY_REPORTS,
+      Permission.VIEW_PERSONAL_REPORTS
+    ),
     async (req: AuthenticatedRequest, res) => {
       try {
         const parameters = {
@@ -197,8 +223,8 @@ const simulationRouter = (router: Router) => {
             examples: [
               { value: -10, description: 'TRL %10 değer kaybı' },
               { value: 0, description: 'Kur sabit kalır' },
-              { value: 10, description: 'TRL %10 değer kazancı' }
-            ]
+              { value: 10, description: 'TRL %10 değer kazancı' },
+            ],
           },
           rateDelta: {
             name: 'Faiz Oranı Değişimi',
@@ -211,8 +237,8 @@ const simulationRouter = (router: Router) => {
             examples: [
               { value: -2, description: 'Faizler %2 düşer' },
               { value: 0, description: 'Faizler sabit kalır' },
-              { value: 5, description: 'Faizler %5 artar' }
-            ]
+              { value: 5, description: 'Faizler %5 artar' },
+            ],
           },
           inflationDelta: {
             name: 'Enflasyon Değişimi',
@@ -225,8 +251,8 @@ const simulationRouter = (router: Router) => {
             examples: [
               { value: 5, description: 'Enflasyon %5' },
               { value: 15, description: 'Enflasyon %15' },
-              { value: 30, description: 'Enflasyon %30' }
-            ]
+              { value: 30, description: 'Enflasyon %30' },
+            ],
           },
           horizonMonths: {
             name: 'Simülasyon Süresi',
@@ -237,18 +263,17 @@ const simulationRouter = (router: Router) => {
             examples: [
               { value: 3, description: '3 aylık projeksiyon' },
               { value: 6, description: '6 aylık projeksiyon' },
-              { value: 12, description: '12 aylık projeksiyon' }
-            ]
-          }
+              { value: 12, description: '12 aylık projeksiyon' },
+            ],
+          },
         };
 
         res.json({ parameters });
-
       } catch (error) {
         logger.error('Simulation parameters error:', error);
         res.status(500).json({
           error: 'Parametreler alınırken hata oluştu',
-          details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+          details: error instanceof Error ? error.message : 'Bilinmeyen hata',
         });
       }
     }
@@ -257,8 +282,13 @@ const simulationRouter = (router: Router) => {
   /**
    * GET /api/simulation/run/:id - Belirli simülasyon detayı
    */
-  router.get('/run/:id',
-    requirePermission(Permission.VIEW_ALL_REPORTS, Permission.VIEW_COMPANY_REPORTS, Permission.VIEW_PERSONAL_REPORTS),
+  router.get(
+    '/run/:id',
+    requirePermission(
+      Permission.VIEW_ALL_REPORTS,
+      Permission.VIEW_COMPANY_REPORTS,
+      Permission.VIEW_PERSONAL_REPORTS
+    ),
     async (req: AuthenticatedRequest, res) => {
       try {
         const { id } = req.params;
@@ -266,16 +296,18 @@ const simulationRouter = (router: Router) => {
         const [run] = await db
           .select()
           .from(simulationRuns)
-          .where(and(
-            eq(simulationRuns.id, id),
-            eq(simulationRuns.userId, req.user!.id)
-          ))
+          .where(
+            and(
+              eq(simulationRuns.id, id),
+              eq(simulationRuns.userId, req.user!.id)
+            )
+          )
           .limit(1);
 
         if (!run) {
           return res.status(404).json({
             error: 'Simülasyon bulunamadı',
-            message: 'Belirtilen ID ile simülasyon bulunamadı'
+            message: 'Belirtilen ID ile simülasyon bulunamadı',
           });
         }
 
@@ -290,24 +322,23 @@ const simulationRouter = (router: Router) => {
             netWorth: proj.netWorth,
             formattedCash: formatCurrency(proj.cash, 'TRY'),
             formattedDebt: formatCurrency(proj.debt, 'TRY'),
-            formattedNetWorth: formatCurrency(proj.netWorth, 'TRY')
+            formattedNetWorth: formatCurrency(proj.netWorth, 'TRY'),
           })),
           summary: {
             text: run.results.summary,
             summary: run.results.summary,
-            cashDeficitMonth: run.results.cashDeficitMonth
+            cashDeficitMonth: run.results.cashDeficitMonth,
           },
           createdAt: run.createdAt,
-          formattedCreatedAt: new Date(run.createdAt).toLocaleString('tr-TR')
+          formattedCreatedAt: new Date(run.createdAt).toLocaleString('tr-TR'),
         };
 
         res.json(response);
-
       } catch (error) {
         logger.error('Simulation detail error:', error);
         res.status(500).json({
           error: 'Simülasyon detayı alınırken hata oluştu',
-          details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+          details: error instanceof Error ? error.message : 'Bilinmeyen hata',
         });
       }
     }

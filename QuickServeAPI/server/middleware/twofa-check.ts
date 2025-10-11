@@ -12,23 +12,29 @@ export interface AuthenticatedRequest extends Request {
 }
 
 // 2FA Required Middleware for Critical Operations
-export const twofaRequired = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const twofaRequired = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Check if user is authenticated
     if (!req.user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        code: 'AUTH_REQUIRED',
       });
     }
 
     // Check if 2FA is verified for this session
     if (!req.user.twofaVerified) {
-      logger.warn(`2FA required for user ${req.user.id} on ${req.method} ${req.path}`);
-      return res.status(403).json({ 
+      logger.warn(
+        `2FA required for user ${req.user.id} on ${req.method} ${req.path}`
+      );
+      return res.status(403).json({
         error: 'Two-factor authentication required for this operation',
         code: '2FA_REQUIRED',
-        message: 'Please complete two-factor authentication to proceed'
+        message: 'Please complete two-factor authentication to proceed',
       });
     }
 
@@ -37,16 +43,22 @@ export const twofaRequired = (req: AuthenticatedRequest, res: Response, next: Ne
     logger.error('2FA check middleware error:', error);
     return res.status(500).json({
       error: 'Internal server error',
-      code: '2FA_CHECK_ERROR'
+      code: '2FA_CHECK_ERROR',
     });
   }
 };
 
 // 2FA Optional Middleware (logs but doesn't block)
-export const twofaOptional = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const twofaOptional = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     if (req.user && !req.user.twofaVerified) {
-      logger.info(`User ${req.user.id} accessing ${req.method} ${req.path} without 2FA`);
+      logger.info(
+        `User ${req.user.id} accessing ${req.method} ${req.path} without 2FA`
+      );
     }
     next();
   } catch (error) {
@@ -64,7 +76,7 @@ export const CRITICAL_OPERATIONS = [
   '/api/settings/email',
   '/api/admin/',
   '/api/finance/transfer',
-  '/api/finance/withdraw'
+  '/api/finance/withdraw',
 ];
 
 // Check if current path requires 2FA
@@ -73,7 +85,11 @@ export const isCriticalOperation = (path: string): boolean => {
 };
 
 // Dynamic 2FA middleware based on operation type
-export const dynamicTwofaCheck = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const dynamicTwofaCheck = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (isCriticalOperation(req.path)) {
     return twofaRequired(req, res, next);
   } else {

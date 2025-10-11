@@ -15,10 +15,16 @@ export interface AuthenticatedRequest extends Request {
 }
 
 // JWT Authentication middleware - ensures user is logged in and active
-export const requireJWTAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const requireJWTAuth = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Extract token from Authorization header
-    const token = JWTAuthService.extractTokenFromHeader(req.headers.authorization);
+    const token = JWTAuthService.extractTokenFromHeader(
+      req.headers.authorization
+    );
 
     if (!token) {
       return res.status(401).json({
@@ -105,7 +111,9 @@ export const requireJWTRole = (...allowedRoles: UserRoleType[]) => {
 };
 
 // Permission-based authorization middleware for JWT
-export const requireJWTPermission = (...requiredPermissions: PermissionType[]) => {
+export const requireJWTPermission = (
+  ...requiredPermissions: PermissionType[]
+) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
@@ -114,7 +122,10 @@ export const requireJWTPermission = (...requiredPermissions: PermissionType[]) =
       });
     }
 
-    const userHasPermission = hasAnyPermission(req.user.role, requiredPermissions);
+    const userHasPermission = hasAnyPermission(
+      req.user.role,
+      requiredPermissions
+    );
 
     if (!userHasPermission) {
       return res.status(403).json({
@@ -130,7 +141,9 @@ export const requireJWTPermission = (...requiredPermissions: PermissionType[]) =
 };
 
 // Account type access middleware for JWT
-export const requireJWTAccountTypeAccess = (accountType: 'personal' | 'company') => {
+export const requireJWTAccountTypeAccess = (
+  accountType: 'personal' | 'company'
+) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
@@ -164,9 +177,15 @@ export const requireJWTAccountTypeAccess = (accountType: 'personal' | 'company')
 };
 
 // Optional JWT auth middleware - attaches user if token is valid but doesn't require it
-export const optionalJWTAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const optionalJWTAuth = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const token = JWTAuthService.extractTokenFromHeader(req.headers.authorization);
+    const token = JWTAuthService.extractTokenFromHeader(
+      req.headers.authorization
+    );
 
     if (token && !TokenBlacklist.isBlacklisted(token)) {
       const payload = JWTAuthService.verifyToken(token);
@@ -198,8 +217,9 @@ export const requireJWTAdmin = requireJWTRole('admin');
 // Log access attempts for security audit
 export const logJWTAccess = (action: string) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    logger.info(`🔐 [JWT-AUTH] ${action} - User: ${req.user?.username || 'anonymous'} (${req.user?.role || 'no-role'}) - IP: ${req.ip}`);
+    logger.info(
+      `🔐 [JWT-AUTH] ${action} - User: ${req.user?.username || 'anonymous'} (${req.user?.role || 'no-role'}) - IP: ${req.ip}`
+    );
     next();
   };
 };
-

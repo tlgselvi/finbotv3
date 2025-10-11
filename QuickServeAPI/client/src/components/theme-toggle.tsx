@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTheme } from '@/lib/theme-context';
 
-export function ThemeToggle () {
+export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
 
   return (

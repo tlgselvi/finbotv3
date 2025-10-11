@@ -1,5 +1,8 @@
 import { describe, test, expect } from 'vitest';
-import { calculateConsolidationBreakdown, prepareBreakdownChartData } from '../../server/src/modules/consolidation/breakdown';
+import {
+  calculateConsolidationBreakdown,
+  prepareBreakdownChartData,
+} from '../../server/src/modules/consolidation/breakdown';
 
 describe('Consolidation Breakdown', () => {
   const mockAccounts = [
@@ -13,7 +16,7 @@ describe('Consolidation Breakdown', () => {
       balance: '100000',
       isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: '2',
@@ -25,7 +28,7 @@ describe('Consolidation Breakdown', () => {
       balance: '200000',
       isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: '3',
@@ -37,7 +40,7 @@ describe('Consolidation Breakdown', () => {
       balance: '50000',
       isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: '4',
@@ -49,7 +52,7 @@ describe('Consolidation Breakdown', () => {
       balance: '-25000',
       isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: '5',
@@ -61,8 +64,8 @@ describe('Consolidation Breakdown', () => {
       balance: '150000',
       isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date()
-    }
+      updatedAt: new Date(),
+    },
   ] as any[];
 
   test('calculateConsolidationBreakdown - doğru kategorilere ayırma', () => {
@@ -88,18 +91,18 @@ describe('Consolidation Breakdown', () => {
     expect(result.table.company).toHaveLength(4); // 4 categories
     expect(result.table.personal).toHaveLength(4); // 4 categories
     expect(result.table.total).toHaveLength(4); // 4 categories
-    
+
     // Şirket banka kontrolü
-    const companyBank = result.table.company.find(item => 
-      item.category === 'Banka Hesapları'
+    const companyBank = result.table.company.find(
+      item => item.category === 'Banka Hesapları'
     );
     expect(companyBank).toBeDefined();
     expect(companyBank?.amount).toBe(450000); // 100000 + 200000 + 150000
     expect(companyBank?.percentage).toBeCloseTo(100, 0); // All company money is in bank
 
     // Kişisel banka kontrolü
-    const personalBank = result.table.personal.find(item => 
-      item.category === 'Banka Hesapları'
+    const personalBank = result.table.personal.find(
+      item => item.category === 'Banka Hesapları'
     );
     expect(personalBank).toBeDefined();
     expect(personalBank?.amount).toBe(25000); // 50000 + (-25000)
@@ -121,20 +124,20 @@ describe('Consolidation Breakdown', () => {
         bank: 300000,
         cash: 0,
         credit: 0,
-        invest: 150000
+        invest: 150000,
       },
       personal: {
         bank: 50000,
         cash: 0,
         credit: 25000,
-        invest: 0
+        invest: 0,
       },
       total: {
         bank: 350000,
         cash: 0,
         credit: 25000,
-        invest: 150000
-      }
+        invest: 150000,
+      },
     };
 
     const chartData = prepareBreakdownChartData(breakdown);
@@ -184,7 +187,7 @@ describe('Consolidation Breakdown', () => {
         balance: '-50000',
         isActive: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         id: '2',
@@ -196,8 +199,8 @@ describe('Consolidation Breakdown', () => {
         balance: '-25000',
         isActive: true,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ] as any[];
 
     const result = calculateConsolidationBreakdown(negativeAccounts);
