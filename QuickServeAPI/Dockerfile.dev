@@ -1,0 +1,32 @@
+# FinBot v3 - Development Dockerfile
+# Hot-reload enabled for rapid development
+
+FROM node:20-alpine AS development
+
+# Install pnpm
+RUN npm install -g pnpm@9
+
+# Install tools for development
+RUN apk add --no-cache \
+    git \
+    curl \
+    bash
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json pnpm-lock.yaml ./
+
+# Install all dependencies (including dev)
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Expose ports
+EXPOSE 5000 5173
+
+# Development command with hot reload
+CMD ["pnpm", "dev"]
+
