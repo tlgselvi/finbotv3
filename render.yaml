@@ -1,7 +1,7 @@
 services:
   - type: web
     name: finbot-v3
-    env: node
+    runtime: node
     plan: starter
     rootDir: QuickServeAPI
     buildCommand: npm install && npm run build

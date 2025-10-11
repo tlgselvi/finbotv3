@@ -104,6 +104,7 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.36.4",
     "embla-carousel-react": "^8.6.0",
+    "exceljs": "^4.4.0",
     "express": "^4.21.2",
     "express-rate-limit": "^8.1.0",
     "express-session": "^1.18.2",
@@ -131,7 +132,6 @@
     "winston": "^3.17.0",
     "wouter": "^3.3.5",
     "ws": "^8.18.3",
-    "xlsx": "^0.18.5",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -162,7 +162,7 @@
     "autoprefixer": "^10.4.20",
     "better-sqlite3": "^12.4.1",
     "concurrently": "^9.1.2",
-    "drizzle-kit": "^0.29.1",
+    "drizzle-kit": "^0.31.5",
     "eslint": "^9.37.0",
     "husky": "^9.1.7",
     "jsdom": "^27.0.0",
@@ -175,8 +175,8 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.6",
     "typescript": "^5.7.3",
-    "vite": "^6.0.7",
-    "vitest": "^2.1.9"
+    "vite": "^6.3.6",
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=20.19.0",
@@ -184,7 +184,10 @@
   },
   "pnpm": {
     "overrides": {
-      "esbuild@<=0.24.2": ">=0.25.0"
+      "esbuild": "0.25.0"
     }
+  },
+  "resolutions": {
+    "esbuild": "0.25.0"
   }
 }

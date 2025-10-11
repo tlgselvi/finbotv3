@@ -443,22 +443,29 @@ vi.mock('csv-parser', () => ({
   })),
 }));
 
-// Mock Excel parsing
-vi.mock('xlsx', () => ({
-  readFile: vi.fn(() => ({
-    SheetNames: ['Sheet1'],
-    Sheets: {
-      Sheet1: {
-        '!ref': 'A1:B2',
-        A1: { v: 'Header1' },
-        B1: { v: 'Header2' },
-        A2: { v: 'Value1' },
-        B2: { v: 'Value2' },
+// Mock Excel parsing with exceljs
+vi.mock('exceljs', () => ({
+  default: {
+    Workbook: vi.fn().mockImplementation(() => ({
+      addWorksheet: vi.fn().mockReturnValue({
+        addRow: vi.fn(),
+        getRow: vi.fn().mockReturnValue({
+          getCell: vi.fn().mockReturnValue({ value: 'Test' }),
+        }),
+        columns: [],
+      }),
+      xlsx: {
+        readFile: vi.fn().mockResolvedValue(undefined),
+        writeBuffer: vi.fn().mockResolvedValue(Buffer.from('test')),
       },
-    },
-  })),
-  utils: {
-    sheet_to_json: vi.fn(() => [{ Header1: 'Value1', Header2: 'Value2' }]),
+      worksheets: [{
+        name: 'Sheet1',
+        rowCount: 2,
+        getRow: vi.fn().mockReturnValue({
+          values: ['Header1', 'Header2'],
+        }),
+      }],
+    })),
   },
 }));
 
