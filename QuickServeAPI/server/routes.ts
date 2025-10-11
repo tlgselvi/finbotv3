@@ -237,12 +237,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(account);
       } catch (error) {
         logger.error('❌ Account validation error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'Geçersiz hesap verisi',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'Geçersiz hesap verisi',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -288,12 +286,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(updatedAccount);
       } catch (error) {
         logger.error('❌ Account update error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'Hesap güncellenirken hata oluştu',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'Hesap güncellenirken hata oluştu',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -342,12 +338,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('❌ Account delete error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'Hesap silinirken hata oluştu',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'Hesap silinirken hata oluştu',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -386,11 +380,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           req.user!.role === UserRole.PERSONAL_USER &&
           account.type === 'company'
         ) {
-          return res
-            .status(403)
-            .json({
-              error: 'Şirket hesabı durumu değiştirme yetkiniz bulunmuyor',
-            });
+          return res.status(403).json({
+            error: 'Şirket hesabı durumu değiştirme yetkiniz bulunmuyor',
+          });
         }
 
         const updatedAccount = await storage.updateAccount(id, { isActive });
@@ -401,12 +393,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(updatedAccount);
       } catch (error) {
         logger.error('❌ Account status update error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'Hesap durumu güncellenirken hata oluştu',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'Hesap durumu güncellenirken hata oluştu',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -542,11 +532,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Validate transaction type for this endpoint
         if (!['income', 'expense'].includes(validatedData.type)) {
-          return res
-            .status(400)
-            .json({
-              error: 'Bu endpoint sadece gelir ve gider işlemlerini destekler',
-            });
+          return res.status(400).json({
+            error: 'Bu endpoint sadece gelir ve gider işlemlerini destekler',
+          });
         }
 
         // Check if user can access the target account
@@ -560,11 +548,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           req.user!.role === UserRole.PERSONAL_USER &&
           account.type === 'company'
         ) {
-          return res
-            .status(403)
-            .json({
-              error: 'Şirket hesabında işlem yapma yetkiniz bulunmuyor',
-            });
+          return res.status(403).json({
+            error: 'Şirket hesabında işlem yapma yetkiniz bulunmuyor',
+          });
         }
 
         // Calculate balance adjustment
@@ -625,11 +611,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           req.user!.role === UserRole.PERSONAL_USER &&
           account.type === 'company'
         ) {
-          return res
-            .status(403)
-            .json({
-              error: 'Şirket hesabındaki işlemi düzenleme yetkiniz bulunmuyor',
-            });
+          return res.status(403).json({
+            error: 'Şirket hesabındaki işlemi düzenleme yetkiniz bulunmuyor',
+          });
         }
 
         const updatedTransaction = await storage.updateTransaction(
@@ -643,12 +627,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(updatedTransaction);
       } catch (error) {
         logger.error('❌ Transaction update error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'İşlem güncellenirken hata oluştu',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'İşlem güncellenirken hata oluştu',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -685,11 +667,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           req.user!.role === UserRole.PERSONAL_USER &&
           account.type === 'company'
         ) {
-          return res
-            .status(403)
-            .json({
-              error: 'Şirket hesabındaki işlemi silme yetkiniz bulunmuyor',
-            });
+          return res.status(403).json({
+            error: 'Şirket hesabındaki işlemi silme yetkiniz bulunmuyor',
+          });
         }
 
         const deleted = await storage.deleteTransaction(id);
@@ -703,12 +683,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('❌ Transaction delete error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'İşlem silinirken hata oluştu',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'İşlem silinirken hata oluştu',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -751,11 +729,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           req.user!.role === UserRole.PERSONAL_USER &&
           account.type === 'company'
         ) {
-          return res
-            .status(403)
-            .json({
-              error: 'Şirket hesabındaki işlemi düzenleme yetkiniz bulunmuyor',
-            });
+          return res.status(403).json({
+            error: 'Şirket hesabındaki işlemi düzenleme yetkiniz bulunmuyor',
+          });
         }
 
         const updatedTransaction = await storage.updateTransaction(id, {
@@ -770,12 +746,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(updatedTransaction);
       } catch (error) {
         logger.error('❌ Transaction category update error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'İşlem kategorisi güncellenirken hata oluştu',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'İşlem kategorisi güncellenirken hata oluştu',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -810,11 +784,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             toAccount.type === 'personal');
 
         if (!canAccessFrom || !canAccessTo) {
-          return res
-            .status(403)
-            .json({
-              error: 'Bu hesaplar arasında virman yapma yetkiniz bulunmuyor',
-            });
+          return res.status(403).json({
+            error: 'Bu hesaplar arasında virman yapma yetkiniz bulunmuyor',
+          });
         }
 
         const transferAmount = parseFloat(amount);
@@ -906,12 +878,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(credit);
       } catch (error) {
         logger.error('❌ Credit validation error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'Geçersiz kredi verisi',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'Geçersiz kredi verisi',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -955,12 +925,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(updatedCredit);
       } catch (error) {
         logger.error('❌ Credit update error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'Kredi güncellenirken hata oluştu',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'Kredi güncellenirken hata oluştu',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -1007,12 +975,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } catch (error) {
         logger.error('❌ Credit delete error:', error);
-        res
-          .status(400)
-          .json({
-            error: 'Kredi silinirken hata oluştu',
-            details: (error as Error).message,
-          });
+        res.status(400).json({
+          error: 'Kredi silinirken hata oluştu',
+          details: (error as Error).message,
+        });
       }
     }
   );
@@ -1230,11 +1196,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { operatingCF, debtService } = req.query;
 
         if (!operatingCF || !debtService) {
-          return res
-            .status(400)
-            .json({
-              error: 'operatingCF ve debtService parametreleri gerekli',
-            });
+          return res.status(400).json({
+            error: 'operatingCF ve debtService parametreleri gerekli',
+          });
         }
 
         const operatingCFNum = parseFloat(operatingCF as string);
@@ -1355,12 +1319,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('❌ LOGIN ERROR CAUGHT:', error);
       logger.error('❌ Login error:', error);
-      res
-        .status(500)
-        .json({
-          error: 'Giriş sırasında hata oluştu',
-          details: error instanceof Error ? error.message : String(error),
-        });
+      res.status(500).json({
+        error: 'Giriş sırasında hata oluştu',
+        details: error instanceof Error ? error.message : String(error),
+      });
     }
   });
 
@@ -1551,11 +1513,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Find user by reset token
       const user = await storage.findUserByResetToken(validatedData.token);
       if (!user) {
-        return res
-          .status(400)
-          .json({
-            error: 'Geçersiz veya süresi dolmuş şifre sıfırlama tokeni',
-          });
+        return res.status(400).json({
+          error: 'Geçersiz veya süresi dolmuş şifre sıfırlama tokeni',
+        });
       }
 
       // Hash new password
@@ -1844,12 +1804,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check if email is already taken by another user
         const existingUser = await storage.getUserByEmail(email);
         if (existingUser && existingUser.id !== req.user!.id) {
-          return res
-            .status(400)
-            .json({
-              error:
-                'Bu email adresi başka bir kullanıcı tarafından kullanılıyor',
-            });
+          return res.status(400).json({
+            error:
+              'Bu email adresi başka bir kullanıcı tarafından kullanılıyor',
+          });
         }
 
         const updatedUser = await storage.updateUserProfile(req.user!.id, {
@@ -2497,11 +2455,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(scenarios);
       } catch (error) {
         logger.error('Get predefined scenarios error:', error);
-        res
-          .status(500)
-          .json({
-            error: 'Önceden tanımlanmış senaryolar getirilirken hata oluştu',
-          });
+        res.status(500).json({
+          error: 'Önceden tanımlanmış senaryolar getirilirken hata oluştu',
+        });
       }
     }
   );
@@ -2579,11 +2535,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(result);
       } catch (error) {
         logger.error('Analyze predefined scenario error:', error);
-        res
-          .status(500)
-          .json({
-            error: 'Önceden tanımlanmış senaryo analizi yapılırken hata oluştu',
-          });
+        res.status(500).json({
+          error: 'Önceden tanımlanmış senaryo analizi yapılırken hata oluştu',
+        });
       }
     }
   );

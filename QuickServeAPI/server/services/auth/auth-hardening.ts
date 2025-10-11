@@ -189,9 +189,7 @@ export class AuthHardeningService {
   }
 
   // Verify refresh token and rotate if valid
-  async verifyAndRotateRefreshToken(
-    token: string
-  ): Promise<{
+  async verifyAndRotateRefreshToken(token: string): Promise<{
     userId: string;
     newTokens: { accessToken: string; refreshToken: string };
   } | null> {
@@ -336,9 +334,7 @@ export class AuthHardeningService {
   }
 
   // Verify access token
-  async verifyAccessToken(
-    token: string
-  ): Promise<{
+  async verifyAccessToken(token: string): Promise<{
     userId: string;
     role: string;
     permissions: string[];

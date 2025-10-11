@@ -49,11 +49,9 @@ export default function Register() {
       const response = await apiRequest('POST', '/api/auth/register', data);
       // API'den gelen yanıtın başarılı olup olmadığını kontrol et
       if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({
-            message: 'Kayıt sırasında bir sunucu hatası oluştu.',
-          }));
+        const errorData = await response.json().catch(() => ({
+          message: 'Kayıt sırasında bir sunucu hatası oluştu.',
+        }));
         // Hata durumunda bir Error fırlatarak onError bloğunu tetikle
         throw new Error(errorData.message || 'Kayıt işlemi başarısız oldu.');
       }

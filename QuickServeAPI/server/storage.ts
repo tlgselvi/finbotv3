@@ -82,9 +82,7 @@ export interface IStorage {
   // Account methods
   getAccounts(): Promise<Account[]>;
   getAccount(id: string): Promise<Account | undefined>;
-  getAccountSummary(
-    id: string
-  ): Promise<
+  getAccountSummary(id: string): Promise<
     | {
         account: Account;
         recentTransactions: Transaction[];
@@ -638,9 +636,7 @@ export class MemStorage implements IStorage {
     return this.accounts.get(id);
   }
 
-  async getAccountSummary(
-    id: string
-  ): Promise<
+  async getAccountSummary(id: string): Promise<
     | {
         account: Account;
         recentTransactions: Transaction[];
@@ -1879,9 +1875,7 @@ export class PostgresStorage implements IStorage {
     return result[0];
   }
 
-  async getAccountSummary(
-    id: string
-  ): Promise<
+  async getAccountSummary(id: string): Promise<
     | {
         account: Account;
         recentTransactions: Transaction[];

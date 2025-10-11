@@ -137,6 +137,12 @@ async function main() {
   log('═'.repeat(60), 'cyan');
   await runCommand('node scripts/report-generator.js', 'HTML Report');
 
+  // Additional smart features
+  log('\n' + '═'.repeat(60), 'cyan');
+  log('[BONUS] 🤖 Akıllı Test Analizi', 'bright');
+  log('═'.repeat(60), 'cyan');
+  await runCommand('node scripts/smart-test-runner.js', 'Smart Analysis');
+
   // Fail-fast check
   const exitCode = allGood ? 0 : 1;
   await runCommand(

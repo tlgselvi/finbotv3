@@ -45,7 +45,6 @@
     "sec:secrets": "node scripts/secrets-scan.js",
     "sec:license": "node scripts/license-audit.js",
     "coverage:analyze": "node scripts/coverage-analyzer.js",
-    "prepare": "husky",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",

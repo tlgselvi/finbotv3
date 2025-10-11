@@ -14,7 +14,7 @@ const colors = {
   green: '\x1b[32m',
   yellow: '\x1b[33m',
   cyan: '\x1b[36m',
-  bright: '\x1b[1m'
+  bright: '\x1b[1m',
 };
 
 function log(message, color = 'reset') {
@@ -23,12 +23,15 @@ function log(message, color = 'reset') {
 
 async function main() {
   console.clear();
-  log(`
+  log(
+    `
 ╔════════════════════════════════════════════════════════════╗
 ║           📊 PHASE 4: GÖRSEL & AI SİSTEM                  ║
 ║      Dashboard • AI Generator • Advanced Analytics         ║
 ╚════════════════════════════════════════════════════════════╝
-  `, 'bright');
+  `,
+    'bright'
+  );
 
   log('\n📊 Phase 4 özellikleri geliştirme aşamasında!', 'yellow');
   log('   • Visual Dashboard (Interactive charts)', 'cyan');
@@ -36,9 +39,9 @@ async function main() {
   log('   • Advanced analytics & trends', 'cyan');
   log('   • Notifications (Slack/Discord)', 'cyan');
   log('   • Documentation auto-generator', 'cyan');
-  
+
   log('\n📋 Şimdilik raporlar oluşturuluyor...', 'cyan');
-  
+
   try {
     const { stdout } = await execPromise('pnpm report:gen');
     console.log(stdout);
@@ -47,10 +50,10 @@ async function main() {
   } catch {
     log('\n⚠️  Rapor oluşturulamadı', 'yellow');
   }
-  
+
   log('\n✅ PHASE 4 TAMAMLANDI!', 'green');
-  log('   (Tam özellik seti için FUTURE_TEST_FEATURES.md\'ye bakın)', 'cyan');
-  
+  log("   (Tam özellik seti için FUTURE_TEST_FEATURES.md'ye bakın)", 'cyan');
+
   process.exit(0);
 }
 
@@ -58,4 +61,3 @@ main().catch(error => {
   log('\n❌ ERROR: ' + error.message, 'red');
   process.exit(1);
 });
-
