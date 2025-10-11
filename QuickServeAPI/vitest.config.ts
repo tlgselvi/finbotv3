@@ -95,7 +95,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './client/src'),
-      '@shared': path.resolve(__dirname, './shared')
+      '@shared': path.resolve(__dirname, './shared'),
+      // Use SQLite schema for tests
+      '../../shared/schema.js': path.resolve(__dirname, './shared/schema-sqlite.ts'),
+      '../../shared/schema': path.resolve(__dirname, './shared/schema-sqlite.ts')
     }
   }
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import { db } from '../../server/db';
 import { budgetLines, transactions } from '../../server/db/schema';
 import { 
@@ -10,7 +10,13 @@ import { eq } from 'drizzle-orm';
 
 const testUserId = 'test-user-budget-compare-123';
 
-describe('Budget Comparison Module', () => {
+describe.skipIf(!process.env.DATABASE_URL)('Budget Comparison Module', () => {
+  beforeAll(() => {
+    if (!process.env.DATABASE_URL) {
+      console.warn('Skipping budget compare tests - DATABASE_URL not set');
+    }
+  });
+
   beforeEach(async () => {
     // Clean up test data
     await db.delete(transactions).where(eq(transactions.userId, testUserId));

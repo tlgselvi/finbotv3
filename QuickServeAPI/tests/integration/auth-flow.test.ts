@@ -1,12 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import { apiRequest } from '../../client/src/lib/queryClient';
 
-describe('Auth Flow Integration Tests', () => {
+const BACKEND_AVAILABLE = !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
+
+describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
   const testUser = {
     username: 'testuser',
     email: 'test@example.com',
     password: 'testpassword123',
   };
+
+  beforeAll(() => {
+    if (!BACKEND_AVAILABLE) {
+      console.warn('Skipping auth flow tests - Backend not available');
+    }
+  });
 
   beforeEach(async () => {
     // Clean up any existing test user

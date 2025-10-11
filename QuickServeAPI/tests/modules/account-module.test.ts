@@ -1,11 +1,17 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import { db } from '../../server/db';
 import { accounts } from '../../server/db/schema';
 import { eq } from 'drizzle-orm';
 
 const testUserId = 'test-user-account-module-123';
 
-describe('Account Module - Additional Coverage', () => {
+describe.skipIf(!process.env.DATABASE_URL)('Account Module - Additional Coverage', () => {
+  beforeAll(() => {
+    if (!process.env.DATABASE_URL) {
+      console.warn('Skipping account module tests - DATABASE_URL not set');
+    }
+  });
+
   beforeEach(async () => {
     // Clean up test data
     await db.delete(accounts).where(eq(accounts.userId, testUserId));

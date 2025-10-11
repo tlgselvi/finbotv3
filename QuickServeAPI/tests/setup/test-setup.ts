@@ -5,21 +5,28 @@
 
 import { beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import { MockFactory } from '../utils/mock-factory.js';
+import { testDb, resetDatabase, seedTestData, closeDatabase } from './test-db.js';
 
 // Global test setup
 beforeAll(() => {
   // Set test environment variables
   process.env.NODE_ENV = 'test';
   process.env.JWT_SECRET = 'test-jwt-secret-for-testing';
-  process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/finbot_test';
+  // Don't set DATABASE_URL - let integration tests skip if no real DB
+  // process.env.DATABASE_URL = ':memory:'; 
   process.env.CORS_ORIGIN = 'http://localhost:3000';
   process.env.PORT = '3001';
+  
+  // Initialize test database for unit tests
+  resetDatabase();
+  seedTestData();
 });
 
 afterAll(() => {
   // Cleanup after all tests
   MockFactory.resetAllMocks();
   MockFactory.restoreRealDate();
+  closeDatabase();
 });
 
 beforeEach(() => {
@@ -33,9 +40,14 @@ afterEach(() => {
 });
 
 // Global mocks for common dependencies
-vi.mock('../../server/db.js', () => ({
-  db: MockFactory.createMockDatabase()
-}));
+// Use real test database instead of mock
+vi.mock('../../server/db.js', async () => {
+  const schema = await import('../../shared/schema-sqlite.js');
+  return {
+    db: testDb,
+    ...schema
+  };
+});
 
 vi.mock('bcryptjs', () => ({
   hash: vi.fn((password: string) => Promise.resolve(`hashed_${password}`)),

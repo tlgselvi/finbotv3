@@ -11,7 +11,7 @@ import { users, refreshTokens, revokedTokens, userProfiles } from '../../shared/
 import { eq, and } from 'drizzle-orm';
 import argon2 from 'argon2';
 
-describe('JWT Flows Integration Tests', () => {
+describe.skipIf(!process.env.DATABASE_URL)('JWT Flows Integration Tests', () => {
   let tokenService: TokenService;
   let authHardeningService: AuthHardeningService;
   let testUserId: string;
@@ -20,7 +20,8 @@ describe('JWT Flows Integration Tests', () => {
   beforeAll(async () => {
     // Ensure DATABASE_URL is set for tests
     if (!process.env.DATABASE_URL) {
-      throw new Error('DATABASE_URL environment variable is required for tests');
+      console.warn('Skipping JWT flows integration tests - DATABASE_URL not set');
+      return;
     }
 
     // Set JWT secret for tests

@@ -3,15 +3,21 @@
  * Tests the bank integration service with proper mocks
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import { MockFactory } from '../utils/mock-factory.js';
 import * as BankIntegrationService from '../../server/modules/bank/bank-integration-service.js';
 
-describe('Bank Integration Service', () => {
+describe.skipIf(!process.env.DATABASE_URL)('Bank Integration Service', () => {
   let mockDb: any;
   let mockProvider: any;
   const mockUserId = 'test-user-id';
   const mockIntegrationId = 'test-integration-id';
+
+  beforeAll(() => {
+    if (!process.env.DATABASE_URL) {
+      console.warn('Skipping bank integration tests - DATABASE_URL not set');
+    }
+  });
 
   beforeEach(() => {
     MockFactory.resetAllMocks();

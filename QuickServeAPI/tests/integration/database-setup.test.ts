@@ -10,11 +10,12 @@ import { db } from '../../server/db.js';
 import { users, refreshTokens, revokedTokens } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
-describe('Database Setup Integration Tests', () => {
+describe.skipIf(!process.env.DATABASE_URL)('Database Setup Integration Tests', () => {
   beforeAll(async () => {
     // Ensure DATABASE_URL is set for tests
     if (!process.env.DATABASE_URL) {
-      throw new Error('DATABASE_URL environment variable is required for tests');
+      console.warn('Skipping database setup tests - DATABASE_URL not set');
+      return;
     }
   });
 

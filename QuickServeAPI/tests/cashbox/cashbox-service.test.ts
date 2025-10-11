@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, beforeAll } from '@jest/globals';
 import { db } from '../../server/db';
 import { cashboxes, cashboxTransactions, cashboxAuditLogs } from '@shared/schema';
 import {
@@ -15,10 +15,16 @@ import {
   getCashboxAuditLogs,
 } from '../../server/modules/cashbox/cashbox-service';
 
-describe('Cashbox Service', () => {
+describe.skipIf(!process.env.DATABASE_URL)('Cashbox Service', () => {
   const testUserId = 'test-user-123';
   let testCashboxId: string;
   let testCashbox2Id: string;
+
+  beforeAll(() => {
+    if (!process.env.DATABASE_URL) {
+      console.warn('Skipping cashbox service tests - DATABASE_URL not set');
+    }
+  });
 
   beforeEach(async () => {
     // Clean up test data

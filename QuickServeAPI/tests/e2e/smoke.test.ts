@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { apiRequest } from '../../client/src/lib/queryClient';
 
-describe('E2E Smoke Tests', () => {
+// E2E tests require a running backend server
+const BACKEND_AVAILABLE = !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
+
+describe.skipIf(!BACKEND_AVAILABLE)('E2E Smoke Tests', () => {
   const baseUrl = process.env.TEST_BASE_URL || 'http://localhost:5000';
   const testUser = {
     username: 'smoketest',
@@ -12,6 +15,10 @@ describe('E2E Smoke Tests', () => {
   let authCookie: string;
 
   beforeAll(async () => {
+    if (!BACKEND_AVAILABLE) {
+      console.warn('Skipping E2E tests - Backend server not available. Set TEST_BASE_URL or E2E_TEST_ENABLED to run E2E tests.');
+      return;
+    }
     // Clean up any existing test data
     try {
       await apiRequest('DELETE', '/api/auth/test-cleanup');
