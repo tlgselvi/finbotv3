@@ -12,12 +12,14 @@ pnpm test1         # Her şey (20s) ⭐
 ## ✅ NE YAPARLAR?
 
 ### **`test:quick` - Hızlı Kontrol**
+
 ```
 ✅ 84 critical test
 ⏱️  2 saniye
 ```
 
 ### **`test1` - Tam Sistem** ⭐
+
 ```
 ✅ 84 critical test
 ✅ Coverage analizi
@@ -33,6 +35,7 @@ pnpm test1         # Her şey (20s) ⭐
 ```
 
 ### **`git push` - Otomatik**
+
 ```
 Hooks otomatik çalışır:
 ✅ test1 (tekrar)
@@ -68,4 +71,3 @@ git push   → Otomatik!
 ```
 
 **BU KADAR! 🎉**
-
