@@ -6,6 +6,7 @@
 import { beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import { MockFactory } from '../utils/mock-factory.js';
 import { testDb, resetDatabase, seedTestData, closeDatabase } from './test-db.js';
+import '@testing-library/jest-dom/vitest';
 
 // Global test setup
 beforeAll(() => {
@@ -49,15 +50,32 @@ vi.mock('../../server/db.js', async () => {
   };
 });
 
-vi.mock('bcryptjs', () => ({
-  hash: vi.fn((password: string) => Promise.resolve(`hashed_${password}`)),
-  compare: vi.fn((password: string, hash: string) => Promise.resolve(hash === `hashed_${password}`))
-}));
+vi.mock('bcryptjs', () => {
+  const mockBcrypt = {
+    hash: vi.fn((password: string) => Promise.resolve(`hashed_${password}`)),
+    hashSync: vi.fn((password: string) => `hashed_${password}`),
+    compare: vi.fn((password: string, hash: string) => Promise.resolve(hash === `hashed_${password}`)),
+    compareSync: vi.fn((password: string, hash: string) => hash === `hashed_${password}`)
+  };
+  return {
+    default: mockBcrypt,
+    ...mockBcrypt
+  };
+});
 
-vi.mock('argon2', () => ({
-  hash: vi.fn((password: string) => Promise.resolve(`argon2_${password}`)),
-  verify: vi.fn((hash: string, password: string) => Promise.resolve(hash === `argon2_${password}`))
-}));
+vi.mock('argon2', () => {
+  const mockArgon2 = {
+    hash: vi.fn((password: string) => Promise.resolve(`argon2_${password}`)),
+    verify: vi.fn((hash: string, password: string) => Promise.resolve(hash === `argon2_${password}`)),
+    argon2id: 2, // Argon2id type constant
+    argon2i: 1,
+    argon2d: 0
+  };
+  return {
+    default: mockArgon2,
+    ...mockArgon2
+  };
+});
 
 vi.mock('jsonwebtoken', () => {
   const mockSign = vi.fn((payload: any) => `mock.jwt.token.${JSON.stringify(payload)}`);
@@ -83,21 +101,44 @@ vi.mock('jsonwebtoken', () => {
   };
 });
 
-vi.mock('nodemailer', () => ({
-  createTransporter: vi.fn(() => ({
-    sendMail: vi.fn(() => Promise.resolve({ messageId: 'test-message-id' }))
-  }))
-}));
+vi.mock('nodemailer', () => {
+  const mockNodemailer = {
+    createTransport: vi.fn(() => ({
+      sendMail: vi.fn(() => Promise.resolve({ messageId: 'test-message-id' })),
+      verify: vi.fn(() => Promise.resolve(true))
+    }))
+  };
+  return {
+    default: mockNodemailer,
+    ...mockNodemailer
+  };
+});
 
-vi.mock('crypto', () => ({
-  randomUUID: vi.fn(() => 'test-uuid'),
-  randomBytes: vi.fn((size: number) => Buffer.alloc(size, 'test')),
-  createHmac: vi.fn(() => ({
-    update: vi.fn().mockReturnThis(),
-    digest: vi.fn(() => 'test-hash')
-  })),
-  timingSafeEqual: vi.fn(() => true)
-}));
+vi.mock('crypto', () => {
+  const mockCrypto = {
+    randomUUID: vi.fn(() => 'test-uuid'),
+    randomBytes: vi.fn((size: number) => {
+      const buffer = Buffer.alloc(size, 'test');
+      // Add toString method to buffer
+      buffer.toString = vi.fn((encoding?: string) => {
+        if (encoding === 'hex') {
+          return 'a'.repeat(size * 2); // Hex string (2 chars per byte)
+        }
+        return buffer.toString('utf-8');
+      }) as any;
+      return buffer;
+    }),
+    createHmac: vi.fn(() => ({
+      update: vi.fn().mockReturnThis(),
+      digest: vi.fn(() => 'test-hash')
+    })),
+    timingSafeEqual: vi.fn(() => true)
+  };
+  return {
+    default: mockCrypto,
+    ...mockCrypto
+  };
+});
 
 // Mock external APIs
 global.fetch = vi.fn((url: string, options?: any) => {
@@ -132,38 +173,80 @@ vi.mock('fs/promises', () => ({
 }));
 
 // Mock path operations
-vi.mock('path', () => ({
-  join: vi.fn((...args: string[]) => args.join('/')),
-  resolve: vi.fn((...args: string[]) => args.join('/')),
-  dirname: vi.fn((path: string) => path.split('/').slice(0, -1).join('/')),
-  basename: vi.fn((path: string) => path.split('/').pop() || ''),
-  extname: vi.fn((path: string) => {
-    const parts = path.split('.');
-    return parts.length > 1 ? `.${parts.pop()}` : '';
-  })
-}));
+vi.mock('path', () => {
+  const mockPath = {
+    join: vi.fn((...args: string[]) => args.join('/')),
+    resolve: vi.fn((...args: string[]) => args.join('/')),
+    dirname: vi.fn((path: string) => path.split('/').slice(0, -1).join('/')),
+    basename: vi.fn((path: string) => path.split('/').pop() || ''),
+    extname: vi.fn((path: string) => {
+      const parts = path.split('.');
+      return parts.length > 1 ? `.${parts.pop()}` : '';
+    }),
+    sep: '/',
+    delimiter: ':'
+  };
+  return {
+    default: mockPath,
+    ...mockPath
+  };
+});
 
 // Mock Express
-vi.mock('express', () => ({
-  default: vi.fn(() => ({
+vi.mock('express', () => {
+  const mockRouter = vi.fn(() => ({
     use: vi.fn(),
     get: vi.fn(),
     post: vi.fn(),
     put: vi.fn(),
     delete: vi.fn(),
+    patch: vi.fn(),
+    all: vi.fn()
+  }));
+
+  const mockExpress: any = vi.fn(() => ({
+    use: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn(),
     listen: vi.fn(),
     set: vi.fn()
-  }))
-}));
+  }));
+
+  // Add Router as a method on mockExpress
+  mockExpress.Router = mockRouter;
+  mockExpress.json = vi.fn(() => (req: any, res: any, next: any) => next());
+  mockExpress.urlencoded = vi.fn(() => (req: any, res: any, next: any) => next());
+  mockExpress.static = vi.fn(() => (req: any, res: any, next: any) => next());
+
+  return {
+    default: mockExpress,
+    Router: mockRouter,
+    json: vi.fn(() => (req: any, res: any, next: any) => next()),
+    urlencoded: vi.fn(() => (req: any, res: any, next: any) => next()),
+    static: vi.fn(() => (req: any, res: any, next: any) => next())
+  };
+});
 
 // Mock Multer
-vi.mock('multer', () => ({
-  default: vi.fn(() => ({
+vi.mock('multer', () => {
+  const mockMulter: any = vi.fn(() => ({
     single: vi.fn(() => (req: any, res: any, next: any) => next()),
     array: vi.fn(() => (req: any, res: any, next: any) => next()),
     fields: vi.fn(() => (req: any, res: any, next: any) => next())
-  }))
-}));
+  }));
+
+  mockMulter.memoryStorage = vi.fn(() => ({}));
+  mockMulter.diskStorage = vi.fn(() => ({}));
+
+  return {
+    default: mockMulter,
+    memoryStorage: vi.fn(() => ({})),
+    diskStorage: vi.fn(() => ({}))
+  };
+});
 
 // Mock rate limiting
 vi.mock('express-rate-limit', () => ({

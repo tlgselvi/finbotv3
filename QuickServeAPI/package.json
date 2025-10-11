@@ -1,7 +1,7 @@
 {
   "name": "quickserveapi",
   "version": "3.0.0",
-  "description": "FinBot v3 - Advanced Financial Management System (Port: 5000)",
+  "description": "FinBot v3 - Advanced Financial Management System (Port: 5000) | Test Suite: 949 tests, 447 passing (47%)",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
@@ -14,6 +14,13 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:suite": "vitest run tests/test-suite.ts",
+    "test:critical": "vitest run tests/business/dscr-scenarios.test.ts tests/consolidation tests/advisor tests/simulation tests/dashboard/runway-cashgap.test.ts",
+    "test:business": "vitest run tests/business/",
+    "test:security": "vitest run tests/security/",
+    "test:performance": "vitest run tests/performance/",
+    "test:frontend": "vitest run tests/components/",
+    "test:unit": "vitest run tests/business/ tests/consolidation/ tests/advisor/ tests/simulation/ tests/utils/",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",

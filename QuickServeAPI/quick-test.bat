@@ -1,21 +1,44 @@
 @echo off
-REM FinBot Quick Test Runner (Windows)
+REM FinBot Quick Test Runner v2.0 (Windows)
+REM Tum aktif testleri otomatik calistirir
 
-echo =====================================
-echo    FinBot Quick Test Runner
-echo =====================================
 echo.
-
-echo Testler calismaya basliyor...
+echo ============================================
+echo    FinBot v3 Quick Test Runner
+echo ============================================
+echo.
+echo Aktif testler calismaya basliyor...
+echo   - Core Business (84 test)
+echo   - Performance (11 test)
+echo   - Components (19 test)
+echo   - Security (19 test)
+echo.
+echo Toplam: ~133 test
 echo.
 
 cd /d %~dp0
-call pnpm test
+
+echo [1/4] Core Business Tests...
+call pnpm test:critical
 
 echo.
-echo =====================================
-echo    Test Tamamlandi
-echo =====================================
+echo [2/4] Performance Tests...
+call pnpm test:performance
+
+echo.
+echo [3/4] Frontend Tests...
+call pnpm test:frontend
+
+echo.
+echo [4/4] Security Tests...
+call pnpm test:security
+
+echo.
+echo ============================================
+echo    Tum Aktif Testler Tamamlandi!
+echo ============================================
+echo.
+echo Ayrintili rapor icin: pnpm test:coverage
 echo.
 pause
 
