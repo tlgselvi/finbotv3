@@ -71,7 +71,7 @@ export class TransactionJsonService {
         filePath: this.transactionsFilePath,
       };
     } catch (error) {
-      logger.error('JSON dışa aktarma hatası:', error);
+      logger.error('JSON dışa aktarma hatası: ' + String(error));
       return {
         success: false,
         message: `JSON dışa aktarma hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
@@ -261,7 +261,7 @@ export class TransactionJsonService {
       }
       if (errors.length > 0) {
         message += `, ${errors.length} hata oluştu`;
-        logger.warn('İçe aktarma hataları:', errors);
+        logger.warn('İçe aktarma hataları: ' + String(errors));
       }
 
       return {
@@ -270,7 +270,7 @@ export class TransactionJsonService {
         importedCount,
       };
     } catch (error) {
-      logger.error('JSON içe aktarma hatası:', error);
+      logger.error('JSON içe aktarma hatası: ' + String(error));
       return {
         success: false,
         message: `JSON içe aktarma hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
@@ -379,7 +379,7 @@ export class TransactionJsonService {
         filePath,
       };
     } catch (error) {
-      logger.error('Tarihli JSON dışa aktarma hatası:', error);
+      logger.error('Tarihli JSON dışa aktarma hatası: ' + String(error));
       return {
         success: false,
         message: `JSON dışa aktarma hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
@@ -469,7 +469,7 @@ export class TransactionJsonService {
         filePath,
       };
     } catch (error) {
-      logger.error('Kategori analizi JSON dışa aktarma hatası:', error);
+      logger.error('Kategori analizi JSON dışa aktarma hatası: ' + String(error));
       return {
         success: false,
         message: `JSON dışa aktarma hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,

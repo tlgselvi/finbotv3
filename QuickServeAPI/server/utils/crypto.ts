@@ -54,7 +54,7 @@ export function decrypt(encryptedText: string): string {
 
     return decrypted;
   } catch (error) {
-    logger.error('Decryption error:', error);
+    logger.error('Decryption error: ' + String(error));
     throw new Error('Failed to decrypt data');
   }
 }

@@ -42,6 +42,7 @@ export function generateCashBridgeReport(
 ): CashBridgeReport {
   // Filter transactions by date range
   const periodTransactions = transactions.filter(transaction => {
+    if (!transaction.createdAt) return false;
     const transactionDate = new Date(transaction.createdAt);
     return transactionDate >= startDate && transactionDate <= endDate;
   });
@@ -69,7 +70,7 @@ export function generateCashBridgeReport(
       description: transaction.description || '',
       amount: Math.abs(amount),
       type: isInflow ? 'inflow' : 'outflow',
-      date: new Date(transaction.createdAt),
+      date: transaction.createdAt ? new Date(transaction.createdAt) : new Date(),
       accountId: transaction.accountId,
       accountName: account?.name || 'Bilinmeyen Hesap',
     };
