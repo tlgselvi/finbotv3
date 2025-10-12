@@ -58,7 +58,7 @@
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx server/db/seed.ts",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -135,7 +135,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.0",
+    "@playwright/test": "1.56.0",
     "@sentry/node": "^10.19.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",

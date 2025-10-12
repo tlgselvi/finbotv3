@@ -7,18 +7,18 @@ import { ErrorDisplay } from '../../client/src/components/ui/error-display';
 
 // Mock components for testing
 const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  return <div>{children}</div>;
+  return React.createElement('div', null, children);
 };
 
-describe.skip('Sprint 1 - UX Improvements - TSX Syntax Issue', () => {
+describe('Sprint 1 - UX Improvements - TSX Syntax Issue', () => {
   describe('LoadingSpinner Component', () => {
     it('renders with default props', () => {
-      render(<LoadingSpinner />);
+      render(React.createElement(LoadingSpinner));
       expect(screen.getByRole('status', { hidden: true })).toBeInTheDocument();
     });
 
     it('renders with different sizes', () => {
-      const { rerender } = render(<LoadingSpinner size="sm" />);
+      const { rerender } = render(React.createElement(LoadingSpinner, { size: "sm" }));
       expect(document.querySelector('.h-4.w-4')).toBeInTheDocument();
 
       rerender(<LoadingSpinner size="lg" />);
