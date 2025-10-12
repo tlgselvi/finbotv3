@@ -6,7 +6,7 @@ services:
     rootDir: QuickServeAPI
     buildCommand: npm install --legacy-peer-deps && npm run build
     preDeployCommand: npm run db:push
-    startCommand: tsx server/index.ts
+    startCommand: npm run db:push && tsx server/index.ts
     envVars:
       - key: NODE_ENV
         value: production
