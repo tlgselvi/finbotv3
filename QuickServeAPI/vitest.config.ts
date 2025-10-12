@@ -54,6 +54,12 @@ export default defineConfig({
       '**/node_modules/**',
       'tests/sprint1/ux-improvements.test.ts',
       'tests/sprint2/dashboard-improvements.test.ts',
+      // Playwright E2E tests (run separately with pnpm test:e2e)
+      'tests/e2e/**/*.spec.ts',
+      'tests/e2e/dashboard-extended.test.ts',
+      'tests/integration/dashboard-integration.test.ts',
+      // React component tests requiring browser environment
+      'tests/sprint1/dashboard-performance.test.tsx',
     ],
     coverage: {
       provider: 'v8',
