@@ -1,191 +1,148 @@
-import Database from 'better-sqlite3';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import * as schema from '../shared/schema-sqlite';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { eq, and, desc } from 'drizzle-orm';
+import postgres from 'postgres';
+import * as schema from './db/schema';
 
 // Database connection
-const sqlite = new Database('dev.db');
-export const db = drizzle(sqlite, { schema });
+const connectionString = process.env.DATABASE_URL || 'postgresql://localhost:5432/finbot';
+const client = postgres(connectionString);
+export const db = drizzle(client, { schema });
 
-// SQL helper
-export const sql = sqlite;
-
-// Database interface for backward compatibility
+// Database interface for backward compatibility - PostgreSQL version
 const dbInterface = {
-  getAccounts: () => {
-    const stmt = sql.prepare('SELECT * FROM accounts');
-    return stmt.all();
+  getAccounts: async () => {
+    return await db.select().from(schema.accounts);
   },
 
-  getAccountById: (id: string) => {
-    const stmt = sql.prepare('SELECT * FROM accounts WHERE id = ?');
-    return stmt.get(id);
+  getAccountById: async (id: string) => {
+    const result = await db.select().from(schema.accounts).where(eq(schema.accounts.id, id));
+    return result[0] || null;
   },
 
-  createAccount: (accountData: any) => {
-    const stmt = sql.prepare(`
-      INSERT INTO accounts (id, user_id, name, type, balance, currency, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      accountData.id,
-      accountData.user_id,
-      accountData.name,
-      accountData.type,
-      accountData.balance,
-      accountData.currency || 'USD',
-      accountData.created_at,
-      accountData.updated_at
-    );
+  createAccount: async (accountData: any) => {
+    return await db.insert(schema.accounts).values({
+      userId: accountData.user_id,
+      name: accountData.name,
+      type: accountData.type,
+      balance: accountData.balance,
+      currency: accountData.currency || 'TRY',
+    });
   },
 
-  updateAccount: (id: string, accountData: any) => {
-    const stmt = sql.prepare(`
-      UPDATE accounts 
-      SET name = ?, type = ?, balance = ?, currency = ?, updated_at = ?
-      WHERE id = ?
-    `);
-    return stmt.run(
-      accountData.name,
-      accountData.type,
-      accountData.balance,
-      accountData.currency,
-      accountData.updated_at,
-      id
-    );
+  updateAccount: async (id: string, accountData: any) => {
+    return await db.update(schema.accounts)
+      .set({
+        name: accountData.name,
+        type: accountData.type,
+        balance: accountData.balance,
+        currency: accountData.currency,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.accounts.id, id));
   },
 
-  deleteAccount: (id: string) => {
-    const stmt = sql.prepare('DELETE FROM accounts WHERE id = ?');
-    return stmt.run(id);
+  deleteAccount: async (id: string) => {
+    return await db.delete(schema.accounts).where(eq(schema.accounts.id, id));
   },
 
-  getTransactions: (userId?: string) => {
-    let query = 'SELECT * FROM transactions';
-    let params: any[] = [];
-
+  getTransactions: async (userId?: string) => {
+    let query = db.select().from(schema.transactions);
+    
     if (userId) {
-      query += ' WHERE user_id = ?';
-      params.push(userId);
+      query = query.where(eq(schema.transactions.userId, userId));
     }
-
-    query += ' ORDER BY date DESC';
-    const stmt = sql.prepare(query);
-    return stmt.all(...params);
+    
+    return await query.orderBy(desc(schema.transactions.date));
   },
 
-  getTransactionById: (id: string) => {
-    const stmt = sql.prepare('SELECT * FROM transactions WHERE id = ?');
-    return stmt.get(id);
+  getTransactionById: async (id: string) => {
+    const result = await db.select().from(schema.transactions).where(eq(schema.transactions.id, id));
+    return result[0] || null;
   },
 
-  createTransaction: (transactionData: any) => {
-    const stmt = sql.prepare(`
-      INSERT INTO transactions (id, user_id, account_id, amount, type, category, description, date, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      transactionData.id,
-      transactionData.user_id,
-      transactionData.account_id,
-      transactionData.amount,
-      transactionData.type,
-      transactionData.category,
-      transactionData.description,
-      transactionData.date,
-      transactionData.created_at
-    );
+  createTransaction: async (transactionData: any) => {
+    return await db.insert(schema.transactions).values({
+      accountId: transactionData.account_id,
+      userId: transactionData.user_id,
+      amount: transactionData.amount,
+      type: transactionData.type,
+      category: transactionData.category,
+      description: transactionData.description,
+      date: transactionData.date,
+    });
   },
 
-  updateTransaction: (id: string, transactionData: any) => {
-    const stmt = sql.prepare(`
-      UPDATE transactions 
-      SET amount = ?, type = ?, category = ?, description = ?, date = ?
-      WHERE id = ?
-    `);
-    return stmt.run(
-      transactionData.amount,
-      transactionData.type,
-      transactionData.category,
-      transactionData.description,
-      transactionData.date,
-      id
-    );
+  updateTransaction: async (id: string, transactionData: any) => {
+    return await db.update(schema.transactions)
+      .set({
+        amount: transactionData.amount,
+        type: transactionData.type,
+        category: transactionData.category,
+        description: transactionData.description,
+        date: transactionData.date,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.transactions.id, id));
   },
 
-  deleteTransaction: (id: string) => {
-    const stmt = sql.prepare('DELETE FROM transactions WHERE id = ?');
-    return stmt.run(id);
+  deleteTransaction: async (id: string) => {
+    return await db.delete(schema.transactions).where(eq(schema.transactions.id, id));
   },
 
-  getUsers: () => {
-    const stmt = sql.prepare('SELECT * FROM users');
-    return stmt.all();
+  getUsers: async () => {
+    return await db.select().from(schema.users);
   },
 
-  getUserById: (id: string) => {
-    const stmt = sql.prepare('SELECT * FROM users WHERE id = ?');
-    return stmt.get(id);
+  getUserById: async (id: string) => {
+    const result = await db.select().from(schema.users).where(eq(schema.users.id, id));
+    return result[0] || null;
   },
 
-  getUserByEmail: (email: string) => {
-    const stmt = sql.prepare('SELECT * FROM users WHERE email = ?');
-    return stmt.get(email);
+  getUserByEmail: async (email: string) => {
+    const result = await db.select().from(schema.users).where(eq(schema.users.email, email));
+    return result[0] || null;
   },
 
-  createUser: (userData: any) => {
-    const stmt = sql.prepare(`
-      INSERT INTO users (id, email, username, password_hash, role, is_active, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      userData.id,
-      userData.email,
-      userData.username,
-      userData.password_hash,
-      userData.role || 'user',
-      userData.is_active !== false ? 1 : 0,
-      userData.created_at,
-      userData.updated_at
-    );
+  createUser: async (userData: any) => {
+    return await db.insert(schema.users).values({
+      email: userData.email,
+      username: userData.username,
+      passwordHash: userData.password_hash,
+      role: userData.role || 'user',
+      isActive: userData.is_active !== false,
+    });
   },
 
-  updateUser: (id: string, userData: any) => {
-    const stmt = sql.prepare(`
-      UPDATE users 
-      SET name = ?, role = ?, is_active = ?, updated_at = ?
-      WHERE id = ?
-    `);
-    return stmt.run(
-      userData.name,
-      userData.role,
-      userData.is_active ? 1 : 0,
-      userData.updated_at,
-      id
-    );
+  updateUser: async (id: string, userData: any) => {
+    return await db.update(schema.users)
+      .set({
+        username: userData.name,
+        role: userData.role,
+        isActive: userData.is_active,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.users.id, id));
   },
 
-  createAlert: (alertData: any) => {
-    const stmt = sql.prepare(`
-      INSERT INTO alerts (id, user_id, type, title, description, severity, account_id, is_active, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)
-    `);
-    return stmt.run(
-      alertData.id,
-      alertData.user_id,
-      alertData.type,
-      alertData.title,
-      alertData.description,
-      alertData.severity || 'medium',
-      alertData.account_id,
-      alertData.created_at
-    );
+  createAlert: async (alertData: any) => {
+    return await db.insert(schema.systemAlerts).values({
+      userId: alertData.user_id,
+      accountId: alertData.account_id,
+      type: alertData.type,
+      title: alertData.title,
+      message: alertData.description,
+      severity: alertData.severity || 'medium',
+    });
   },
 
-  getAlerts: (userId: string) => {
-    const stmt = sql.prepare(
-      'SELECT * FROM alerts WHERE user_id = ? AND is_active = 1 ORDER BY created_at DESC'
-    );
-    return stmt.all(userId);
+  getAlerts: async (userId: string) => {
+    return await db.select()
+      .from(schema.systemAlerts)
+      .where(and(
+        eq(schema.systemAlerts.userId, userId),
+        eq(schema.systemAlerts.isActive, true)
+      ))
+      .orderBy(desc(schema.systemAlerts.createdAt));
   },
 };
 
