@@ -21,7 +21,7 @@ COPY package*.json pnpm-lock.yaml ./
 FROM base AS deps
 
 # Install all dependencies (including dev)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # ================================
 # Stage 3: Builder
@@ -43,7 +43,7 @@ RUN pnpm run build
 FROM base AS prod-deps
 
 # Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --no-frozen-lockfile
 
 # ================================
 # Stage 5: Production Runner
