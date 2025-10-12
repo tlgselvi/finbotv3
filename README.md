@@ -112,10 +112,20 @@ npm run preview
 
 ## 📚 Dokümantasyon
 
-- [API Dokümantasyonu](QuickServeAPI/docs/API_CONTRACT.md)
-- [Dashboard Kılavuzu](QuickServeAPI/docs/DASHBOARD_GUIDE.md)
-- [Güvenlik API](QuickServeAPI/docs/SECURITY_API.md)
-- [Yerel Kurulum](QuickServeAPI/LOCAL_SETUP_GUIDE.md)
+### 🎯 Proje Dokümantasyonu
+- **[Kapsamlı Proje Dokümantasyonu](./FINBOT_V3_FULL_DOCUMENTATION.md)** - Executive Summary, Business Model, Technical Architecture, Investor Pitch
+- **[Test Planı](./TEST_PLAN.md)** - Kapsamlı test stratejisi (97/97 tests passing)
+- **[CTO Koçu Config](./agent-config.md)** - CTO Koçu v2 konfigürasyonu
+
+### 💻 Teknik Dokümantasyon
+- **[QuickServeAPI README](./QuickServeAPI/README.md)** - Ana uygulama dokümantasyonu
+- **[Test Suite README](./QuickServeAPI/tests/README.md)** - Test dokümantasyonu
+- **[API Referansı](./QuickServeAPI/docs/API_REFERENCE.md)** - Kapsamlı API dokümantasyonu
+- **[Sistem Mimarisi](./QuickServeAPI/docs/ARCHITECTURE.md)** - Sistem tasarımı
+- **[Deployment Rehberi](./QuickServeAPI/docs/DEPLOYMENT.md)** - Production deployment
+- **[Dashboard Kılavuzu](./QuickServeAPI/docs/DASHBOARD_GUIDE.md)** - Dashboard kullanımı
+- **[Export Formatları](./QuickServeAPI/docs/EXPORT_FORMATS.md)** - Export detayları
+- **[Güvenlik API](./QuickServeAPI/docs/SECURITY_API.md)** - Güvenlik endpoint'leri
 
 ## 🔧 Geliştirme
 

@@ -29,10 +29,13 @@ pnpm dev
 
 ### 📖 Detaylı Dokümantasyon (docs/)
 
-- **[API Dokümantasyonu](./docs/API_DOCUMENTATION.md)** - REST API referansı
-- **[Test Dokümantasyonu](./tests/README.md)** - Kapsamlı test sistemi dokümantasyonu
-- **[Deployment Rehberi](./docs/DEPLOYMENT.md)** - Production'a nasıl deploy edilir
-- **[Sistem Mimarisi](./docs/ARCHITECTURE.md)** - Sistem yapısı ve güvenlik
+- **[API Referansı](./docs/API_REFERENCE.md)** - Kapsamlı API dokümantasyonu ⭐ GÜNCEL
+- **[Test Dokümantasyonu](./tests/README.md)** - Test sistemi (1081 tests, %100 success)
+- **[Sistem Mimarisi](./docs/ARCHITECTURE.md)** - Sistem tasarımı ve güvenlik
+- **[Deployment Rehberi](./docs/DEPLOYMENT.md)** - Production deployment rehberi
+- **[Dashboard Kılavuzu](./docs/DASHBOARD_GUIDE.md)** - Dashboard kullanım rehberi
+- **[Export Formatları](./docs/EXPORT_FORMATS.md)** - Export format detayları
+- **[Güvenlik API](./docs/SECURITY_API.md)** - Güvenlik endpoint'leri
 
 ---
 
