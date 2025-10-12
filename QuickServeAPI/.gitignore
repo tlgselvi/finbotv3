@@ -5,6 +5,7 @@ reports/
 artifacts/
 backups/
 attest/
+archive/
 .env
 .env.local
 .env.production
@@ -19,3 +20,6 @@ attest/
 .vitest/
 test-results/
 playwright-report/
+*.txt
+*.png
+*.jpg
