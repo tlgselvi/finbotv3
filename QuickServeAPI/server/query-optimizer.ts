@@ -17,9 +17,7 @@ import {
   transactions,
   credits,
   auditLogs,
-  categories,
-  tags,
-} from '../../../../../db/schema';
+} from './db/schema';
 import { logger } from './utils/logger';
 
 // Query optimization utilities
