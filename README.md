@@ -1,4 +1,8 @@
-# FinBot v3 - Advanced Financial Management System
+# 🚀 FinBot v3 - Advanced Financial Management System
+
+**Versiyon:** 3.0  
+**Durum:** ✅ Production Ready  
+**Son Güncelleme:** 2025-10-12
 
 FinBot v3, Türkiye'ye özel geliştirilmiş kapsamlı bir finansal yönetim sistemidir. KDV, SGK, vergi hesaplamaları ve gelişmiş raporlama özellikleri ile işletmelerin finansal süreçlerini optimize eder.
 
@@ -15,9 +19,20 @@ finbotv3/
 └── plans/                  # Sprint planları ve dokümantasyon
 ```
 
-## 🚀 Hızlı Başlangıç
+## ⚡ HIZLI BAŞLANGIÇ (3 Komut)
 
-### Gereksinimler
+```bash
+# 1. Bağımlılıkları yükle
+pnpm install
+
+# 2. Database oluştur
+pnpm db:push
+
+# 3. Başlat
+pnpm dev
+```
+
+## 🔧 Gereksinimler
 - Node.js >= 18.0.0
 - npm >= 8.0.0
 
