@@ -1110,10 +1110,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           accounts: filteredAccounts.length,
         });
       } catch (error) {
+        console.error('Consolidation breakdown error:', error);
         logger.error('Consolidation breakdown error:', error);
         res.status(500).json({
           error: 'Konsolidasyon breakdown hesaplanırken hata oluştu',
           details: error instanceof Error ? error.message : 'Bilinmeyen hata',
+          stack: error instanceof Error ? error.stack : undefined,
         });
       }
     }

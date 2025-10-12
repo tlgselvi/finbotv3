@@ -1,5 +1,4 @@
-import type { Account } from '../../../db/schema';
-import type { SubAccount } from '@shared/types';
+import type { Account, SubAccount } from '@shared/types';
 import { formatCurrency } from '../../../lib/utils/formatCurrency';
 import { logger } from '../../../utils/logger';
 

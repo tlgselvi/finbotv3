@@ -120,11 +120,23 @@ export const rolePermissionsV2: Record<UserRoleV2Type, PermissionV2Type[]> = {
     'MANAGE_TRANSACTIONS',
     'VIEW_TRANSACTIONS',
     'VIEW_REPORTS',
+    'VIEW_ALL_REPORTS',
+    'VIEW_COMPANY_REPORTS',
+    'VIEW_PERSONAL_REPORTS',
     'EXPORT_REPORTS',
     'VIEW_DASHBOARD',
     'VIEW_AUDIT_LOGS',
     'VIEW_SYSTEM_STATUS',
     'MANAGE_SETTINGS',
+    'VIEW_PERSONAL_ACCOUNTS',
+    'EDIT_PERSONAL_ACCOUNTS',
+    'DELETE_PERSONAL_ACCOUNTS',
+    'VIEW_COMPANY_ACCOUNTS',
+    'EDIT_COMPANY_ACCOUNTS',
+    'DELETE_COMPANY_ACCOUNTS',
+    'VIEW_ALL_ACCOUNTS',
+    'EDIT_ALL_ACCOUNTS',
+    'DELETE_ALL_ACCOUNTS',
   ],
   FINANCE: [
     'MANAGE_CASHBOXES',
@@ -193,7 +205,12 @@ export function hasPermissionV2(
   userRole: UserRoleV2Type,
   permission: PermissionV2Type
 ): boolean {
-  const permissions = rolePermissionsV2[userRole];
+  const normalizedRole = (userRole as string).toUpperCase() as UserRoleV2Type;
+  const permissions = rolePermissionsV2[normalizedRole];
+  if (!permissions) {
+    console.warn(`Unknown role: ${userRole}`);
+    return false;
+  }
   return permissions.includes(permission);
 }
 
@@ -201,7 +218,12 @@ export function hasAnyPermissionV2(
   userRole: UserRoleV2Type,
   permissions: PermissionV2Type[]
 ): boolean {
-  const userPermissions = rolePermissionsV2[userRole];
+  const normalizedRole = (userRole as string).toUpperCase() as UserRoleV2Type;
+  const userPermissions = rolePermissionsV2[normalizedRole];
+  if (!userPermissions) {
+    console.warn(`Unknown role: ${userRole}`);
+    return false;
+  }
   return permissions.some(permission => userPermissions.includes(permission));
 }
 
