@@ -12,7 +12,6 @@ import {
 } from '../modules/export/cash-flow-bridge';
 import { exportToPDF } from '../modules/export/pdf-export';
 import { logger } from '../utils/logger';
-import { logger } from '../utils/logger';
 
 const router = Router();
 

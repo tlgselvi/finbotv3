@@ -1,7 +1,6 @@
 import type { Account, Transaction } from '../../db/schema';
 import puppeteer from 'puppeteer';
 import { logger } from '../../utils/logger';
-import { logger } from '../../utils/logger';
 
 export interface PDFExportOptions {
   locale: 'tr-TR' | 'en-US';

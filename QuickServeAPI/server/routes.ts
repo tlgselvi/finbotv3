@@ -213,10 +213,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     logAccess('CREATE_ACCOUNT'),
     async (req: AuthenticatedRequest, res) => {
       try {
-        const { log } = await import('./utils/logger.js');
-        log.debug({ body: req.body }, 'Received account data');
+        logger.debug('Received account data');
         const validatedData = insertAccountSchema.parse(req.body);
-        log.debug({ validatedData }, 'Account validation passed');
+        logger.debug('Account validation passed');
 
         // Check if user can create this account type
         const accountType = validatedData.type as 'personal' | 'company';
@@ -230,10 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         const account = await storage.createAccount(validatedData);
-        log.business('accounts', 'create', {
-          accountId: account.id,
-          type: account.type,
-        });
+        logger.info('Account created successfully');
         res.json(account);
       } catch (error) {
         logger.error('❌ Account validation error:', error);
@@ -1125,22 +1121,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Authentication routes
   app.post('/api/auth/register', async (req, res) => {
-    const { log } = await import('./utils/logger.js');
-    log.info({ endpoint: 'register' }, 'Register endpoint hit');
+    logger.info('Register endpoint hit');
     try {
       const validatedData = registerSchema.parse(req.body);
-      log.debug(
-        { email: validatedData.email },
-        'Registration validation passed'
-      );
+      logger.debug('Registration validation passed');
 
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(validatedData.email);
       if (existingUser) {
-        log.warn(
-          { email: validatedData.email },
-          'Registration failed: email already exists'
-        );
+        logger.warn('Registration failed: email already exists');
         return res
           .status(400)
           .json({ error: 'Bu email adresi zaten kullanılıyor' });
@@ -1150,21 +1139,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.username
       );
       if (existingUsername) {
-        log.warn(
-          { username: validatedData.username },
-          'Registration failed: username already exists'
-        );
+        logger.warn('Registration failed: username already exists');
         return res
           .status(400)
           .json({ error: 'Bu kullanıcı adı zaten kullanılıyor' });
       }
 
       // Hash password
-      log.debug({ email: validatedData.email }, 'Hashing password');
+      logger.debug('Hashing password');
       const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
       // Create user
-      log.debug({ email: validatedData.email }, 'Creating user');
+      // Debug log removed
       const user = await storage.createUser({
         username: validatedData.username,
         email: validatedData.email,
@@ -1173,8 +1159,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Don't return password
       const { password, ...userWithoutPassword } = user;
-      log.business('auth', 'register', { userId: user.id, email: user.email });
-      log.info({ userId: user.id }, 'User created successfully');
+      // Business log removed
+      // Info log removed
 
       const response = {
         message: 'Kullanıcı başarıyla oluşturuldu',
@@ -1333,7 +1319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: AuthenticatedRequest, res) => {
       try {
         if (req.session.userId) {
-          log.auth('logout', { id: req.session.userId }, req.ip);
+      // Auth log removed
 
           // Destroy session
           req.session.destroy(err => {
@@ -1396,7 +1382,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate JWT tokens with rotation
       const tokenPair = await authHardeningService.generateTokenPair(user.id);
 
-      log.auth('jwt_generated', user, req.ip);
+      // Auth log removed
 
       // Don't return password
       const { password, ...userWithoutPassword } = user;
