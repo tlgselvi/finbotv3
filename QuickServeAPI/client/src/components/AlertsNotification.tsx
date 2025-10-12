@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { logger } from '@/lib/logger';
 import type { SystemAlert } from '@shared/schema';
+// parseFloat is a built-in JavaScript function
 
 const severityConfig = {
   low: {
