@@ -27,54 +27,82 @@ pnpm dev
 
 ## 📚 DOKÜMANTASYON
 
-### 🚀 Başlangıç
-
-- **[Komut Rehberi](./COMMANDS.md)** - Tüm komutlar ve kullanım kılavuzu
-- **[Test Workflow](./TEST_WORKFLOW.md)** - Test sistemi nasıl çalışır
-
 ### 📖 Detaylı Dokümantasyon (docs/)
 
 - **[API Dokümantasyonu](./docs/API_DOCUMENTATION.md)** - REST API referansı
-- **[Test Dokümantasyonu](./docs/TESTING.md)** - Test yazma ve çalıştırma rehberi
+- **[Test Dokümantasyonu](./tests/README.md)** - Kapsamlı test sistemi dokümantasyonu
 - **[Deployment Rehberi](./docs/DEPLOYMENT.md)** - Production'a nasıl deploy edilir
 - **[Sistem Mimarisi](./docs/ARCHITECTURE.md)** - Sistem yapısı ve güvenlik
 
 ---
 
-## 🎯 TEMEL KOMUTLAR
+## 🎯 KOMUT REHBERİ
+
+### ⚡ 3 TEMEL KOMUT (99% Kullanım)
+
+```bash
+# 1️⃣ HIZLI TEST (2 saniye)
+pnpm test:quick
+
+# 2️⃣ DEPLOY HAZIRLIK (20 saniye) ⭐ EN ÖNEMLİ
+pnpm test1
+
+# 3️⃣ OTOMATIK (Git push yaparken)
+git push    # Otomatik kontroller çalışır
+```
+
+**BU 3 KOMUTU BİL, YETERLİ!** ✅
+
+### 📋 NE ZAMAN HANGİSİNİ?
+
+| Durum                | Komut                     | Süre |
+| -------------------- | ------------------------- | ---- |
+| 💻 Kod yazdın        | `pnpm test:quick`         | 2s   |
+| 📝 Commit yapacaksın | `pnpm test1`              | 20s  |
+| 🚀 Deploy yapacaksın | `pnpm test1` → `git push` | 30s  |
+| 🐛 Bug fix yaptın    | `pnpm test:quick`         | 2s   |
+| ✨ Feature ekledin   | `pnpm test1`              | 20s  |
 
 ### Günlük Kullanım
 
 ```bash
-# Hızlı test (2 saniye)
-pnpm test:quick
-
-# Deploy hazırlık (20 saniye) - HER DEPLOY ÖNCESİ ZORUNLU
-pnpm test1
-
 # Development server
-pnpm dev
+pnpm dev                  # Frontend (5173) + Backend (5000)
+pnpm dev:server          # Sadece backend
+pnpm dev:client          # Sadece frontend
 ```
 
 ### Test
 
 ```bash
-pnpm test              # Tüm testler
-pnpm test:watch        # Watch mode
-pnpm test:coverage     # Coverage ile
-pnpm test:e2e          # E2E testler (Playwright)
+pnpm test                # Tüm testler
+pnpm test:critical       # Core business testler (84 test, 2s)
+pnpm test:quick          # Hızlı smoke test
+pnpm test:watch          # Watch mode
+pnpm test:coverage       # Coverage raporu
+pnpm test:e2e           # E2E testler (Playwright)
+pnpm test:auto          # Otomatik browser test
 ```
 
 ### Database
 
 ```bash
-pnpm db:generate       # Schema generate
-pnpm db:push           # Schema push
-pnpm db:seed           # Demo data yükle
-pnpm db:studio         # Database GUI
+pnpm db:generate         # Schema generate
+pnpm db:push             # Schema push to database
+pnpm db:seed             # Demo data yükle
+pnpm db:studio           # Drizzle Studio GUI
+pnpm db:migrate          # Migration çalıştır
 ```
 
-📖 **Tüm komutlar için:** [`COMMANDS.md`](./COMMANDS.md)
+### Build & Deploy
+
+```bash
+pnpm build               # Production build
+pnpm preview             # Preview production build
+pnpm lint                # ESLint check
+pnpm lint:fix            # ESLint auto-fix
+pnpm typecheck           # TypeScript check
+```
 
 ---
 
@@ -117,12 +145,12 @@ QuickServeAPI/
 ├── docs/                # Detaylı dokümantasyon
 │   ├── API_DOCUMENTATION.md
 │   ├── ARCHITECTURE.md
-│   ├── TESTING.md
 │   └── DEPLOYMENT.md
 │
-├── COMMANDS.md          # Komut rehberi
-├── TEST_WORKFLOW.md     # Test sistemi
-└── README.md           # Bu dosya
+├── tests/               # Test suite
+│   └── README.md        # Kapsamlı test dokümantasyonu
+│
+└── README.md            # Bu dosya
 ```
 
 ---
