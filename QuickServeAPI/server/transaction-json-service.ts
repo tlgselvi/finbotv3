@@ -3,7 +3,7 @@ import path from 'path';
 import { storage } from './storage';
 import { transactionJsonFileSchema } from '@shared/schema';
 import type { Transaction, InsertTransaction } from './db/schema';
-import { logger } from './utils/logger.ts';
+import { logger } from './utils/logger';
 
 export class TransactionJsonService {
   private readonly transactionsFilePath = path.join(
@@ -31,7 +31,7 @@ export class TransactionJsonService {
           accountInfo: account
             ? {
                 bankName: account.bankName,
-                accountName: account.accountName,
+                accountName: account.name,
                 type: account.type,
               }
             : null,
@@ -340,7 +340,7 @@ export class TransactionJsonService {
           accountInfo: account
             ? {
                 bankName: account.bankName,
-                accountName: account.accountName,
+                accountName: account.name,
                 type: account.type,
               }
             : null,
@@ -443,7 +443,7 @@ export class TransactionJsonService {
                   accountInfo: account
                     ? {
                         bankName: account.bankName,
-                        accountName: account.accountName,
+                        accountName: account.name,
                         type: account.type,
                       }
                     : null,

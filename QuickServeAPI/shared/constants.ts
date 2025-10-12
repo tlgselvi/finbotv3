@@ -19,6 +19,8 @@ export const BUDGET_PERIODS = {
 export const USER_ROLES = {
   ADMIN: 'admin',
   USER: 'user',
+  PERSONAL_USER: 'personal_user',
+  COMPANY_USER: 'company_user',
 } as const;
 
 export const KDV_RATES = [0, 1, 10, 20] as const;
@@ -34,4 +36,14 @@ export const CURRENCIES = {
   TRY: 'TRY',
   USD: 'USD',
   EUR: 'EUR',
+} as const;
+
+export const PERMISSIONS = {
+  VIEW_PERSONAL_TRANSACTIONS: 'view_personal_transactions',
+  VIEW_COMPANY_REPORTS: 'view_company_reports',
+  VIEW_PERSONAL_REPORTS: 'view_personal_reports',
+  MANAGE_ACCOUNTS: 'manage_accounts',
+  MANAGE_TRANSACTIONS: 'manage_transactions',
+  MANAGE_BUDGETS: 'manage_budgets',
+  MANAGE_USERS: 'manage_users',
 } as const;

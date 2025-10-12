@@ -9,7 +9,7 @@ import { z } from 'zod';
 import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
-import { tokenService, TokenMetadata } from './token-service.ts';
+import { tokenService, TokenMetadata } from './token-service';
 import { logger } from '../../utils/logger';
 
 // Token service integration

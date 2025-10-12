@@ -1,6 +1,6 @@
 import type { Response } from 'express';
 import { storage } from './storage';
-import { logger } from './utils/logger.ts';
+import { logger } from './utils/logger';
 
 interface ClientConnection {
   userId: string;

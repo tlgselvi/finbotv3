@@ -55,7 +55,7 @@ export async function getUserRecurringTransactions(
   let query = db
     .select({
       ...recurringTransactions,
-      accountName: accounts.accountName,
+      accountName: accounts.name,
       accountType: accounts.type,
     })
     .from(recurringTransactions)
@@ -84,7 +84,7 @@ export async function getRecurringTransaction(
   const result = await db
     .select({
       ...recurringTransactions,
-      accountName: accounts.accountName,
+      accountName: accounts.name,
       accountType: accounts.type,
     })
     .from(recurringTransactions)
@@ -364,7 +364,7 @@ export async function getUpcomingRecurringTransactions(
   return await db
     .select({
       ...recurringTransactions,
-      accountName: accounts.accountName,
+      accountName: accounts.name,
       accountType: accounts.type,
     })
     .from(recurringTransactions)

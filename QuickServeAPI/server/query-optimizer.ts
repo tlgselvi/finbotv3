@@ -20,7 +20,7 @@ import {
   categories,
   tags,
 } from '../../../../../db/schema';
-import { logger } from './utils/logger.ts';
+import { logger } from './utils/logger';
 
 // Query optimization utilities
 export class QueryOptimizer {

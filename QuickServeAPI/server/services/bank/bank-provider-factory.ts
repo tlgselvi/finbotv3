@@ -6,9 +6,9 @@
 import {
   BaseBankProvider,
   BankCredentials,
-} from './providers/base-provider.ts';
-import { OpenBankingProvider } from './providers/open-banking-provider.ts';
-import { TurkishBankProvider } from './providers/turkish-bank-provider.ts';
+} from './providers/base-provider';
+import { OpenBankingProvider } from './providers/open-banking-provider';
+import { TurkishBankProvider } from './providers/turkish-bank-provider';
 
 export type ProviderType = 'open-banking' | 'turkish-bank' | 'mock';
 
@@ -563,4 +563,4 @@ import type {
   BankTransfer,
   BankCard,
   SyncResult,
-} from './providers/base-provider.ts';
+} from './providers/base-provider';

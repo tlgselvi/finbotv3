@@ -1,5 +1,4 @@
 import { logger } from '../utils/logger';
-import { logger } from 'logger';
 // Simple in-memory cache implementation
 interface CacheItem<T> {
   value: T;

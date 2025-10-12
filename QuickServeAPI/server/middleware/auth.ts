@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { UserRoleType, PermissionType } from '../../shared/schema.ts';
-import { hasPermission, hasAnyPermission } from '../../shared/schema.ts';
+import type { UserRoleType, PermissionType } from '../../shared/schema';
+import { hasPermission, hasAnyPermission } from '../../shared/schema';
 import jwt from 'jsonwebtoken';
 import { logger } from '../utils/logger';
 

@@ -13,7 +13,7 @@ import {
   BankCard,
   SyncResult,
   BankProviderConfig,
-} from './base-provider.ts';
+} from './base-provider';
 import crypto from 'crypto';
 import axios, { AxiosInstance } from 'axios';
 

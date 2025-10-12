@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { logger } from './logger.ts';
+import { logger } from './logger';
 
 // Coercion helpers
 const coerceBoolean = z.preprocess(val => {
@@ -43,17 +43,17 @@ const envSchema = z.object({
     .string()
     .transform(Number)
     .pipe(z.number().min(10).max(15))
-    .default(12),
+    .default('12'),
   RATE_LIMIT_WINDOW: z
     .string()
     .transform(Number)
     .pipe(z.number().min(1))
-    .default(15),
+    .default('15'),
   RATE_LIMIT_MAX: z
     .string()
     .transform(Number)
     .pipe(z.number().min(1))
-    .default(100),
+    .default('100'),
 
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
@@ -71,29 +71,29 @@ const envSchema = z.object({
     .string()
     .transform(Number)
     .pipe(z.number().min(0).max(1))
-    .default(0.2),
+    .default('0.2'),
   SGK_RATE: z
     .string()
     .transform(Number)
     .pipe(z.number().min(0).max(1))
-    .default(0.15),
+    .default('0.15'),
 
   // Performance - Production-safe defaults
   MAX_CONCURRENT_REQUESTS: z
     .string()
     .transform(Number)
     .pipe(z.number().min(1))
-    .default(100),
+    .default('100'),
   REQUEST_TIMEOUT: z
     .string()
     .transform(Number)
     .pipe(z.number().min(1000))
-    .default(30000),
+    .default('30000'),
   CACHE_TTL: z
     .string()
     .transform(Number)
     .pipe(z.number().min(60))
-    .default(3600),
+    .default('3600'),
 });
 
 // Validate environment variables

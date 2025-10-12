@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
-import { JWTAuthService, TokenBlacklist } from '../jwt-auth.ts';
-import type { UserRoleType, PermissionType } from '../../shared/schema.ts';
-import { hasPermission, hasAnyPermission } from '../../shared/schema.ts';
+import { JWTAuthService, TokenBlacklist } from '../jwt-auth';
+import type { UserRoleType, PermissionType } from '../../shared/schema';
+import { hasPermission, hasAnyPermission } from '../../shared/schema';
 import { logger } from '../utils/logger';
 
 // Extend Request type to include user info

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import type { User } from './db/schema';
-import { logger } from './utils/logger.ts';
+import { logger } from './utils/logger';
 
 const JWT_SECRET =
   process.env.JWT_SECRET || 'your-jwt-secret-key-change-in-production';

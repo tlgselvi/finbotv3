@@ -1,8 +1,8 @@
 import type { Express } from 'express';
 import { Router } from 'express';
 import { createServer, type Server } from 'http';
-import { storage } from './storage.ts';
-import { logger } from './utils/logger.ts';
+import { storage } from './storage';
+import { logger } from './utils/logger';
 import {
   insertAccountSchema,
   insertTransactionSchema,
@@ -35,74 +35,74 @@ import {
   TeamPermission,
   hasTeamPermission,
   TeamRole,
-} from '../shared/schema.ts';
-import { db, dbInterface } from './db.ts';
+} from '../shared/schema';
+import { db, dbInterface } from './db';
 import bcrypt from 'bcryptjs';
 import { randomBytes, randomUUID } from 'crypto';
-import type { AuthenticatedRequest } from './middleware/auth.ts';
+import type { AuthenticatedRequest } from './middleware/auth';
 import {
   requireAuth,
   requirePermission,
   requireAccountTypeAccess,
   optionalAuth,
   logAccess,
-} from './middleware/auth.ts';
+} from './middleware/auth';
 import {
   requireJWTAuth,
   requireJWTPermission,
   requireJWTAdmin,
   logJWTAccess,
-} from './middleware/jwt-auth.ts';
-import { responseCache } from './middleware/response-cache.ts';
+} from './middleware/jwt-auth';
+import { responseCache } from './middleware/response-cache';
 import {
   securityAudit,
   rateLimitWithAudit,
-} from './middleware/security-audit.ts';
-import aiAnalysisRouter from './routes/ai-analysis.ts';
+} from './middleware/security-audit';
+import aiAnalysisRouter from './routes/ai-analysis';
 import {
   updateUserRoleSchema,
   updateUserStatusSchema,
-} from '../shared/schema.ts';
-import { alertService } from './alert-service.ts';
-import { transactionJsonService } from './transaction-json-service.ts';
-import { realtimeService } from './realtime-service.ts';
-import { JWTAuthService, TokenBlacklist } from './jwt-auth.ts';
-import type { AuthenticatedRequest as JWTAuthenticatedRequest } from './middleware/jwt-auth.ts';
-import { openaiService } from './services/ai/openaiService.ts';
-import tenantsRouter from './routes/tenants.ts';
-import investmentsRouter from './routes/investments.ts';
-import portfolioRouter from './routes/portfolio.ts';
-import aiAgentsRouter from './routes/ai-agents.ts';
-import riskRouter from './routes/risk.ts';
-import simulationRouter from './routes/simulation.ts';
-import advisorRouter from './routes/advisor.ts';
-import financeRouter from './routes/finance.ts';
-import emailVerificationRouter from './routes/email-verification.ts';
-import budgetLinesRouter from './routes/budget-lines.ts';
-import exportRouter from './routes/export.ts';
-import recurringRouter from './routes/recurring.ts';
-import budgetCompareRouter from './routes/budget-compare.ts';
-import scenarioRouter from './routes/scenario.ts';
-import agingRouter from './routes/aging.ts';
-import dashboardExtendedRouter from './routes/dashboard-extended.ts';
-import dashboardLayoutRouter from './routes/dashboard-layout.ts';
-import realtimeRouter from './routes/realtime.ts';
-import analyticsRouter from './routes/analytics.ts';
-import performanceRouter from './routes/performance.ts';
-import enhancedExportRouter from './routes/enhanced-export.ts';
-import cashboxRouter from './routes/cashbox.ts';
-import bankIntegrationRouter from './routes/bank-integration.ts';
-import securityRouter from './routes/security.ts';
+} from '../shared/schema';
+import { alertService } from './alert-service';
+import { transactionJsonService } from './transaction-json-service';
+import { realtimeService } from './realtime-service';
+import { JWTAuthService, TokenBlacklist } from './jwt-auth';
+import type { AuthenticatedRequest as JWTAuthenticatedRequest } from './middleware/jwt-auth';
+import { openaiService } from './services/ai/openaiService';
+import tenantsRouter from './routes/tenants';
+import investmentsRouter from './routes/investments';
+import portfolioRouter from './routes/portfolio';
+import aiAgentsRouter from './routes/ai-agents';
+import riskRouter from './routes/risk';
+import simulationRouter from './routes/simulation';
+import advisorRouter from './routes/advisor';
+import financeRouter from './routes/finance';
+import emailVerificationRouter from './routes/email-verification';
+import budgetLinesRouter from './routes/budget-lines';
+import exportRouter from './routes/export';
+import recurringRouter from './routes/recurring';
+import budgetCompareRouter from './routes/budget-compare';
+import scenarioRouter from './routes/scenario';
+import agingRouter from './routes/aging';
+import dashboardExtendedRouter from './routes/dashboard-extended';
+import dashboardLayoutRouter from './routes/dashboard-layout';
+import realtimeRouter from './routes/realtime';
+import analyticsRouter from './routes/analytics';
+import performanceRouter from './routes/performance';
+import enhancedExportRouter from './routes/enhanced-export';
+import cashboxRouter from './routes/cashbox';
+import bankIntegrationRouter from './routes/bank-integration';
+import securityRouter from './routes/security';
 import {
   securityHeadersMiddleware,
   advancedSecurityHeaders,
-} from './middleware/security-headers-advanced.ts';
+} from './middleware/security-headers-advanced';
 import {
   auditComplianceMiddleware,
   auditComplianceManager,
-} from './middleware/audit-compliance.ts';
-import { rateLimitMiddleware } from './middleware/rate-limit-advanced.ts';
-import { authHardeningService } from './services/auth/auth-hardening.ts';
+} from './middleware/audit-compliance';
+import { rateLimitMiddleware } from './middleware/rate-limit-advanced';
+import { authHardeningService } from './services/auth/auth-hardening';
 
 // Extend Express session to include user
 declare module 'express-session' {

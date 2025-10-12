@@ -1,13 +1,13 @@
-import { db } from './db.ts';
+import { db } from './db';
 import {
   users,
   accounts,
   transactions,
   budgetLines,
-} from '../shared/schema.ts';
+} from '../shared/schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
-import { logger } from './utils/logger.ts';
+import { logger } from './utils/logger';
 
 /**
  * Seed production database with demo data

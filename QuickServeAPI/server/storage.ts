@@ -19,6 +19,10 @@ import {
   type InsertInvestment,
   type Forecast,
   type InsertForecast,
+  type Invite,
+  type InsertInvite,
+  type Tenant,
+  type InsertTenant,
   accounts,
   transactions,
   users,
@@ -29,14 +33,17 @@ import {
   credits,
   investments,
   forecasts,
-} from './db/schema.ts';
+  invites,
+  userProfiles,
+} from './db/schema';
 import { randomUUID } from 'crypto';
-import type { UserRoleType } from '../shared/schema.ts';
-import { db } from './db.ts';
+import type { UserRoleType } from '../shared/schema';
+import { db } from './db';
 import {
   eq,
   desc,
   sql,
+  count,
   and,
   isNull,
   or,
@@ -46,7 +53,7 @@ import {
   gt,
 } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
-import { logger } from './utils/logger.ts';
+import { logger } from './utils/logger';
 
 export interface IStorage {
   // User authentication methods

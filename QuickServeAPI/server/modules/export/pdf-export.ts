@@ -269,7 +269,7 @@ function generateAccountsSection(
               account => `
             <tr>
               <td>${account.bankName}</td>
-              <td>${account.accountName}</td>
+              <td>${account.name}</td>
               <td>${account.type}</td>
               <td class="currency">${formatCurrency(parseFloat(account.balance), options.currency)}</td>
               <td>${account.currency}</td>
@@ -378,7 +378,7 @@ Net Değer: ${formatCurrency(data.summary.netWorth, currency)}
     data.accounts.forEach(account => {
       content += `
 Banka: ${account.bankName}
-Hesap: ${account.accountName}
+Hesap: ${account.name}
 Tip: ${account.type}
 Bakiye: ${formatCurrency(parseFloat(account.balance), currency)}
 Para Birimi: ${account.currency}

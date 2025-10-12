@@ -190,7 +190,7 @@ export function exportToCSV(
       const row = [
         account.id,
         account.bankName,
-        account.accountName,
+        account.name,
         account.type,
         formatCurrency(parseFloat(account.balance)),
         account.currency,

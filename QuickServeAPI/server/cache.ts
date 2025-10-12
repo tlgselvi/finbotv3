@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
-import { logger } from './utils/logger.ts';
+import { logger } from './utils/logger';
 
 // In-memory cache implementation (fallback when Redis is not available)
 class MemoryCache {

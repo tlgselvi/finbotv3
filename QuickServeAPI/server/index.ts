@@ -5,14 +5,14 @@ import compression from 'compression';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
-import { db, dbInterface } from './db.ts';
-import { logger } from './utils/logger.ts';
+import { db, dbInterface } from './db';
+import { logger } from './utils/logger';
 import {
   validateEnvironment,
   logEnvironmentConfig,
   type ValidatedEnv,
-} from './utils/env-validation.ts';
-import { registerRoutes } from './routes.ts';
+} from './utils/env-validation';
+import { registerRoutes } from './routes';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

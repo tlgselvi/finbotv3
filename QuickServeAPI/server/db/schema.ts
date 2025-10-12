@@ -20,6 +20,10 @@ export const users = pgTable('users', {
   role: varchar('role', { length: 50 }).notNull().default('user'),
   isActive: boolean('is_active').default(true),
   emailVerified: boolean('email_verified').default(false),
+  resetToken: varchar('reset_token', { length: 255 }),
+  resetTokenExpiry: timestamp('reset_token_expiry'),
+  lockedUntil: timestamp('locked_until'),
+  failedLoginAttempts: integer('failed_login_attempts').default(0),
   lastLogin: timestamp('last_login'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -55,6 +59,22 @@ export const teamMembers = pgTable('team_members', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// Invites table (stub - to be fully implemented)
+export const invites = pgTable('invites', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  teamId: uuid('team_id')
+    .references(() => teams.id)
+    .notNull(),
+  invitedEmail: varchar('invited_email', { length: 255 }).notNull(),
+  inviteToken: varchar('invite_token', { length: 255 }).notNull().unique(),
+  status: varchar('status', { length: 20 }).notNull().default('pending'),
+  invitedBy: uuid('invited_by')
+    .references(() => users.id)
+    .notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  expiresAt: timestamp('expires_at').notNull(),
+});
+
 // Accounts table
 export const accounts = pgTable('accounts', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -70,6 +90,7 @@ export const accounts = pgTable('accounts', {
     .default('0'),
   currency: varchar('currency', { length: 3 }).notNull().default('TRY'),
   isActive: boolean('is_active').default(true),
+  deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -93,6 +114,8 @@ export const transactions = pgTable('transactions', {
   recurringFrequency: varchar('recurring_frequency', { length: 20 }),
   tags: text('tags'), // JSON string
   investmentId: uuid('investment_id'), // References investments table
+  isActive: boolean('is_active').default(true),
+  deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -132,10 +155,16 @@ export const fixedExpenses = pgTable('fixed_expenses', {
     .references(() => accounts.id)
     .notNull(),
   name: varchar('name', { length: 255 }).notNull(),
+  title: varchar('title', { length: 255 }),
   amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
   frequency: varchar('frequency', { length: 20 }).notNull(), // 'monthly', 'weekly', 'yearly'
+  recurrence: varchar('recurrence', { length: 50 }),
   category: varchar('category', { length: 100 }),
   description: text('description'),
+  type: varchar('type', { length: 20 }), // 'income' or 'expense'
+  startDate: timestamp('start_date'),
+  endDate: timestamp('end_date'),
+  lastProcessed: timestamp('last_processed'),
   isActive: boolean('is_active').default(true),
   nextDueDate: timestamp('next_due_date'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -164,7 +193,9 @@ export const credits = pgTable('credits', {
     scale: 2,
   }).notNull(),
   dueDate: integer('due_date'), // Day of month (1-31)
+  status: varchar('status', { length: 20 }).default('active'), // 'active', 'paid_off', 'closed'
   isActive: boolean('is_active').default(true),
+  deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -176,6 +207,7 @@ export const forecasts = pgTable('forecasts', {
     .references(() => users.id)
     .notNull(),
   type: varchar('type', { length: 50 }).notNull(), // 'cash_flow', 'budget', 'investment'
+  scenario: varchar('scenario', { length: 100 }),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   parameters: text('parameters'), // JSON string
@@ -192,11 +224,13 @@ export const systemAlerts = pgTable('system_alerts', {
   userId: uuid('user_id')
     .references(() => users.id)
     .notNull(),
+  accountId: uuid('account_id').references(() => accounts.id),
   type: varchar('type', { length: 50 }).notNull(), // 'low_balance', 'payment_due', 'budget_exceeded'
   title: varchar('title', { length: 255 }).notNull(),
   message: text('message').notNull(),
   severity: varchar('severity', { length: 20 }).notNull().default('medium'), // 'low', 'medium', 'high', 'critical'
   isRead: boolean('is_read').default(false),
+  isDismissed: boolean('is_dismissed').default(false),
   isActive: boolean('is_active').default(true),
   metadata: text('metadata'), // JSON string
   createdAt: timestamp('created_at').defaultNow(),
@@ -275,11 +309,13 @@ export const agingReports = pgTable('aging_reports', {
     precision: 15,
     scale: 2,
   }).default('0'),
+  currentAmount: numeric('current_amount', { precision: 15, scale: 2 }).default('0'),
   current: numeric('current', { precision: 15, scale: 2 }).default('0'),
   days30: numeric('days_30', { precision: 15, scale: 2 }).default('0'),
   days60: numeric('days_60', { precision: 15, scale: 2 }).default('0'),
   days90: numeric('days_90', { precision: 15, scale: 2 }).default('0'),
   days90Plus: numeric('days_90_plus', { precision: 15, scale: 2 }).default('0'),
+  agingDays: integer('aging_days'),
   currency: varchar('currency', { length: 3 }).default('TRY'),
   metadata: jsonb('metadata'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -337,6 +373,7 @@ export const cashboxes = pgTable('cashboxes', {
   currency: varchar('currency', { length: 3 }).default('TRY'),
   description: text('description'),
   isActive: boolean('is_active').default(true),
+  deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -401,11 +438,13 @@ export const userActivityLogs = pgTable('user_activity_logs', {
     .references(() => users.id)
     .notNull(),
   action: varchar('action', { length: 100 }).notNull(),
+  category: varchar('category', { length: 50 }),
   resource: varchar('resource', { length: 100 }),
   resourceId: uuid('resource_id'),
   details: text('details'),
   ipAddress: varchar('ip_address', { length: 45 }),
   userAgent: text('user_agent'),
+  timestamp: timestamp('timestamp').defaultNow(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -806,6 +845,11 @@ export type InsertReconciliationLog = typeof reconciliationLogs.$inferInsert;
 // Tenant type (using Team as base for now)
 export type Tenant = typeof teams.$inferSelect;
 export type InsertTenant = typeof teams.$inferInsert;
+
+// Invite types
+export type Invite = typeof invites.$inferSelect;
+export type InsertInvite = typeof invites.$inferInsert;
+
 export type UpdateBankIntegration = InsertBankIntegration;
 
 // Schema exports for validation

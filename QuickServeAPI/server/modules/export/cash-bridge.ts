@@ -71,7 +71,7 @@ export function generateCashBridgeReport(
       type: isInflow ? 'inflow' : 'outflow',
       date: new Date(transaction.createdAt),
       accountId: transaction.accountId,
-      accountName: account?.accountName || 'Bilinmeyen Hesap',
+      accountName: account?.name || 'Bilinmeyen Hesap',
     };
 
     if (isInflow) {

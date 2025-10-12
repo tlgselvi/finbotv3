@@ -1,6 +1,6 @@
 import { storage } from './storage';
 import type { InsertSystemAlert, Transaction } from './db/schema';
-import { logger } from './utils/logger.ts';
+import { logger } from './utils/logger';
 
 export class AlertService {
   /**
@@ -23,9 +23,10 @@ export class AlertService {
         // Create alert if balance is low and no existing alert
         if (balance < threshold && !hasExistingAlert) {
           const alertData: InsertSystemAlert = {
+            userId: account.userId,
             type: 'low_balance',
             title: 'Düşük Bakiye Uyarısı',
-            description: `${account.bankName} - ${account.accountName} hesabınızın bakiyesi düşük (${balance.toLocaleString('tr-TR')} ${account.currency})`,
+            message: `${account.bankName} - ${account.name} hesabınızın bakiyesi düşük (${balance.toLocaleString('tr-TR')} ${account.currency})`,
             severity: balance < 50 ? 'high' : 'medium',
             isActive: true,
             isDismissed: false,
@@ -35,7 +36,7 @@ export class AlertService {
 
           await storage.createSystemAlert(alertData);
           logger.info(
-            `Low balance alert created for account ${account.accountName}`
+            `Low balance alert created for account ${account.name}`
           );
         }
 
@@ -50,7 +51,7 @@ export class AlertService {
           if (activeAlert) {
             await storage.dismissSystemAlert(activeAlert.id);
             logger.info(
-              `Low balance alert dismissed for account ${account.accountName}`
+              `Low balance alert dismissed for account ${account.name}`
             );
           }
         }
