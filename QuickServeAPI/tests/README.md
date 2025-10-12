@@ -597,15 +597,6 @@ testTimeout: 30000,  // 30 saniye
 
 ---
 
-## 📚 Ek Kaynaklar
-
-- **Test Plan:** `TEST_PLAN.md`
-- **Gap Analysis:** `TEST_GAP_ANALYSIS.md`
-- **Test Results:** `TEST_SONUC_RAPORU.md`
-- **Test Suite Config:** `tests/test-suite.ts`
-
----
-
 ## 🚀 Hızlı Komutlar Özeti
 
 ```bash
