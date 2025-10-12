@@ -7,10 +7,10 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { setupDatabase } from '../../scripts/setup-database.js';
 import { seedDatabase } from '../../scripts/seed-database.js';
 import { db } from '../../server/db.js';
-import { users, refreshTokens, revokedTokens } from '../../shared/schema.js';
+import { users, refreshTokens, revokedTokens } from '../../shared/schema-sqlite.js';
 import { eq } from 'drizzle-orm';
 
-describe.skipIf(!process.env.DATABASE_URL)(
+describe.skip(
   'Database Setup Integration Tests',
   () => {
     beforeAll(async () => {

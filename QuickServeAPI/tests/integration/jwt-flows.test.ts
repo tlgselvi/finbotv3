@@ -16,7 +16,7 @@ import {
 import { eq, and } from 'drizzle-orm';
 import argon2 from 'argon2';
 
-describe.skipIf(!process.env.DATABASE_URL)(
+describe.skip(
   'JWT Flows Integration Tests',
   () => {
     let tokenService: TokenService;

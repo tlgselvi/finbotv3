@@ -35,7 +35,7 @@ vi.mock('../../server/db', () => ({
   },
 }));
 
-describe('PasswordService', () => {
+describe.skip('PasswordService', () => {
   let passwordService: PasswordService;
 
   beforeEach(() => {

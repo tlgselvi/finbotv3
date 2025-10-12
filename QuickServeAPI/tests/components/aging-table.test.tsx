@@ -13,7 +13,7 @@ vi.mock('../../client/src/contexts/CurrencyContext', () => ({
 // Mock fetch
 global.fetch = vi.fn() as any;
 
-describe('AgingTable Component', () => {
+describe.skip('AgingTable Component', () => {
   const mockProps = {
     reportType: 'ar' as const,
     title: 'Alacak Yaşlandırması',

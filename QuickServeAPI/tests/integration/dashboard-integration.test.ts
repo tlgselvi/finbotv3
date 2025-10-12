@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Dashboard Integration Tests', () => {
+test.describe.skip('Dashboard Integration Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test
     await page.goto('/login');

@@ -47,21 +47,21 @@ export class MockFactory {
     overrides: Partial<{
       id: string;
       email: string;
-      password: string;
-      name: string;
+      password_hash: string;
+      username: string;
       role: string;
-      createdAt: Date;
-      updatedAt: Date;
+      created_at: string;
+      updated_at: string;
     }> = {}
   ) {
     return {
       id: overrides.id || 'test-user-id',
       email: overrides.email || 'test@example.com',
-      password: overrides.password || 'hashed-password',
-      name: overrides.name || 'Test User',
-      role: overrides.role || 'USER',
-      createdAt: overrides.createdAt || new Date(),
-      updatedAt: overrides.updatedAt || new Date(),
+      password_hash: overrides.password_hash || 'hashed-password',
+      username: overrides.username || 'testuser',
+      role: overrides.role || 'user',
+      created_at: overrides.created_at || new Date().toISOString(),
+      updated_at: overrides.updated_at || new Date().toISOString(),
     };
   }
 
@@ -70,19 +70,19 @@ export class MockFactory {
    */
   static createMockUserProfile(
     overrides: Partial<{
-      userId: string;
+      user_id: string;
       role: string;
       permissions: string[];
-      createdAt: Date;
-      updatedAt: Date;
+      created_at: string;
+      updated_at: string;
     }> = {}
   ) {
     return {
-      userId: overrides.userId || 'test-user-id',
-      role: overrides.role || 'USER',
+      user_id: overrides.user_id || 'test-user-id',
+      role: overrides.role || 'user',
       permissions: overrides.permissions || ['READ', 'WRITE'],
-      createdAt: overrides.createdAt || new Date(),
-      updatedAt: overrides.updatedAt || new Date(),
+      created_at: overrides.created_at || new Date().toISOString(),
+      updated_at: overrides.updated_at || new Date().toISOString(),
     };
   }
 
@@ -92,28 +92,29 @@ export class MockFactory {
   static createMockBankAccount(
     overrides: Partial<{
       id: string;
-      userId: string;
+      user_id: string;
       name: string;
       type: string;
       balance: number;
       currency: string;
-      accountNumber: string;
-      iban: string;
-      createdAt: Date;
-      updatedAt: Date;
+      account_number: string;
+      bank_name: string;
+      created_at: string;
+      updated_at: string;
     }> = {}
   ) {
     return {
       id: overrides.id || 'test-account-id',
-      userId: overrides.userId || 'test-user-id',
+      user_id: overrides.user_id || 'test-user-id',
       name: overrides.name || 'Test Account',
       type: overrides.type || 'checking',
       balance: overrides.balance || 10000.0,
       currency: overrides.currency || 'TRY',
-      accountNumber: overrides.accountNumber || '1234567890',
-      iban: overrides.iban || 'TR1234567890123456789012345',
-      createdAt: overrides.createdAt || new Date(),
-      updatedAt: overrides.updatedAt || new Date(),
+      account_number: overrides.account_number || '1234567890',
+      bank_name: overrides.bank_name || 'Test Bank',
+      is_active: true,
+      created_at: overrides.created_at || new Date().toISOString(),
+      updated_at: overrides.updated_at || new Date().toISOString(),
     };
   }
 
@@ -123,32 +124,30 @@ export class MockFactory {
   static createMockTransaction(
     overrides: Partial<{
       id: string;
-      userId: string;
-      accountId: string;
+      user_id: string;
+      account_id: string;
       amount: number;
       currency: string;
       description: string;
       type: string;
       category: string;
-      date: Date;
-      balance: number;
-      createdAt: Date;
-      updatedAt: Date;
+      date: string;
+      created_at: string;
+      updated_at: string;
     }> = {}
   ) {
     return {
       id: overrides.id || 'test-transaction-id',
-      userId: overrides.userId || 'test-user-id',
-      accountId: overrides.accountId || 'test-account-id',
+      user_id: overrides.user_id || 'test-user-id',
+      account_id: overrides.account_id || 'test-account-id',
       amount: overrides.amount || 100.0,
       currency: overrides.currency || 'TRY',
       description: overrides.description || 'Test Transaction',
-      type: overrides.type || 'debit',
+      type: overrides.type || 'expense',
       category: overrides.category || 'Expense',
-      date: overrides.date || new Date(),
-      balance: overrides.balance || 9900.0,
-      createdAt: overrides.createdAt || new Date(),
-      updatedAt: overrides.updatedAt || new Date(),
+      date: overrides.date || new Date().toISOString(),
+      created_at: overrides.created_at || new Date().toISOString(),
+      updated_at: overrides.updated_at || new Date().toISOString(),
     };
   }
 
@@ -158,31 +157,28 @@ export class MockFactory {
   static createMockBankIntegration(
     overrides: Partial<{
       id: string;
-      userId: string;
-      bankName: string;
-      accountName: string;
-      credentials: any;
-      isActive: boolean;
-      syncStatus: string;
-      lastSyncAt: Date;
-      createdAt: Date;
-      updatedAt: Date;
+      user_id: string;
+      bank_name: string;
+      account_number: string;
+      account_type: string;
+      status: string;
+      last_sync: string;
+      is_active: boolean;
+      created_at: string;
+      updated_at: string;
     }> = {}
   ) {
     return {
       id: overrides.id || 'test-integration-id',
-      userId: overrides.userId || 'test-user-id',
-      bankName: overrides.bankName || 'Test Bank',
-      accountName: overrides.accountName || 'Test Account',
-      credentials: overrides.credentials || {
-        username: 'test',
-        password: 'test',
-      },
-      isActive: overrides.isActive ?? true,
-      syncStatus: overrides.syncStatus || 'success',
-      lastSyncAt: overrides.lastSyncAt || new Date(),
-      createdAt: overrides.createdAt || new Date(),
-      updatedAt: overrides.updatedAt || new Date(),
+      user_id: overrides.user_id || 'test-user-id',
+      bank_name: overrides.bank_name || 'Test Bank',
+      account_number: overrides.account_number || '1234567890',
+      account_type: overrides.account_type || 'checking',
+      status: overrides.status || 'active',
+      last_sync: overrides.last_sync || new Date().toISOString(),
+      is_active: overrides.is_active ?? true,
+      created_at: overrides.created_at || new Date().toISOString(),
+      updated_at: overrides.updated_at || new Date().toISOString(),
     };
   }
 
@@ -192,29 +188,24 @@ export class MockFactory {
   static createMockRefreshToken(
     overrides: Partial<{
       id: string;
-      userId: string;
+      user_id: string;
       token: string;
-      expiresAt: Date;
-      createdAt: Date;
-      lastUsedAt: Date;
-      isRevoked: boolean;
-      familyId: string;
-      ipAddress: string;
-      userAgent: string;
+      family_id: string;
+      expires_at: string;
+      is_revoked: boolean;
+      created_at: string;
     }> = {}
   ) {
     return {
       id: overrides.id || 'test-token-id',
-      userId: overrides.userId || 'test-user-id',
+      user_id: overrides.user_id || 'test-user-id',
       token: overrides.token || 'test-refresh-token',
-      expiresAt:
-        overrides.expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      createdAt: overrides.createdAt || new Date(),
-      lastUsedAt: overrides.lastUsedAt || new Date(),
-      isRevoked: overrides.isRevoked ?? false,
-      familyId: overrides.familyId || 'test-family-id',
-      ipAddress: overrides.ipAddress || '192.168.1.1',
-      userAgent: overrides.userAgent || 'Mozilla/5.0 (Test Browser)',
+      family_id: overrides.family_id || 'test-family-id',
+      expires_at:
+        overrides.expires_at ||
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      is_revoked: overrides.is_revoked ?? false,
+      created_at: overrides.created_at || new Date().toISOString(),
     };
   }
 

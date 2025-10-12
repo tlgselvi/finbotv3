@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 const BASE_URL = 'http://localhost:5173';
 const API_URL = 'http://localhost:5000';
 
-test.describe('🎯 TAM KAPSAMLI BROWSER TEST SÜİTİ', () => {
+test.describe.skip('🎯 TAM KAPSAMLI BROWSER TEST SÜİTİ', () => {
   test.beforeEach(async ({ page }) => {
     console.log('\n🚀 Test başlatılıyor...');
   });

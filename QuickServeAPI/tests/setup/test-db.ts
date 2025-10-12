@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   balance REAL NOT NULL DEFAULT 0,
   currency TEXT NOT NULL DEFAULT 'TRY',
   is_active INTEGER DEFAULT 1,
+  deleted_at TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

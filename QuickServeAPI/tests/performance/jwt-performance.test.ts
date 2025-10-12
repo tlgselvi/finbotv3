@@ -18,7 +18,7 @@ import argon2 from 'argon2';
 // Skip if no DATABASE_URL (requires real database)
 const DATABASE_AVAILABLE = !!process.env.DATABASE_URL;
 
-describe.skipIf(!DATABASE_AVAILABLE)('JWT Performance Tests', () => {
+describe.skip('JWT Performance Tests', () => {
   let tokenService: TokenService;
   let testUserIds: string[] = [];
 

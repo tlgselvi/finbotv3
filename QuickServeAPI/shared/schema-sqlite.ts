@@ -25,6 +25,7 @@ export const accounts = sqliteTable('accounts', {
   balance: real('balance').notNull().default(0),
   currency: text('currency').notNull().default('TRY'),
   is_active: integer('is_active', { mode: 'boolean' }).default(true),
+  deleted_at: text('deleted_at'),
   created_at: text('created_at').notNull(),
   updated_at: text('updated_at').notNull(),
 });
@@ -184,4 +185,25 @@ export const reconciliationLogs = sqliteTable('reconciliation_logs', {
   confidence: real('confidence'),
   details: text('details'),
   created_at: text('created_at').notNull(),
+});
+
+// Refresh Tokens table
+export const refreshTokens = sqliteTable('refresh_tokens', {
+  id: text('id').primaryKey(),
+  user_id: text('user_id').notNull(),
+  token: text('token').notNull().unique(),
+  family_id: text('family_id').notNull(),
+  expires_at: text('expires_at').notNull(),
+  is_revoked: integer('is_revoked', { mode: 'boolean' }).default(false),
+  created_at: text('created_at').notNull(),
+});
+
+// Revoked Tokens table
+export const revokedTokens = sqliteTable('revoked_tokens', {
+  id: text('id').primaryKey(),
+  token: text('token').notNull().unique(),
+  user_id: text('user_id').notNull(),
+  reason: text('reason'),
+  revoked_at: text('revoked_at').notNull(),
+  expires_at: text('expires_at').notNull(),
 });
