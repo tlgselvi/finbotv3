@@ -1,10 +1,5 @@
 import { db } from './db';
-import {
-  users,
-  accounts,
-  transactions,
-  budgetLines,
-} from '../shared/schema';
+import { users, accounts, transactions, budgetLines } from '../shared/schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { logger } from './utils/logger';

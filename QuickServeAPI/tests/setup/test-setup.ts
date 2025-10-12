@@ -4,7 +4,6 @@
  */
 
 import { beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
-import { MockFactory } from '../utils/mock-factory.js';
 import {
   testDb,
   resetDatabase,
@@ -30,14 +29,13 @@ beforeAll(() => {
 
 afterAll(() => {
   // Cleanup after all tests
-  MockFactory.resetAllMocks();
-  MockFactory.restoreRealDate();
+  vi.clearAllMocks();
   closeDatabase();
 });
 
 beforeEach(() => {
   // Reset mocks before each test
-  MockFactory.resetAllMocks();
+  vi.clearAllMocks();
 });
 
 afterEach(() => {
@@ -321,7 +319,13 @@ vi.mock('morgan', () => ({
 
 // Mock winston logger
 vi.mock('winston', () => ({
-  createLogger: vi.fn(() => MockFactory.createMockLogger()),
+  createLogger: vi.fn(() => ({
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    log: vi.fn(),
+  })),
   format: {
     combine: vi.fn(),
     timestamp: vi.fn(),
@@ -458,13 +462,15 @@ vi.mock('exceljs', () => ({
         readFile: vi.fn().mockResolvedValue(undefined),
         writeBuffer: vi.fn().mockResolvedValue(Buffer.from('test')),
       },
-      worksheets: [{
-        name: 'Sheet1',
-        rowCount: 2,
-        getRow: vi.fn().mockReturnValue({
-          values: ['Header1', 'Header2'],
-        }),
-      }],
+      worksheets: [
+        {
+          name: 'Sheet1',
+          rowCount: 2,
+          getRow: vi.fn().mockReturnValue({
+            values: ['Header1', 'Header2'],
+          }),
+        },
+      ],
     })),
   },
 }));
@@ -502,5 +508,3 @@ vi.mock('simple-statistics', () => ({
   ),
   linearRegression: vi.fn(() => ({ m: 1, b: 0, r2: 0.95 })),
 }));
-
-export { MockFactory };

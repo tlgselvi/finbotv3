@@ -35,9 +35,7 @@ export class AlertService {
           };
 
           await storage.createSystemAlert(alertData);
-          logger.info(
-            `Low balance alert created for account ${account.name}`
-          );
+          logger.info(`Low balance alert created for account ${account.name}`);
         }
 
         // Dismiss alerts if balance is now sufficient

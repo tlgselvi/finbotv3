@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-// import { trends } from '../../modules\analytics\trends';
+// import { progress-payment } from '../../modules\finance\progress-payment';
 
-describe('trends', () => {
+describe('progress-payment', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

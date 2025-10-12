@@ -12,12 +12,7 @@ import {
   between,
   isNull,
 } from 'drizzle-orm';
-import {
-  accounts,
-  transactions,
-  credits,
-  auditLogs,
-} from './db/schema';
+import { accounts, transactions, credits, auditLogs } from './db/schema';
 import { logger } from './utils/logger';
 
 // Query optimization utilities

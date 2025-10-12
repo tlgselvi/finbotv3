@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-// import { trends } from '../../modules\analytics\trends';
+// import { csv-export } from '../../modules\export\csv-export';
 
-describe('trends', () => {
+describe('csv-export', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

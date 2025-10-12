@@ -469,7 +469,9 @@ export class TransactionJsonService {
         filePath,
       };
     } catch (error) {
-      logger.error('Kategori analizi JSON dışa aktarma hatası: ' + String(error));
+      logger.error(
+        'Kategori analizi JSON dışa aktarma hatası: ' + String(error)
+      );
       return {
         success: false,
         message: `JSON dışa aktarma hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,

@@ -54,15 +54,9 @@ import {
   logJWTAccess,
 } from './middleware/jwt-auth';
 import { responseCache } from './middleware/response-cache';
-import {
-  securityAudit,
-  rateLimitWithAudit,
-} from './middleware/security-audit';
+import { securityAudit, rateLimitWithAudit } from './middleware/security-audit';
 import aiAnalysisRouter from './routes/ai-analysis';
-import {
-  updateUserRoleSchema,
-  updateUserStatusSchema,
-} from '../shared/schema';
+import { updateUserRoleSchema, updateUserStatusSchema } from '../shared/schema';
 import { alertService } from './alert-service';
 import { transactionJsonService } from './transaction-json-service';
 import { realtimeService } from './realtime-service';
@@ -1321,7 +1315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: AuthenticatedRequest, res) => {
       try {
         if (req.session.userId) {
-      // Auth log removed
+          // Auth log removed
 
           // Destroy session
           req.session.destroy(err => {

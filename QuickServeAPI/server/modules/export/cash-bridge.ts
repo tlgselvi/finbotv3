@@ -70,7 +70,9 @@ export function generateCashBridgeReport(
       description: transaction.description || '',
       amount: Math.abs(amount),
       type: isInflow ? 'inflow' : 'outflow',
-      date: transaction.createdAt ? new Date(transaction.createdAt) : new Date(),
+      date: transaction.createdAt
+        ? new Date(transaction.createdAt)
+        : new Date(),
       accountId: transaction.accountId,
       accountName: account?.name || 'Bilinmeyen Hesap',
     };

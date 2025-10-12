@@ -18,10 +18,12 @@ const initSQL = `
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
-  name TEXT,
-  password TEXT NOT NULL,
-  role TEXT DEFAULT 'USER',
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  role TEXT DEFAULT 'user',
   is_active INTEGER DEFAULT 1,
+  email_verified INTEGER DEFAULT 0,
+  last_login TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -77,16 +79,15 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
 CREATE TABLE IF NOT EXISTS accounts (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
+  name TEXT NOT NULL,
   type TEXT NOT NULL,
   bank_name TEXT,
-  account_name TEXT NOT NULL,
-  balance TEXT DEFAULT '0',
-  currency TEXT DEFAULT 'TRY',
-  iban TEXT,
   account_number TEXT,
+  balance REAL NOT NULL DEFAULT 0,
+  currency TEXT NOT NULL DEFAULT 'TRY',
   is_active INTEGER DEFAULT 1,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -95,14 +96,13 @@ CREATE TABLE IF NOT EXISTS transactions (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
   account_id TEXT NOT NULL,
-  amount TEXT NOT NULL,
+  amount REAL NOT NULL,
   type TEXT NOT NULL,
-  category TEXT,
+  category TEXT NOT NULL,
   description TEXT,
   date TEXT NOT NULL,
-  balance TEXT,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  created_at TEXT NOT NULL,
+  updated_at TEXT,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
 );
@@ -113,51 +113,69 @@ CREATE TABLE IF NOT EXISTS recurring_transactions (
   user_id TEXT NOT NULL,
   account_id TEXT NOT NULL,
   name TEXT NOT NULL,
-  amount TEXT NOT NULL,
+  amount REAL NOT NULL,
   type TEXT NOT NULL,
   category TEXT NOT NULL,
   description TEXT,
-  frequency TEXT NOT NULL,
+  interval_type TEXT NOT NULL,
+  interval_count INTEGER NOT NULL DEFAULT 1,
   start_date TEXT NOT NULL,
   end_date TEXT,
   last_processed TEXT,
   next_due TEXT NOT NULL,
   is_active INTEGER DEFAULT 1,
   currency TEXT DEFAULT 'TRY',
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
 );
 
--- Budget Lines table
-CREATE TABLE IF NOT EXISTS budget_lines (
+-- Budget Lines table (matches budgets table in schema-sqlite.ts)
+CREATE TABLE IF NOT EXISTS budgets (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
+  name TEXT NOT NULL,
   category TEXT NOT NULL,
-  budgeted_amount TEXT NOT NULL,
-  actual_amount TEXT DEFAULT '0',
-  month TEXT NOT NULL,
-  currency TEXT DEFAULT 'TRY',
-  notes TEXT,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  amount REAL NOT NULL,
+  period TEXT NOT NULL,
+  start_date TEXT NOT NULL,
+  end_date TEXT,
+  is_active INTEGER DEFAULT 1,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Aging table
-CREATE TABLE IF NOT EXISTS aging (
+-- Alerts table
+CREATE TABLE IF NOT EXISTS alerts (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
   type TEXT NOT NULL,
-  reference_id TEXT,
-  amount TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  severity TEXT NOT NULL DEFAULT 'medium',
+  account_id TEXT,
+  is_active INTEGER DEFAULT 1,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- AR/AP Items table
+CREATE TABLE IF NOT EXISTS ar_ap_items (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  invoice_number TEXT,
+  customer_supplier TEXT NOT NULL,
+  amount REAL NOT NULL,
   due_date TEXT NOT NULL,
-  days_overdue INTEGER DEFAULT 0,
-  status TEXT DEFAULT 'pending',
-  priority TEXT DEFAULT 'medium',
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  age_days INTEGER DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'pending',
+  currency TEXT NOT NULL DEFAULT 'TRY',
+  notes TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -255,8 +273,9 @@ export function resetDatabase() {
     'bank_transactions',
     'import_batches',
     'bank_integrations',
-    'aging',
-    'budget_lines',
+    'ar_ap_items',
+    'alerts',
+    'budgets',
     'recurring_transactions',
     'transactions',
     'accounts',
@@ -277,32 +296,37 @@ export function resetDatabase() {
  * Seed test data
  */
 export function seedTestData() {
+  const now = new Date().toISOString();
+
   // Add a test user
   sqlite
     .prepare(
       `
-    INSERT INTO users (id, email, name, password, role, is_active)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO users (id, email, username, password_hash, role, is_active, email_verified, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `
     )
     .run(
       'test-user-id',
       'test@example.com',
-      'Test User',
+      'testuser',
       'hashed-password',
-      'USER',
-      1
+      'user',
+      1,
+      1,
+      now,
+      now
     );
 
   // Add test user profile
   sqlite
     .prepare(
       `
-    INSERT INTO user_profiles (user_id, role, permissions)
-    VALUES (?, ?, ?)
+    INSERT INTO user_profiles (user_id, role, permissions, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?)
   `
     )
-    .run('test-user-id', 'USER', JSON.stringify(['READ', 'WRITE']));
+    .run('test-user-id', 'USER', JSON.stringify(['READ', 'WRITE']), now, now);
 }
 
 /**

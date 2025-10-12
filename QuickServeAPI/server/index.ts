@@ -68,12 +68,12 @@ app.get('*', (req, res) => {
 // Error handling
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error('Unhandled error:', err);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Internal server error',
     ...(process.env.NODE_ENV === 'development' && {
       details: err.message,
-      stack: err.stack
-    })
+      stack: err.stack,
+    }),
   });
 });
 

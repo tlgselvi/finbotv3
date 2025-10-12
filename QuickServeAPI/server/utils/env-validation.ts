@@ -40,24 +40,15 @@ const envSchema = z.object({
 
   // Security - Use production-safe defaults
   BCRYPT_ROUNDS: z
-    .union([
-      z.string().transform(Number),
-      z.number(),
-    ])
+    .union([z.string().transform(Number), z.number()])
     .pipe(z.number().min(10).max(15))
     .default(12),
   RATE_LIMIT_WINDOW: z
-    .union([
-      z.string().transform(Number),
-      z.number(),
-    ])
+    .union([z.string().transform(Number), z.number()])
     .pipe(z.number().min(1))
     .default(15),
   RATE_LIMIT_MAX: z
-    .union([
-      z.string().transform(Number),
-      z.number(),
-    ])
+    .union([z.string().transform(Number), z.number()])
     .pipe(z.number().min(1))
     .default(100),
 
@@ -74,40 +65,25 @@ const envSchema = z.object({
   // Turkey specific - Use Turkish defaults
   DEFAULT_CURRENCY: z.string().default('TRY'),
   VAT_RATE: z
-    .union([
-      z.string().transform(Number),
-      z.number(),
-    ])
+    .union([z.string().transform(Number), z.number()])
     .pipe(z.number().min(0).max(1))
     .default(0.2),
   SGK_RATE: z
-    .union([
-      z.string().transform(Number),
-      z.number(),
-    ])
+    .union([z.string().transform(Number), z.number()])
     .pipe(z.number().min(0).max(1))
     .default(0.15),
 
   // Performance - Production-safe defaults
   MAX_CONCURRENT_REQUESTS: z
-    .union([
-      z.string().transform(Number),
-      z.number(),
-    ])
+    .union([z.string().transform(Number), z.number()])
     .pipe(z.number().min(1))
     .default(100),
   REQUEST_TIMEOUT: z
-    .union([
-      z.string().transform(Number),
-      z.number(),
-    ])
+    .union([z.string().transform(Number), z.number()])
     .pipe(z.number().min(1000))
     .default(30000),
   CACHE_TTL: z
-    .union([
-      z.string().transform(Number),
-      z.number(),
-    ])
+    .union([z.string().transform(Number), z.number()])
     .pipe(z.number().min(60))
     .default(3600),
 });

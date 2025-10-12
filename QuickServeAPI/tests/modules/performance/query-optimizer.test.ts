@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-// import { trends } from '../../modules\analytics\trends';
+// import { query-optimizer } from '../../modules\performance\query-optimizer';
 
-describe('trends', () => {
+describe('query-optimizer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

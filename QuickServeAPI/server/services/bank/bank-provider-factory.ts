@@ -3,10 +3,7 @@
  * Creates and manages bank integration providers
  */
 
-import {
-  BaseBankProvider,
-  BankCredentials,
-} from './providers/base-provider';
+import { BaseBankProvider, BankCredentials } from './providers/base-provider';
 import { OpenBankingProvider } from './providers/open-banking-provider';
 import { TurkishBankProvider } from './providers/turkish-bank-provider';
 

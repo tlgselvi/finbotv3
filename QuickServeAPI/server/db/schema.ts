@@ -309,7 +309,9 @@ export const agingReports = pgTable('aging_reports', {
     precision: 15,
     scale: 2,
   }).default('0'),
-  currentAmount: numeric('current_amount', { precision: 15, scale: 2 }).default('0'),
+  currentAmount: numeric('current_amount', { precision: 15, scale: 2 }).default(
+    '0'
+  ),
   current: numeric('current', { precision: 15, scale: 2 }).default('0'),
   days30: numeric('days_30', { precision: 15, scale: 2 }).default('0'),
   days60: numeric('days_60', { precision: 15, scale: 2 }).default('0'),
