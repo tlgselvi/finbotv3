@@ -1,8 +1,8 @@
 # 🚀 FinBot v3 - Advanced Financial Management System
 
-**Versiyon:** 3.0  
+**Versiyon:** 3.0.0  
 **Durum:** ✅ Production Ready  
-**Son Güncelleme:** 2025-10-12
+**Son Güncelleme:** 2025-10-13
 
 FinBot v3, Türkiye'ye özel geliştirilmiş kapsamlı bir finansal yönetim sistemidir. KDV, SGK, vergi hesaplamaları ve gelişmiş raporlama özellikleri ile işletmelerin finansal süreçlerini optimize eder.
 
@@ -25,16 +25,19 @@ finbotv3/
 # 1. Bağımlılıkları yükle
 pnpm install
 
-# 2. Database oluştur
+# 2. PostgreSQL veritabanını kur
 pnpm db:push
 
 # 3. Başlat
 pnpm dev
 ```
 
+> **🆕 Yeni:** PostgreSQL migration tamamlandı! SQLite'dan PostgreSQL'e geçiş yapıldı.
+
 ## 🔧 Gereksinimler
-- Node.js >= 18.0.0
-- npm >= 8.0.0
+- Node.js >= 20.19.0
+- pnpm >= 9.0.0
+- PostgreSQL >= 13.0
 
 ### Kurulum
 
@@ -43,10 +46,11 @@ pnpm dev
    npm run install:all
    ```
 
-2. **Veritabanını kur:**
+2. **PostgreSQL veritabanını kur:**
    ```bash
    cd QuickServeAPI
-   npm run db:setup
+   # PostgreSQL bağlantı bilgilerini .env dosyasına ekleyin
+   npm run db:push
    ```
 
 3. **Geliştirme sunucusunu başlat:**
@@ -88,6 +92,12 @@ npm run cto:start -- optimize -p FinBot
 - ✅ Simülasyon modelleri
 - ✅ Gelişmiş dashboard
 
+### Sprint 4 - Production Ready
+- ✅ PostgreSQL migration tamamlandı
+- ✅ Render deployment konfigürasyonu
+- ✅ Production database setup
+- ✅ Comprehensive SQL scripts
+
 ## 🧪 Test
 
 ```bash
@@ -109,6 +119,24 @@ npm run build
 # Preview build
 npm run preview
 ```
+
+## 🚀 Production Deployment
+
+### Render.com Deployment
+```bash
+# Production build
+npm run build
+
+# Render deployment (otomatik)
+git push origin main
+```
+
+**Production URL:** https://finbot-v3.onrender.com
+
+### Database Configuration
+- **PostgreSQL Database:** finbot-db
+- **Connection:** Render managed PostgreSQL
+- **Migration:** Otomatik migration scriptleri dahil
 
 ## 📚 Dokümantasyon
 
@@ -141,7 +169,7 @@ npm run format
 npm run type-check
 ```
 
-### Veritabanı
+### Veritabanı (PostgreSQL)
 ```bash
 # Migration oluştur
 npm run db:generate
@@ -149,8 +177,14 @@ npm run db:generate
 # Migration çalıştır
 npm run db:migrate
 
+# Veritabanı değişikliklerini push et
+npm run db:push
+
 # Veritabanı studio
 npm run db:studio
+
+# Seed data ekle
+npm run db:seed
 ```
 
 ## 📄 Lisans
