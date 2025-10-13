@@ -100,15 +100,42 @@ npm run cto:start -- optimize -p FinBot
 
 ## 🧪 Test
 
+### Test Durumu
+- **Toplam Test Dosyası:** 138 test dosyası
+- **Test Kategorileri:** 43 farklı test klasörü
+- **Durum:** ⚠️ PostgreSQL migration sonrası test setup güncelleniyor
+
+### Test Komutları
 ```bash
 # Tüm testleri çalıştır
 npm run test
+
+# Hızlı test (kritik testler)
+npm run test:quick
 
 # Belirli test kategorileri
 npm run test:unit
 npm run test:integration
 npm run test:performance
+npm run test:business
+npm run test:security
+
+# Test coverage
+npm run test:coverage
+
+# E2E testler
+npm run test:e2e
 ```
+
+### Test Kategorileri
+- **Business Logic:** DSCR, cash gap, runway scenarios
+- **API Endpoints:** Dashboard, JWT, authentication
+- **Components:** React component tests
+- **Database:** Schema, seed, migration tests
+- **Integration:** Auth flow, bank integration
+- **Security:** JWT, authentication flows
+- **Performance:** Load testing, optimization
+- **E2E:** Complete workflow tests
 
 ## 🏗️ Build
 
@@ -142,18 +169,23 @@ git push origin main
 
 ### 🎯 Proje Dokümantasyonu
 - **[Kapsamlı Proje Dokümantasyonu](./FINBOT_V3_FULL_DOCUMENTATION.md)** - Executive Summary, Business Model, Technical Architecture, Investor Pitch
-- **[Test Planı](./TEST_PLAN.md)** - Kapsamlı test stratejisi (97/97 tests passing)
+- **[Test Planı](./TEST_PLAN.md)** - Kapsamlı test stratejisi (138 test dosyası, PostgreSQL migration sonrası güncelleniyor)
 - **[CTO Koçu Config](./agent-config.md)** - CTO Koçu v2 konfigürasyonu
 
 ### 💻 Teknik Dokümantasyon
 - **[QuickServeAPI README](./QuickServeAPI/README.md)** - Ana uygulama dokümantasyonu
-- **[Test Suite README](./QuickServeAPI/tests/README.md)** - Test dokümantasyonu
+- **[Test Suite README](./QuickServeAPI/tests/README.md)** - Test dokümantasyonu (138 test dosyası)
 - **[API Referansı](./QuickServeAPI/docs/API_REFERENCE.md)** - Kapsamlı API dokümantasyonu
 - **[Sistem Mimarisi](./QuickServeAPI/docs/ARCHITECTURE.md)** - Sistem tasarımı
 - **[Deployment Rehberi](./QuickServeAPI/docs/DEPLOYMENT.md)** - Production deployment
 - **[Dashboard Kılavuzu](./QuickServeAPI/docs/DASHBOARD_GUIDE.md)** - Dashboard kullanımı
 - **[Export Formatları](./QuickServeAPI/docs/EXPORT_FORMATS.md)** - Export detayları
 - **[Güvenlik API](./QuickServeAPI/docs/SECURITY_API.md)** - Güvenlik endpoint'leri
+
+### 🗄️ Database Dokümantasyonu
+- **[PostgreSQL Setup](./QuickServeAPI/comprehensive-postgresql-setup.sql)** - Kapsamlı PostgreSQL kurulum
+- **[Table Creation](./QuickServeAPI/create-tables.sql)** - Tablo oluşturma scriptleri
+- **[Simple Tables](./QuickServeAPI/simple-tables.sql)** - Basit tablo yapısı
 
 ## 🔧 Geliştirme
 

@@ -102,8 +102,8 @@
     "csv-parser": "^3.2.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.36.4",
     "drizzle-kit": "^0.31.5",
+    "drizzle-orm": "^0.36.4",
     "embla-carousel-react": "^8.6.0",
     "exceljs": "^4.4.0",
     "express": "^4.21.2",
@@ -187,7 +187,13 @@
   "pnpm": {
     "overrides": {
       "esbuild": "0.25.0"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "argon2",
+      "better-sqlite3",
+      "esbuild",
+      "puppeteer"
+    ]
   },
   "resolutions": {
     "esbuild": "0.25.0"
