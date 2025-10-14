@@ -5,7 +5,11 @@ import * as schema from './db/schema';
 
 // Database connection
 const connectionString = process.env.DATABASE_URL || 'postgresql://localhost:5432/finbot';
-const client = postgres(connectionString);
+// Add SSL mode for production (Render requires SSL)
+const sslConnectionString = connectionString.includes('?') 
+  ? `${connectionString}&sslmode=require`
+  : `${connectionString}?sslmode=require`;
+const client = postgres(sslConnectionString);
 export const db = drizzle(client, { schema });
 
 // Database interface for backward compatibility - PostgreSQL version
