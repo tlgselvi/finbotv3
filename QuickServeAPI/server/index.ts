@@ -54,18 +54,29 @@ app.use(express.static(staticPath, {
 }));
 
 // Explicit static file routes needed by PWA
-app.get('/manifest.json', (_req, res) => {
-  const manifestPath = path.join(staticPath, 'manifest.json');
+app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
+  const manifestFile = req.path.endsWith('.webmanifest')
+    ? 'manifest.webmanifest'
+    : 'manifest.json';
+  const manifestPath = path.join(staticPath, manifestFile);
+  logger.info(`Manifest request: ${req.path} -> ${manifestPath}`);
+  logger.info(`Manifest exists: ${fs.existsSync(manifestPath)}`);
   if (!fs.existsSync(manifestPath)) {
-    return res.status(404).end();
+    // Debug: list directory contents to verify deploy state
+    try {
+      const files = fs.readdirSync(staticPath);
+      logger.warn('Static directory listing:', files);
+    } catch {}
+    return res.status(404).json({ error: 'manifest not found', path: manifestPath });
   }
-  res.type('application/json').sendFile(manifestPath);
+  res.type('application/manifest+json').sendFile(manifestPath);
 });
 
 app.get('/favicon.ico', (_req, res) => {
   const favPath = path.join(staticPath, 'favicon.ico');
+  logger.info(`Favicon path: ${favPath} exists=${fs.existsSync(favPath)}`);
   if (!fs.existsSync(favPath)) {
-    return res.status(404).end();
+    return res.status(404).json({ error: 'favicon not found', path: favPath });
   }
   res.type('image/x-icon').sendFile(favPath);
 });
