@@ -31,6 +31,10 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 | "Deploy et" | `node scripts/auto-deploy-v3.js` |
 | "Otomatik deploy" | `node scripts/auto-deploy-v3.js` |
 | "Full deploy" | `node scripts/auto-deploy-v3.js` |
+| "Temizle" | `node scripts/cleanup-v3.js` |
+| "Cache temizle" | `node scripts/cleanup-v3.js --cache` |
+| "Log temizle" | `node scripts/cleanup-v3.js --logs` |
+| "Gereksiz dosyaları sil" | `node scripts/cleanup-v3.js --all` |
 
 ## 🔹 Kurallar
 1. Yanıtlar kısa ve teknik olmalı.

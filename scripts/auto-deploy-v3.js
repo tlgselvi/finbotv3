@@ -373,110 +373,110 @@ ${results.allSuccess ?
 
 // Ana fonksiyon - Tüm sorunları otomatik çöz
 async function main() {
-  const results = {
-    gitStatus: false,
-    commit: false,
-    push: false,
-    build: false,
-    renderDeploy: false,
-    postDeployTest: false,
-    ctoTest: false,
-    allSuccess: false
-  };
-  
-  try {
-    console.log('🔧 OTOMATİK SORUN ÇÖZME SİSTEMİ AKTİF!');
-    console.log('=====================================\n');
-    
-    // 1. Git durumu ve sorunları çöz
-    console.log('1️⃣ Git durumu kontrol ediliyor...');
-    results.gitStatus = checkGitStatus();
-    
-    // 2. Değişiklikleri commit et ve sorunları çöz
-    console.log('\n2️⃣ Değişiklikler commit ediliyor...');
-    if (results.gitStatus) {
-      results.commit = commitChanges();
-    } else {
-      console.log('ℹ️ Commit edilecek değişiklik yok');
-      results.commit = true;
-    }
-    
-    // 3. GitHub'a push et ve sorunları çöz
-    console.log('\n3️⃣ GitHub\'a push ediliyor...');
-    results.push = pushToGitHub();
-    
-    // 4. Build kontrolü ve sorunları çöz
-    console.log('\n4️⃣ Build kontrolü yapılıyor...');
-    results.build = checkBuild();
-    
-    // 5. Render.com deploy kontrolü ve sorunları çöz
-    console.log('\n5️⃣ Render.com deploy kontrol ediliyor...');
-    console.log('⏳ Deploy için 60 saniye bekleniyor...');
-    await new Promise(resolve => setTimeout(resolve, 60000));
-    results.renderDeploy = await checkRenderDeploy();
-    
-    // 6. Deploy sonrası test ve sorunları çöz
-    console.log('\n6️⃣ Deploy sonrası test yapılıyor...');
-    results.postDeployTest = await testAfterDeploy();
-    
-    // 7. CTO Koçu v3 test ve sorunları çöz
-    console.log('\n7️⃣ CTO Koçu v3 test ediliyor...');
-    results.ctoTest = testCTOKoçuV3();
-    
-    // 8. Sonuç hesapla
-    results.allSuccess = results.push && results.build && results.renderDeploy && results.postDeployTest && results.ctoTest;
-    
-    // 9. Rapor oluştur
-    createDeployReport(results);
-    
-    // 10. Sonuç
-    console.log('\n🎯 OTOMATİK DEPLOY TAMAMLANDI!');
-    console.log('================================');
-    console.log(`Git İşlemleri: ${results.push ? '✅' : '❌'}`);
-    console.log(`Build İşlemleri: ${results.build ? '✅' : '❌'}`);
-    console.log(`Render.com Deploy: ${results.renderDeploy ? '✅' : '❌'}`);
-    console.log(`Post-Deploy Test: ${results.postDeployTest ? '✅' : '❌'}`);
-    console.log(`CTO Koçu v3 Test: ${results.ctoTest ? '✅' : '❌'}`);
-    console.log(`\n🎉 Genel Durum: ${results.allSuccess ? 'BAŞARILI' : 'KISMEN BAŞARILI'}`);
-    
-    if (results.allSuccess) {
-      console.log('\n🚀 CTO Koçu v3 tamamen deploy edildi ve çalışıyor!');
-      console.log('🌐 URL: https://finbot-v3.onrender.com');
-      console.log('🤖 CTO Koçu v3 komutları hazır!');
-      console.log('\n💡 Kullanılabilir Komutlar:');
-      console.log('- "Sprint hazırla"');
-      console.log('- "Audit yap"');
-      console.log('- "Optimize et"');
-      console.log('- "Deploy et"');
-    } else {
-      console.log('\n⚠️ Bazı işlemler başarısız. DEPLOY_RAPORU_V3.md dosyasını kontrol edin.');
-      console.log('🔧 Sorunları çözmek için tekrar "Deploy et" komutunu çalıştırın.');
-    }
-    
-  } catch (error) {
-    console.error('❌ Kritik hata:', error.message);
-    console.log('🔧 Kritik hata çözülüyor...');
-    
-    // Kritik hata durumunda temel kontrolleri yap
+    const results = {
+        gitStatus: false,
+        commit: false,
+        push: false,
+        build: false,
+        renderDeploy: false,
+        postDeployTest: false,
+        ctoTest: false,
+        allSuccess: false
+    };
+
     try {
-      console.log('📋 Temel kontroller yapılıyor...');
-      const basicCheck = {
-        git: checkGitStatus(),
-        build: checkBuild(),
-        cto: testCTOKoçuV3()
-      };
-      
-      console.log('📊 Temel Kontrol Sonuçları:');
-      console.log(`Git: ${basicCheck.git ? '✅' : '❌'}`);
-      console.log(`Build: ${basicCheck.build ? '✅' : '❌'}`);
-      console.log(`CTO Koçu: ${basicCheck.cto ? '✅' : '❌'}`);
-      
-    } catch (basicError) {
-      console.error('❌ Temel kontroller de başarısız:', basicError.message);
+        console.log('🔧 OTOMATİK SORUN ÇÖZME SİSTEMİ AKTİF!');
+        console.log('=====================================\n');
+
+        // 1. Git durumu ve sorunları çöz
+        console.log('1️⃣ Git durumu kontrol ediliyor...');
+        results.gitStatus = checkGitStatus();
+
+        // 2. Değişiklikleri commit et ve sorunları çöz
+        console.log('\n2️⃣ Değişiklikler commit ediliyor...');
+        if (results.gitStatus) {
+            results.commit = commitChanges();
+        } else {
+            console.log('ℹ️ Commit edilecek değişiklik yok');
+            results.commit = true;
+        }
+
+        // 3. GitHub'a push et ve sorunları çöz
+        console.log('\n3️⃣ GitHub\'a push ediliyor...');
+        results.push = pushToGitHub();
+
+        // 4. Build kontrolü ve sorunları çöz
+        console.log('\n4️⃣ Build kontrolü yapılıyor...');
+        results.build = checkBuild();
+
+        // 5. Render.com deploy kontrolü ve sorunları çöz
+        console.log('\n5️⃣ Render.com deploy kontrol ediliyor...');
+        console.log('⏳ Deploy için 60 saniye bekleniyor...');
+        await new Promise(resolve => setTimeout(resolve, 60000));
+        results.renderDeploy = await checkRenderDeploy();
+
+        // 6. Deploy sonrası test ve sorunları çöz
+        console.log('\n6️⃣ Deploy sonrası test yapılıyor...');
+        results.postDeployTest = await testAfterDeploy();
+
+        // 7. CTO Koçu v3 test ve sorunları çöz
+        console.log('\n7️⃣ CTO Koçu v3 test ediliyor...');
+        results.ctoTest = testCTOKoçuV3();
+
+        // 8. Sonuç hesapla
+        results.allSuccess = results.push && results.build && results.renderDeploy && results.postDeployTest && results.ctoTest;
+
+        // 9. Rapor oluştur
+        createDeployReport(results);
+
+        // 10. Sonuç
+        console.log('\n🎯 OTOMATİK DEPLOY TAMAMLANDI!');
+        console.log('================================');
+        console.log(`Git İşlemleri: ${results.push ? '✅' : '❌'}`);
+        console.log(`Build İşlemleri: ${results.build ? '✅' : '❌'}`);
+        console.log(`Render.com Deploy: ${results.renderDeploy ? '✅' : '❌'}`);
+        console.log(`Post-Deploy Test: ${results.postDeployTest ? '✅' : '❌'}`);
+        console.log(`CTO Koçu v3 Test: ${results.ctoTest ? '✅' : '❌'}`);
+        console.log(`\n🎉 Genel Durum: ${results.allSuccess ? 'BAŞARILI' : 'KISMEN BAŞARILI'}`);
+
+        if (results.allSuccess) {
+            console.log('\n🚀 CTO Koçu v3 tamamen deploy edildi ve çalışıyor!');
+            console.log('🌐 URL: https://finbot-v3.onrender.com');
+            console.log('🤖 CTO Koçu v3 komutları hazır!');
+            console.log('\n💡 Kullanılabilir Komutlar:');
+            console.log('- "Sprint hazırla"');
+            console.log('- "Audit yap"');
+            console.log('- "Optimize et"');
+            console.log('- "Deploy et"');
+        } else {
+            console.log('\n⚠️ Bazı işlemler başarısız. DEPLOY_RAPORU_V3.md dosyasını kontrol edin.');
+            console.log('🔧 Sorunları çözmek için tekrar "Deploy et" komutunu çalıştırın.');
+        }
+
+    } catch (error) {
+        console.error('❌ Kritik hata:', error.message);
+        console.log('🔧 Kritik hata çözülüyor...');
+
+        // Kritik hata durumunda temel kontrolleri yap
+        try {
+            console.log('📋 Temel kontroller yapılıyor...');
+            const basicCheck = {
+                git: checkGitStatus(),
+                build: checkBuild(),
+                cto: testCTOKoçuV3()
+            };
+
+            console.log('📊 Temel Kontrol Sonuçları:');
+            console.log(`Git: ${basicCheck.git ? '✅' : '❌'}`);
+            console.log(`Build: ${basicCheck.build ? '✅' : '❌'}`);
+            console.log(`CTO Koçu: ${basicCheck.cto ? '✅' : '❌'}`);
+
+        } catch (basicError) {
+            console.error('❌ Temel kontroller de başarısız:', basicError.message);
+        }
+
+        process.exit(1);
     }
-    
-    process.exit(1);
-  }
 }
 
 // Script'i çalıştır
