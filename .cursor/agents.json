@@ -1,4 +1,5 @@
 {
+  "version": "1.0",
   "agents": [
     {
       "id": "cto-koçu-v3",
@@ -7,39 +8,11 @@
       "description": "FinBot v3 için otomatik geliştirme asistanı",
       "status": "active",
       "priority": "high",
-      "config_file": "agent-config.md",
-      "rules_file": ".cursor/rules/CTO-Koçu-v3.yaml",
-      "commands": {
-        "sprint": [
-          "Sprint hazırla",
-          "Sprint 2 hazırla",
-          "Monitoring sprint hazırla"
-        ],
-        "audit": [
-          "Audit yap",
-          "Güvenlik audit"
-        ],
-        "optimize": [
-          "Optimize et",
-          "Performans optimize"
-        ],
-        "release": [
-          "Release oluştur",
-          "Release hazırla"
-        ]
-      },
-      "project": {
-        "name": "FinBot v3",
-        "status": "Production Ready",
-        "url": "https://finbot-v3.onrender.com",
-        "database": "PostgreSQL with SSL/TLS",
-        "deployment": "Render.com"
-      },
-      "last_updated": "2025-10-14T10:21:11.068Z",
+      "config_file": ".cursorrules",
+      "last_updated": "2025-10-14T10:25:59.072Z",
       "developer": "Tolga Selvi"
     }
   ],
   "active_agent": "cto-koçu-v3",
-  "version": "1.0",
-  "last_updated": "2025-10-14T10:21:11.068Z"
+  "last_updated": "2025-10-14T10:25:59.073Z"
 }

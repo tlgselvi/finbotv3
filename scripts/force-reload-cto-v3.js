@@ -13,20 +13,20 @@ console.log('🔄 CTO Koçu v3 Force Reload Başlatılıyor...\n');
 // 1. Cursor cache'ini temizle
 console.log('🧹 Cursor cache temizleniyor...');
 const cacheDirs = [
-  '.cursor/cache',
-  '.vscode/cache',
-  'node_modules/.cache'
+    '.cursor/cache',
+    '.vscode/cache',
+    'node_modules/.cache'
 ];
 
 cacheDirs.forEach(dir => {
-  if (fs.existsSync(dir)) {
-    try {
-      fs.rmSync(dir, { recursive: true, force: true });
-      console.log(`✅ ${dir} temizlendi`);
-    } catch (error) {
-      console.log(`⚠️ ${dir} temizlenemedi: ${error.message}`);
+    if (fs.existsSync(dir)) {
+        try {
+            fs.rmSync(dir, { recursive: true, force: true });
+            console.log(`✅ ${dir} temizlendi`);
+        } catch (error) {
+            console.log(`⚠️ ${dir} temizlenemedi: ${error.message}`);
+        }
     }
-  }
 });
 
 // 2. Agent konfigürasyonunu yeniden oluştur
@@ -218,21 +218,21 @@ console.log('✅ agent-config.md güncellendi');
 // 3. Cursor workspace ayarlarını güncelle
 console.log('\n⚙️ Cursor workspace ayarları güncelleniyor...');
 const vscodeSettings = {
-  "ctoAI.coreIntegration": true,
-  "ctoAI.sharedContext": "./agent-config.md",
-  "ctoAI.projectId": "finbot-v3",
-  "ctoAI.lastSync": new Date().toISOString(),
-  "typescript.preferences.includePackageJsonAutoImports": "auto",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "cursor.general.enableAgent": true,
-  "cursor.general.agentName": "CTO Koçu v3"
+    "ctoAI.coreIntegration": true,
+    "ctoAI.sharedContext": "./agent-config.md",
+    "ctoAI.projectId": "finbot-v3",
+    "ctoAI.lastSync": new Date().toISOString(),
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "cursor.general.enableAgent": true,
+    "cursor.general.agentName": "CTO Koçu v3"
 };
 
 if (!fs.existsSync('.vscode')) {
-  fs.mkdirSync('.vscode', { recursive: true });
+    fs.mkdirSync('.vscode', { recursive: true });
 }
 
 fs.writeFileSync('.vscode/settings.json', JSON.stringify(vscodeSettings, null, 2));
@@ -241,49 +241,49 @@ console.log('✅ Cursor workspace ayarları güncellendi');
 // 4. Agent manifest'i güncelle
 console.log('\n🔄 Agent manifest güncelleniyor...');
 const manifest = {
-  "agents": [
-    {
-      "id": "cto-koçu-v3",
-      "name": "CTO Koçu v3",
-      "version": "3.0",
-      "description": "FinBot v3 için otomatik geliştirme asistanı",
-      "status": "active",
-      "priority": "high",
-      "config_file": "agent-config.md",
-      "rules_file": ".cursor/rules/CTO-Koçu-v3.yaml",
-      "commands": {
-        "sprint": [
-          "Sprint hazırla",
-          "Sprint 2 hazırla",
-          "Monitoring sprint hazırla"
-        ],
-        "audit": [
-          "Audit yap",
-          "Güvenlik audit"
-        ],
-        "optimize": [
-          "Optimize et",
-          "Performans optimize"
-        ],
-        "release": [
-          "Release oluştur",
-          "Release hazırla"
-        ]
-      },
-      "project": {
-        "name": "FinBot v3",
-        "status": "Production Ready",
-        "url": "https://finbot-v3.onrender.com",
-        "database": "PostgreSQL with SSL/TLS",
-        "deployment": "Render.com"
-      },
-      "last_updated": new Date().toISOString(),
-      "developer": "Tolga Selvi"
-    }
-  ],
-  "active_agent": "cto-koçu-v3",
-  "version": "1.0",
-  "last_updated": new Date().toISOString()
+    "agents": [
+        {
+            "id": "cto-koçu-v3",
+            "name": "CTO Koçu v3",
+            "version": "3.0",
+            "description": "FinBot v3 için otomatik geliştirme asistanı",
+            "status": "active",
+            "priority": "high",
+            "config_file": "agent-config.md",
+            "rules_file": ".cursor/rules/CTO-Koçu-v3.yaml",
+            "commands": {
+                "sprint": [
+                    "Sprint hazırla",
+                    "Sprint 2 hazırla",
+                    "Monitoring sprint hazırla"
+                ],
+                "audit": [
+                    "Audit yap",
+                    "Güvenlik audit"
+                ],
+                "optimize": [
+                    "Optimize et",
+                    "Performans optimize"
+                ],
+                "release": [
+                    "Release oluştur",
+                    "Release hazırla"
+                ]
+            },
+            "project": {
+                "name": "FinBot v3",
+                "status": "Production Ready",
+                "url": "https://finbot-v3.onrender.com",
+                "database": "PostgreSQL with SSL/TLS",
+                "deployment": "Render.com"
+            },
+            "last_updated": new Date().toISOString(),
+            "developer": "Tolga Selvi"
+        }
+    ],
+    "active_agent": "cto-koçu-v3",
+    "version": "1.0",
+    "last_updated": new Date().toISOString()
 };
 
 fs.writeFileSync('.cursor/agents.json', JSON.stringify(manifest, null, 2));
