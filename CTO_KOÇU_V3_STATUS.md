@@ -153,5 +153,5 @@ finbotv3/
 Chat penceresinde doğal dil komutlarını kullanarak CTO Koçu v3'ü aktif olarak kullanabilirsin!
 
 ---
-**Son Güncelleme:** 14.10.2025 14:00:54  
+**Son Güncelleme:** 14.10.2025 14:37:19  
 **CTO Koçu v3** — FinBot v3 için otomatik geliştirme asistanı 🚀
