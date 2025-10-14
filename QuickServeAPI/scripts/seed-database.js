@@ -6,9 +6,7 @@
  */
 
 import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import { neon, neonConfig } from '@neondatabase/serverless';
-import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
@@ -29,21 +27,9 @@ async function seedDatabase() {
   try {
     logger.info('🌱 Starting database seeding...');
 
-    // Configure Neon for HTTP connections
-    neonConfig.fetchConnectionCache = true;
-
-    // Use appropriate driver based on URL
-    let db;
-
-    if (DATABASE_URL.includes('neon.tech')) {
-      // Neon database with HTTP connection
-      sqlClient = neon(DATABASE_URL);
-      db = drizzle(sqlClient, { schema });
-    } else {
-      // Standard PostgreSQL
-      sqlClient = postgres(DATABASE_URL);
-      db = drizzlePg(sqlClient, { schema });
-    }
+    // Use PostgreSQL connection
+    sqlClient = postgres(DATABASE_URL);
+    const db = drizzle(sqlClient, { schema });
 
     // Test connection
     await sqlClient`SELECT 1`;

@@ -5,9 +5,7 @@
  * Runs migrations and seed data on startup
  */
 
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import { neon, neonConfig } from '@neondatabase/serverless';
-import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { eq, sql } from 'drizzle-orm';
 import crypto from 'crypto';
@@ -33,21 +31,9 @@ async function setupDatabase() {
   try {
     logger.info('🔄 Setting up database...');
 
-    // Configure Neon for HTTP connections (avoid WebSocket issues)
-    neonConfig.fetchConnectionCache = true;
-
-    // Use appropriate driver based on URL
-    let db;
-
-    if (DATABASE_URL.includes('neon.tech')) {
-      // Neon database with HTTP connection
-      sqlClient = neon(DATABASE_URL);
-      db = drizzle(sqlClient, { schema });
-    } else {
-      // Standard PostgreSQL
-      sqlClient = postgres(DATABASE_URL);
-      db = drizzlePg(sqlClient, { schema });
-    }
+    // Use PostgreSQL connection
+    sqlClient = postgres(DATABASE_URL);
+    const db = drizzle(sqlClient, { schema });
 
     // Test connection
     await sqlClient`SELECT 1`;
@@ -56,11 +42,8 @@ async function setupDatabase() {
     // Run migrations (push schema)
     logger.info('🔄 Running database migrations...');
     try {
-      // Import and run migrations with the correct driver
-      const migratorModule = DATABASE_URL.includes('neon.tech')
-        ? await import('drizzle-orm/neon-serverless/migrator')
-        : await import('drizzle-orm/postgres-js/migrator');
-      const { migrate } = migratorModule;
+      // Import and run migrations
+      const { migrate } = await import('drizzle-orm/postgres-js/migrator');
       await migrate(db, { migrationsFolder: './migrations' });
       logger.info('✅ Database migrations completed');
     } catch (migrationError) {
