@@ -38,6 +38,12 @@ export function validateError(error: Error): { errorType: string; details: any }
 }
 
 export function repair(errorType: string, plan: any, details: any): RepairPlan | null {
+  // Retry limiti kontrolü
+  const retryCount = plan._retryCount || 0;
+  if (retryCount >= 3) {
+    return null; // Maksimum 3 deneme
+  }
+  
   switch (errorType) {
     case 'timeout':
       return {
@@ -45,7 +51,7 @@ export function repair(errorType: string, plan: any, details: any): RepairPlan |
         command: plan.command,
         args: plan.args,
         timeout: 30000, // 30 saniye timeout
-        description: 'Timeout hatası - daha uzun süre ile tekrar dene'
+        description: `Timeout hatası - daha uzun süre ile tekrar dene (${retryCount + 1}/3)`
       };
       
     case 'exitCode':

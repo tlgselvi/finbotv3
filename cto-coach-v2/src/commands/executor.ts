@@ -36,7 +36,9 @@ export async function execute(plan: any): Promise<string> {
             
             try {
                 snapshotManager.restoreSnapshot(snapshot);
-                const retryRaw = await execute(repairPlan);
+                // Retry count'u artır
+                const retryPlan = { ...repairPlan, _retryCount: (plan._retryCount || 0) + 1 };
+                const retryRaw = await execute(retryPlan);
                 const retryResult = JSON.parse(retryRaw);
                 return JSON.stringify({ 
                     ...retryResult, 
