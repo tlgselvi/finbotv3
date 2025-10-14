@@ -47,80 +47,8 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 ✅ Sprint planı oluşturuldu: plans/sprint-plan.md
 ```
 
-**Tolga:** Monitoring sprint hazırla  
-**Agent:**
-```
-> node ./cto-coach-v2/dist/index.js hazirla -p FinBot -s 2
-✅ Sprint 2: Monitoring ve Scaling planı oluşturuldu: plans/sprint-plan.md
-```
-
 **Tolga:** Audit yap  
 **Agent:**
-```
-> node ./cto-coach-v2/dist/index.js audit -p FinBot
-🔒 Güvenlik audit tamamlandı
-```
-
-## 🔹 Desteklenen Komutlar
-- Sprint planları (1: Temel Geliştirme, 2: Monitoring ve Scaling)
-- Güvenlik audit'i
-- Performans optimizasyonu
-- Release notları
-- Proje analizi
-- **Yeni**: Production deployment monitoring
-- **Yeni**: Render.com infrastructure management
-
-## 🔹 Çıktı Formatı
-Her komut sonrası:
-1. CLI komutunu göster
-2. Başarı/hata durumunu belirt
-3. Oluşturulan dosyaları listele (varsa)
-4. Kısa teknik özet ver
-
----
-
-# 📋 Kurulum Rehberi
-
-## 🎯 Cursor'da Agent Kurulumu
-
-### Adım 1: Agent İçe Aktarma
-
-1. **Cursor'ı açın**
-2. **Sol alt köşedeki "Agent" butonuna tıklayın**
-3. **"Import from project" seçeneğini seçin**
-4. **`agent-config.md` dosyasını seçin**
-5. **Agent adını verin:** `CTO Koçu v3`
-6. **"Import" butonuna tıklayın**
-
-### Adım 2: Agent'ı Test Etme
-
-Chat penceresinde şu komutları deneyin:
-
-```
-Sprint hazırla
-```
-
-```
-Monitoring sprint hazırla
-```
-
-```
-Audit yap
-```
-
-```
-Optimize et
-```
-
-## 🔹 Beklenen Çıktılar
-
-### Sprint Hazırla
-```
-> node ./cto-coach-v2/dist/index.js hazirla -p FinBot
-✅ Sprint planı oluşturuldu: plans/sprint-plan.md
-```
-
-### Audit Yap
 ```
 > node ./cto-coach-v2/dist/index.js audit -p FinBot
 🔒 Güvenlik kontrol listesi hazırlandı!
@@ -128,7 +56,8 @@ Optimize et
 ⚠️ Risk skoru: 6/10 (Orta Risk)
 ```
 
-### Optimize Et
+**Tolga:** Optimize et  
+**Agent:**
 ```
 > node ./cto-coach-v2/dist/index.js optimize -p FinBot
 ⚡ Performans metrikleri analiz edildi!
@@ -136,63 +65,114 @@ Optimize et
 📊 Performans skoru: 6/10
 ```
 
-## 📁 Oluşturulan Dosyalar
+## 🔹 Hata Durumları
 
-CTO Koçu v3 çalıştığında şu dosyalar oluşturulur:
+### CLI Bulunamadı
+```
+❌ CTO Koçu CLI bulunamadı: ./cto-coach-v2/dist/index.js
+💡 Çözüm: npm run build komutunu çalıştır
+```
 
-- `plans/sprint-plan.md` - Sprint planları
-- `plans/security-audit.md` - Güvenlik audit raporu
-- `plans/performance-optimization.md` - Performans optimizasyon raporu
+### Proje Dizini Bulunamadı
+```
+❌ FinBot proje dizini bulunamadı
+💡 Çözüm: Doğru dizinde olduğundan emin ol
+```
 
-## 🚀 Production Status (2025-10-14)
+### Database Bağlantı Hatası
+```
+❌ Database bağlantı hatası
+💡 Çözüm: DATABASE_URL environment variable'ını kontrol et
+```
 
-### ✅ Tamamlanan Görevler
-- **Deployment**: Render.com production deployment
-- **Database**: PostgreSQL with SSL/TLS integration
-- **Security**: Automatic HTTPS, SSL mode require
-- **Static Files**: manifest.json, favicon.ico serving fixed
-- **Build Process**: Optimized for Render.com infrastructure
-- **Code Quality**: Database drivers cleaned up (removed Neon, SQLite)
+## 🔹 Gelişmiş Komutlar
 
-### 📊 Current Metrics
-- **Production URL**: https://finbot-v3.onrender.com
-- **Uptime**: 99.9% (Render.com SLA)
-- **Database**: PostgreSQL with 25+ tables
-- **API**: 80+ RESTful endpoints
-- **Security**: A+ grade with SSL
-- **Performance**: <200ms average response
-- **Test Coverage**: ~75% (Vitest)
+### Sprint Yönetimi
+- **"Sprint 1 hazırla"** → İlk sprint planı
+- **"Sprint 2 hazırla"** → İkinci sprint planı  
+- **"Monitoring sprint hazırla"** → Monitoring odaklı sprint
+- **"Bug fix sprint hazırla"** → Bug fix odaklı sprint
 
-### 🎯 Next Sprint Priorities
-1. **Performance Monitoring**: Real-time metrics dashboard
-2. **Error Tracking**: Advanced error monitoring and alerting
-3. **User Analytics**: Usage patterns and behavior analysis
-4. **Mobile App**: React Native mobile application
-5. **Bank Integrations**: Turkish bank API connections
+### Audit ve Güvenlik
+- **"Audit yap"** → Genel kod audit'i
+- **"Güvenlik audit"** → Güvenlik odaklı audit
+- **"Performance audit"** → Performans audit'i
+- **"Code quality audit"** → Kod kalitesi audit'i
 
-## ⚠️ Sorun Giderme
+### Optimizasyon
+- **"Optimize et"** → Genel optimizasyon
+- **"Performans optimize"** → Performans optimizasyonu
+- **"Database optimize"** → Database optimizasyonu
+- **"Frontend optimize"** → Frontend optimizasyonu
+
+### Release Yönetimi
+- **"Release oluştur"** → Yeni release oluştur
+- **"Release hazırla"** → Release hazırlığı
+- **"Hotfix release"** → Acil düzeltme release'i
+- **"Major release"** → Büyük sürüm release'i
+
+## 🔹 Proje Durumu
+
+### ✅ Tamamlanan
+- **FinBot v3**: Render'da live
+- **Database**: PostgreSQL entegrasyonu
+- **API**: 80+ endpoint çalışıyor
+- **Frontend**: React + TypeScript + Vite
+- **Backend**: Node.js + Express + Drizzle ORM
+- **Deployment**: Render.com infrastructure
+
+### 🚀 Aktif Geliştirme
+- **Monitoring**: Real-time metrics
+- **Error Tracking**: Advanced error handling
+- **User Analytics**: Usage patterns
+- **Mobile App**: React Native development
+- **Bank Integrations**: Turkish bank APIs
+
+## 🔹 Teknik Detaylar
+
+### Database Schema
+- **users**: Kullanıcı yönetimi
+- **accounts**: Hesap bilgileri
+- **transactions**: İşlem geçmişi
+- **system_alerts**: Sistem uyarıları
+
+### API Endpoints
+- **Authentication**: `/api/auth/*`
+- **Accounts**: `/api/accounts/*`
+- **Transactions**: `/api/transactions/*`
+- **Analytics**: `/api/analytics/*`
+
+### Environment Variables
+- **DATABASE_URL**: PostgreSQL connection string
+- **NODE_ENV**: production/development
+- **API_PORT**: Server port (default: 3000)
+- **JWT_SECRET**: Authentication secret
+
+## 🔹 Troubleshooting
 
 ### Agent Çalışmıyor
-- Cursor'ı yeniden başlatın
-- Agent'ı yeniden import edin
-- `agent-config.md` dosyasının doğru konumda olduğundan emin olun
+1. Cursor'ı yeniden başlat
+2. Agent'ı yeniden import et
+3. `agent-config.md` dosyasının doğru konumda olduğunu kontrol et
 
 ### CLI Komutları Bulunamıyor
-- `cto-coach-v2` klasörünün doğru konumda olduğundan emin olun
-- `npm run build` komutunu çalıştırın
-- `dist/` klasörünün var olduğunu kontrol edin
+1. `cto-coach-v2` klasörünün var olduğunu kontrol et
+2. `npm run build` komutunu çalıştır
+3. `dist/` klasörünün oluştuğunu kontrol et
 
-### Dosyalar Oluşturulmuyor
-- `plans/` klasörünün yazma izinlerini kontrol edin
-- PowerShell'de UTF-8 encoding ayarlayın: `chcp 65001`
+### Database Bağlantı Sorunu
+1. `DATABASE_URL` environment variable'ını kontrol et
+2. PostgreSQL servisinin çalıştığını kontrol et
+3. SSL sertifikalarını kontrol et
 
-## 🎉 Başarılı Kurulum
+## 🔹 İletişim
 
-Agent başarıyla kurulduğunda:
-- ✅ Doğal dil komutları CLI'ye dönüşür
-- ✅ Otomatik raporlar oluşturulur
-- ✅ Teknik özetler verilir
-- ✅ Dosya konumları gösterilir
+- **Developer**: Tolga Selvi
+- **Project**: FinBot v3
+- **Version**: CTO Koçu v3
+- **Last Update**: 2025-10-14
+- **Status**: ✅ Production Ready
 
-**Artık CTO Koçu v2'yi chat penceresinden kullanabilirsiniz!** 🚀
-    
+---
+
+**CTO Koçu v3** — FinBot v3 için otomatik geliştirme asistanı 🚀
