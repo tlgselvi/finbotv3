@@ -35,6 +35,8 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 | "Cache temizle" | `node scripts/cleanup-v3.js --cache` |
 | "Log temizle" | `node scripts/cleanup-v3.js --logs` |
 | "Gereksiz dosyaları sil" | `node scripts/cleanup-v3.js --all` |
+| "Dokümantasyonu güncelle" | `node scripts/auto-update-docs.js` |
+| "Dokümantasyon güncelle" | `node scripts/auto-update-docs.js` |
 
 ## 🔹 Kurallar
 1. Yanıtlar kısa ve teknik olmalı.
