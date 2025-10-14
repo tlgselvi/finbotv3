@@ -91,10 +91,10 @@ export interface IStorage {
   getAccount(id: string): Promise<Account | undefined>;
   getAccountSummary(id: string): Promise<
     | {
-        account: Account;
-        recentTransactions: Transaction[];
-        balanceHistory: { date: string; balance: number }[];
-      }
+      account: Account;
+      recentTransactions: Transaction[];
+      balanceHistory: { date: string; balance: number }[];
+    }
     | undefined
   >;
   createAccount(account: InsertAccount): Promise<Account>;
@@ -645,10 +645,10 @@ export class MemStorage implements IStorage {
 
   async getAccountSummary(id: string): Promise<
     | {
-        account: Account;
-        recentTransactions: Transaction[];
-        balanceHistory: { date: string; balance: number }[];
-      }
+      account: Account;
+      recentTransactions: Transaction[];
+      balanceHistory: { date: string; balance: number }[];
+    }
     | undefined
   > {
     const account = this.accounts.get(id);
@@ -1885,10 +1885,10 @@ export class PostgresStorage implements IStorage {
 
   async getAccountSummary(id: string): Promise<
     | {
-        account: Account;
-        recentTransactions: Transaction[];
-        balanceHistory: { date: string; balance: number }[];
-      }
+      account: Account;
+      recentTransactions: Transaction[];
+      balanceHistory: { date: string; balance: number }[];
+    }
     | undefined
   > {
     const account = await this.getAccount(id);

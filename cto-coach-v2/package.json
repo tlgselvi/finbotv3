@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap",
+    "build": "tsup src/**/*.ts --format esm,cjs --sourcemap",
     "start": "node dist/index.js",
     "lint": "eslint .",
     "test": "vitest run --coverage"

@@ -62,7 +62,14 @@ render:
     error: |
       ❌ **HATA: {{message}}**
       🔍 Komut: {{command}}
-      🕒 {{timestamp}}  
+      🕒 {{timestamp}}
+
+## === Advanced Reporting System ===
+- **JSON Output**: Structured data output
+- **Logging**: Real-time log files
+- **History**: Command history tracking
+- **Templates**: Markdown report rendering
+- **Validation**: JSON parsing and error handling  
 **Agent:**
 ```
 > node ./cto-coach-v2/dist/index.js audit -p FinBot
