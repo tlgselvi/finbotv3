@@ -47,6 +47,7 @@ if (!fs.existsSync(staticPath)) {
         path.join(process.cwd(), 'QuickServeAPI/dist/client'),
         path.join(__dirname, '../../dist/client'),
         path.join(process.cwd(), 'dist/client'),
+        path.join(__dirname, '../client/public'), // Add public directory fallback
     ];
     for (const altPath of altPaths) {
         if (fs.existsSync(altPath)) {
@@ -120,12 +121,14 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
     res.type('application/manifest+json').json(basicManifest);
 });
 app.get('/favicon.ico', (_req, res) => {
-    // Try multiple paths
+    // Try multiple paths including public directory
     const paths = [
         path.join(staticPath, 'favicon.ico'),
         path.join(process.cwd(), 'QuickServeAPI/dist/client', 'favicon.ico'),
         path.join(__dirname, '../dist/client', 'favicon.ico'),
         path.join(__dirname, '../../dist/client', 'favicon.ico'),
+        path.join(__dirname, '../client/public', 'favicon.ico'), // Add public directory
+        path.join(process.cwd(), 'QuickServeAPI/client/public', 'favicon.ico'), // Add public directory
     ];
     logger.info(`Favicon request`);
     for (const favPath of paths) {
@@ -134,9 +137,9 @@ app.get('/favicon.ico', (_req, res) => {
             return res.type('image/x-icon').sendFile(favPath);
         }
     }
-    // If no favicon found, return a 204 No Content
-    logger.warn('No favicon found, returning 204');
-    res.status(204).end();
+    // Return a simple favicon response instead of 204
+    logger.warn('No favicon found, returning default response');
+    res.status(200).type('image/x-icon').send('');
 });
 // Logging middleware
 app.use((req, res, next) => {

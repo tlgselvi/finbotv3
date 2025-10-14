@@ -1,46 +1,65 @@
 import { createClient } from 'redis';
 import { logger } from '../utils/logger.js';
-// Redis client configuration
-const redisClient = createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
-    socket: {
-        reconnectStrategy: (retries) => Math.min(retries * 50, 500),
-    },
-});
-// Connection handling
-redisClient.on('error', (err) => {
-    logger.error({ err }, 'Redis Client Error');
-});
-redisClient.on('connect', () => {
-    logger.info('Redis Client Connected');
-});
-redisClient.on('ready', () => {
-    logger.info('Redis Client Ready');
-});
+// Redis client configuration with better error handling
+let redisClient = null;
+let redisConnected = false;
+// Only create Redis client if REDIS_URL is available
+if (process.env.REDIS_URL && process.env.REDIS_URL !== 'redis://localhost:6379') {
+    redisClient = createClient({
+        url: process.env.REDIS_URL,
+        socket: {
+            reconnectStrategy: (retries) => Math.min(retries * 100, 1000),
+            connectTimeout: 5000,
+        },
+    });
+    // Connection handling with reduced error logging
+    redisClient.on('error', (err) => {
+        if (!redisConnected) {
+            logger.warn('Redis Client Error - using memory cache fallback');
+        }
+    });
+    redisClient.on('connect', () => {
+        logger.info('Redis Client Connected');
+        redisConnected = true;
+    });
+    redisClient.on('ready', () => {
+        logger.info('Redis Client Ready');
+    });
+}
+else {
+    logger.info('Redis not configured - using memory cache only');
+}
 // Initialize Redis connection
 export async function initRedis() {
+    if (!redisClient) {
+        logger.info('Redis not available - using memory cache');
+        return;
+    }
     try {
         await redisClient.connect();
         logger.info('Redis connection established');
+        redisConnected = true;
     }
     catch (error) {
-        logger.error({ error }, 'Redis connection failed');
-        // Continue without Redis in development
+        logger.warn('Redis connection failed - using memory cache');
+        redisConnected = false;
     }
 }
 // Cache service with fallback to memory
 export class CacheService {
     memoryCache = new Map();
     async get(key) {
-        try {
-            // Try Redis first
-            const cached = await redisClient.get(key);
-            if (cached) {
-                return JSON.parse(cached);
+        if (redisClient && redisConnected) {
+            try {
+                // Try Redis first
+                const cached = await redisClient.get(key);
+                if (cached) {
+                    return JSON.parse(cached);
+                }
             }
-        }
-        catch (error) {
-            logger.warn({ error }, 'Redis get failed, falling back to memory');
+            catch (error) {
+                // Fallback to memory cache
+            }
         }
         // Fallback to memory cache
         const memoryCached = this.memoryCache.get(key);
@@ -51,12 +70,14 @@ export class CacheService {
     }
     async set(key, data, ttlSeconds = 300) {
         const expires = Date.now() + (ttlSeconds * 1000);
-        try {
-            // Try Redis first
-            await redisClient.setEx(key, ttlSeconds, JSON.stringify(data));
-        }
-        catch (error) {
-            logger.warn({ error }, 'Redis set failed, using memory');
+        if (redisClient && redisConnected) {
+            try {
+                // Try Redis first
+                await redisClient.setEx(key, ttlSeconds, JSON.stringify(data));
+            }
+            catch (error) {
+                // Fallback to memory cache
+            }
         }
         // Always set in memory cache as backup
         this.memoryCache.set(key, { data, expires });
@@ -64,20 +85,24 @@ export class CacheService {
         this.cleanupMemoryCache();
     }
     async del(key) {
-        try {
-            await redisClient.del(key);
-        }
-        catch (error) {
-            logger.warn({ error }, 'Redis del failed');
+        if (redisClient && redisConnected) {
+            try {
+                await redisClient.del(key);
+            }
+            catch (error) {
+                // Fallback to memory cache
+            }
         }
         this.memoryCache.delete(key);
     }
     async flush() {
-        try {
-            await redisClient.flushAll();
-        }
-        catch (error) {
-            logger.warn({ error }, 'Redis flush failed');
+        if (redisClient && redisConnected) {
+            try {
+                await redisClient.flushAll();
+            }
+            catch (error) {
+                // Fallback to memory cache
+            }
         }
         this.memoryCache.clear();
     }

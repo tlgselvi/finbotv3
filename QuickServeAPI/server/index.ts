@@ -63,6 +63,7 @@ if (!fs.existsSync(staticPath)) {
     path.join(process.cwd(), 'QuickServeAPI/dist/client'),
     path.join(__dirname, '../../dist/client'),
     path.join(process.cwd(), 'dist/client'),
+    path.join(__dirname, '../client/public'), // Add public directory fallback
   ];
 
   for (const altPath of altPaths) {
@@ -145,12 +146,14 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
 });
 
 app.get('/favicon.ico', (_req, res) => {
-  // Try multiple paths
+  // Try multiple paths including public directory
   const paths = [
     path.join(staticPath, 'favicon.ico'),
     path.join(process.cwd(), 'QuickServeAPI/dist/client', 'favicon.ico'),
     path.join(__dirname, '../dist/client', 'favicon.ico'),
     path.join(__dirname, '../../dist/client', 'favicon.ico'),
+    path.join(__dirname, '../client/public', 'favicon.ico'), // Add public directory
+    path.join(process.cwd(), 'QuickServeAPI/client/public', 'favicon.ico'), // Add public directory
   ];
 
   logger.info(`Favicon request`);
@@ -162,9 +165,9 @@ app.get('/favicon.ico', (_req, res) => {
     }
   }
 
-  // If no favicon found, return a 204 No Content
-  logger.warn('No favicon found, returning 204');
-  res.status(204).end();
+  // Return a simple favicon response instead of 204
+  logger.warn('No favicon found, returning default response');
+  res.status(200).type('image/x-icon').send('');
 });
 
 // Logging middleware
@@ -242,7 +245,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 const httpServer = app.listen(PORT, async () => {
   // Initialize Redis cache
   await initRedis();
-  
+
   logger.info(`🚀 FinBot V3 Server running on http://localhost:${PORT}`);
   logger.info(`📊 Health check: http://localhost:${PORT}/api/health`);
   logger.info(`🧪 Test endpoint: http://localhost:${PORT}/api/test`);
