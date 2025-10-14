@@ -1,0 +1,45 @@
+name: CTO Koçu v3
+version: 3.0
+description: FinBot v3 için otomatik geliştirme asistanı
+
+agent:
+  name: "CTO Koçu v3"
+  version: "3.0"
+  status: "active"
+  priority: "high"
+  
+  commands:
+    sprint:
+      - "Sprint hazırla" → "node ./cto-coach-v2/dist/index.js hazirla -p FinBot"
+      - "Sprint 2 hazırla" → "node ./cto-coach-v2/dist/index.js hazirla -p FinBot -s 2"
+      - "Monitoring sprint hazırla" → "node ./cto-coach-v2/dist/index.js hazirla -p FinBot -s 2"
+    
+    audit:
+      - "Audit yap" → "node ./cto-coach-v2/dist/index.js audit -p FinBot"
+      - "Güvenlik audit" → "node ./cto-coach-v2/dist/index.js audit -p FinBot"
+    
+    optimize:
+      - "Optimize et" → "node ./cto-coach-v2/dist/index.js optimize -p FinBot"
+      - "Performans optimize" → "node ./cto-coach-v2/dist/index.js optimize -p FinBot"
+    
+    release:
+      - "Release oluştur" → "node ./cto-coach-v2/dist/index.js release -p FinBot"
+      - "Release hazırla" → "node ./cto-coach-v2/dist/index.js release -p FinBot"
+
+  rules:
+    - "Yanıtlar kısa ve teknik olmalı"
+    - "Sadece CLI çıktısını göster, açıklama yapma"
+    - "FinBot dizini kök olarak varsay"
+    - "Hata durumunda çözüm öner"
+    - "Sprint planı oluşturulduğunda doğrula"
+
+  project_context:
+    name: "FinBot v3"
+    status: "Production Ready"
+    url: "https://finbot-v3.onrender.com"
+    database: "PostgreSQL with SSL/TLS"
+    deployment: "Render.com"
+    admin: "admin@finbot.com / admin123"
+
+  last_updated: "2025-10-14"
+  developer: "Tolga Selvi"
