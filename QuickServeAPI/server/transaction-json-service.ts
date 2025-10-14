@@ -31,10 +31,10 @@ export class TransactionJsonService {
           ...transaction,
           accountInfo: account
             ? {
-                bankName: account.bankName,
-                accountName: account.name,
-                type: account.type,
-              }
+              bankName: account.bankName,
+              accountName: account.name,
+              type: account.type,
+            }
             : null,
         };
       });
@@ -340,10 +340,10 @@ export class TransactionJsonService {
           ...transaction,
           accountInfo: account
             ? {
-                bankName: account.bankName,
-                accountName: account.name,
-                type: account.type,
-              }
+              bankName: account.bankName,
+              accountName: account.name,
+              type: account.type,
+            }
             : null,
         };
       });
@@ -443,10 +443,10 @@ export class TransactionJsonService {
                   ...t,
                   accountInfo: account
                     ? {
-                        bankName: account.bankName,
-                        accountName: account.name,
-                        type: account.type,
-                      }
+                      bankName: account.bankName,
+                      accountName: account.name,
+                      type: account.type,
+                    }
                     : null,
                 };
               }),
