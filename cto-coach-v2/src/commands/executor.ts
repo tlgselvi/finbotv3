@@ -27,8 +27,9 @@ export async function execute(plan: any): Promise<string> {
             });
         }
 
-        const raw = await runCli(plan.command, plan.args);
-        return raw;
+        // Direct command execution - recursive call'ı önle
+        const raw = await executeDirectCommand(plan.command, plan.args);
+        return raw || "";
     } catch (err) {
         const errorInfo = validateError(err as Error);
         const repairPlan = repair(errorInfo.errorType, plan, errorInfo.details);
@@ -68,7 +69,7 @@ async function runScript(args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
         const proc = spawn(args[0], args.slice(1), {
             stdio: ["ignore", "pipe", "pipe"],
-            shell: true,
+            shell: false,
             detached: false
         });
 
@@ -87,11 +88,52 @@ async function runScript(args: string[]): Promise<string> {
     });
 }
 
+async function executeDirectCommand(command: string, args: string[]): Promise<string> {
+    // Direct command execution - recursive call'ı önle
+    switch (command) {
+        case "hazirla":
+            const { prepareSprint } = await import("./prepare");
+            // Parse arguments correctly
+            const projectArg = args.find(arg => arg.startsWith('-p')) ? args[args.indexOf('-p') + 1] : "FinBot";
+            const sprintArg = args.find(arg => arg.startsWith('-s')) ? args[args.indexOf('-s') + 1] : "1";
+            const result1 = await prepareSprint({ project: projectArg, sprint: sprintArg });
+            return JSON.stringify(result1);
+
+        case "audit":
+            const { auditProject } = await import("./audit");
+            const projectArg2 = args.find(arg => arg.startsWith('-p')) ? args[args.indexOf('-p') + 1] : "FinBot";
+            const result2 = await auditProject({ project: projectArg2 });
+            return JSON.stringify(result2);
+
+        case "optimize":
+            const { optimizeProject } = await import("./optimize");
+            const projectArg3 = args.find(arg => arg.startsWith('-p')) ? args[args.indexOf('-p') + 1] : "FinBot";
+            const result3 = await optimizeProject({ project: projectArg3 });
+            return JSON.stringify(result3);
+
+        case "release":
+            const { releaseProject } = await import("./release");
+            const projectArg4 = args.find(arg => arg.startsWith('-p')) ? args[args.indexOf('-p') + 1] : "FinBot";
+            const result4 = await releaseProject({ project: projectArg4 });
+            return JSON.stringify(result4);
+
+        case "temizle":
+            const { cleanupProject } = await import("./cleanup");
+            const projectArg5 = args.find(arg => arg.startsWith('-p')) ? args[args.indexOf('-p') + 1] : "FinBot";
+            const modeArg = args.find(arg => arg.startsWith('--')) ? args[args.indexOf('--')] : "all";
+            const result5 = await cleanupProject({ project: projectArg5, mode: modeArg });
+            return JSON.stringify(result5);
+
+        default:
+            throw new Error(`Unknown command: ${command}`);
+    }
+}
+
 async function runCli(command: string, args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
         const proc = spawn("node", ["./cto-coach-v2/dist/index-advanced.js", command, ...args], {
             stdio: ["ignore", "pipe", "pipe"],
-            shell: true,
+            shell: false,
             detached: false
         });
 

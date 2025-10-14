@@ -263,26 +263,30 @@ export async function cleanupProject(options: any) {
         console.log(chalk.gray('- "Gereksiz dosyaları sil" → Tüm temizlik'));
 
         // Reporting
-        report({
+        const result = {
             command: 'cleanup',
             status: 'success',
             report: 'Cleanup completed',
             score: 9,
             project: projectName,
-            mode: options.mode || 'all'
-        });
+            mode: options.mode || 'all',
+            cleanedFiles,
+            cleanedSize
+        };
+        report(result);
+        return result;
 
     } catch (error) {
         console.error(chalk.red('❌ Temizlik hatası:'), error);
 
         // Error reporting
-        report({
+        const errorResult = {
             command: 'cleanup',
             status: 'error',
             message: error instanceof Error ? error.message : 'Unknown error',
             project: projectName
-        });
-
-        process.exit(1);
+        };
+        report(errorResult);
+        return errorResult;
     }
 }

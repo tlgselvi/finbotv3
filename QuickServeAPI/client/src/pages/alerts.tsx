@@ -151,7 +151,8 @@ export default function AlertsPage() {
     }
 
     try {
-      return JSON.parse(alert.metadata);
+      const metadata = typeof alert.metadata === 'string' ? alert.metadata : JSON.stringify(alert.metadata);
+      return JSON.parse(metadata);
     } catch {
       return null;
     }

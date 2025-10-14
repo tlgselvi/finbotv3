@@ -13,7 +13,7 @@ async function main() {
     const plan = planCommand(cmd, rest);
     try {
         const raw = await execute(plan);
-        const v = validate(raw);
+        const v = validate(raw || "");
         if (v.success && v.data) {
             const data = v.data;
             report(data);

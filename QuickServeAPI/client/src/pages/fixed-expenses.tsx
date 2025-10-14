@@ -176,7 +176,7 @@ export default function FixedExpenses() {
       (expense: FixedExpense) => expense.type === 'expense' && expense.isActive
     )
     .reduce((sum: number, expense: FixedExpense) => {
-      const amount = parseFloat(expense.amount);
+      const amount = expense.amount;
       switch (expense.recurrence) {
         case 'weekly':
           return sum + amount * 4.33; // Average weeks per month
@@ -194,7 +194,7 @@ export default function FixedExpenses() {
       (expense: FixedExpense) => expense.type === 'income' && expense.isActive
     )
     .reduce((sum: number, expense: FixedExpense) => {
-      const amount = parseFloat(expense.amount);
+      const amount = expense.amount;
       switch (expense.recurrence) {
         case 'weekly':
           return sum + amount * 4.33;
@@ -428,7 +428,7 @@ export default function FixedExpenses() {
                     <TableCell>{expense.description || '-'}</TableCell>
                     <TableCell>{getTypeBadge(expense.type)}</TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(parseFloat(expense.amount))}
+                      {formatCurrency(expense.amount)}
                     </TableCell>
                     <TableCell>
                       {getRecurrenceBadge(expense.recurrence)}

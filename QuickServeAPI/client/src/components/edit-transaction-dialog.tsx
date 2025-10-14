@@ -81,13 +81,13 @@ export default function EditTransactionDialog({
 }: EditTransactionDialogProps) {
   const [formData, setFormData] = useState({
     accountId: '',
-    type: 'expense' as const,
+    type: 'expense' as 'income' | 'expense' | 'transfer',
     amount: '',
     description: '',
     category: '',
     date: new Date(),
     reference: '',
-    status: 'completed' as const,
+    status: 'completed' as 'pending' | 'completed' | 'cancelled',
     tags: '',
     notes: '',
   });
@@ -100,13 +100,13 @@ export default function EditTransactionDialog({
     if (transaction) {
       setFormData({
         accountId: transaction.accountId || '',
-        type: transaction.type || 'expense',
+        type: (transaction.type as 'income' | 'expense' | 'transfer') || 'expense',
         amount: transaction.amount?.toString() || '',
         description: transaction.description || '',
         category: transaction.category || '',
         date: transaction.date ? new Date(transaction.date) : new Date(),
         reference: transaction.reference || '',
-        status: transaction.status || 'completed',
+        status: (transaction.status as 'pending' | 'completed' | 'cancelled') || 'completed',
         tags: transaction.tags?.join(', ') || '',
         notes: transaction.notes || '',
       });
@@ -166,9 +166,9 @@ export default function EditTransactionDialog({
         status: formData.status,
         tags: formData.tags
           ? formData.tags
-              .split(',')
-              .map(tag => tag.trim())
-              .filter(Boolean)
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(Boolean)
           : undefined,
         notes: formData.notes.trim() || undefined,
       };

@@ -17,9 +17,8 @@ export default function AccountCard({ account }: AccountCardProps) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${
-                isCompany ? 'bg-primary/10' : 'bg-secondary/10'
-              }`}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${isCompany ? 'bg-primary/10' : 'bg-secondary/10'
+                }`}
             >
               {isCompany ? (
                 <CreditCard
@@ -67,7 +66,7 @@ export default function AccountCard({ account }: AccountCardProps) {
             className="text-2xl font-bold text-foreground"
             data-testid={`text-balance-${account.id}`}
           >
-            {formatCurrency(parseFloat(account.balance))}
+            {formatCurrency(account.balance)}
           </p>
         </div>
         <div className="flex justify-between items-center text-xs text-muted-foreground">

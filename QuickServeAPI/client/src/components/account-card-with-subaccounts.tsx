@@ -30,6 +30,7 @@ interface AccountCardWithSubAccountsProps {
   account: Account;
   onAddTransaction: (data: any) => void;
   onViewHistory: (accountId: string) => void;
+  formatCurrency?: (amount: number) => string;
 }
 
 export default function AccountCardWithSubAccounts({
@@ -42,10 +43,8 @@ export default function AccountCardWithSubAccounts({
     null
   );
 
-  // Parse sub-accounts from JSON string
-  const subAccounts: SubAccount[] = account.subAccounts
-    ? JSON.parse(account.subAccounts)
-    : [];
+  // Get sub-accounts directly from account
+  const subAccounts: SubAccount[] = account.subAccounts || [];
 
   const getSubAccountIcon = (type: string) => {
     switch (type) {
@@ -105,11 +104,11 @@ export default function AccountCardWithSubAccounts({
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
-              Limit: {formatCurrency(subAccount.limit)}
+              Limit: {formatCurrency(subAccount.limit || 0)}
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
-              Kullanılan: {formatCurrency(subAccount.used)}
+              Kullanılan: {formatCurrency(subAccount.used || 0)}
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />
@@ -121,7 +120,7 @@ export default function AccountCardWithSubAccounts({
             </div>
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
-              Asgari: {formatCurrency(subAccount.minimumPayment)}
+              Asgari: {formatCurrency(subAccount.minimumPayment || 0)}
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
@@ -135,11 +134,11 @@ export default function AccountCardWithSubAccounts({
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
-              Kalan: {formatCurrency(subAccount.principalRemaining)}
+              Kalan: {formatCurrency(subAccount.principalRemaining || 0)}
             </div>
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
-              Taksit: {formatCurrency(subAccount.monthlyPayment)}
+              Taksit: {formatCurrency(subAccount.monthlyPayment || 0)}
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />
@@ -157,11 +156,11 @@ export default function AccountCardWithSubAccounts({
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
-              Limit: {formatCurrency(subAccount.limit)}
+              Limit: {formatCurrency(subAccount.limit || 0)}
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
-              Kullanılan: {formatCurrency(subAccount.used)}
+              Kullanılan: {formatCurrency(subAccount.used || 0)}
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
@@ -199,11 +198,11 @@ export default function AccountCardWithSubAccounts({
   const getSubAccountBalance = (subAccount: SubAccount) => {
     switch (subAccount.type) {
       case 'creditCard':
-        return subAccount.limit - subAccount.used; // Available credit
+        return (subAccount.limit || 0) - (subAccount.used || 0); // Available credit
       case 'loan':
-        return subAccount.principalRemaining; // Remaining principal
+        return subAccount.principalRemaining || 0; // Remaining principal
       case 'kmh':
-        return subAccount.limit - subAccount.used; // Available overdraft
+        return (subAccount.limit || 0) - (subAccount.used || 0); // Available overdraft
       case 'deposit':
         return subAccount.balance; // Deposit balance
       default:
@@ -260,7 +259,7 @@ export default function AccountCardWithSubAccounts({
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-medium">
-                    {formatCurrency(parseFloat(account.balance))}{' '}
+                    {formatCurrency(account.balance)}{' '}
                     {account.currency}
                   </span>
                   <div className="flex gap-1">
@@ -297,9 +296,10 @@ export default function AccountCardWithSubAccounts({
                   <AccountTransactionForm
                     account={{
                       id: account.id,
-                      accountName: `${account.bankName} Vadesiz Hesap`,
-                      bankName: account.bankName,
-                      type: account.type as 'personal' | 'company',
+                      accountName: `${account.bankName || 'Bilinmeyen Banka'} Vadesiz Hesap`,
+                      bankName: account.bankName || 'Bilinmeyen Banka',
+                      name: account.accountName || 'Bilinmeyen Hesap',
+                      type: account.type as 'cash' | 'bank' | 'credit' | 'investment' | 'company',
                       currency: account.currency,
                       balance: account.balance,
                     }}
@@ -315,14 +315,14 @@ export default function AccountCardWithSubAccounts({
           {subAccounts.map((subAccount, index) => (
             <AccordionItem
               key={`${subAccount.type}-${index}`}
-              value={subAccount.type}
+              value={subAccount.type || 'unknown'}
             >
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center justify-between w-full pr-4">
                   <div className="flex items-center gap-2">
-                    {getSubAccountIcon(subAccount.type)}
-                    <span>{getSubAccountName(subAccount.type)}</span>
-                    <Badge className={getSubAccountColor(subAccount.type)}>
+                    {getSubAccountIcon(subAccount.type || '')}
+                    <span>{getSubAccountName(subAccount.type || '')}</span>
+                    <Badge className={getSubAccountColor(subAccount.type || '')}>
                       {subAccount.type === 'creditCard'
                         ? 'Kredi Kartı'
                         : subAccount.type === 'loan'
@@ -343,7 +343,7 @@ export default function AccountCardWithSubAccounts({
                         {account.currency}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {getSubAccountBalanceLabel(subAccount.type)}
+                        {getSubAccountBalanceLabel(subAccount.type || '')}
                       </div>
                     </div>
                     <div className="flex gap-1">
@@ -389,11 +389,12 @@ export default function AccountCardWithSubAccounts({
                       <AccountTransactionForm
                         account={{
                           id: `${account.id}_${subAccount.type}_${index}`,
-                          accountName: `${account.bankName} ${getSubAccountName(subAccount.type)}`,
-                          bankName: account.bankName,
-                          type: account.type as 'personal' | 'company',
+                          accountName: `${account.bankName || 'Bilinmeyen Banka'} ${getSubAccountName(subAccount.type || '')}`,
+                          bankName: account.bankName || 'Bilinmeyen Banka',
+                          name: subAccount.name || 'Bilinmeyen Alt Hesap',
+                          type: account.type as 'cash' | 'bank' | 'credit' | 'investment' | 'company',
                           currency: account.currency,
-                          balance: getSubAccountBalance(subAccount).toString(),
+                          balance: getSubAccountBalance(subAccount),
                         }}
                         subAccount={subAccount}
                         onAddTransaction={onAddTransaction}
@@ -418,29 +419,29 @@ export default function AccountCardWithSubAccounts({
           {subAccounts.some(
             sa => sa.type === 'creditCard' || sa.type === 'loan'
           ) && (
-            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-              <div className="flex items-center gap-1 text-yellow-700">
-                <AlertTriangle className="w-3 h-3" />
-                <span className="font-medium">Ödeme Hatırlatmaları:</span>
+              <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                <div className="flex items-center gap-1 text-yellow-700">
+                  <AlertTriangle className="w-3 h-3" />
+                  <span className="font-medium">Ödeme Hatırlatmaları:</span>
+                </div>
+                <div className="mt-1 space-y-1">
+                  {subAccounts
+                    .filter(sa => sa.type === 'creditCard')
+                    .map((cc, i) => (
+                      <div key={i}>
+                        Kredi Kartı: Ayın {(cc as any).paymentDueDate}'i
+                      </div>
+                    ))}
+                  {subAccounts
+                    .filter(sa => sa.type === 'loan')
+                    .map((loan, i) => (
+                      <div key={i}>
+                        Kredi Taksit: Ayın {(loan as any).dueDate}'i
+                      </div>
+                    ))}
+                </div>
               </div>
-              <div className="mt-1 space-y-1">
-                {subAccounts
-                  .filter(sa => sa.type === 'creditCard')
-                  .map((cc, i) => (
-                    <div key={i}>
-                      Kredi Kartı: Ayın {(cc as any).paymentDueDate}'i
-                    </div>
-                  ))}
-                {subAccounts
-                  .filter(sa => sa.type === 'loan')
-                  .map((loan, i) => (
-                    <div key={i}>
-                      Kredi Taksit: Ayın {(loan as any).dueDate}'i
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
+            )}
         </div>
       </CardContent>
     </Card>

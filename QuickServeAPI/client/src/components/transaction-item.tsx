@@ -20,8 +20,8 @@ export default function TransactionItem({
         return <ArrowLeft className="w-5 h-5 text-accent" />;
       case 'expense':
         return <ArrowRight className="w-5 h-5 text-destructive" />;
-      case 'transfer_in':
-      case 'transfer_out':
+      case 'transfer':
+      case 'transfer':
         return <ArrowLeftRight className="w-5 h-5 text-primary" />;
       default:
         return <ArrowLeftRight className="w-5 h-5 text-muted-foreground" />;
@@ -31,10 +31,10 @@ export default function TransactionItem({
   const getTransactionColor = () => {
     switch (transaction.type) {
       case 'income':
-      case 'transfer_in':
+      case 'transfer':
         return 'text-accent';
       case 'expense':
-      case 'transfer_out':
+      case 'transfer':
         return 'text-destructive';
       default:
         return 'text-foreground';
@@ -47,15 +47,15 @@ export default function TransactionItem({
         return 'Gelir';
       case 'expense':
         return 'Gider';
-      case 'transfer_in':
-      case 'transfer_out':
+      case 'transfer':
+      case 'transfer':
         return 'Virman';
       default:
         return 'İşlem';
     }
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: string) => {
     const now = new Date();
     const diffInHours = Math.floor(
       (now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60)
@@ -80,9 +80,9 @@ export default function TransactionItem({
   };
 
   const getAmountDisplay = () => {
-    const amount = parseFloat(transaction.amount);
+    const amount = transaction.amount;
     const sign =
-      transaction.type === 'income' || transaction.type === 'transfer_in'
+      transaction.type === 'income' || transaction.type === 'transfer'
         ? '+'
         : '-';
     return `${sign}${formatCurrency(Math.abs(amount))}`;
@@ -95,13 +95,12 @@ export default function TransactionItem({
     >
       <div className="flex items-center">
         <div
-          className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
-            transaction.type === 'income'
-              ? 'bg-accent/10'
-              : transaction.type === 'expense'
-                ? 'bg-destructive/10'
-                : 'bg-primary/10'
-          }`}
+          className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${transaction.type === 'income'
+            ? 'bg-accent/10'
+            : transaction.type === 'expense'
+              ? 'bg-destructive/10'
+              : 'bg-primary/10'
+            }`}
         >
           {getTransactionIcon()}
         </div>

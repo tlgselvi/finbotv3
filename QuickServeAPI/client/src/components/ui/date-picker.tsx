@@ -151,9 +151,9 @@ export function DateRangePicker({
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="range"
-            selected={{ from: value?.from, to: value?.to }}
+            selected={value}
             onSelect={range => {
-              onChange?.(range || { from: undefined, to: undefined });
+              onChange?.(range as { from: Date | undefined; to: Date | undefined } || { from: undefined, to: undefined });
               if (range?.from && range?.to) {
                 setOpen(false);
               }
@@ -293,7 +293,7 @@ export function DateRangePreset({
     return `${format(value.from, 'dd MMM', { locale: tr })} - ${format(value.to, 'dd MMM yyyy', { locale: tr })}`;
   };
 
-  const handlePresetSelect = (preset: (typeof DATE_RANGE_OPTIONS)[0]) => {
+  const handlePresetSelect = (preset: typeof DATE_RANGE_OPTIONS[number]) => {
     const range = preset.getRange();
     onChange?.(range);
     setOpen(false);
@@ -345,9 +345,9 @@ export function DateRangePreset({
             </div>
             <Calendar
               mode="range"
-              selected={{ from: value?.from, to: value?.to }}
+              selected={value}
               onSelect={range => {
-                onChange?.(range || { from: undefined, to: undefined });
+                onChange?.(range as { from: Date | undefined; to: Date | undefined } || { from: undefined, to: undefined });
                 if (range?.from && range?.to) {
                   setOpen(false);
                 }

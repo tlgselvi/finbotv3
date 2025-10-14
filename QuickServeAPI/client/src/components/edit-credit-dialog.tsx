@@ -42,11 +42,11 @@ interface Credit {
   id: string;
   name: string;
   type:
-    | 'credit_card'
-    | 'personal_loan'
-    | 'business_loan'
-    | 'mortgage'
-    | 'line_of_credit';
+  | 'credit_card'
+  | 'personal_loan'
+  | 'business_loan'
+  | 'mortgage'
+  | 'line_of_credit';
   bankName: string;
   accountNumber: string;
   totalLimit: number;
@@ -80,7 +80,7 @@ export default function EditCreditDialog({
 }: EditCreditDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
-    type: 'credit_card' as const,
+    type: 'credit_card' as 'credit_card' | 'personal_loan' | 'business_loan' | 'mortgage' | 'line_of_credit',
     bankName: '',
     accountNumber: '',
     totalLimit: '',
@@ -102,7 +102,7 @@ export default function EditCreditDialog({
     if (credit) {
       setFormData({
         name: credit.name || '',
-        type: credit.type || 'credit_card',
+        type: (credit.type as 'credit_card' | 'personal_loan' | 'business_loan' | 'mortgage' | 'line_of_credit') || 'credit_card',
         bankName: credit.bankName || '',
         accountNumber: credit.accountNumber || '',
         totalLimit: credit.totalLimit?.toString() || '',

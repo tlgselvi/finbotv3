@@ -97,6 +97,7 @@ export async function optimizeProject(options: { project: string }) {
       timestamp: new Date().toISOString()
     };
     report(result);
+    return result;
     
   } catch (error) {
     spinner.fail(chalk.red('Optimizasyon başarısız'));
@@ -111,5 +112,6 @@ export async function optimizeProject(options: { project: string }) {
       timestamp: new Date().toISOString()
     };
     report(errorResult);
+    return errorResult;
   }
 }

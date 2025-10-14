@@ -183,7 +183,7 @@ export default function Transfers() {
 
   const getAccountBalance = (accountId: string) => {
     const account = accounts.find((acc: Account) => acc.id === accountId);
-    return account ? parseFloat(account.balance) : 0;
+    return account ? account.balance : 0;
   };
 
   const canTransfer =
@@ -222,7 +222,7 @@ export default function Transfers() {
                     {accounts.map((account: Account) => (
                       <SelectItem key={account.id} value={account.id}>
                         {account.accountName} ({account.bankName}) -{' '}
-                        {formatCurrency(parseFloat(account.balance))}
+                        {formatCurrency(account.balance)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -243,7 +243,7 @@ export default function Transfers() {
                       .map((account: Account) => (
                         <SelectItem key={account.id} value={account.id}>
                           {account.accountName} ({account.bankName}) -{' '}
-                          {formatCurrency(parseFloat(account.balance))}
+                          {formatCurrency(account.balance)}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -363,7 +363,7 @@ export default function Transfers() {
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          {formatCurrency(parseFloat(transaction.amount))}
+                          {formatCurrency(transaction.amount)}
                         </TableCell>
                         <TableCell>{transaction.category}</TableCell>
                       </TableRow>

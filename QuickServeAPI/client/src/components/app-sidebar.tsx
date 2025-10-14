@@ -20,7 +20,7 @@ import {
   Building,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import type { UserRoleType } from '@shared/client-schema';
+import type { UserRoleType } from '@/lib/types';
 
 interface MenuItem {
   title: string;
@@ -211,18 +211,16 @@ export function AppSidebar() {
                           className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
                         >
                           <Icon
-                            className={`h-4 w-4 transition-colors ${
-                              isActive
+                            className={`h-4 w-4 transition-colors ${isActive
                                 ? 'text-primary'
                                 : 'text-muted-foreground group-hover:text-foreground'
-                            }`}
+                              }`}
                           />
                           <span
-                            className={`font-medium transition-colors ${
-                              isActive
+                            className={`font-medium transition-colors ${isActive
                                 ? 'text-primary'
                                 : 'text-muted-foreground group-hover:text-foreground'
-                            }`}
+                              }`}
                           >
                             {item.title}
                           </span>

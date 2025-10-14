@@ -1,5 +1,10 @@
 export function validate(raw: string) {
     try {
+        // Check if raw is defined and is a string
+        if (!raw || typeof raw !== 'string') {
+            return { success: false, error: "Invalid input: raw output is not a string" };
+        }
+        
         // Extract JSON from mixed output
         const jsonMatch = raw.match(/\{.*\}/s);
         if (jsonMatch) {

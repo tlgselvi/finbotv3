@@ -231,7 +231,7 @@ export default function Dashboard() {
   const transactions = dashboardData?.recentTransactions || [];
 
   // Check if user is admin
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'ADMIN';
 
   // Filter accounts by type (for admin) - memoized for performance
   const filteredAccounts = useMemo(() => {
@@ -404,8 +404,8 @@ export default function Dashboard() {
                         <div className="text-2xl font-bold text-red-800 dark:text-red-200">
                           {formatCurrency(
                             summary.totalCreditCardDebt +
-                              summary.totalLoanDebt +
-                              summary.totalOverdraftDebt
+                            summary.totalLoanDebt +
+                            summary.totalOverdraftDebt
                           )}
                         </div>
                         <div className="text-xs text-red-600 dark:text-red-400 mt-1">

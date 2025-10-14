@@ -53,6 +53,7 @@ interface BankAccountCardProps {
   onViewHistory: (bankId: string) => void;
   onEditAccount?: (bank: BankProduct) => void;
   onDeleteAccount?: (accountId: string) => void;
+  formatCurrency?: (amount: number) => string;
 }
 
 export default function BankAccountCard({
@@ -289,60 +290,76 @@ export default function BankAccountCard({
                       id: bank.id,
                       accountName: bank.accountName,
                       bankName: bank.bankName,
-                      type: bank.type,
+                      name: bank.accountName,
+                      type: bank.type as 'cash' | 'bank' | 'credit' | 'investment' | 'company',
                       currency: bank.currency,
-                      balance: '0', // Will be fetched from backend
+                      balance: 0, // Will be fetched from backend
                     }}
                     subAccount={
                       product.type === 'creditCard'
                         ? {
-                            type: 'creditCard' as const,
-                            limit: parseFloat(
-                              bank.creditCardMinimumPayment || '0'
-                            ),
-                            used: 0,
-                            cutOffDate: parseInt(
-                              bank.creditCardCutOffDate || '15'
-                            ),
-                            paymentDueDate: parseInt(
-                              bank.creditCardDueDate || '25'
-                            ),
-                            minimumPayment: parseFloat(
-                              bank.creditCardMinimumPayment || '0'
-                            ),
-                            interestRate: parseFloat(
-                              bank.creditCardInterestRate || '0'
-                            ),
-                          }
+                          id: `${bank.id}_creditCard`,
+                          parentAccountId: bank.id,
+                          name: 'Kredi Kartı',
+                          balance: 0,
+                          type: 'creditCard' as const,
+                          limit: parseFloat(
+                            bank.creditCardMinimumPayment || '0'
+                          ),
+                          used: 0,
+                          cutOffDate: (parseInt(
+                            bank.creditCardCutOffDate || '15'
+                          )).toString(),
+                          paymentDueDate: (parseInt(
+                            bank.creditCardDueDate || '25'
+                          )).toString(),
+                          minimumPayment: parseFloat(
+                            bank.creditCardMinimumPayment || '0'
+                          ),
+                          interestRate: parseFloat(
+                            bank.creditCardInterestRate || '0'
+                          ),
+                        }
                         : product.type === 'loan'
                           ? {
-                              type: 'loan' as const,
-                              principalRemaining: parseFloat(
-                                bank.loanMinimumPayment || '0'
-                              ),
-                              monthlyPayment: parseFloat(
-                                bank.loanMinimumPayment || '0'
-                              ),
-                              dueDate: parseInt(bank.loanDueDate || '15'),
-                              interestRate: parseFloat(
-                                bank.loanInterestRate || '0'
-                              ),
-                            }
+                            id: `${bank.id}_loan`,
+                            parentAccountId: bank.id,
+                            name: 'Kredi',
+                            balance: 0,
+                            type: 'loan' as const,
+                            principalRemaining: parseFloat(
+                              bank.loanMinimumPayment || '0'
+                            ),
+                            monthlyPayment: parseFloat(
+                              bank.loanMinimumPayment || '0'
+                            ),
+                            dueDate: parseInt(bank.loanDueDate || '15').toString(),
+                            interestRate: parseFloat(
+                              bank.loanInterestRate || '0'
+                            ),
+                          }
                           : product.type === 'overdraft'
                             ? {
-                                type: 'kmh' as const,
-                                limit: parseFloat(bank.overdraftLimit || '0'),
-                                used: 0,
-                                interestRate: parseFloat(
-                                  bank.overdraftInterestRate || '0'
-                                ),
-                              }
+                              id: `${bank.id}_overdraft`,
+                              parentAccountId: bank.id,
+                              name: 'Kredi Limiti',
+                              balance: 0,
+                              type: 'kmh' as const,
+                              limit: parseFloat(bank.overdraftLimit || '0'),
+                              used: 0,
+                              interestRate: parseFloat(
+                                bank.overdraftInterestRate || '0'
+                              ),
+                            }
                             : product.type === 'savings'
                               ? {
-                                  type: 'deposit' as const,
-                                  balance: 0,
-                                  interestRate: 0,
-                                }
+                                id: `${bank.id}_savings`,
+                                parentAccountId: bank.id,
+                                name: 'Birikim',
+                                balance: 0,
+                                type: 'deposit' as const,
+                                interestRate: 0,
+                              }
                               : undefined
                     }
                     onAddTransaction={onAddTransaction}

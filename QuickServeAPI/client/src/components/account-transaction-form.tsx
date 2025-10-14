@@ -36,6 +36,7 @@ interface AccountTransactionFormProps {
   subAccount?: SubAccount;
   onAddTransaction: (data: any) => void;
   onClose: () => void;
+  formatCurrency?: (amount: number) => string;
 }
 
 // Sub-account tipine göre dinamik kategoriler
@@ -187,7 +188,7 @@ export default function AccountTransactionForm({
         <CardHeader className="pb-2">
           <CardTitle className="text-sm text-blue-700">
             {subAccount
-              ? `${getSubAccountName(subAccount.type)} Bilgileri`
+              ? `${getSubAccountName(subAccount.type || '')} Bilgileri`
               : 'Hesap Bilgileri'}
           </CardTitle>
         </CardHeader>
@@ -200,9 +201,9 @@ export default function AccountTransactionForm({
               </p>
               {subAccount && (
                 <div className="flex items-center gap-2 mt-1">
-                  {getSubAccountIcon(subAccount.type)}
+                  {getSubAccountIcon(subAccount.type || '')}
                   <span className="text-xs text-blue-600">
-                    {getSubAccountName(subAccount.type)}
+                    {getSubAccountName(subAccount.type || '')}
                   </span>
                 </div>
               )}

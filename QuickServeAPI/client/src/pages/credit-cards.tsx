@@ -165,26 +165,26 @@ export default function CreditCards() {
         dueDate &&
         dueDate < today &&
         credit.amount &&
-        parseFloat(credit.amount) > 0
+        credit.amount > 0
       );
     });
   };
 
   const totalDebt = credits
-    .filter((credit: Credit) => credit.amount && parseFloat(credit.amount) > 0)
+    .filter((credit: Credit) => credit.amount && credit.amount > 0)
     .reduce(
-      (sum: number, credit: Credit) => sum + parseFloat(credit.amount),
+      (sum: number, credit: Credit) => sum + credit.amount,
       0
     );
 
   const totalMinimumPayments = credits
     .filter(
       (credit: Credit) =>
-        credit.minimumPayment && parseFloat(credit.minimumPayment) > 0
+        credit.minimumPayment && credit.minimumPayment > 0
     )
     .reduce(
       (sum: number, credit: Credit) =>
-        sum + parseFloat(credit.minimumPayment || '0'),
+        sum + (credit.minimumPayment || 0),
       0
     );
 
@@ -449,7 +449,7 @@ export default function CreditCards() {
                 {credits.map((credit: Credit) => {
                   const isOverdue = credit.dueDate
                     ? new Date(credit.dueDate) < new Date() &&
-                      parseFloat(credit.amount || '0') > 0
+                      (credit.amount || 0) > 0
                     : false;
                   return (
                     <TableRow
@@ -461,11 +461,11 @@ export default function CreditCards() {
                       </TableCell>
                       <TableCell>{getTypeBadge(credit.type)}</TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency(parseFloat(credit.amount || '0'))}
+                        {formatCurrency(credit.amount || 0)}
                       </TableCell>
                       <TableCell className="text-right">
                         {credit.interestRate
-                          ? `${parseFloat(credit.interestRate)}%`
+                          ? `${credit.interestRate}%`
                           : '-'}
                       </TableCell>
                       <TableCell>
@@ -480,7 +480,7 @@ export default function CreditCards() {
                       </TableCell>
                       <TableCell className="text-right">
                         {credit.minimumPayment
-                          ? formatCurrency(parseFloat(credit.minimumPayment))
+                          ? formatCurrency(credit.minimumPayment)
                           : '-'}
                       </TableCell>
                       <TableCell>

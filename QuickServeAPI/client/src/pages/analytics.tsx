@@ -116,7 +116,7 @@ export default function Analytics() {
       .reduce(
         (acc, transaction) => {
           const category = transaction.category!;
-          acc[category] = (acc[category] || 0) + parseFloat(transaction.amount);
+          acc[category] = (acc[category] || 0) + transaction.amount;
           return acc;
         },
         {} as Record<string, number>
@@ -136,7 +136,7 @@ export default function Analytics() {
       .reduce(
         (acc, transaction) => {
           const category = transaction.category!;
-          acc[category] = (acc[category] || 0) + parseFloat(transaction.amount);
+          acc[category] = (acc[category] || 0) + transaction.amount;
           return acc;
         },
         {} as Record<string, number>
@@ -170,7 +170,7 @@ export default function Analytics() {
           };
         }
 
-        const amount = parseFloat(transaction.amount);
+        const amount = transaction.amount;
         if (transaction.type === 'income') {
           acc[monthKey].income += amount;
         } else if (transaction.type === 'expense') {
@@ -203,11 +203,11 @@ export default function Analytics() {
   // Calculate total metrics
   const totalIncome = filteredTransactions
     .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const totalExpenses = filteredTransactions
     .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const netBalance = totalIncome - totalExpenses;
 

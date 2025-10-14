@@ -151,7 +151,7 @@ export async function subscribeToPush(
       applicationServerKey: urlBase64ToUint8Array(
         // VAPID public key - replace with your own
         'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9HLg2cHSLztjyzwVjfLV5xCzU-UUyy5LZbDXP_Vx5v6MG5rBu5'
-      ),
+      ) as BufferSource,
     });
 
     logger.info('[PWA] Push subscription successful:', subscription);

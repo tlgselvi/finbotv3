@@ -79,16 +79,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Route-role mapping
     const routePermissions: Record<string, UserRoleType[]> = {
-      '/': ['admin', 'company_user', 'personal_user'],
-      '/analytics': ['admin', 'company_user', 'personal_user'],
-      '/company': ['admin', 'company_user'], // Personal users can't access company routes
-      '/personal': ['admin', 'company_user', 'personal_user'],
-      '/transfers': ['admin', 'company_user', 'personal_user'],
-      '/fixed-expenses': ['admin', 'company_user', 'personal_user'],
-      '/credit-cards': ['admin', 'company_user', 'personal_user'],
-      '/reports': ['admin', 'company_user', 'personal_user'],
-      '/settings': ['admin', 'company_user', 'personal_user'],
-      '/admin': ['admin'], // Admin-only route
+      '/': ['ADMIN', 'COMPANY_USER', 'PERSONAL_USER'],
+      '/analytics': ['ADMIN', 'COMPANY_USER', 'PERSONAL_USER'],
+      '/company': ['ADMIN', 'COMPANY_USER'], // Personal users can't access company routes
+      '/personal': ['ADMIN', 'COMPANY_USER', 'PERSONAL_USER'],
+      '/transfers': ['ADMIN', 'COMPANY_USER', 'PERSONAL_USER'],
+      '/fixed-expenses': ['ADMIN', 'COMPANY_USER', 'PERSONAL_USER'],
+      '/credit-cards': ['ADMIN', 'COMPANY_USER', 'PERSONAL_USER'],
+      '/reports': ['ADMIN', 'COMPANY_USER', 'PERSONAL_USER'],
+      '/settings': ['ADMIN', 'COMPANY_USER', 'PERSONAL_USER'],
+      '/admin': ['ADMIN'], // Admin-only route
     };
 
     const allowedRoles = routePermissions[route];

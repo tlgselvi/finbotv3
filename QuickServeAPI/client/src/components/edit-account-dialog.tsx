@@ -32,7 +32,7 @@ import { logger } from '@/lib/logger';
 interface Account {
   id: string;
   name: string;
-  type: 'checking' | 'savings' | 'credit_card' | 'loan' | 'investment';
+  type: 'cash' | 'bank' | 'credit' | 'investment' | 'company';
   bankName: string;
   accountNumber: string;
   balance: number;
@@ -65,7 +65,7 @@ export default function EditAccountDialog({
 }: EditAccountDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
-    type: 'checking' as const,
+    type: 'bank' as 'bank' | 'credit' | 'investment' | 'company' | 'cash',
     bankName: '',
     accountNumber: '',
     balance: '',
@@ -86,7 +86,7 @@ export default function EditAccountDialog({
     if (account) {
       setFormData({
         name: account.name || '',
-        type: account.type || 'checking',
+        type: (account.type as 'bank' | 'credit' | 'investment' | 'company' | 'cash') || 'bank',
         bankName: account.bankName || '',
         accountNumber: account.accountNumber || '',
         balance: account.balance?.toString() || '',
@@ -133,7 +133,7 @@ export default function EditAccountDialog({
     }
 
     // Credit card specific validations
-    if (formData.type === 'credit_card') {
+    if (formData.type === 'credit') {
       if (formData.minimumPayment && isNaN(Number(formData.minimumPayment))) {
         newErrors.minimumPayment = 'Geçerli bir sayı giriniz';
       }
@@ -166,7 +166,7 @@ export default function EditAccountDialog({
         currency: formData.currency,
         isActive: formData.isActive,
         description: formData.description.trim(),
-        ...(formData.type === 'credit_card' && {
+        ...(formData.type === 'credit' && {
           paymentDueDate: formData.paymentDueDate || undefined,
           cutOffDate: formData.cutOffDate || undefined,
           gracePeriod: formData.gracePeriod
@@ -200,7 +200,7 @@ export default function EditAccountDialog({
         return <Building className="h-5 w-5 text-blue-600" />;
       case 'savings':
         return <User className="h-5 w-5 text-green-600" />;
-      case 'credit_card':
+      case 'credit':
         return <CreditCard className="h-5 w-5 text-purple-600" />;
       case 'loan':
         return <Calendar className="h-5 w-5 text-red-600" />;
@@ -217,7 +217,7 @@ export default function EditAccountDialog({
         return 'Vadesiz Hesap';
       case 'savings':
         return 'Vadeli Hesap';
-      case 'credit_card':
+      case 'credit':
         return 'Kredi Kartı';
       case 'loan':
         return 'Kredi';
@@ -286,7 +286,7 @@ export default function EditAccountDialog({
                           Vadeli Hesap
                         </div>
                       </SelectItem>
-                      <SelectItem value="credit_card">
+                      <SelectItem value="credit">
                         <div className="flex items-center gap-2">
                           <CreditCard className="h-4 w-4 text-purple-600" />
                           Kredi Kartı
@@ -408,7 +408,7 @@ export default function EditAccountDialog({
           </Card>
 
           {/* Credit Card Specific Fields */}
-          {formData.type === 'credit_card' && (
+          {formData.type === 'credit' && (
             <Card>
               <CardContent className="pt-6">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">

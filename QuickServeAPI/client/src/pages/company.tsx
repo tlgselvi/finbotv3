@@ -52,7 +52,7 @@ import EditTransactionDialog from '@/components/edit-transaction-dialog';
 import { apiRequest } from '@/lib/queryClient';
 import { logger } from '@/lib/utils/logger';
 import { useFormatCurrency } from '@/lib/utils/formatCurrency';
-import type { Account, Transaction } from '@shared/schema';
+import type { Account, Transaction } from '@/lib/types';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { memo, useMemo } from 'react';
 
@@ -130,7 +130,7 @@ export default function Company() {
   );
 
   const totalCompanyBalance = accounts.reduce(
-    (sum: number, account: Account) => sum + parseFloat(account.balance),
+    (sum: number, account: Account) => sum + account.balance,
     0
   );
 
@@ -412,20 +412,13 @@ export default function Company() {
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         {filteredAccounts.map((account: Account) => {
           // Parse subAccounts if they exist
-          let subAccounts = [];
-          try {
-            if (account.subAccounts) {
-              subAccounts = JSON.parse(account.subAccounts);
-            }
-          } catch (e) {
-            logger.error('Error parsing subAccounts:', e);
-          }
+          const subAccounts = account.subAccounts || [];
 
           // Convert account to BankProduct format
           const bankProduct = {
             id: account.id,
             bankName: account.bankName || 'Bilinmeyen Banka',
-            accountName: account.accountName,
+            accountName: account.accountName || 'Bilinmeyen Hesap',
             type: account.type as 'personal' | 'company',
             currency: account.currency || 'TRY',
             hasCheckingAccount: true, // Main account is always checking
@@ -435,39 +428,47 @@ export default function Company() {
             hasLoan: subAccounts.some((sub: any) => sub.type === 'loan'),
             hasOverdraft: subAccounts.some((sub: any) => sub.type === 'kmh'),
             hasSavings: subAccounts.some((sub: any) => sub.type === 'deposit'),
-            // Credit card details from subAccounts
-            creditCardCutOffDate: subAccounts.find(
+            // All numeric fields with defaults
+            checkingAccountRate: 0,
+            creditCardRate: subAccounts.find(
               (sub: any) => sub.type === 'creditCard'
-            )?.cutOffDate,
-            creditCardDueDate: subAccounts.find(
+            )?.interestRate || 0,
+            loanRate: subAccounts.find(
+              (sub: any) => sub.type === 'loan'
+            )?.interestRate || 0,
+            overdraftRate: subAccounts.find(
+              (sub: any) => sub.type === 'kmh'
+            )?.interestRate || 0,
+            checkingAccountLimit: 0,
+            creditCardLimit: subAccounts.find(
               (sub: any) => sub.type === 'creditCard'
-            )?.paymentDueDate,
-            creditCardGracePeriod: subAccounts.find(
+            )?.limit || 0,
+            loanLimit: 0,
+            overdraftLimit: subAccounts.find(
+              (sub: any) => sub.type === 'kmh'
+            )?.limit || 0,
+            checkingAccountMinBalance: 0,
+            creditCardMinPayment: subAccounts.find(
               (sub: any) => sub.type === 'creditCard'
-            )?.gracePeriod,
-            creditCardMinimumPayment: subAccounts.find(
-              (sub: any) => sub.type === 'creditCard'
-            )?.minimumPayment,
+            )?.minimumPayment || 0,
+            loanMinPayment: subAccounts.find(
+              (sub: any) => sub.type === 'loan'
+            )?.monthlyPayment || 0,
+            overdraftMinBalance: 0,
+            checkingAccountFee: 0,
+            creditCardFee: 0,
+            loanFee: 0,
+            overdraftFee: 0,
+            checkingAccountInterestRate: 0,
             creditCardInterestRate: subAccounts.find(
               (sub: any) => sub.type === 'creditCard'
-            )?.interestRate,
-            // Loan details from subAccounts
-            loanDueDate: subAccounts.find((sub: any) => sub.type === 'loan')
-              ?.dueDate,
-            loanGracePeriod: subAccounts.find((sub: any) => sub.type === 'loan')
-              ?.gracePeriod,
-            loanMinimumPayment: subAccounts.find(
-              (sub: any) => sub.type === 'loan'
-            )?.monthlyPayment,
+            )?.interestRate || 0,
             loanInterestRate: subAccounts.find(
               (sub: any) => sub.type === 'loan'
-            )?.interestRate,
-            // Overdraft details from subAccounts
-            overdraftLimit: subAccounts.find((sub: any) => sub.type === 'kmh')
-              ?.limit,
+            )?.interestRate || 0,
             overdraftInterestRate: subAccounts.find(
               (sub: any) => sub.type === 'kmh'
-            )?.interestRate,
+            )?.interestRate || 0,
           };
 
           return (
@@ -552,7 +553,7 @@ export default function Company() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          {formatCurrency(parseFloat(transaction.amount))}
+                          {formatCurrency(transaction.amount)}
                         </TableCell>
                         <TableCell>{transaction.category}</TableCell>
                         <TableCell>

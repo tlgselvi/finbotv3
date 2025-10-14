@@ -255,24 +255,28 @@ ${sprintNumber === '2' ? `- **Monitoring:** Prometheus + Grafana kurulumu
     console.log(chalk.gray(`📁 Dosya konumu: ${planPath}`));
 
     // Reporting
-    report({
+    const result = {
       command: 'hazirla',
       status: 'success',
       report: planPath,
       score: 10,
       project: options.project,
       sprint: options.sprint || '1'
-    });
+    };
+    report(result);
+    return result;
   } catch (error) {
     spinner.fail(chalk.red('Sprint planı hazırlanamadı'));
     console.error(error);
 
     // Error reporting
-    report({
+    const errorResult = {
       command: 'hazirla',
       status: 'error',
       message: error instanceof Error ? error.message : 'Unknown error',
       project: options.project
-    });
+    };
+    report(errorResult);
+    return errorResult;
   }
 }

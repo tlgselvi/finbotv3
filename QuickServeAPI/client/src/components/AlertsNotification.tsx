@@ -170,10 +170,10 @@ export function AlertsNotification() {
                 {activeAlerts.map((alert, index) => {
                   const config =
                     severityConfig[
-                      alert.severity as keyof typeof severityConfig
+                    alert.severity as keyof typeof severityConfig
                     ];
                   const Icon = config.icon;
-                  const metadata = getAlertMetadata(alert.metadata);
+                  const metadata = getAlertMetadata(typeof alert.metadata === 'string' ? alert.metadata : JSON.stringify(alert.metadata));
 
                   return (
                     <div key={alert.id}>

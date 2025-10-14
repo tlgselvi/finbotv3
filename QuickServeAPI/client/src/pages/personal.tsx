@@ -130,7 +130,7 @@ export default function Personal() {
   );
 
   const totalPersonalBalance = accounts.reduce(
-    (sum: number, account: Account) => sum + parseFloat(account.balance),
+    (sum: number, account: Account) => sum + account.balance,
     0
   );
 
@@ -540,7 +540,7 @@ export default function Personal() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          {formatCurrency(parseFloat(transaction.amount))}
+                          {formatCurrency(transaction.amount)}
                         </TableCell>
                         <TableCell>{transaction.category}</TableCell>
                         <TableCell>

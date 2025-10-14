@@ -23,6 +23,8 @@
     "noImplicitOverride": false,
     "exactOptionalPropertyTypes": false,
     "noEmit": false,
+    "allowUnusedLabels": true,
+    "allowUnreachableCode": true,
     "types": [
       "node"
     ],

@@ -27,7 +27,7 @@ export default function Settings() {
   // Get tab from URL parameter - simplified for wouter
   const urlParams = new URLSearchParams(window.location.search);
   const defaultTab =
-    urlParams.get('tab') === 'users' && user?.role === 'admin'
+    urlParams.get('tab') === 'users' && user?.role === 'ADMIN'
       ? 'users'
       : 'general';
 
@@ -62,13 +62,13 @@ export default function Settings() {
 
       <Tabs defaultValue={defaultTab} className="space-y-6">
         <TabsList
-          className={`grid w-full ${user?.role === 'admin' ? 'grid-cols-3' : 'grid-cols-1'} lg:w-auto`}
+          className={`grid w-full ${user?.role === 'ADMIN' ? 'grid-cols-3' : 'grid-cols-1'} lg:w-auto`}
         >
           <TabsTrigger value="general" className="flex items-center gap-2">
             <SettingsIcon className="h-4 w-4" />
             Genel Ayarlar
           </TabsTrigger>
-          {user?.role === 'admin' && (
+          {user?.role === 'ADMIN' && (
             <>
               <TabsTrigger value="ai" className="flex items-center gap-2">
                 <Brain className="h-4 w-4" />
@@ -152,13 +152,13 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {user?.role === 'admin' && (
+        {user?.role === 'ADMIN' && (
           <TabsContent value="ai" className="space-y-6">
             <AISettings />
           </TabsContent>
         )}
 
-        {user?.role === 'admin' && (
+        {user?.role === 'ADMIN' && (
           <TabsContent value="users" className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">

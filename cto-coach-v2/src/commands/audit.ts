@@ -81,23 +81,27 @@ ${securityChecks.map((check, index) => `
     console.log(chalk.yellow('⚠️  Risk skoru: 6/10 (Orta Risk)'));
 
     // Reporting
-    report({
+    const result = {
       command: 'audit',
       status: 'success',
       report: auditPath,
       score: 6,
       project: options.project
-    });
+    };
+    report(result);
+    return result;
   } catch (error) {
     spinner.fail(chalk.red('Güvenlik audit başarısız'));
     console.error(error);
 
     // Error reporting
-    report({
+    const errorResult = {
       command: 'audit',
       status: 'error',
       message: error instanceof Error ? error.message : 'Unknown error',
       project: options.project
-    });
+    };
+    report(errorResult);
+    return errorResult;
   }
 }
