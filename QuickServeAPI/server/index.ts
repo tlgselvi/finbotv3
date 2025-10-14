@@ -5,6 +5,7 @@ import compression from 'compression';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
+import fs from 'fs';
 import { db, dbInterface } from './db';
 import { logger } from './utils/logger';
 import {
@@ -38,7 +39,7 @@ const staticPath =
     ? path.join(__dirname, '../dist/client') // In production, serve from dist/client
     : path.join(__dirname, '../dist/client'); // In dev, also serve from dist/client
 logger.info(`Serving static files from: ${staticPath}`);
-logger.info(`Static path exists: ${require('fs').existsSync(staticPath)}`);
+logger.info(`Static path exists: ${fs.existsSync(staticPath)}`);
 app.use(express.static(staticPath, {
   index: false, // Don't serve index.html for directory requests
   dotfiles: 'ignore', // Ignore dotfiles
@@ -88,9 +89,9 @@ app.get('*', (req, res) => {
     const indexPath = path.join(__dirname, '../dist/client', 'index.html');
     logger.info(`Looking for index.html at: ${indexPath}`);
     logger.info(`__dirname: ${__dirname}`);
-    logger.info(`File exists: ${require('fs').existsSync(indexPath)}`);
+    logger.info(`File exists: ${fs.existsSync(indexPath)}`);
     
-    if (!require('fs').existsSync(indexPath)) {
+    if (!fs.existsSync(indexPath)) {
       logger.error(`Index file not found at: ${indexPath}`);
       return res.status(404).json({ 
         error: 'Frontend not built', 
