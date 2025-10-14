@@ -2,7 +2,7 @@
 
 **Versiyon:** 3.0  
 **Durum:** ✅ Production Ready  
-**Son Güncelleme:** 2025-10-12
+**Son Güncelleme:** 2025-10-14
 
 Modern, güvenli ve ölçeklenebilir finansal yönetim platformu.
 
@@ -22,6 +22,31 @@ pnpm dev
 ```
 
 🎉 **Hazır!** → http://localhost:5173
+
+---
+
+## 🔄 SON GÜNCELLEMELER (2025-10-14)
+
+### ✅ Render.com Deployment Tamamlandı
+- **Production URL:** https://finbot-v3.onrender.com
+- **PostgreSQL Database:** Render PostgreSQL ile entegre
+- **SSL/TLS:** Otomatik SSL bağlantısı
+- **Static Files:** manifest.json, favicon.ico düzeltildi
+
+### 🧹 Database Driver Temizliği
+- **Neon Database** kodları kaldırıldı (karışıklık önlendi)
+- **SQLite** kodları kaldırıldı (eski versiyon)
+- **Sadece PostgreSQL** kullanılıyor (daha kararlı)
+
+### 🔧 Build Path Düzeltmeleri
+- **Render Build:** `cd QuickServeAPI` eklendi
+- **Frontend Build:** `dist/client` klasörü doğru oluşturuluyor
+- **Static Serving:** Express.static yapılandırması iyileştirildi
+
+### 🐛 Hata Düzeltmeleri
+- **ES Module Syntax:** `require('fs')` → `import fs` düzeltildi
+- **Async/Await:** Login API'de eksik `await` eklendi
+- **SSL Connection:** PostgreSQL SSL zorunluluğu eklendi
 
 ---
 
@@ -115,7 +140,7 @@ pnpm typecheck           # TypeScript check
 
 - Node.js >= 20.19.0
 - pnpm >= 9.0.0
-- PostgreSQL >= 14 (veya SQLite development için)
+- PostgreSQL >= 14 (SQLite kaldırıldı - sadece PostgreSQL)
 
 ### Docker
 
@@ -186,7 +211,16 @@ docker-compose up --build -d
 
 ## 🔐 DEMO GİRİŞ
 
+### Production (Render.com)
 ```
+URL:      https://finbot-v3.onrender.com
+Email:    admin@finbot.com
+Password: admin123
+```
+
+### Local Development
+```
+URL:      http://localhost:5173
 Email:    demo@finbot.com
 Password: demo123
 
@@ -395,8 +429,9 @@ git push origin feature/new-feature
 
 ## 📝 ENVIRONMENT VARIABLES
 
+### Local Development
 ```env
-# Database
+# Database (PostgreSQL)
 DATABASE_URL=postgresql://user:pass@host/db
 
 # JWT
@@ -411,6 +446,22 @@ CORS_ORIGIN=http://localhost:5173
 
 # Optional: AI Features
 OPENAI_API_KEY=sk-...
+```
+
+### Production (Render.com)
+```env
+# Database (Render PostgreSQL - otomatik)
+DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
+
+# JWT (Render otomatik generate eder)
+JWT_SECRET=auto-generated
+
+# Server (Render otomatik ayarlar)
+NODE_ENV=production
+PORT=10000
+
+# CORS (Production URL)
+CORS_ORIGIN=https://finbot-v3.onrender.com
 ```
 
 📖 **Tüm env variables:** [`DEPLOYMENT.md`](./docs/DEPLOYMENT.md)
@@ -462,6 +513,12 @@ pnpm db:push
 - **Deploy:** [`DEPLOYMENT.md`](./docs/DEPLOYMENT.md)
 - **API:** [`API_DOCUMENTATION.md`](./docs/API_DOCUMENTATION.md)
 - **Mimari:** [`ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
+
+### Production URL
+
+- **Canlı Uygulama:** https://finbot-v3.onrender.com
+- **Admin Giriş:** admin@finbot.com / admin123
+- **Status:** ✅ Online ve çalışıyor
 
 ### İletişim
 
