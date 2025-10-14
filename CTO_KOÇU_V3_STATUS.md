@@ -44,6 +44,17 @@
 - **"Release oluştur"** → Yeni release hazırlığı
 - **"Release hazırla"** → Release süreci
 
+### Deploy Sistemi
+- **"Deploy et"** → Otomatik deploy sistemi
+- **"Otomatik deploy"** → Tam otomatik deploy
+- **"Full deploy"** → Kapsamlı deploy
+
+### Temizlik Sistemi 🆕
+- **"Temizle"** → Genel temizlik (geçici dosyalar, test dosyaları)
+- **"Cache temizle"** → Cache dosyalarını temizler
+- **"Log temizle"** → Log dosyalarını temizler
+- **"Gereksiz dosyaları sil"** → Tüm temizlik (cache, log, build, test)
+
 ## 🎯 Proje Durumu
 
 ### FinBot v3
@@ -79,6 +90,12 @@
 
 # Release hazırla
 "Release oluştur"
+
+# Deploy et
+"Deploy et"
+
+# Temizle
+"Temizle"
 ```
 
 ## 📊 Teknik Detaylar
@@ -107,7 +124,12 @@ finbotv3/
 │   └── rules/
 │       └── CTO-Koçu-v3.yaml    # v3 kuralları
 ├── scripts/
-│   └── activate-cto-koçu-v3.js  # Aktivasyon scripti
+│   ├── activate-cto-koçu-v3.js  # Aktivasyon scripti
+│   ├── auto-deploy-v3.js        # Otomatik deploy sistemi
+│   └── cleanup-v3.js            # Temizlik sistemi
+├── cto-coach-v2/
+│   ├── src/commands/cleanup.ts  # Temizlik komutu
+│   └── dist/                    # Build edilmiş CLI
 └── plans/                       # Sprint planları
     └── sprint-plan.md           # Oluşturulan sprint planı
 ```
@@ -121,6 +143,9 @@ finbotv3/
 - CLI entegrasyonu ✅
 - Sprint planı oluşturma ✅
 - Cursor workspace ayarları ✅
+- Otomatik deploy sistemi ✅
+- Temizlik sistemi ✅
+- 21 dosya temizlendi (2.45 MB) ✅
 - Git entegrasyonu ✅
 
 ### 🚀 Kullanıma Hazır:
