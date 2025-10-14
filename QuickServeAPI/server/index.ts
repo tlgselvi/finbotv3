@@ -53,6 +53,23 @@ app.use(express.static(staticPath, {
   }
 }));
 
+// Explicit static file routes needed by PWA
+app.get('/manifest.json', (_req, res) => {
+  const manifestPath = path.join(staticPath, 'manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    return res.status(404).end();
+  }
+  res.type('application/json').sendFile(manifestPath);
+});
+
+app.get('/favicon.ico', (_req, res) => {
+  const favPath = path.join(staticPath, 'favicon.ico');
+  if (!fs.existsSync(favPath)) {
+    return res.status(404).end();
+  }
+  res.type('image/x-icon').sendFile(favPath);
+});
+
 // Logging middleware
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.path}`, {
