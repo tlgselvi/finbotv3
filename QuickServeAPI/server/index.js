@@ -24,9 +24,24 @@ app.use(cors());
 app.use(compression()); // Enable gzip compression
 app.use(express.json());
 // Serve static files - path differs based on whether we're in dev or production
-const staticPath = process.env.NODE_ENV === 'production'
+let staticPath = process.env.NODE_ENV === 'production'
     ? path.join(__dirname, '../dist/client')
     : path.join(process.cwd(), 'dist/client');
+// Fallback paths for Render.com deployment
+if (!fs.existsSync(staticPath)) {
+    const altPaths = [
+        path.join(process.cwd(), 'QuickServeAPI/dist/client'),
+        path.join(__dirname, '../../dist/client'),
+        path.join(process.cwd(), 'dist/client'),
+    ];
+    for (const altPath of altPaths) {
+        if (fs.existsSync(altPath)) {
+            staticPath = altPath;
+            logger.info(`Using alternative static path: ${staticPath}`);
+            break;
+        }
+    }
+}
 logger.info(`Serving static files from: ${staticPath}`);
 logger.info(`Static path exists: ${fs.existsSync(staticPath)}`);
 app.use(express.static(staticPath, {
@@ -54,8 +69,16 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
         try {
             const files = fs.readdirSync(staticPath);
             logger.warn('Static directory listing:', files);
+            // Try alternative paths
+            const altPath = path.join(process.cwd(), 'QuickServeAPI/dist/client', manifestFile);
+            logger.info(`Trying alternative path: ${altPath}`);
+            if (fs.existsSync(altPath)) {
+                return res.type('application/manifest+json').sendFile(altPath);
+            }
         }
-        catch { }
+        catch (e) {
+            logger.error('Error reading static directory:', e);
+        }
         return res.status(404).json({ error: 'manifest not found', path: manifestPath });
     }
     res.type('application/manifest+json').sendFile(manifestPath);
@@ -64,6 +87,12 @@ app.get('/favicon.ico', (_req, res) => {
     const favPath = path.join(staticPath, 'favicon.ico');
     logger.info(`Favicon path: ${favPath} exists=${fs.existsSync(favPath)}`);
     if (!fs.existsSync(favPath)) {
+        // Try alternative paths
+        const altPath = path.join(process.cwd(), 'QuickServeAPI/dist/client', 'favicon.ico');
+        logger.info(`Trying alternative favicon path: ${altPath}`);
+        if (fs.existsSync(altPath)) {
+            return res.type('image/x-icon').sendFile(altPath);
+        }
         return res.status(404).json({ error: 'favicon not found', path: favPath });
     }
     res.type('image/x-icon').sendFile(favPath);
