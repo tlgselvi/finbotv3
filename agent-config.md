@@ -19,22 +19,22 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 ## 🔹 Komut Haritası
 | Sohbet Komutu | CLI Komutu |
 |----------------|-------------|
-| "Sprint hazırla" | `node ./cto-coach-v2/dist/index.js hazirla -p FinBot` |
-| "Sprint 2 hazırla" | `node ./cto-coach-v2/dist/index.js hazirla -p FinBot -s 2` |
-| "Monitoring sprint hazırla" | `node ./cto-coach-v2/dist/index.js hazirla -p FinBot -s 2` |
-| "Audit yap" | `node ./cto-coach-v2/dist/index.js audit -p FinBot` |
-| "Güvenlik audit" | `node ./cto-coach-v2/dist/index.js audit -p FinBot` |
-| "Optimize et" | `node ./cto-coach-v2/dist/index.js optimize -p FinBot` |
-| "Performans optimize" | `node ./cto-coach-v2/dist/index.js optimize -p FinBot` |
-| "Release oluştur" | `node ./cto-coach-v2/dist/index.js release -p FinBot` |
-| "Release hazırla" | `node ./cto-coach-v2/dist/index.js release -p FinBot` |
+| "Sprint hazırla" | `node ./cto-coach-v2/dist/index-advanced.js hazirla -p FinBot` |
+| "Sprint 2 hazırla" | `node ./cto-coach-v2/dist/index-advanced.js hazirla -p FinBot -s 2` |
+| "Monitoring sprint hazırla" | `node ./cto-coach-v2/dist/index-advanced.js hazirla -p FinBot -s 2` |
+| "Audit yap" | `node ./cto-coach-v2/dist/index-advanced.js audit -p FinBot` |
+| "Güvenlik audit" | `node ./cto-coach-v2/dist/index-advanced.js audit -p FinBot` |
+| "Optimize et" | `node ./cto-coach-v2/dist/index-advanced.js optimize -p FinBot` |
+| "Performans optimize" | `node ./cto-coach-v2/dist/index-advanced.js optimize -p FinBot` |
+| "Release oluştur" | `node ./cto-coach-v2/dist/index-advanced.js release -p FinBot` |
+| "Release hazırla" | `node ./cto-coach-v2/dist/index-advanced.js release -p FinBot` |
 | "Deploy et" | `node scripts/auto-deploy-v3.js` |
 | "Otomatik deploy" | `node scripts/auto-deploy-v3.js` |
 | "Full deploy" | `node scripts/auto-deploy-v3.js` |
-| "Temizle" | `node scripts/cleanup-v3.js` |
-| "Cache temizle" | `node scripts/cleanup-v3.js --cache` |
-| "Log temizle" | `node scripts/cleanup-v3.js --logs` |
-| "Gereksiz dosyaları sil" | `node scripts/cleanup-v3.js --all` |
+| "Temizle" | `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot` |
+| "Cache temizle" | `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --cache` |
+| "Log temizle" | `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --logs` |
+| "Gereksiz dosyaları sil" | `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --all` |
 | "Dokümantasyonu güncelle" | `node scripts/auto-update-docs.js` |
 | "Dokümantasyon güncelle" | `node scripts/auto-update-docs.js` |
 

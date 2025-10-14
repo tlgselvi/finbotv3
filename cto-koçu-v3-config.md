@@ -19,15 +19,15 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 ## 🔹 Komut Haritası
 | Sohbet Komutu | CLI Komutu |
 |----------------|-------------|
-| "Sprint hazırla" | `node ./cto-coach-v2/dist/index.js hazirla -p FinBot` |
-| "Sprint 2 hazırla" | `node ./cto-coach-v2/dist/index.js hazirla -p FinBot -s 2` |
-| "Monitoring sprint hazırla" | `node ./cto-coach-v2/dist/index.js hazirla -p FinBot -s 2` |
-| "Audit yap" | `node ./cto-coach-v2/dist/index.js audit -p FinBot` |
-| "Güvenlik audit" | `node ./cto-coach-v2/dist/index.js audit -p FinBot` |
-| "Optimize et" | `node ./cto-coach-v2/dist/index.js optimize -p FinBot` |
-| "Performans optimize" | `node ./cto-coach-v2/dist/index.js optimize -p FinBot` |
-| "Release oluştur" | `node ./cto-coach-v2/dist/index.js release -p FinBot` |
-| "Release hazırla" | `node ./cto-coach-v2/dist/index.js release -p FinBot` |
+| "Sprint hazırla" | `node ./cto-coach-v2/dist/index-advanced.js hazirla -p FinBot` |
+| "Sprint 2 hazırla" | `node ./cto-coach-v2/dist/index-advanced.js hazirla -p FinBot -s 2` |
+| "Monitoring sprint hazırla" | `node ./cto-coach-v2/dist/index-advanced.js hazirla -p FinBot -s 2` |
+| "Audit yap" | `node ./cto-coach-v2/dist/index-advanced.js audit -p FinBot` |
+| "Güvenlik audit" | `node ./cto-coach-v2/dist/index-advanced.js audit -p FinBot` |
+| "Optimize et" | `node ./cto-coach-v2/dist/index-advanced.js optimize -p FinBot` |
+| "Performans optimize" | `node ./cto-coach-v2/dist/index-advanced.js optimize -p FinBot` |
+| "Release oluştur" | `node ./cto-coach-v2/dist/index-advanced.js release -p FinBot` |
+| "Release hazırla" | `node ./cto-coach-v2/dist/index-advanced.js release -p FinBot` |
 
 ## 🔹 Kurallar
 1. Yanıtlar kısa ve teknik olmalı.

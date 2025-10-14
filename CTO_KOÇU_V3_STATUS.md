@@ -49,11 +49,11 @@
 - **"Otomatik deploy"** → Tam otomatik deploy
 - **"Full deploy"** → Kapsamlı deploy
 
-### Temizlik Sistemi 🆕
-- **"Temizle"** → Genel temizlik (geçici dosyalar, test dosyaları)
-- **"Cache temizle"** → Cache dosyalarını temizler
-- **"Log temizle"** → Log dosyalarını temizler
-- **"Gereksiz dosyaları sil"** → Tüm temizlik (cache, log, build, test)
+### Temizlik Sistemi 🆕 (Advanced CLI)
+- **"Temizle"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot`
+- **"Cache temizle"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --cache`
+- **"Log temizle"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --logs`
+- **"Gereksiz dosyaları sil"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --all`
 
 ## 🎯 Proje Durumu
 
