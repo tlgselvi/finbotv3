@@ -49,6 +49,15 @@ export function renderReport(parsed: any): string {
                `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
     }
     
+    // Script çalıştırma durumu
+    if (parsed.command.includes("guncelle") || parsed.command.includes("update")) {
+        return `🔄 **OTOMATIK GÜNCELLEME**\n` +
+               `📝 Komut: ${parsed.command}\n` +
+               `📊 Durum: ${parsed.status === 'success' ? '✅ Başarılı' : '❌ Başarısız'}\n` +
+               (parsed.output ? `📄 Çıktı: ${parsed.output.substring(0, 200)}...\n` : '') +
+               `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
+    }
+    
     return renderNormal(parsed);
 }
 
