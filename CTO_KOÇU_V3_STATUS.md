@@ -4,7 +4,7 @@
 
 **Tarih:** 14.10.2025  
 **Durum:** ✅ TAMAMEN AKTİF  
-**Versiyon:** CTO Koçu v3.0 Advanced  
+**Versiyon:** CTO Koçu v3.0  
 
 ## 📋 Yapılan İşlemler
 
@@ -49,20 +49,11 @@
 - **"Otomatik deploy"** → Tam otomatik deploy
 - **"Full deploy"** → Kapsamlı deploy
 
-### Temizlik Sistemi 🆕 (Advanced CLI)
-- **"Temizle"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot`
-- **"Cache temizle"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --cache`
-- **"Log temizle"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --logs`
-- **"Gereksiz dosyaları sil"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --all`
-
-### 🚀 Gelişmiş Özellikler (YENİ!)
-- **"Browser test"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test testFinBot`
-- **"Health test"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test testHealthEndpoint`
-- **"Login test"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test testLoginPage`
-- **"Dashboard test"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test testDashboard`
-- **"Screenshot al"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test takeScreenshot`
-- **"Self-heal"** → `node ./cto-coach-v2/dist/index-advanced.js self-heal`
-- **"Rollback"** → `node ./cto-coach-v2/dist/index-advanced.js rollback`
+### Temizlik Sistemi 🆕
+- **"Temizle"** → Genel temizlik (geçici dosyalar, test dosyaları)
+- **"Cache temizle"** → Cache dosyalarını temizler
+- **"Log temizle"** → Log dosyalarını temizler
+- **"Gereksiz dosyaları sil"** → Tüm temizlik (cache, log, build, test)
 
 ## 🎯 Proje Durumu
 
@@ -73,12 +64,11 @@
 - **Deployment:** Render.com infrastructure
 - **Admin:** admin@finbot.com / admin123
 
-### CTO Koçu v3 Advanced
+### CTO Koçu v3
 - **Status:** ✅ Tamamen Aktif
-- **CLI:** ✅ Çalışıyor (Standard + Advanced)
+- **CLI:** ✅ Çalışıyor
 - **Agent:** ✅ Cursor'da aktif
-- **Komutlar:** 23 komut hazır
-- **Yeni Özellikler:** Browser testing, Self-healing, Rollback, Snapshot management
+- **Komutlar:** 16 komut hazır
 
 ## 🔧 Kullanım
 
@@ -106,33 +96,16 @@
 
 # Temizle
 "Temizle"
-
-# 🚀 YENİ GELİŞMİŞ ÖZELLİKLER
-# Browser test
-"Browser test"
-
-# Health test
-"Health test"
-
-# Self-heal
-"Self-heal"
-
-# Rollback
-"Rollback"
-
-# Screenshot al
-"Screenshot al"
 ```
 
 ## 📊 Teknik Detaylar
 
 ### Agent Konfigürasyonu
-- **Name:** CTO Koçu v3 Advanced
-- **Version:** 3.0 Advanced
+- **Name:** CTO Koçu v3
+- **Version:** 3.0
 - **Priority:** High
 - **Status:** Active
 - **Last Updated:** 14.10.2025
-- **New Features:** Browser testing, Self-healing, Rollback, Snapshot management
 
 ### CLI Entegrasyonu
 - **Node.js:** v24.7.0
@@ -180,5 +153,5 @@ finbotv3/
 Chat penceresinde doğal dil komutlarını kullanarak CTO Koçu v3'ü aktif olarak kullanabilirsin!
 
 ---
-**Son Güncelleme:** 14.10.2025 14:37:19  
+**Son Güncelleme:** 14.10.2025 16:17:14  
 **CTO Koçu v3** — FinBot v3 için otomatik geliştirme asistanı 🚀
