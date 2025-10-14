@@ -3,7 +3,7 @@ services:
     name: finbot-v3
     runtime: node
     plan: starter
-    buildCommand: cd QuickServeAPI && npm install --legacy-peer-deps && npm run build
+    buildCommand: cd QuickServeAPI && npm install --legacy-peer-deps && npm run build:client && npm run build:server
     startCommand: cd QuickServeAPI && tsx server/index.ts
     envVars:
       - key: NODE_ENV
