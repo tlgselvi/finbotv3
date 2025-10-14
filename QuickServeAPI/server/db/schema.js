@@ -245,21 +245,6 @@ export const forecasts = pgTable('forecasts', {
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
-// Tenants table
-export const tenants = pgTable('tenants', {
-    id: uuid('id').defaultRandom().primaryKey(),
-    name: varchar('name', { length: 255 }).notNull(),
-    description: text('description'),
-    ownerId: uuid('owner_id')
-        .references(() => users.id)
-        .notNull(),
-    logo: text('logo'),
-    domain: varchar('domain', { length: 255 }),
-    theme: varchar('theme', { length: 50 }).default('default'),
-    isActive: boolean('is_active').default(true),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow(),
-});
 // System Alerts table
 export const systemAlerts = pgTable('system_alerts', {
     id: uuid('id').defaultRandom().primaryKey(),
