@@ -9,7 +9,7 @@
     "dev:client": "cd client && vite",
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && vite build",
-    "build:server": "echo 'Server build skipped - using tsx directly'",
+    "build:server": "tsc --project tsconfig.server.json",
     "start": "tsx server/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
