@@ -4,7 +4,7 @@
 
 **Tarih:** 14.10.2025  
 **Durum:** ✅ TAMAMEN AKTİF  
-**Versiyon:** CTO Koçu v3.0  
+**Versiyon:** CTO Koçu v3.0 Advanced  
 
 ## 📋 Yapılan İşlemler
 
@@ -55,6 +55,15 @@
 - **"Log temizle"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --logs`
 - **"Gereksiz dosyaları sil"** → `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --all`
 
+### 🚀 Gelişmiş Özellikler (YENİ!)
+- **"Browser test"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test testFinBot`
+- **"Health test"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test testHealthEndpoint`
+- **"Login test"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test testLoginPage`
+- **"Dashboard test"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test testDashboard`
+- **"Screenshot al"** → `node ./cto-coach-v2/dist/index-advanced.js browser-test takeScreenshot`
+- **"Self-heal"** → `node ./cto-coach-v2/dist/index-advanced.js self-heal`
+- **"Rollback"** → `node ./cto-coach-v2/dist/index-advanced.js rollback`
+
 ## 🎯 Proje Durumu
 
 ### FinBot v3
@@ -64,11 +73,12 @@
 - **Deployment:** Render.com infrastructure
 - **Admin:** admin@finbot.com / admin123
 
-### CTO Koçu v3
+### CTO Koçu v3 Advanced
 - **Status:** ✅ Tamamen Aktif
-- **CLI:** ✅ Çalışıyor
+- **CLI:** ✅ Çalışıyor (Standard + Advanced)
 - **Agent:** ✅ Cursor'da aktif
-- **Komutlar:** 16 komut hazır
+- **Komutlar:** 23 komut hazır
+- **Yeni Özellikler:** Browser testing, Self-healing, Rollback, Snapshot management
 
 ## 🔧 Kullanım
 
@@ -96,16 +106,33 @@
 
 # Temizle
 "Temizle"
+
+# 🚀 YENİ GELİŞMİŞ ÖZELLİKLER
+# Browser test
+"Browser test"
+
+# Health test
+"Health test"
+
+# Self-heal
+"Self-heal"
+
+# Rollback
+"Rollback"
+
+# Screenshot al
+"Screenshot al"
 ```
 
 ## 📊 Teknik Detaylar
 
 ### Agent Konfigürasyonu
-- **Name:** CTO Koçu v3
-- **Version:** 3.0
+- **Name:** CTO Koçu v3 Advanced
+- **Version:** 3.0 Advanced
 - **Priority:** High
 - **Status:** Active
 - **Last Updated:** 14.10.2025
+- **New Features:** Browser testing, Self-healing, Rollback, Snapshot management
 
 ### CLI Entegrasyonu
 - **Node.js:** v24.7.0
