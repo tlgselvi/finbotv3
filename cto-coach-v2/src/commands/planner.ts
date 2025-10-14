@@ -19,7 +19,7 @@ export function planCommand(cmd: string, args: string[]) {
                 params: params 
             };
         case "self-heal":
-            return { type: "cli", command: "audit", args: ["--auto-fix"] };
+            return { type: "cli", command: "audit", args: [] };
         case "rollback":
             return { type: "cli", command: "rollback", args: [...args] };
         case "ajani-guncelle":

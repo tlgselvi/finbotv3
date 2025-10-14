@@ -1,4 +1,6 @@
 // Browser Controller - Web sayfalarını test etme ve kontrol etme
+import path from 'path';
+
 export interface BrowserTestResult {
   url: string;
   title: string;

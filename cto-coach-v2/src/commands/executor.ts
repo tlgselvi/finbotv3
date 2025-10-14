@@ -68,7 +68,8 @@ async function runScript(args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
         const proc = spawn(args[0], args.slice(1), {
             stdio: ["ignore", "pipe", "pipe"],
-            shell: true
+            shell: true,
+            detached: false
         });
 
         let stdout = "", stderr = "";
@@ -88,8 +89,10 @@ async function runScript(args: string[]): Promise<string> {
 
 async function runCli(command: string, args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
-        const proc = spawn("node", ["./cto-coach-v2/dist/index.js", command, ...args], {
-            stdio: ["ignore", "pipe", "pipe"]
+        const proc = spawn("node", ["./cto-coach-v2/dist/index-advanced.js", command, ...args], {
+            stdio: ["ignore", "pipe", "pipe"],
+            shell: true,
+            detached: false
         });
 
         let stdout = "", stderr = "";

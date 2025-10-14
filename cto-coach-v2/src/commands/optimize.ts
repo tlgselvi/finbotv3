@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { report } from '../utils/output';
 
 export async function optimizeProject(options: { project: string }) {
   const spinner = ora('Performans optimizasyonu analiz ediliyor...').start();
@@ -85,8 +86,30 @@ export async function optimizeProject(options: { project: string }) {
     console.log(chalk.blue('⚡ Performans metrikleri analiz edildi!'));
     console.log(chalk.gray(`📁 Rapor konumu: ${optimizePath}`));
     console.log(chalk.yellow('📊 Performans skoru: 6/10'));
+    
+    // JSON output ekle
+    const result = {
+      status: "success",
+      command: "optimize",
+      report: optimizePath,
+      score: 6,
+      project: options.project,
+      timestamp: new Date().toISOString()
+    };
+    report(result);
+    
   } catch (error) {
     spinner.fail(chalk.red('Optimizasyon başarısız'));
     console.error(error);
+    
+    // Error JSON output
+    const errorResult = {
+      status: "error",
+      command: "optimize",
+      message: error instanceof Error ? error.message : "Unknown error",
+      project: options.project,
+      timestamp: new Date().toISOString()
+    };
+    report(errorResult);
   }
 }
