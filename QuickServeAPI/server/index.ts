@@ -38,7 +38,19 @@ const staticPath =
     ? path.join(__dirname, '../dist/client') // In production, serve from dist/client
     : path.join(__dirname, '../dist/client'); // In dev, also serve from dist/client
 logger.info(`Serving static files from: ${staticPath}`);
-app.use(express.static(staticPath));
+logger.info(`Static path exists: ${require('fs').existsSync(staticPath)}`);
+app.use(express.static(staticPath, {
+  index: false, // Don't serve index.html for directory requests
+  dotfiles: 'ignore', // Ignore dotfiles
+  etag: true, // Enable ETag
+  lastModified: true, // Enable Last-Modified
+  setHeaders: (res, path) => {
+    // Set proper content type for manifest.json
+    if (path.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+  }
+}));
 
 // Logging middleware
 app.use((req, res, next) => {

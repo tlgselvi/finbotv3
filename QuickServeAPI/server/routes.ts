@@ -1228,7 +1228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Find user by email - use db interface
       logger.debug('Searching for user:', validatedData.email);
-      const user = dbInterface.getUserByEmail(validatedData.email) as any;
+      const user = await dbInterface.getUserByEmail(validatedData.email) as any;
 
       if (!user) {
         logger.warn('Login failed: user not found', {
