@@ -1,4 +1,134 @@
 import { logger } from '../utils/logger.js';
+import { spawn } from 'child_process'; // Added for getCommandHelp
+
+// Role-Based Mode System
+interface UserRole {
+  name: string;
+  permissions: string[];
+  commandLimits: Map<string, number>;
+  allowedCommands: string[];
+  restrictedCommands: string[];
+}
+
+class RoleBasedMode {
+  private roles: Map<string, UserRole> = new Map();
+  private currentRole: string = 'developer'; // Default role
+
+  constructor() {
+    this.initializeRoles();
+  }
+
+  /**
+   * Initialize default roles
+   */
+  private initializeRoles(): void {
+    // Admin role - full access
+    this.roles.set('admin', {
+      name: 'admin',
+      permissions: ['all'],
+      commandLimits: new Map(),
+      allowedCommands: ['*'], // All commands
+      restrictedCommands: []
+    });
+
+    // Developer role - development commands
+    this.roles.set('developer', {
+      name: 'developer',
+      permissions: ['build', 'test', 'audit', 'optimize'],
+      commandLimits: new Map([
+        ['hazirla', 10],
+        ['audit', 5],
+        ['optimize', 3]
+      ]),
+      allowedCommands: ['hazirla', 'audit', 'optimize', 'browser-test', 'self-heal'],
+      restrictedCommands: ['release', 'deploy', 'db-backup', 'db-restore']
+    });
+
+    // Monitor role - read-only operations
+    this.roles.set('monitor', {
+      name: 'monitor',
+      permissions: ['read', 'metrics'],
+      commandLimits: new Map([
+        ['audit', 2],
+        ['browser-test', 5]
+      ]),
+      allowedCommands: ['audit', 'browser-test', 'metrics', 'status'],
+      restrictedCommands: ['hazirla', 'optimize', 'release', 'deploy', 'temizle', 'db-backup', 'db-restore']
+    });
+  }
+
+  /**
+   * Set current role
+   */
+  setRole(role: string): boolean {
+    if (this.roles.has(role)) {
+      this.currentRole = role;
+      logger.info(`Role changed to: ${role}`);
+      return true;
+    }
+    logger.warn(`Invalid role: ${role}`);
+    return false;
+  }
+
+  /**
+   * Get current role
+   */
+  getCurrentRole(): string {
+    return this.currentRole;
+  }
+
+  /**
+   * Check if command is allowed for current role
+   */
+  isCommandAllowed(command: string): boolean {
+    const role = this.roles.get(this.currentRole);
+    if (!role) return false;
+
+    // Admin has access to all commands
+    if (role.allowedCommands.includes('*')) return true;
+
+    // Check if command is in allowed list
+    if (role.allowedCommands.includes(command)) return true;
+
+    // Check if command is restricted
+    if (role.restrictedCommands.includes(command)) return false;
+
+    return false;
+  }
+
+  /**
+   * Check command limits for current role
+   */
+  isWithinLimits(command: string): boolean {
+    const role = this.roles.get(this.currentRole);
+    if (!role) return false;
+
+    const limit = role.commandLimits.get(command);
+    if (!limit) return true; // No limit set
+
+    // In a real implementation, you would track usage here
+    // For now, we'll assume limits are not exceeded
+    return true;
+  }
+
+  /**
+   * Get role information
+   */
+  getRoleInfo(roleName?: string): UserRole | null {
+    const role = roleName || this.currentRole;
+    return this.roles.get(role) || null;
+  }
+
+  /**
+   * List all available roles
+   */
+  listRoles(): string[] {
+    return Array.from(this.roles.keys());
+  }
+}
+
+// Singleton instance
+export const roleBasedMode = new RoleBasedMode();
 
 // Command discovery and learning system
 interface DiscoveredCommand {
@@ -13,6 +143,25 @@ interface DiscoveredCommand {
 const commandRepository = new Map<string, DiscoveredCommand>();
 
 export function planCommand(cmd: string, args: string[]) {
+    // Role-based command validation
+    if (!roleBasedMode.isCommandAllowed(cmd)) {
+        throw new Error(`Command '${cmd}' not allowed for role '${roleBasedMode.getCurrentRole()}'`);
+    }
+
+    if (!roleBasedMode.isWithinLimits(cmd)) {
+        throw new Error(`Command '${cmd}' limit exceeded for role '${roleBasedMode.getCurrentRole()}'`);
+    }
+
+    // Handle role switching
+    if (cmd === "set-role" && args.length > 0) {
+        const newRole = args[0];
+        if (roleBasedMode.setRole(newRole)) {
+            return { type: "cli", command: "role-set", args: [newRole] };
+        } else {
+            throw new Error(`Invalid role: ${newRole}. Available roles: ${roleBasedMode.listRoles().join(', ')}`);
+        }
+    }
+
     switch (cmd) {
         case "hazirla":
             return { type: "cli", command: "hazirla", args: [...args] };

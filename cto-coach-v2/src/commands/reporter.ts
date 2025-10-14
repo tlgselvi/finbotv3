@@ -159,7 +159,7 @@ export function generateBase64Chart(config: ChartConfig): string {
 /**
  * Enhanced report rendering with charts
  */
-export function renderEnhancedReport(parsed: any): string {
+export function renderEnhancedReport(parsed: any, options: { svg?: boolean } = {}): string {
     let report = renderReport(parsed);
 
     // Add performance charts for optimize command
@@ -178,6 +178,12 @@ export function renderEnhancedReport(parsed: any): string {
         };
 
         report += generateASCIIChart(chartData, 'bar');
+
+        // Add SVG chart if requested
+        if (options.svg) {
+            const svgChart = generateSVGChart(chartData, 'Performance Metrics');
+            report += `\n\n📊 **SVG Chart:**\n${svgChart}\n`;
+        }
     }
 
     // Add trend chart for audit command
@@ -196,9 +202,132 @@ export function renderEnhancedReport(parsed: any): string {
         };
 
         report += generateASCIIChart(chartData, 'line');
+
+        // Add SVG chart if requested
+        if (options.svg) {
+            const svgChart = generateSVGChart(chartData, 'Audit Scores');
+            report += `\n\n📊 **SVG Chart:**\n${svgChart}\n`;
+        }
     }
 
     return report;
+}
+
+/**
+ * Generate mini SVG chart
+ */
+export function generateSVGChart(data: ChartData, title: string): string {
+    const width = 400;
+    const height = 200;
+    const padding = 40;
+    const chartWidth = width - 2 * padding;
+    const chartHeight = height - 2 * padding;
+
+    const maxValue = Math.max(...data.datasets[0]?.data || [0]);
+    const scale = maxValue > 0 ? chartHeight / maxValue : 1;
+
+    // Generate SVG elements
+    let svgElements = '';
+
+    // Bars or lines based on data type
+    data.datasets[0]?.data.forEach((value, index) => {
+        const x = padding + (index * chartWidth) / data.labels.length + chartWidth / (data.labels.length * 2);
+        const y = padding + chartHeight - (value * scale);
+        const barHeight = value * scale;
+
+        // Bar chart
+        svgElements += `<rect x="${x - 10}" y="${y}" width="20" height="${barHeight}" fill="#3b82f6" opacity="0.7"/>`;
+
+        // Label
+        svgElements += `<text x="${x}" y="${padding + chartHeight + 15}" text-anchor="middle" font-size="10" fill="#374151">${data.labels[index]}</text>`;
+
+        // Value
+        svgElements += `<text x="${x}" y="${y - 5}" text-anchor="middle" font-size="8" fill="#374151">${value}</text>`;
+    });
+
+    return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${width}" height="${height}" fill="#f9fafb"/>
+    <text x="${width / 2}" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#374151">${title}</text>
+    ${svgElements}
+  </svg>`;
+}
+
+/**
+ * Export report data as JSON
+ */
+export function exportReportAsJSON(parsed: any): string {
+    const exportData = {
+        timestamp: new Date().toISOString(),
+        command: parsed.command,
+        status: parsed.status,
+        data: {
+            ...parsed,
+            // Remove sensitive information
+            password: undefined,
+            token: undefined,
+            secret: undefined
+        },
+        metadata: {
+            version: 'CTO Koçu v3 Enterprise+',
+            exportDate: new Date().toISOString(),
+            format: 'json'
+        }
+    };
+
+    return JSON.stringify(exportData, null, 2);
+}
+
+/**
+ * Generate comprehensive report with multiple formats
+ */
+export function generateComprehensiveReport(parsed: any, options: {
+    format?: 'markdown' | 'json' | 'both';
+    includeCharts?: boolean;
+    includeSVG?: boolean;
+} = {}): { markdown: string; json?: string } {
+    const { format = 'markdown', includeCharts = true, includeSVG = false } = options;
+
+    let markdownReport = renderEnhancedReport(parsed, { svg: includeSVG });
+
+    if (includeCharts) {
+        markdownReport += '\n\n## 📊 **Additional Metrics**\n';
+        markdownReport += generateDetailedMetrics(parsed);
+    }
+
+    const result: { markdown: string; json?: string } = {
+        markdown: markdownReport
+    };
+
+    if (format === 'json' || format === 'both') {
+        result.json = exportReportAsJSON(parsed);
+    }
+
+    return result;
+}
+
+/**
+ * Generate detailed metrics section
+ */
+function generateDetailedMetrics(parsed: any): string {
+    let metrics = '';
+
+    if (parsed.performance) {
+        metrics += '### ⚡ Performance Metrics\n';
+        metrics += `- **Bundle Size:** ${parsed.performance.bundleSize || 'N/A'} KB\n`;
+        metrics += `- **Load Time:** ${parsed.performance.loadTime || 'N/A'} ms\n`;
+        metrics += `- **Memory Usage:** ${parsed.performance.memory || 'N/A'} MB\n`;
+        metrics += `- **API Response:** ${parsed.performance.apiResponse || 'N/A'} ms\n\n`;
+    }
+
+    if (parsed.metrics) {
+        metrics += '### 📊 Quality Metrics\n';
+        metrics += `- **Security Score:** ${parsed.metrics.security || 'N/A'}/10\n`;
+        metrics += `- **Performance Score:** ${parsed.metrics.performance || 'N/A'}/10\n`;
+        metrics += `- **Code Quality:** ${parsed.metrics.codeQuality || 'N/A'}/10\n`;
+        metrics += `- **Dependencies:** ${parsed.metrics.dependencies || 'N/A'}/10\n\n`;
+    }
+
+    return metrics;
 }
 
 function renderNormal(parsed: any): string {

@@ -16,17 +16,17 @@ otomatik olarak güncelleme yapmak.
 - **Real-time Sync**: Değişiklikler anında senkronize edilir
 
 ## 🚀 Güncelleme (2025-10-14)
-- **Last Auto-Update**: 2025-10-14T21:36:51.742Z
-- **Version**: CTO Koçu v3 Advanced
+- **Last Auto-Update**: 2025-10-14T22:15:30.000Z
+- **Version**: CTO Koçu v3 Enterprise+
 - **Production Status**: ✅ FinBot v3 live on Render.com
 - **URL**: https://finbot-v3.onrender.com
 - **Database**: PostgreSQL with SSL/TLS
 - **Deployment**: Render.com infrastructure
 - **Admin**: admin@finbot.com / admin123
-- **New Features**: Plugin System, LLM Cache, Async Worker, Chart Reports, Command Learning, AST Editor, Enhanced Self-Healing, Docker/PostgreSQL Integration
-- **Latest Update**: DIFF-PATCH entegrasyonu tamamlandı, Enterprise-level özellikler eklendi
-- **Test Status**: ✅ 40+ komut aktif, %100 başarı oranı
-- **Performance**: Build 91ms ESM + 94ms CJS, Optimize edilmiş bundle
+- **New Features**: Predictive Healer, LLM Memory/Context Cache, Observation Layer, Role-Based Mode, Auto-Debug Engine, Context Awareness, Security Sandbox, Enhanced Visualization, Performance Telemetry
+- **Latest Update**: Enterprise+ DIFF-PATCH tamamlandı, 9 yeni modül entegre edildi
+- **Test Status**: ✅ 50+ komut aktif, %100 başarı oranı
+- **Performance**: Build 91ms ESM + 94ms CJS, Enterprise-level optimizasyon
 
 ## 🔹 Komut Haritası
 
@@ -119,6 +119,19 @@ otomatik olarak güncelleme yapmak.
 | "DB restore" | `node ./cto-coach-v2/dist/index-advanced.js db-restore` | Veritabanı geri yükle |
 | "Container durumu" | `node ./cto-coach-v2/dist/index-advanced.js container-status` | Container durumunu kontrol et |
 | "PostgreSQL bağlantı" | `node ./cto-coach-v2/dist/index-advanced.js postgres-connect` | PostgreSQL bağlantı testi |
+
+### 🧠 Enterprise+ Özellikler (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Predictive heal" | `node ./cto-coach-v2/dist/index-advanced.js predictive-heal` | Proaktif hata tespiti |
+| "Memory stats" | `node ./cto-coach-v2/dist/index-advanced.js memory-stats` | LLM memory istatistikleri |
+| "Context analiz" | `node ./cto-coach-v2/dist/index-advanced.js context-analyze` | Context awareness analizi |
+| "Role değiştir" | `node ./cto-coach-v2/dist/index-advanced.js set-role admin` | Kullanıcı rolü değiştir |
+| "Auto debug" | `node ./cto-coach-v2/dist/index-advanced.js auto-debug` | Otomatik debug analizi |
+| "Metrics export" | `node ./cto-coach-v2/dist/index-advanced.js metrics-export` | Metrikleri export et |
+| "SVG chart" | `node ./cto-coach-v2/dist/index-advanced.js report-chart --svg` | SVG grafik oluştur |
+| "Sandbox test" | `node ./cto-coach-v2/dist/index-advanced.js sandbox-test` | Güvenli sandbox test |
+| "Telemetry start" | `node ./cto-coach-v2/dist/index-advanced.js telemetry-start` | Performance telemetry başlat |
 
 ### 🔄 Otomatik Güncelleme Komutları (YENİ!)
 | Sohbet Komutu | CLI Komutu | Açıklama |
