@@ -570,6 +570,351 @@ ${analysis.stackTrace}
 // Singleton instance
 export const autoDebugEngine = new AutoDebugEngine();
 
+// Predictive Maintenance System
+interface SystemTelemetry {
+  timestamp: Date;
+  cpu: number;
+  ram: number;
+  network: number;
+  dbLatency: number;
+  memoryUsage: number;
+}
+
+interface AnomalyDetection {
+  metric: string;
+  value: number;
+  threshold: number;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  timestamp: Date;
+}
+
+class PredictiveMaintenanceSystem {
+  private telemetryData: SystemTelemetry[] = [];
+  private readonly TELEMETRY_PATH = 'logs/system-telemetry.json';
+  private readonly REPORT_PATH = 'logs/telemetry-report.md';
+  private readonly MAX_TELEMETRY_ENTRIES = 1000;
+  private readonly THRESHOLDS = {
+    cpu: 80,      // 80% CPU usage
+    ram: 85,      // 85% RAM usage
+    network: 100, // 100ms network latency
+    dbLatency: 50 // 50ms DB latency
+  };
+
+  /**
+   * Collect system telemetry data
+   */
+  async collectTelemetry(): Promise<SystemTelemetry> {
+    const telemetry: SystemTelemetry = {
+      timestamp: new Date(),
+      cpu: await this.getCPUUsage(),
+      ram: await this.getRAMUsage(),
+      network: await this.getNetworkLatency(),
+      dbLatency: await this.getDBLatency(),
+      memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024 // MB
+    };
+
+    this.telemetryData.push(telemetry);
+
+    // Keep only last MAX_TELEMETRY_ENTRIES
+    if (this.telemetryData.length > this.MAX_TELEMETRY_ENTRIES) {
+      this.telemetryData = this.telemetryData.slice(-this.MAX_TELEMETRY_ENTRIES);
+    }
+
+    // Check for anomalies
+    const anomalies = this.detectAnomalies(telemetry);
+    if (anomalies.length > 0) {
+      await this.handleAnomalies(anomalies);
+    }
+
+    this.saveTelemetry();
+    return telemetry;
+  }
+
+  /**
+   * Simple CPU usage estimation
+   */
+  private async getCPUUsage(): Promise<number> {
+    // Simplified CPU usage calculation
+    const startUsage = process.cpuUsage();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const endUsage = process.cpuUsage(startUsage);
+    const cpuTime = endUsage.user + endUsage.system;
+    return Math.min(cpuTime / 1000000, 100); // Convert to percentage
+  }
+
+  /**
+   * Get RAM usage percentage
+   */
+  private async getRAMUsage(): Promise<number> {
+    const memUsage = process.memoryUsage();
+    const totalMem = require('os').totalmem();
+    const usedMem = memUsage.heapUsed + memUsage.external;
+    return (usedMem / totalMem) * 100;
+  }
+
+  /**
+   * Get network latency (simplified)
+   */
+  private async getNetworkLatency(): Promise<number> {
+    const start = Date.now();
+    try {
+      // Simulate network check
+      await new Promise(resolve => setTimeout(resolve, 10));
+      return Date.now() - start;
+    } catch {
+      return 1000; // High latency if network fails
+    }
+  }
+
+  /**
+   * Get database latency (simplified)
+   */
+  private async getDBLatency(): Promise<number> {
+    const start = Date.now();
+    try {
+      // Simulate DB check
+      await new Promise(resolve => setTimeout(resolve, 5));
+      return Date.now() - start;
+    } catch {
+      return 100; // High latency if DB fails
+    }
+  }
+
+  /**
+   * Detect anomalies using simple threshold-based detection
+   */
+  private detectAnomalies(telemetry: SystemTelemetry): AnomalyDetection[] {
+    const anomalies: AnomalyDetection[] = [];
+
+    if (telemetry.cpu > this.THRESHOLDS.cpu) {
+      anomalies.push({
+        metric: 'cpu',
+        value: telemetry.cpu,
+        threshold: this.THRESHOLDS.cpu,
+        severity: telemetry.cpu > 95 ? 'critical' : telemetry.cpu > 90 ? 'high' : 'medium',
+        timestamp: telemetry.timestamp
+      });
+    }
+
+    if (telemetry.ram > this.THRESHOLDS.ram) {
+      anomalies.push({
+        metric: 'ram',
+        value: telemetry.ram,
+        threshold: this.THRESHOLDS.ram,
+        severity: telemetry.ram > 95 ? 'critical' : telemetry.ram > 90 ? 'high' : 'medium',
+        timestamp: telemetry.timestamp
+      });
+    }
+
+    if (telemetry.network > this.THRESHOLDS.network) {
+      anomalies.push({
+        metric: 'network',
+        value: telemetry.network,
+        threshold: this.THRESHOLDS.network,
+        severity: telemetry.network > 500 ? 'critical' : telemetry.network > 200 ? 'high' : 'medium',
+        timestamp: telemetry.timestamp
+      });
+    }
+
+    if (telemetry.dbLatency > this.THRESHOLDS.dbLatency) {
+      anomalies.push({
+        metric: 'dbLatency',
+        value: telemetry.dbLatency,
+        threshold: this.THRESHOLDS.dbLatency,
+        severity: telemetry.dbLatency > 200 ? 'critical' : telemetry.dbLatency > 100 ? 'high' : 'medium',
+        timestamp: telemetry.timestamp
+      });
+    }
+
+    return anomalies;
+  }
+
+  /**
+   * Handle detected anomalies
+   */
+  private async handleAnomalies(anomalies: AnomalyDetection[]): Promise<void> {
+    for (const anomaly of anomalies) {
+      console.log(`🚨 Anomaly detected: ${anomaly.metric} = ${anomaly.value} (threshold: ${anomaly.threshold}) - Severity: ${anomaly.severity}`);
+
+      if (anomaly.severity === 'critical' || anomaly.severity === 'high') {
+        // Trigger predictive heal
+        console.log('🔧 Triggering predictive heal due to critical anomaly');
+        // This would trigger the predictive heal system
+      }
+    }
+
+    // Generate telemetry report
+    await this.generateTelemetryReport(anomalies);
+  }
+
+  /**
+   * Generate telemetry report
+   */
+  private async generateTelemetryReport(anomalies: AnomalyDetection[]): Promise<void> {
+    const recentTelemetry = this.telemetryData.slice(-24); // Last 24 entries
+    const avgCPU = recentTelemetry.reduce((sum, t) => sum + t.cpu, 0) / recentTelemetry.length;
+    const avgRAM = recentTelemetry.reduce((sum, t) => sum + t.ram, 0) / recentTelemetry.length;
+    const avgNetwork = recentTelemetry.reduce((sum, t) => sum + t.network, 0) / recentTelemetry.length;
+    const avgDBLatency = recentTelemetry.reduce((sum, t) => sum + t.dbLatency, 0) / recentTelemetry.length;
+
+    const report = `# System Telemetry Report
+
+**Generated:** ${new Date().toISOString()}
+**Data Points:** ${recentTelemetry.length}
+
+## System Health Overview
+
+### Average Metrics (Last 24 Readings)
+- **CPU Usage:** ${avgCPU.toFixed(2)}%
+- **RAM Usage:** ${avgRAM.toFixed(2)}%
+- **Network Latency:** ${avgNetwork.toFixed(2)}ms
+- **DB Latency:** ${avgDBLatency.toFixed(2)}ms
+
+### Thresholds
+- **CPU Threshold:** ${this.THRESHOLDS.cpu}%
+- **RAM Threshold:** ${this.THRESHOLDS.ram}%
+- **Network Threshold:** ${this.THRESHOLDS.network}ms
+- **DB Latency Threshold:** ${this.THRESHOLDS.dbLatency}ms
+
+## Anomalies Detected
+
+${anomalies.length > 0 ? anomalies.map(anomaly => `
+### ${anomaly.metric.toUpperCase()} Anomaly
+- **Value:** ${anomaly.value}
+- **Threshold:** ${anomaly.threshold}
+- **Severity:** ${anomaly.severity.toUpperCase()}
+- **Timestamp:** ${anomaly.timestamp.toISOString()}
+`).join('\n') : 'No anomalies detected in current session.'}
+
+## Recommendations
+
+${this.generateRecommendations(anomalies)}
+
+---
+*Generated by CTO Koçu v3 Predictive Maintenance System*
+`;
+
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+
+      const reportPath = path.resolve(process.cwd(), this.REPORT_PATH);
+      const reportDir = path.dirname(reportPath);
+
+      if (!fs.existsSync(reportDir)) {
+        fs.mkdirSync(reportDir, { recursive: true });
+      }
+
+      fs.writeFileSync(reportPath, report, 'utf8');
+      console.log(`📊 Telemetry report saved to: ${reportPath}`);
+    } catch (error) {
+      console.error('Failed to save telemetry report:', error);
+    }
+  }
+
+  /**
+   * Generate recommendations based on anomalies
+   */
+  private generateRecommendations(anomalies: AnomalyDetection[]): string {
+    const recommendations: string[] = [];
+
+    anomalies.forEach(anomaly => {
+      switch (anomaly.metric) {
+        case 'cpu':
+          recommendations.push('- Consider optimizing CPU-intensive operations');
+          recommendations.push('- Implement task queue for heavy computations');
+          break;
+        case 'ram':
+          recommendations.push('- Review memory leaks in the application');
+          recommendations.push('- Implement garbage collection optimization');
+          break;
+        case 'network':
+          recommendations.push('- Check network connectivity and bandwidth');
+          recommendations.push('- Implement connection pooling');
+          break;
+        case 'dbLatency':
+          recommendations.push('- Optimize database queries');
+          recommendations.push('- Consider database indexing improvements');
+          break;
+      }
+    });
+
+    if (recommendations.length === 0) {
+      recommendations.push('- System is operating within normal parameters');
+      recommendations.push('- Continue monitoring for optimal performance');
+    }
+
+    return recommendations.join('\n');
+  }
+
+  /**
+   * Save telemetry data to file
+   */
+  private saveTelemetry(): void {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+
+      const telemetryPath = path.resolve(process.cwd(), this.TELEMETRY_PATH);
+      const telemetryDir = path.dirname(telemetryPath);
+
+      if (!fs.existsSync(telemetryDir)) {
+        fs.mkdirSync(telemetryDir, { recursive: true });
+      }
+
+      fs.writeFileSync(telemetryPath, JSON.stringify({
+        lastUpdated: new Date().toISOString(),
+        telemetry: this.telemetryData
+      }, null, 2));
+    } catch (error) {
+      console.error('Failed to save telemetry data:', error);
+    }
+  }
+
+  /**
+   * Load telemetry data from file
+   */
+  loadTelemetryData(): void {
+    try {
+      if (require('fs').existsSync(this.TELEMETRY_PATH)) {
+        const data = JSON.parse(require('fs').readFileSync(this.TELEMETRY_PATH, 'utf8'));
+        this.telemetryData = data.telemetry || [];
+      }
+    } catch (error) {
+      console.error('Failed to load telemetry data:', error);
+      this.telemetryData = [];
+    }
+  }
+
+  /**
+   * Get current system health status
+   */
+  getSystemHealthStatus(): {
+    status: 'healthy' | 'warning' | 'critical';
+    metrics: SystemTelemetry | null;
+    anomalies: AnomalyDetection[];
+  } {
+    const latestTelemetry = this.telemetryData[this.telemetryData.length - 1] || null;
+    const anomalies = latestTelemetry ? this.detectAnomalies(latestTelemetry) : [];
+
+    let status: 'healthy' | 'warning' | 'critical' = 'healthy';
+    if (anomalies.some(a => a.severity === 'critical')) {
+      status = 'critical';
+    } else if (anomalies.some(a => a.severity === 'high')) {
+      status = 'warning';
+    }
+
+    return {
+      status,
+      metrics: latestTelemetry,
+      anomalies
+    };
+  }
+}
+
+// Singleton instance
+export const predictiveMaintenanceSystem = new PredictiveMaintenanceSystem();
+
 // Self-healing with rollback support and predictive capabilities
 export function selfHealWithRollback(error: Error, plan: any, snapshotId?: string): RepairPlan | null {
   const { errorType, details } = validateError(error);

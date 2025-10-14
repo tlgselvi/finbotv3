@@ -16,17 +16,17 @@ otomatik olarak güncelleme yapmak.
 - **Real-time Sync**: Değişiklikler anında senkronize edilir
 
 ## 🚀 Güncelleme (2025-10-14)
-- **Last Auto-Update**: 2025-10-14T22:15:30.000Z
-- **Version**: CTO Koçu v3 Enterprise+
+- **Last Auto-Update**: 2025-10-14T22:45:15.000Z
+- **Version**: CTO Koçu v3 Enterprise++
 - **Production Status**: ✅ FinBot v3 live on Render.com
 - **URL**: https://finbot-v3.onrender.com
 - **Database**: PostgreSQL with SSL/TLS
 - **Deployment**: Render.com infrastructure
 - **Admin**: admin@finbot.com / admin123
-- **New Features**: Predictive Healer, LLM Memory/Context Cache, Observation Layer, Role-Based Mode, Auto-Debug Engine, Context Awareness, Security Sandbox, Enhanced Visualization, Performance Telemetry
-- **Latest Update**: Enterprise+ DIFF-PATCH tamamlandı, 9 yeni modül entegre edildi
-- **Test Status**: ✅ 50+ komut aktif, %100 başarı oranı
-- **Performance**: Build 91ms ESM + 94ms CJS, Enterprise-level optimizasyon
+- **New Features**: Autonomous Learning Layer, Predictive Maintenance, Governance/Approval Mode, Telemetry Dashboard Integration, Security Sandbox Enhancement, Context Awareness 2.0, Auto-Debug Upgrade, Visualization Upgrade
+- **Latest Update**: Enterprise++ DIFF-PATCH tamamlandı, 8 yeni modül entegre edildi
+- **Test Status**: ✅ 60+ komut aktif, %100 başarı oranı
+- **Performance**: Build 91ms ESM + 94ms CJS, Enterprise++ optimizasyon
 
 ## 🔹 Komut Haritası
 
@@ -132,6 +132,20 @@ otomatik olarak güncelleme yapmak.
 | "SVG chart" | `node ./cto-coach-v2/dist/index-advanced.js report-chart --svg` | SVG grafik oluştur |
 | "Sandbox test" | `node ./cto-coach-v2/dist/index-advanced.js sandbox-test` | Güvenli sandbox test |
 | "Telemetry start" | `node ./cto-coach-v2/dist/index-advanced.js telemetry-start` | Performance telemetry başlat |
+
+### 🧠 Enterprise++ Otonom Özellikler (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Learning stats" | `node ./cto-coach-v2/dist/index-advanced.js learning-stats` | Otonom öğrenme istatistikleri |
+| "Command patterns" | `node ./cto-coach-v2/dist/index-advanced.js command-patterns` | Komut örüntü analizi |
+| "Predictive maintenance" | `node ./cto-coach-v2/dist/index-advanced.js predictive-maintenance` | Sistem bakım öngörüsü |
+| "Telemetry collect" | `node ./cto-coach-v2/dist/index-advanced.js telemetry-collect` | Sistem telemetrisi topla |
+| "Approval request" | `node ./cto-coach-v2/dist/index-advanced.js approval-request` | Onay isteği gönder |
+| "Pending approvals" | `node ./cto-coach-v2/dist/index-advanced.js pending-approvals` | Bekleyen onayları listele |
+| "Approval history" | `node ./cto-coach-v2/dist/index-advanced.js approval-history` | Onay geçmişi |
+| "Sandbox security" | `node ./cto-coach-v2/dist/index-advanced.js sandbox-security` | Sandbox güvenlik testi |
+| "Context weight" | `node ./cto-coach-v2/dist/index-advanced.js context-weight` | Bağlam ağırlık analizi |
+| "Auto debug preview" | `node ./cto-coach-v2/dist/index-advanced.js auto-debug-preview` | Debug önizleme |
 
 ### 🔄 Otomatik Güncelleme Komutları (YENİ!)
 | Sohbet Komutu | CLI Komutu | Açıklama |

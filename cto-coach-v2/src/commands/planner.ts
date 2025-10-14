@@ -130,6 +130,255 @@ class RoleBasedMode {
 // Singleton instance
 export const roleBasedMode = new RoleBasedMode();
 
+// Governance / Approval Mode System
+interface ApprovalRequest {
+  id: string;
+  command: string;
+  args: string[];
+  requester: string;
+  role: string;
+  timestamp: Date;
+  status: 'pending' | 'approved' | 'rejected';
+  approvedBy?: string;
+  approvedAt?: Date;
+  reason?: string;
+}
+
+interface ApprovalLog {
+  id: string;
+  action: 'request' | 'approve' | 'reject';
+  command: string;
+  user: string;
+  role: string;
+  timestamp: Date;
+  details: any;
+}
+
+class GovernanceSystem {
+  private approvalRequests: Map<string, ApprovalRequest> = new Map();
+  private approvalLog: ApprovalLog[] = [];
+  private readonly APPROVAL_LOG_PATH = 'logs/approval-log.json';
+  private readonly REQUIRES_APPROVAL_COMMANDS = ['release', 'deploy', 'db-backup', 'db-restore', 'rollback'];
+
+  /**
+   * Check if command requires approval
+   */
+  requiresApproval(command: string): boolean {
+    return this.REQUIRES_APPROVAL_COMMANDS.includes(command);
+  }
+
+  /**
+   * Request approval for a command
+   */
+  requestApproval(command: string, args: string[], requester: string, role: string): string {
+    const requestId = this.generateRequestId();
+    const request: ApprovalRequest = {
+      id: requestId,
+      command,
+      args,
+      requester,
+      role,
+      timestamp: new Date(),
+      status: 'pending'
+    };
+
+    this.approvalRequests.set(requestId, request);
+    this.logApprovalAction('request', command, requester, role, { requestId, args });
+
+    console.log(`⏳ Approval requested for command '${command}' by ${requester} (${role})`);
+    console.log(`📋 Request ID: ${requestId}`);
+    console.log(`⏰ Waiting for admin approval...`);
+
+    return requestId;
+  }
+
+  /**
+   * Approve a command (admin only)
+   */
+  approveCommand(requestId: string, approver: string, role: string): boolean {
+    const request = this.approvalRequests.get(requestId);
+    
+    if (!request) {
+      console.log(`❌ Approval request ${requestId} not found`);
+      return false;
+    }
+
+    if (role !== 'admin') {
+      console.log(`❌ Only admin can approve commands. Current role: ${role}`);
+      return false;
+    }
+
+    if (request.status !== 'pending') {
+      console.log(`❌ Request ${requestId} is already ${request.status}`);
+      return false;
+    }
+
+    request.status = 'approved';
+    request.approvedBy = approver;
+    request.approvedAt = new Date();
+
+    this.logApprovalAction('approve', request.command, approver, role, { requestId });
+
+    console.log(`✅ Command '${request.command}' approved by ${approver}`);
+    return true;
+  }
+
+  /**
+   * Reject a command (admin only)
+   */
+  rejectCommand(requestId: string, rejector: string, role: string, reason: string): boolean {
+    const request = this.approvalRequests.get(requestId);
+    
+    if (!request) {
+      console.log(`❌ Approval request ${requestId} not found`);
+      return false;
+    }
+
+    if (role !== 'admin') {
+      console.log(`❌ Only admin can reject commands. Current role: ${role}`);
+      return false;
+    }
+
+    if (request.status !== 'pending') {
+      console.log(`❌ Request ${requestId} is already ${request.status}`);
+      return false;
+    }
+
+    request.status = 'rejected';
+    request.approvedBy = rejector;
+    request.approvedAt = new Date();
+    request.reason = reason;
+
+    this.logApprovalAction('reject', request.command, rejector, role, { requestId, reason });
+
+    console.log(`❌ Command '${request.command}' rejected by ${rejector}: ${reason}`);
+    return true;
+  }
+
+  /**
+   * Get approval request status
+   */
+  getApprovalStatus(requestId: string): ApprovalRequest | null {
+    return this.approvalRequests.get(requestId) || null;
+  }
+
+  /**
+   * Check if command can proceed
+   */
+  canProceed(command: string, args: string[], user: string, role: string): { canProceed: boolean; requestId?: string; message: string } {
+    if (!this.requiresApproval(command)) {
+      return { canProceed: true, message: 'Command does not require approval' };
+    }
+
+    if (role === 'admin') {
+      return { canProceed: true, message: 'Admin user - no approval required' };
+    }
+
+    // For non-admin users, request approval
+    const requestId = this.requestApproval(command, args, user, role);
+    return { 
+      canProceed: false, 
+      requestId, 
+      message: `Approval required for command '${command}'. Request ID: ${requestId}` 
+    };
+  }
+
+  /**
+   * List pending approval requests
+   */
+  listPendingRequests(): ApprovalRequest[] {
+    return Array.from(this.approvalRequests.values())
+      .filter(request => request.status === 'pending')
+      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  }
+
+  /**
+   * Get approval history
+   */
+  getApprovalHistory(): ApprovalLog[] {
+    return [...this.approvalLog].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
+
+  /**
+   * Generate unique request ID
+   */
+  private generateRequestId(): string {
+    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Log approval action
+   */
+  private logApprovalAction(action: 'request' | 'approve' | 'reject', command: string, user: string, role: string, details: any): void {
+    const logEntry: ApprovalLog = {
+      id: this.generateRequestId(),
+      action,
+      command,
+      user,
+      role,
+      timestamp: new Date(),
+      details
+    };
+
+    this.approvalLog.push(logEntry);
+
+    // Keep only last 1000 log entries
+    if (this.approvalLog.length > 1000) {
+      this.approvalLog = this.approvalLog.slice(-1000);
+    }
+
+    this.saveApprovalLog();
+  }
+
+  /**
+   * Save approval log to file
+   */
+  private saveApprovalLog(): void {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      const logPath = path.resolve(process.cwd(), this.APPROVAL_LOG_PATH);
+      const logDir = path.dirname(logPath);
+      
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+      
+      fs.writeFileSync(logPath, JSON.stringify({
+        lastUpdated: new Date().toISOString(),
+        log: this.approvalLog,
+        requests: Array.from(this.approvalRequests.entries())
+      }, null, 2));
+    } catch (error) {
+      console.error('Failed to save approval log:', error);
+    }
+  }
+
+  /**
+   * Load approval data from file
+   */
+  loadApprovalData(): void {
+    try {
+      if (require('fs').existsSync(this.APPROVAL_LOG_PATH)) {
+        const data = JSON.parse(require('fs').readFileSync(this.APPROVAL_LOG_PATH, 'utf8'));
+        this.approvalLog = data.log || [];
+        
+        if (data.requests) {
+          this.approvalRequests = new Map(data.requests);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load approval data:', error);
+      this.approvalLog = [];
+      this.approvalRequests = new Map();
+    }
+  }
+}
+
+// Singleton instance
+export const governanceSystem = new GovernanceSystem();
+
 // Command discovery and learning system
 interface DiscoveredCommand {
     name: string;
@@ -152,6 +401,14 @@ export function planCommand(cmd: string, args: string[]) {
         throw new Error(`Command '${cmd}' limit exceeded for role '${roleBasedMode.getCurrentRole()}'`);
     }
 
+    // Governance / Approval Mode validation
+    const currentRole = roleBasedMode.getCurrentRole();
+    const approvalCheck = governanceSystem.canProceed(cmd, args, 'system', currentRole);
+    
+    if (!approvalCheck.canProceed) {
+        throw new Error(`GOVERNANCE: ${approvalCheck.message}`);
+    }
+
     // Handle role switching
     if (cmd === "set-role" && args.length > 0) {
         const newRole = args[0];
@@ -160,6 +417,37 @@ export function planCommand(cmd: string, args: string[]) {
         } else {
             throw new Error(`Invalid role: ${newRole}. Available roles: ${roleBasedMode.listRoles().join(', ')}`);
         }
+    }
+
+    // Handle approval commands
+    if (cmd === "approve" && args.length > 0) {
+        const requestId = args[0];
+        const success = governanceSystem.approveCommand(requestId, 'admin', currentRole);
+        return { 
+            type: "cli", 
+            command: "approval-result", 
+            args: [requestId, success ? 'approved' : 'failed'] 
+        };
+    }
+
+    if (cmd === "reject" && args.length > 0) {
+        const requestId = args[0];
+        const reason = args[1] || 'No reason provided';
+        const success = governanceSystem.rejectCommand(requestId, 'admin', currentRole, reason);
+        return { 
+            type: "cli", 
+            command: "approval-result", 
+            args: [requestId, success ? 'rejected' : 'failed', reason] 
+        };
+    }
+
+    if (cmd === "pending-approvals") {
+        const pending = governanceSystem.listPendingRequests();
+        return { 
+            type: "cli", 
+            command: "list-pending", 
+            args: [JSON.stringify(pending)] 
+        };
     }
 
     switch (cmd) {
