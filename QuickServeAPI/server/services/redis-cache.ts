@@ -134,7 +134,7 @@ export class LLMCacheService {
     const cached = await this.cache.get(cacheKey);
 
     if (cached && cached.response) {
-      logger.info('LLM cache hit', { prompt: this.normalizePrompt(prompt) });
+      logger.info(`LLM cache hit - prompt: ${this.normalizePrompt(prompt)}`);
       return cached.response;
     }
 
@@ -212,10 +212,43 @@ export class LLMMemoryService {
   private readonly MAX_MEMORY_ENTRIES = 50;
 
   /**
+   * Generate cache key for memory
+   */
+  private generateCacheKey(prompt: string): string {
+    const normalized = this.normalizePrompt(prompt);
+    const hash = this.simpleHash(normalized);
+    return `${this.MEMORY_PREFIX}${hash}`;
+  }
+
+  /**
+   * Normalize prompt for consistent processing
+   */
+  private normalizePrompt(prompt: string): string {
+    return prompt
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 500);
+  }
+
+  /**
+   * Simple hash function
+   */
+  private simpleHash(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36);
+  }
+
+  /**
    * Store command-response pair in memory
    */
   async storeMemory(prompt: string, response: string, context: any = {}): Promise<void> {
-    const memoryKey = this.generateMemoryKey(prompt);
+    const memoryKey = this.generateCacheKey(prompt);
     const memoryData = {
       prompt: this.normalizePrompt(prompt),
       response,
