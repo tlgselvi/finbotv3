@@ -706,19 +706,19 @@ router.post(
   async (req: any, res) => {
     try {
       const { ip } = req.body;
-      
+
       if (!ip) {
         return res.status(400).json({ error: 'IP address is required' });
       }
 
       // Import security auditor
       const { securityAuditor } = await import('../middleware/security-audit');
-      
+
       // Unblock the IP
       securityAuditor.unblockIP(ip);
-      
+
       logger.info(`IP ${ip} unblocked by admin ${req.user.email}`);
-      
+
       res.json({
         success: true,
         message: `IP ${ip} has been unblocked`,
@@ -740,9 +740,9 @@ router.get(
     try {
       // Import security auditor
       const { securityAuditor } = await import('../middleware/security-audit');
-      
+
       const blockedIPs = securityAuditor.getBlockedIPs();
-      
+
       res.json({
         success: true,
         blockedIPs,

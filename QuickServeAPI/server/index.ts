@@ -174,3 +174,38 @@ wss.on('connection', ws => {
   ws.on('close', () => logger.info('WebSocket disconnected'));
   ws.on('error', error => logger.error('WebSocket error:', error));
 });
+
+// Global error handler
+app.use((error: any, req: any, res: any, next: any) => {
+  logger.error('Unhandled error:', {
+    error: error.message,
+    stack: error.stack,
+    url: req.url,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+  });
+
+  // Don't leak error details in production
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  res.status(500).json({
+    error: 'Internal server error',
+    message: isDevelopment ? error.message : 'Something went wrong',
+    ...(isDevelopment && { stack: error.stack }),
+    timestamp: new Date().toISOString(),
+    requestId: req.id || 'unknown',
+  });
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});

@@ -4,11 +4,11 @@ import { logger } from '../utils/logger';
 interface SecurityAuditEvent {
   timestamp: string;
   type:
-    | 'suspicious_activity'
-    | 'rate_limit_exceeded'
-    | 'sql_injection_attempt'
-    | 'xss_attempt'
-    | 'unauthorized_access';
+  | 'suspicious_activity'
+  | 'rate_limit_exceeded'
+  | 'sql_injection_attempt'
+  | 'xss_attempt'
+  | 'unauthorized_access';
   severity: 'low' | 'medium' | 'high' | 'critical';
   ip: string;
   userAgent: string;
@@ -159,7 +159,7 @@ class SecurityAuditor {
 
     record.blocked = false;
     record.lastSeen = new Date();
-    
+
     // Log the unblock event
     this.auditLog.push({
       id: `unblock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -177,7 +177,7 @@ class SecurityAuditor {
     return true;
   }
 
-  public getBlockedIPs(): Array<{ip: string, blockedAt: Date, reason: string}> {
+  public getBlockedIPs(): Array<{ ip: string, blockedAt: Date, reason: string }> {
     return Array.from(this.suspiciousIPs.entries())
       .filter(([_, record]) => record.blocked)
       .map(([ip, record]) => ({
