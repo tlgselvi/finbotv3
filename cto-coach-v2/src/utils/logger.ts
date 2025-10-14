@@ -10,6 +10,12 @@ export function logReport(entry: {
   report?: string;
   message?: string;
 }) {
+  // Ensure logs directory exists
+  const logsDir = path.dirname(LOG_PATH);
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+
   const line = `[${new Date().toISOString()}] ${entry.command}: ${entry.status}`
     + (entry.report ? ` - ${entry.report}` : "")
     + (entry.message ? ` - ${entry.message}` : "")
@@ -19,7 +25,7 @@ export function logReport(entry: {
   let hist: any[] = [];
   try {
     hist = JSON.parse(fs.readFileSync(HISTORY_PATH, "utf8"));
-  } catch {}
+  } catch { }
   hist.push({ ...entry, timestamp: new Date().toISOString() });
   fs.writeFileSync(HISTORY_PATH, JSON.stringify(hist, null, 2));
 }

@@ -1,12 +1,12 @@
 # CTO Koçu v3 - Otomatik Deploy Raporu
 
-**Tarih:** 14.10.2025 15:38:38  
+**Tarih:** 14.10.2025 15:52:02  
 **Durum:** ⚠️ KISMEN BAŞARILI  
 
 ## 📋 Yapılan İşlemler
 
 ### ✅ Git İşlemleri
-- **Git Status:** Temiz
+- **Git Status:** Değişiklikler bulundu
 - **Commit:** Başarılı
 - **Push:** Başarılı
 
@@ -27,7 +27,7 @@
 
 ## 📊 Başarı Oranı
 
-- **Git İşlemleri:** 0%
+- **Git İşlemleri:** 100%
 - **Build İşlemleri:** 100%
 - **Deploy İşlemleri:** 0%
 - **CTO Koçu v3:** 100%
