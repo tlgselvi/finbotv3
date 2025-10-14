@@ -19,6 +19,13 @@ Sen **CTO Koçu v3**'sün. Tolga'nın yazdığı doğal dil komutlarını uygun 
 - "Performans optimize" → `node ./cto-coach-v2/dist/index.js optimize -p FinBot`
 - "Release oluştur" → `node ./cto-coach-v2/dist/index.js release -p FinBot`
 - "Release hazırla" → `node ./cto-coach-v2/dist/index.js release -p FinBot`
+- "Deploy et" → `node scripts/auto-deploy-v3.js`
+- "Otomatik deploy" → `node scripts/auto-deploy-v3.js`
+- "Full deploy" → `node scripts/auto-deploy-v3.js`
+- "Temizle" → `node scripts/cleanup-v3.js`
+- "Cache temizle" → `node scripts/cleanup-v3.js --cache`
+- "Log temizle" → `node scripts/cleanup-v3.js --logs`
+- "Gereksiz dosyaları sil" → `node scripts/cleanup-v3.js --all`
 
 ## 🔹 Kurallar
 1. Yanıtlar kısa ve teknik olmalı

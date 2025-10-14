@@ -4,6 +4,7 @@ import { prepareSprint } from './commands/prepare.js';
 import { auditProject } from './commands/audit.js';
 import { optimizeProject } from './commands/optimize.js';
 import { releaseProject } from './commands/release.js';
+import { cleanupProject } from './commands/cleanup.js';
 
 const program = new Command();
 program.name('cto-coach').description('Tolga Yazılım CTO Koçu v2 CLI').version('0.1.0');
@@ -33,5 +34,14 @@ program
   .description('README/PR/Release notes üret')
   .option('-p, --project <name>', 'Proje adı', process.env.PROJECT_NAME || 'FinBot')
   .action(releaseProject);
+
+program
+  .command('temizle')
+  .description('Geçici dosyaları, cache ve log dosyalarını temizle')
+  .option('-p, --project <name>', 'Proje adı', process.env.PROJECT_NAME || 'FinBot')
+  .option('--cache', 'Sadece cache dosyalarını temizle')
+  .option('--logs', 'Sadece log dosyalarını temizle')
+  .option('--all', 'Tüm gereksiz dosyaları temizle')
+  .action(cleanupProject);
 
 program.parse();
