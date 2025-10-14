@@ -305,3 +305,5 @@ Yaklaşımın: Analitik, risk bilinci yüksek ve veri odaklı. Her yatırım kar
   }
 }
 
+
+

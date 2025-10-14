@@ -56,7 +56,6 @@ export const teamMembers = pgTable('team_members', {
     .notNull(),
   role: varchar('role', { length: 50 }).notNull().default('member'),
   teamRole: varchar('team_role', { length: 50 }),
-  permissions: text('permissions'), // JSON string
   isActive: boolean('is_active').default(true),
   joinedAt: timestamp('joined_at').defaultNow(),
   createdAt: timestamp('created_at').defaultNow(),
@@ -208,6 +207,22 @@ export const credits = pgTable('credits', {
   isActive: boolean('is_active').default(true),
   lastPaymentDate: timestamp('last_payment_date'),
   deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Tenants table
+export const tenants = pgTable('tenants', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  ownerId: uuid('owner_id')
+    .references(() => users.id)
+    .notNull(),
+  logo: text('logo'),
+  domain: varchar('domain', { length: 255 }),
+  theme: varchar('theme', { length: 50 }).default('default'),
+  isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -918,4 +933,6 @@ export const insertBankIntegrationSchema = bankIntegrations;
 export const updateBankIntegrationSchema = bankIntegrations;
 export const insertUserTwoFactorAuthSchema = userTwoFactorAuth;
 export const insertPasswordResetTokenSchema = passwordResetTokens;
+
+
 

@@ -13,3 +13,5 @@ export function mapDSCRStatus(dscr: number): 'ok' | 'warning' | 'critical' {
   return 'critical';
 }
 
+
+

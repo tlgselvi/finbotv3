@@ -1742,7 +1742,6 @@ export class MemStorage implements IStorage {
   }
 }
 
-// @ts-nocheck - Temporary fix for TypeScript errors
 export class PostgresStorage implements IStorage {
   private aiSettings = new Map<string, any>();
   private tenants = new Map<string, Tenant>();
@@ -3047,3 +3046,5 @@ export class PostgresStorage implements IStorage {
 // Use PostgreSQL storage in production, memory storage for development/testing
 // Temporarily force memory storage for local setup
 export const storage = new MemStorage();
+
+

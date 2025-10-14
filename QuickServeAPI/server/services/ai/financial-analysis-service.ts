@@ -491,3 +491,5 @@ export class FinancialAnalysisService {
 export const financialAnalysisService = new FinancialAnalysisService();
 export default financialAnalysisService;
 
+
+

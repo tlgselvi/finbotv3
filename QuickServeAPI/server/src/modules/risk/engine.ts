@@ -248,3 +248,5 @@ export const DEFAULT_RISK_PARAMETERS: RiskParameters = {
   liquidityGap: 0, // %0 likidite açığı
 };
 
+
+
