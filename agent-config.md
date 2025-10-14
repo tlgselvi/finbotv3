@@ -28,15 +28,6 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 | "Performans optimize" | `node ./cto-coach-v2/dist/index-advanced.js optimize -p FinBot` |
 | "Release oluştur" | `node ./cto-coach-v2/dist/index-advanced.js release -p FinBot` |
 | "Release hazırla" | `node ./cto-coach-v2/dist/index-advanced.js release -p FinBot` |
-| "Deploy et" | `node scripts/auto-deploy-v3.js` |
-| "Otomatik deploy" | `node scripts/auto-deploy-v3.js` |
-| "Full deploy" | `node scripts/auto-deploy-v3.js` |
-| "Temizle" | `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot` |
-| "Cache temizle" | `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --cache` |
-| "Log temizle" | `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --logs` |
-| "Gereksiz dosyaları sil" | `node ./cto-coach-v2/dist/index-advanced.js temizle -p FinBot --all` |
-| "Dokümantasyonu güncelle" | `node scripts/auto-update-docs.js` |
-| "Dokümantasyon güncelle" | `node scripts/auto-update-docs.js` |
 
 ## 🔹 Kurallar
 1. Yanıtlar kısa ve teknik olmalı.
@@ -56,7 +47,29 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 ✅ Sprint planı oluşturuldu: plans/sprint-plan.md
 ```
 
-**Tolga:** Audit yap  
+**Tolga:** Audit yap
+
+## === Reporting Template Integration ===
+render:
+  mode: "markdown"
+  parser: "json"
+  template:
+    success: |
+      ✅ **{{command | upper}} RAPORU**
+      📁 Dosya: `{{report}}`
+      📊 Skor: {{score}}/10
+      🕒 Tarih: {{timestamp}}
+    error: |
+      ❌ **HATA: {{message}}**
+      🔍 Komut: {{command}}
+      🕒 {{timestamp}}
+
+## === Advanced Reporting System ===
+- **JSON Output**: Structured data output
+- **Logging**: Real-time log files
+- **History**: Command history tracking
+- **Templates**: Markdown report rendering
+- **Validation**: JSON parsing and error handling  
 **Agent:**
 ```
 > node ./cto-coach-v2/dist/index.js audit -p FinBot
