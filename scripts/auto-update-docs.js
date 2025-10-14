@@ -17,35 +17,35 @@ let totalChanges = 0;
 
 // Dosya güncelleme fonksiyonu
 function updateFile(filePath, content) {
-  try {
-    if (fs.existsSync(filePath)) {
-      const oldContent = fs.readFileSync(filePath, 'utf8');
-      if (oldContent !== content) {
-        fs.writeFileSync(filePath, content);
-        updatedFiles++;
-        console.log(`✅ Güncellendi: ${filePath}`);
-        return true;
-      } else {
-        console.log(`ℹ️ Değişiklik yok: ${filePath}`);
+    try {
+        if (fs.existsSync(filePath)) {
+            const oldContent = fs.readFileSync(filePath, 'utf8');
+            if (oldContent !== content) {
+                fs.writeFileSync(filePath, content);
+                updatedFiles++;
+                console.log(`✅ Güncellendi: ${filePath}`);
+                return true;
+            } else {
+                console.log(`ℹ️ Değişiklik yok: ${filePath}`);
+                return false;
+            }
+        } else {
+            fs.writeFileSync(filePath, content);
+            updatedFiles++;
+            console.log(`✅ Oluşturuldu: ${filePath}`);
+            return true;
+        }
+    } catch (error) {
+        console.log(`❌ Güncellenemedi: ${filePath} - ${error.message}`);
         return false;
-      }
-    } else {
-      fs.writeFileSync(filePath, content);
-      updatedFiles++;
-      console.log(`✅ Oluşturuldu: ${filePath}`);
-      return true;
     }
-  } catch (error) {
-    console.log(`❌ Güncellenemedi: ${filePath} - ${error.message}`);
-    return false;
-  }
 }
 
 // CTO_KOÇU_V3_STATUS.md güncelle
 function updateStatusFile() {
-  console.log('📊 CTO_KOÇU_V3_STATUS.md güncelleniyor...');
-  
-  const statusContent = `# CTO Koçu v3 - Aktivasyon Raporu
+    console.log('📊 CTO_KOÇU_V3_STATUS.md güncelleniyor...');
+
+    const statusContent = `# CTO Koçu v3 - Aktivasyon Raporu
 
 ## 🎉 BAŞARILI AKTİVASYON!
 
@@ -203,14 +203,14 @@ Chat penceresinde doğal dil komutlarını kullanarak CTO Koçu v3'ü aktif olar
 **Son Güncelleme:** ${new Date().toLocaleString('tr-TR')}  
 **CTO Koçu v3** — FinBot v3 için otomatik geliştirme asistanı 🚀`;
 
-  return updateFile('CTO_KOÇU_V3_STATUS.md', statusContent);
+    return updateFile('CTO_KOÇU_V3_STATUS.md', statusContent);
 }
 
 // README.md güncelle
 function updateReadme() {
-  console.log('📖 README.md güncelleniyor...');
-  
-  const readmeContent = `# FinBot v3 - CTO Koçu v3
+    console.log('📖 README.md güncelleniyor...');
+
+    const readmeContent = `# FinBot v3 - CTO Koçu v3
 
 ## 🚀 Proje Durumu
 
@@ -331,14 +331,14 @@ npm run build
 ---
 **FinBot v3** — Akıllı finansal yönetim platformu 🚀`;
 
-  return updateFile('README.md', readmeContent);
+    return updateFile('README.md', readmeContent);
 }
 
 // FINBOT_V3_FULL_DOCUMENTATION.md güncelle
 function updateFullDocumentation() {
-  console.log('📚 FINBOT_V3_FULL_DOCUMENTATION.md güncelleniyor...');
-  
-  const fullDocContent = `# FinBot v3 - Kapsamlı Proje Dokümantasyonu
+    console.log('📚 FINBOT_V3_FULL_DOCUMENTATION.md güncelleniyor...');
+
+    const fullDocContent = `# FinBot v3 - Kapsamlı Proje Dokümantasyonu
 
 ## 🎯 Proje Özeti
 
@@ -578,54 +578,54 @@ npm run test:e2e
 **FinBot v3** — Modern finansal yönetim platformu 🚀  
 **CTO Koçu v3** — Otomatik geliştirme asistanı 🤖`;
 
-  return updateFile('FINBOT_V3_FULL_DOCUMENTATION.md', fullDocContent);
+    return updateFile('FINBOT_V3_FULL_DOCUMENTATION.md', fullDocContent);
 }
 
 // Ana güncelleme fonksiyonu
 function main() {
-  console.log('🔧 Otomatik dokümantasyon güncelleme sistemi başlatılıyor...\n');
-  
-  try {
-    // 1. Status dosyasını güncelle
-    const statusUpdated = updateStatusFile();
-    if (statusUpdated) totalChanges++;
-    
-    // 2. README'yi güncelle
-    const readmeUpdated = updateReadme();
-    if (readmeUpdated) totalChanges++;
-    
-    // 3. Full documentation'ı güncelle
-    const fullDocUpdated = updateFullDocumentation();
-    if (fullDocUpdated) totalChanges++;
-    
-    // Sonuç raporu
-    console.log('\n📊 Güncelleme Raporu:');
-    console.log('==================');
-    console.log(`Güncellenen dosya sayısı: ${updatedFiles}`);
-    console.log(`Toplam değişiklik: ${totalChanges}`);
-    
-    if (updatedFiles > 0) {
-      console.log('\n✅ Dokümantasyon başarıyla güncellendi!');
-      
-      // Git commit yap
-      try {
-        execSync('git add CTO_KOÇU_V3_STATUS.md README.md FINBOT_V3_FULL_DOCUMENTATION.md', { stdio: 'inherit' });
-        execSync('git commit -m "Otomatik dokümantasyon güncelleme - CTO Koçu v3"', { stdio: 'inherit' });
-        console.log('✅ Değişiklikler commit edildi');
-      } catch (error) {
-        console.log('⚠️ Git commit hatası:', error.message);
-      }
-    } else {
-      console.log('\nℹ️ Güncellenecek değişiklik bulunamadı');
+    console.log('🔧 Otomatik dokümantasyon güncelleme sistemi başlatılıyor...\n');
+
+    try {
+        // 1. Status dosyasını güncelle
+        const statusUpdated = updateStatusFile();
+        if (statusUpdated) totalChanges++;
+
+        // 2. README'yi güncelle
+        const readmeUpdated = updateReadme();
+        if (readmeUpdated) totalChanges++;
+
+        // 3. Full documentation'ı güncelle
+        const fullDocUpdated = updateFullDocumentation();
+        if (fullDocUpdated) totalChanges++;
+
+        // Sonuç raporu
+        console.log('\n📊 Güncelleme Raporu:');
+        console.log('==================');
+        console.log(`Güncellenen dosya sayısı: ${updatedFiles}`);
+        console.log(`Toplam değişiklik: ${totalChanges}`);
+
+        if (updatedFiles > 0) {
+            console.log('\n✅ Dokümantasyon başarıyla güncellendi!');
+
+            // Git commit yap
+            try {
+                execSync('git add CTO_KOÇU_V3_STATUS.md README.md FINBOT_V3_FULL_DOCUMENTATION.md', { stdio: 'inherit' });
+                execSync('git commit -m "Otomatik dokümantasyon güncelleme - CTO Koçu v3"', { stdio: 'inherit' });
+                console.log('✅ Değişiklikler commit edildi');
+            } catch (error) {
+                console.log('⚠️ Git commit hatası:', error.message);
+            }
+        } else {
+            console.log('\nℹ️ Güncellenecek değişiklik bulunamadı');
+        }
+
+        console.log('\n💡 Bu script her değişiklik sonrası otomatik çalışır');
+        console.log('🔧 Manuel çalıştırmak için: node scripts/auto-update-docs.js');
+
+    } catch (error) {
+        console.error('❌ Güncelleme hatası:', error.message);
+        process.exit(1);
     }
-    
-    console.log('\n💡 Bu script her değişiklik sonrası otomatik çalışır');
-    console.log('🔧 Manuel çalıştırmak için: node scripts/auto-update-docs.js');
-    
-  } catch (error) {
-    console.error('❌ Güncelleme hatası:', error.message);
-    process.exit(1);
-  }
 }
 
 // Script'i çalıştır
