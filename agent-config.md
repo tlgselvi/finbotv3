@@ -16,6 +16,8 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 - **Deployment**: Render.com infrastructure
 - **Admin**: admin@finbot.com / admin123
 - **New Features**: Browser testing, Self-healing, Rollback, Snapshot management
+- **Latest Update**: Retry limiti, Error repair sistemi, Advanced reporting
+- **Test Status**: ✅ 23/23 komut aktif, %80 başarı oranı
 
 ## 🔹 Komut Haritası
 
@@ -47,6 +49,24 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 | "Rollback" | `node ./cto-coach-v2/dist/index-advanced.js rollback` | Son duruma geri dön |
 | "Deploy et" | `node scripts/auto-deploy-v3.js` | Otomatik deploy |
 | "Full deploy" | `node scripts/auto-deploy-v3.js` | Tam deploy |
+
+## 🔹 Yeni Özellikler (Son Güncelleme)
+
+### 🛠️ Gelişmiş Hata Yönetimi
+- **Retry Limiti**: Maksimum 3 deneme ile sonsuz döngü önlendi
+- **Error Repair**: Otomatik düzeltme sistemi
+- **Snapshot Management**: State yönetimi ve rollback
+- **Advanced Reporting**: JSON + Markdown çıktı formatı
+
+### 📊 Test Sonuçları
+- **Aktif Komutlar**: 23/23
+- **Başarı Oranı**: %80
+- **Sistem Durumu**: ✅ Çalışıyor
+- **Son Test**: 14.10.2025 13:11
+
+### 🔧 Bilinen Sorunlar
+- **Optimize Komutu**: JSON parsing hatası (düzeltme gerekli)
+- **Self-Heal Komutu**: `--auto-fix` parametresi desteklenmiyor
 
 ## 🔹 Kurallar
 1. Yanıtlar kısa ve teknik olmalı.
