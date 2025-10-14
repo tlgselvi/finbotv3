@@ -34,7 +34,9 @@ app.use(cors());
 app.use(compression()); // Enable gzip compression
 app.use(express.json());
 // Serve static files - path differs based on whether we're in dev or production
-const staticPath = path.join(process.cwd(), 'dist/client');
+const staticPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, '../dist/client')
+  : path.join(process.cwd(), 'dist/client');
 logger.info(`Serving static files from: ${staticPath}`);
 logger.info(`Static path exists: ${fs.existsSync(staticPath)}`);
 app.use(express.static(staticPath, {
@@ -111,7 +113,9 @@ app.get('*', (req, res) => {
         .json({ error: 'Use frontend dev server on port 5173' });
     }
 
-    const indexPath = path.join(process.cwd(), 'dist/client', 'index.html');
+    const indexPath = process.env.NODE_ENV === 'production' 
+      ? path.join(__dirname, '../dist/client', 'index.html')
+      : path.join(process.cwd(), 'dist/client', 'index.html');
     logger.info(`Looking for index.html at: ${indexPath}`);
     logger.info(`__dirname: ${__dirname}`);
     logger.info(`File exists: ${fs.existsSync(indexPath)}`);

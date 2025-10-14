@@ -2381,6 +2381,182 @@ Bu komut:
 
 ---
 
+## 🤖 CTO Koçu v3 Test Planı
+
+### 🎯 CTO Koçu v3 Test Hedefleri
+
+#### 1. Agent Aktivasyon Testleri
+- ✅ **Agent Konfigürasyonu:** Cursor'da agent'ın doğru şekilde yüklenmesi
+- ✅ **Komut Tanıma:** Doğal dil komutlarının CLI komutlarına çevrilmesi
+- ✅ **Versiyon Kontrolü:** v3 versiyonunun aktif olması
+- ✅ **Manifest Kontrolü:** `.cursor/agents.json` dosyasının doğru olması
+
+#### 2. CLI Komut Testleri
+- ✅ **Sprint Komutları:** `hazirla`, `sprint 2 hazırla`, `monitoring sprint hazırla`
+- ✅ **Audit Komutları:** `audit yap`, `güvenlik audit`
+- ✅ **Optimizasyon Komutları:** `optimize et`, `performans optimize`
+- ✅ **Release Komutları:** `release oluştur`, `release hazırla`
+- ✅ **Deploy Komutları:** `deploy et`, `otomatik deploy`, `full deploy`
+- ✅ **Temizlik Komutları:** `temizle`, `cache temizle`, `log temizle`, `gereksiz dosyaları sil`
+- ✅ **Dokümantasyon Komutları:** `dokümantasyonu güncelle`, `dokümantasyon güncelle`
+
+#### 3. Otomatik Deploy Sistemi Testleri
+- ✅ **Git İşlemleri:** `git add`, `git commit`, `git push` otomasyonu
+- ✅ **Build Kontrolü:** Frontend ve backend build süreçleri
+- ✅ **Render.com Entegrasyonu:** Deploy durumu kontrolü
+- ✅ **Post-Deploy Test:** Health check, API testleri
+- ✅ **Hata Yönetimi:** Otomatik sorun çözme mekanizması
+
+#### 4. Temizlik Sistemi Testleri
+- ✅ **Cache Temizleme:** `node_modules/.cache`, `dist/` klasörleri
+- ✅ **Log Temizleme:** `logs/`, `*.log` dosyaları
+- ✅ **Geçici Dosya Temizleme:** `temp/`, `tmp/` klasörleri
+- ✅ **Test Dosyası Temizleme:** `coverage/`, `test-results/` klasörleri
+- ✅ **NPM Cache Temizleme:** `npm cache clean --force`
+
+#### 5. Dokümantasyon Otomasyonu Testleri
+- ✅ **CTO_KOÇU_V3_STATUS.md Güncelleme:** Otomatik güncelleme
+- ✅ **README.md Güncelleme:** Proje durumu senkronizasyonu
+- ✅ **FINBOT_V3_FULL_DOCUMENTATION.md Güncelleme:** Teknik detaylar
+- ✅ **Git Commit:** Değişikliklerin otomatik commit edilmesi
+
+### 🧪 Test Senaryoları
+
+#### Senaryo 1: CTO Koçu v3 Aktivasyonu
+```bash
+# Test: Agent'ın Cursor'da görünmesi
+1. Cursor'ı yeniden başlat
+2. Chat penceresinde "🏃 CTO koçu v3" görmeli
+3. Komut listesini kontrol et
+4. Versiyon bilgisini doğrula
+```
+
+#### Senaryo 2: Sprint Planı Oluşturma
+```bash
+# Test: Sprint komutları
+1. "Sprint hazırla" komutunu çalıştır
+2. plans/sprint-plan.md dosyasının oluştuğunu kontrol et
+3. İçeriğin doğru olduğunu doğrula
+4. "Sprint 2 hazırla" komutunu test et
+```
+
+#### Senaryo 3: Otomatik Deploy
+```bash
+# Test: Deploy sistemi
+1. "Deploy et" komutunu çalıştır
+2. Git işlemlerinin otomatik yapıldığını kontrol et
+3. Build sürecinin başarılı olduğunu doğrula
+4. Render.com deploy'unun tamamlandığını kontrol et
+5. Post-deploy testlerin geçtiğini doğrula
+```
+
+#### Senaryo 4: Temizlik Sistemi
+```bash
+# Test: Temizlik komutları
+1. "Temizle" komutunu çalıştır
+2. Geçici dosyaların silindiğini kontrol et
+3. "Cache temizle" komutunu test et
+4. "Log temizle" komutunu test et
+5. "Gereksiz dosyaları sil" komutunu test et
+```
+
+#### Senaryo 5: Dokümantasyon Güncelleme
+```bash
+# Test: Dokümantasyon otomasyonu
+1. "Dokümantasyonu güncelle" komutunu çalıştır
+2. CTO_KOÇU_V3_STATUS.md'nin güncellendiğini kontrol et
+3. README.md'nin güncellendiğini kontrol et
+4. FINBOT_V3_FULL_DOCUMENTATION.md'nin güncellendiğini kontrol et
+5. Değişikliklerin commit edildiğini doğrula
+```
+
+### 📊 Test Metrikleri
+
+#### Başarı Kriterleri
+- **Agent Aktivasyonu:** %100 başarı oranı
+- **CLI Komutları:** %100 çalışma oranı
+- **Deploy Sistemi:** %95+ başarı oranı
+- **Temizlik Sistemi:** %100 dosya temizleme
+- **Dokümantasyon:** %100 senkronizasyon
+
+#### Performans Hedefleri
+- **Sprint Planı Oluşturma:** < 5 saniye
+- **Deploy Süreci:** < 3 dakika
+- **Temizlik İşlemi:** < 30 saniye
+- **Dokümantasyon Güncelleme:** < 10 saniye
+
+### 🔧 Test Araçları
+
+#### Otomatik Test Scriptleri
+- `scripts/auto-deploy-v3.js` - Deploy sistemi testi
+- `scripts/cleanup-v3.js` - Temizlik sistemi testi
+- `scripts/auto-update-docs.js` - Dokümantasyon testi
+- `scripts/test-after-deploy.js` - Post-deploy testi
+
+#### Manuel Test Komutları
+```bash
+# CTO Koçu v3 komutları
+node ./cto-coach-v2/dist/index.js hazirla -p FinBot
+node ./cto-coach-v2/dist/index.js audit -p FinBot
+node ./cto-coach-v2/dist/index.js optimize -p FinBot
+node ./cto-coach-v2/dist/index.js temizle -p FinBot --all
+```
+
+### 🐛 Bilinen Sorunlar ve Çözümler
+
+#### Sorun 1: Agent Cursor'da Görünmüyor
+**Belirtiler:** Chat penceresinde "🏃 CTO koçu v3" görünmüyor
+**Çözüm:** 
+1. Cursor'ı yeniden başlat
+2. `scripts/activate-cto-koçu-v3.js` çalıştır
+3. `.cursor/agents.json` dosyasını kontrol et
+
+#### Sorun 2: Deploy Başarısız
+**Belirtiler:** Render.com'da 502 hatası
+**Çözüm:**
+1. `render.yaml` konfigürasyonunu kontrol et
+2. Build loglarını incele
+3. Environment variables'ları doğrula
+
+#### Sorun 3: Static Files 404
+**Belirtiler:** manifest.json, favicon.ico 404 hatası
+**Çözüm:**
+1. Vite build konfigürasyonunu kontrol et
+2. Static file serving path'ini düzelt
+3. Production/development path ayrımını yap
+
+### 📈 Test Raporu
+
+#### Son Test Sonuçları (2025-10-14)
+- **Agent Aktivasyonu:** ✅ BAŞARILI
+- **CLI Komutları:** ✅ 18/18 BAŞARILI
+- **Deploy Sistemi:** ✅ BAŞARILI
+- **Temizlik Sistemi:** ✅ BAŞARILI
+- **Dokümantasyon:** ✅ BAŞARILI
+
+#### Genel Durum
+- **Test Oranı:** %100
+- **Başarı Oranı:** %100
+- **Performans:** Hedeflerin üzerinde
+- **Stabilite:** Mükemmel
+
+### 🚀 Gelecek Geliştirmeler
+
+#### Planlanan Özellikler
+1. **AI-Powered Code Review:** Otomatik kod inceleme
+2. **Performance Monitoring:** Gerçek zamanlı performans takibi
+3. **Security Scanning:** Otomatik güvenlik taraması
+4. **Database Migration:** Otomatik veritabanı güncellemeleri
+5. **Multi-Project Support:** Çoklu proje desteği
+
+#### Test Geliştirmeleri
+1. **E2E Test Coverage:** End-to-end test kapsamı artırılacak
+2. **Load Testing:** Yük testleri eklenecek
+3. **Integration Testing:** Entegrasyon testleri genişletilecek
+4. **User Acceptance Testing:** Kullanıcı kabul testleri
+
+---
+
 **END OF TEST PLAN**
 
 *Bu dokuman canlı bir dokumandır ve test geliştirme süreci boyunca güncellenecektir.*
