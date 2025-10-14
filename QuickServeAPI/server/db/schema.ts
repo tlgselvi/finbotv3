@@ -23,6 +23,7 @@ export const users = pgTable('users', {
   emailVerified: boolean('email_verified').default(false),
   resetToken: varchar('reset_token', { length: 255 }),
   resetTokenExpiry: timestamp('reset_token_expiry'),
+  resetTokenExpires: timestamp('reset_token_expires'),
   lockedUntil: timestamp('locked_until'),
   failedLoginAttempts: integer('failed_login_attempts').default(0),
   lastLogin: timestamp('last_login'),
@@ -53,6 +54,7 @@ export const teamMembers = pgTable('team_members', {
     .references(() => users.id)
     .notNull(),
   role: varchar('role', { length: 50 }).notNull().default('member'),
+  teamRole: varchar('team_role', { length: 50 }),
   permissions: text('permissions'), // JSON string
   isActive: boolean('is_active').default(true),
   joinedAt: timestamp('joined_at').defaultNow(),
@@ -72,6 +74,8 @@ export const invites = pgTable('invites', {
   invitedBy: uuid('invited_by')
     .references(() => users.id)
     .notNull(),
+  invitedUserId: uuid('invited_user_id').references(() => users.id),
+  acceptedAt: timestamp('accepted_at'),
   createdAt: timestamp('created_at').defaultNow(),
   expiresAt: timestamp('expires_at').notNull(),
 });
@@ -116,6 +120,7 @@ export const transactions = pgTable('transactions', {
   tags: text('tags'), // JSON string
   investmentId: uuid('investment_id'), // References investments table
   virmanPairId: varchar('virman_pair_id', { length: 255 }),
+  category: varchar('category', { length: 100 }),
   isActive: boolean('is_active').default(true),
   deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -198,8 +203,23 @@ export const credits = pgTable('credits', {
   }).notNull(),
   dueDate: integer('due_date'), // Day of month (1-31)
   status: varchar('status', { length: 20 }).default('active'), // 'active', 'paid_off', 'closed'
+  title: varchar('title', { length: 255 }),
   isActive: boolean('is_active').default(true),
+  lastPaymentDate: timestamp('last_payment_date'),
   deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Budgets table
+export const budgets = pgTable('budgets', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .references(() => users.id)
+    .notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  type: varchar('type', { length: 50 }).notNull(),
+  isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -213,10 +233,36 @@ export const forecasts = pgTable('forecasts', {
   type: varchar('type', { length: 50 }).notNull(), // 'cash_flow', 'budget', 'investment'
   scenario: varchar('scenario', { length: 100 }),
   name: varchar('name', { length: 255 }).notNull(),
+  title: varchar('title', { length: 255 }),
   description: text('description'),
   parameters: text('parameters'), // JSON string
   results: text('results'), // JSON string
   accuracy: numeric('accuracy', { precision: 5, scale: 2 }),
+  forecastDate: timestamp('forecast_date'),
+  targetDate: timestamp('target_date'),
+  predictedValue: numeric('predicted_value', { precision: 15, scale: 2 }),
+  confidenceInterval: numeric('confidence_interval', { precision: 5, scale: 2 }),
+  lowerBound: numeric('lower_bound', { precision: 15, scale: 2 }),
+  upperBound: numeric('upper_bound', { precision: 15, scale: 2 }),
+  currency: varchar('currency', { length: 3 }).default('TRY'),
+  category: varchar('category', { length: 100 }),
+  accountId: uuid('account_id').references(() => accounts.id),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Tenants table
+export const tenants = pgTable('tenants', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  ownerId: uuid('owner_id')
+    .references(() => users.id)
+    .notNull(),
+  logo: text('logo'),
+  domain: varchar('domain', { length: 255 }),
+  theme: varchar('theme', { length: 50 }).default('default'),
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),

@@ -22,6 +22,9 @@
     "noUncheckedIndexedAccess": false,
     "noImplicitOverride": false,
     "exactOptionalPropertyTypes": false,
+    "noEmit": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "suppressExcessPropertyErrors": true,
     "types": [
       "node"
     ],

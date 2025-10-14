@@ -6,7 +6,7 @@ import { report } from '../utils/output';
 
 export async function auditProject(options: { project: string }) {
   const spinner = ora('Güvenlik audit\'i çalıştırılıyor...').start();
-  
+
   try {
     // Güvenlik kontrol listesi
     const securityChecks = [
@@ -71,15 +71,15 @@ ${securityChecks.map((check, index) => `
     // Audit raporunu kaydet
     const auditDir = join(process.cwd(), '..', 'plans');
     mkdirSync(auditDir, { recursive: true });
-    
+
     const auditPath = join(auditDir, 'security-audit.md');
     writeFileSync(auditPath, auditReport, { encoding: 'utf8' });
-    
+
     spinner.succeed(chalk.green(`Güvenlik audit tamamlandı: ${options.project}`));
     console.log(chalk.blue('🔒 Güvenlik kontrol listesi hazırlandı!'));
     console.log(chalk.gray(`📁 Rapor konumu: ${auditPath}`));
     console.log(chalk.yellow('⚠️  Risk skoru: 6/10 (Orta Risk)'));
-    
+
     // Reporting
     report({
       command: 'audit',
@@ -91,7 +91,7 @@ ${securityChecks.map((check, index) => `
   } catch (error) {
     spinner.fail(chalk.red('Güvenlik audit başarısız'));
     console.error(error);
-    
+
     // Error reporting
     report({
       command: 'audit',
