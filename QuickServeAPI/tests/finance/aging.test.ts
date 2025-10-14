@@ -10,7 +10,7 @@ import {
   updateAgingData,
 } from '../../server/modules/finance/aging';
 
-describe.skip('Aging Module', () => {
+describe('Aging Module', () => {
   const testUserId = 'test-user-aging';
   const testDate = new Date('2024-01-15');
 

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe.skip('Dashboard Extended Features', () => {
+test.describe('Dashboard Extended Features', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to dashboard
     await page.goto('/');

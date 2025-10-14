@@ -26,7 +26,7 @@ import {
   getCashboxAuditLogs,
 } from '../../server/modules/cashbox/cashbox-service';
 
-describe.skip('Cashbox Service', () => {
+describe('Cashbox Service', () => {
   const testUserId = 'test-user-123';
   let testCashboxId: string;
   let testCashbox2Id: string;

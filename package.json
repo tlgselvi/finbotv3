@@ -38,5 +38,8 @@
     "monorepo"
   ],
   "author": "FinBot Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "depcheck": "1.4.7"
+  }
 }

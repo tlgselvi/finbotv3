@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import * as RechartsPrimitive from 'recharts';
+// Dynamic import for recharts to reduce bundle size
+const RechartsPrimitive = React.lazy(() => import('recharts').then(module => ({ default: module })));
 
 import { cn } from '@/lib/utils';
 

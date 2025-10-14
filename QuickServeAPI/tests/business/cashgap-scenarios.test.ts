@@ -6,7 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculateCashGap } from '../../server/modules/dashboard/runway-cashgap';
 
-describe.skip('Cash Gap Analysis - Gerçek İş Senaryoları', () => {
+describe('Cash Gap Analysis - Gerçek İş Senaryoları', () => {
   describe('Senaryo 1: Sağlıklı Cash Flow', () => {
     it('AR > AP: 200K alacak, 120K borç → 80K pozitif gap (LOW RISK)', async () => {
       const mockDb = {

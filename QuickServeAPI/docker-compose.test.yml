@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:17
+    container_name: finbot-test-db
+    environment:
+      POSTGRES_DB: finbot_test
+      POSTGRES_USER: finbot
+      POSTGRES_PASSWORD: finbot123
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finbot -d finbot_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_test_data:

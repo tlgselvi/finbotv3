@@ -16,7 +16,7 @@ import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 
-describe.skip('JWT API Endpoints', () => {
+describe('JWT API Endpoints', () => {
   let testUserId: string;
   let testUserEmail: string;
   let testUserPassword: string;
@@ -43,7 +43,8 @@ describe.skip('JWT API Endpoints', () => {
     await db.insert(users).values({
       id: testUserId,
       email: testUserEmail,
-      password: await argon2.hash(testUserPassword),
+      username: 'testuser',
+      password: await bcrypt.hash(testUserPassword, 10),
       name: 'Test User',
       role: 'USER',
       createdAt: new Date(),

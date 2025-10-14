@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import { MockFactory } from '../utils/mock-factory.js';
 import * as BankIntegrationService from '../../server/modules/bank/bank-integration-service.js';
 
-describe.skip('Bank Integration Service', () => {
+describe('Bank Integration Service', () => {
   let mockDb: any;
   let mockProvider: any;
   const mockUserId = 'test-user-id';

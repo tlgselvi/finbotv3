@@ -104,7 +104,6 @@ export const transactions = pgTable('transactions', {
     tags: text('tags'), // JSON string
     investmentId: uuid('investment_id'), // References investments table
     virmanPairId: varchar('virman_pair_id', { length: 255 }),
-    category: varchar('category', { length: 100 }),
     isActive: boolean('is_active').default(true),
     deletedAt: timestamp('deleted_at'),
     createdAt: timestamp('created_at').defaultNow(),

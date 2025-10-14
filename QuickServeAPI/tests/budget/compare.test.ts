@@ -10,7 +10,7 @@ import { eq } from 'drizzle-orm';
 
 const testUserId = 'test-user-budget-compare-123';
 
-describe.skip('Budget Comparison Module', () => {
+describe('Budget Comparison Module', () => {
   beforeAll(() => {
     if (!process.env.DATABASE_URL) {
       console.warn('Skipping budget compare tests - DATABASE_URL not set');

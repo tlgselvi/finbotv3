@@ -58,6 +58,55 @@ otomatik olarak güncelleme yapmak.
 | "Deploy et" | `node scripts/auto-deploy-v3.js` | Otomatik deploy |
 | "Full deploy" | `node scripts/auto-deploy-v3.js` | Tam deploy |
 
+### 🔌 Plugin Sistemi (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Plugin yükle" | `node ./cto-coach-v2/dist/index-advanced.js plugin-load database-optimizer` | Database optimizer plugin |
+| "Plugin listele" | `node ./cto-coach-v2/dist/index-advanced.js plugin-list` | Yüklü plugin'leri listele |
+| "Plugin çalıştır" | `node ./cto-coach-v2/dist/index-advanced.js plugin-execute security-audit` | Security audit plugin |
+
+### 💾 LLM Cache Sistemi (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Cache istatistik" | `node ./cto-coach-v2/dist/index-advanced.js cache-stats` | Cache istatistikleri |
+| "Cache temizle" | `node ./cto-coach-v2/dist/index-advanced.js cache-invalidate` | Cache'i temizle |
+| "LLM cache" | `node ./cto-coach-v2/dist/index-advanced.js cache-llm` | LLM cache yönetimi |
+
+### ⚙️ Async Task Worker (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Job ekle" | `node ./cto-coach-v2/dist/index-advanced.js job-add audit full` | Job kuyruğuna ekle |
+| "Job durumu" | `node ./cto-coach-v2/dist/index-advanced.js job-status` | Job durumunu kontrol et |
+| "Job listele" | `node ./cto-coach-v2/dist/index-advanced.js job-list` | Aktif job'ları listele |
+
+### 📊 Grafik Rapor Desteği (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Performans grafiği" | `node ./cto-coach-v2/dist/index-advanced.js performance-chart` | Performans grafiği |
+| "Audit grafiği" | `node ./cto-coach-v2/dist/index-advanced.js audit-chart` | Audit sonuç grafiği |
+| "Rapor grafik" | `node ./cto-coach-v2/dist/index-advanced.js report-chart` | Grafik rapor oluştur |
+
+### 🎓 Komut Öğrenme (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Komut öğren" | `node ./cto-coach-v2/dist/index-advanced.js command-learn` | Yeni komut öğren |
+| "Komut keşfet" | `node ./cto-coach-v2/dist/index-advanced.js command-discover` | Komut keşfet |
+| "Komut listele" | `node ./cto-coach-v2/dist/index-advanced.js command-list` | Öğrenilen komutları listele |
+
+### 📝 AST Dosya Editörü (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Dosya düzenle" | `node ./cto-coach-v2/dist/index-advanced.js file-edit` | Güvenli dosya düzenleme |
+| "Snapshot al" | `node ./cto-coach-v2/dist/index-advanced.js file-snapshot` | Dosya snapshot al |
+| "Dosya geri yükle" | `node ./cto-coach-v2/dist/index-advanced.js file-restore` | Dosyayı geri yükle |
+
+### 🐳 Docker/PostgreSQL Entegrasyonu (YENİ!)
+| Sohbet Komutu | CLI Komutu | Açıklama |
+|----------------|-------------|----------|
+| "Docker tespit" | `node ./cto-coach-v2/dist/index-advanced.js docker-detect` | Docker ortamını tespit et |
+| "DB migrate" | `node ./cto-coach-v2/dist/index-advanced.js db-migrate` | Veritabanı migration |
+| "DB backup" | `node ./cto-coach-v2/dist/index-advanced.js db-backup` | Veritabanı yedekle |
+
 ### 🔄 Otomatik Güncelleme Komutları (YENİ!)
 | Sohbet Komutu | CLI Komutu | Açıklama |
 |----------------|-------------|----------|

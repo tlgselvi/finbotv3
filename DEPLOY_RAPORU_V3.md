@@ -1,7 +1,7 @@
 # CTO Koçu v3 - Otomatik Deploy Raporu
 
-**Tarih:** 14.10.2025 19:23:22  
-**Durum:** ✅ BAŞARILI  
+**Tarih:** 14.10.2025 19:25:21  
+**Durum:** ⚠️ KISMEN BAŞARILI  
 
 ## 📋 Yapılan İşlemler
 
@@ -16,20 +16,20 @@
 
 ### ✅ Deploy İşlemleri
 - **Render.com Deploy:** Başarılı
-- **Post-Deploy Test:** Başarılı
+- **Post-Deploy Test:** Başarısız
 
 ### ✅ CTO Koçu v3 Test
 - **Komut Testi:** Başarılı
 
 ## 🎯 Sonuç
 
-🎉 TÜM İŞLEMLER BAŞARILI! CTO Koçu v3 tamamen deploy edildi ve çalışıyor!
+⚠️ Bazı işlemler başarısız. Logları kontrol edin.
 
 ## 📊 Başarı Oranı
 
 - **Git İşlemleri:** 100%
 - **Build İşlemleri:** 100%
-- **Deploy İşlemleri:** 100%
+- **Deploy İşlemleri:** 0%
 - **CTO Koçu v3:** 100%
 
 ---

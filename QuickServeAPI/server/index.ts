@@ -15,6 +15,7 @@ import {
   type ValidatedEnv,
 } from './utils/env-validation';
 import { registerRoutes } from './routes';
+import { initRedis } from './services/redis-cache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +25,10 @@ const env = validateEnvironment();
 logEnvironmentConfig(env);
 
 const app = express();
+
+// Performance optimizations
+app.set('trust proxy', 1); // Trust proxy for better performance
+app.disable('x-powered-by'); // Remove X-Powered-By header for security and performance
 // Use Render's PORT environment variable if available, otherwise use env.API_PORT
 const PORT =
   process.env.NODE_ENV === 'test' ? 0 : process.env.PORT || env.API_PORT;
@@ -32,8 +37,21 @@ const WS_PORT =
 
 // Middleware
 app.use(cors());
-app.use(compression()); // Enable gzip compression
-app.use(express.json());
+
+// Performance middleware
+app.use(compression({
+  level: 6, // Compression level (1-9, 6 is good balance)
+  threshold: 1024, // Only compress files larger than 1KB
+}));
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Cache headers for static assets
+app.use('/assets', (req, res, next) => {
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year
+  next();
+});
 // Serve static files - path differs based on whether we're in dev or production
 let staticPath = process.env.NODE_ENV === 'production'
   ? path.join(__dirname, '../dist/client')
@@ -86,7 +104,7 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
   const manifestFile = req.path.endsWith('.webmanifest')
     ? 'manifest.webmanifest'
     : 'manifest.json';
-  
+
   // Try multiple paths
   const paths = [
     path.join(staticPath, manifestFile),
@@ -94,16 +112,16 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
     path.join(__dirname, '../dist/client', manifestFile),
     path.join(__dirname, '../../dist/client', manifestFile),
   ];
-  
+
   logger.info(`Manifest request: ${req.path}`);
-  
+
   for (const manifestPath of paths) {
     logger.info(`Trying manifest path: ${manifestPath} exists=${fs.existsSync(manifestPath)}`);
     if (fs.existsSync(manifestPath)) {
       return res.type('application/manifest+json').sendFile(manifestPath);
     }
   }
-  
+
   // If no manifest found, return a basic one
   logger.warn('No manifest found, returning basic manifest');
   const basicManifest = {
@@ -122,7 +140,7 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
       }
     ]
   };
-  
+
   res.type('application/manifest+json').json(basicManifest);
 });
 
@@ -134,16 +152,16 @@ app.get('/favicon.ico', (_req, res) => {
     path.join(__dirname, '../dist/client', 'favicon.ico'),
     path.join(__dirname, '../../dist/client', 'favicon.ico'),
   ];
-  
+
   logger.info(`Favicon request`);
-  
+
   for (const favPath of paths) {
     logger.info(`Trying favicon path: ${favPath} exists=${fs.existsSync(favPath)}`);
     if (fs.existsSync(favPath)) {
       return res.type('image/x-icon').sendFile(favPath);
     }
   }
-  
+
   // If no favicon found, return a 204 No Content
   logger.warn('No favicon found, returning 204');
   res.status(204).end();
@@ -221,7 +239,10 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-const httpServer = app.listen(PORT, () => {
+const httpServer = app.listen(PORT, async () => {
+  // Initialize Redis cache
+  await initRedis();
+  
   logger.info(`🚀 FinBot V3 Server running on http://localhost:${PORT}`);
   logger.info(`📊 Health check: http://localhost:${PORT}/api/health`);
   logger.info(`🧪 Test endpoint: http://localhost:${PORT}/api/test`);
@@ -232,6 +253,7 @@ const httpServer = app.listen(PORT, () => {
   );
   logger.info(`🚨 Alerts endpoint: http://localhost:${PORT}/api/alerts`);
   logger.info(`🔌 WebSocket server running on ws://localhost:${WS_PORT}`);
+  logger.info(`⚡ Redis cache initialized`);
 });
 
 // WebSocket Server

@@ -4,7 +4,7 @@ import { apiRequest } from '../../client/src/lib/queryClient';
 const BACKEND_AVAILABLE =
   !!process.env.TEST_BASE_URL || !!process.env.E2E_TEST_ENABLED;
 
-describe.skipIf(!BACKEND_AVAILABLE)('Auth Flow Integration Tests', () => {
+describe('Auth Flow Integration Tests', () => {
   const testUser = {
     username: 'testuser',
     email: 'test@example.com',

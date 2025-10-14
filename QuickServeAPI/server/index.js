@@ -10,19 +10,33 @@ import fs from 'fs';
 import { logger } from './utils/logger';
 import { validateEnvironment, logEnvironmentConfig, } from './utils/env-validation';
 import { registerRoutes } from './routes';
+import { initRedis } from './services/redis-cache.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Validate environment variables
 const env = validateEnvironment();
 logEnvironmentConfig(env);
 const app = express();
+// Performance optimizations
+app.set('trust proxy', 1); // Trust proxy for better performance
+app.disable('x-powered-by'); // Remove X-Powered-By header for security and performance
 // Use Render's PORT environment variable if available, otherwise use env.API_PORT
 const PORT = process.env.NODE_ENV === 'test' ? 0 : process.env.PORT || env.API_PORT;
 const WS_PORT = process.env.NODE_ENV === 'test' ? 0 : process.env.WS_PORT || 5050;
 // Middleware
 app.use(cors());
-app.use(compression()); // Enable gzip compression
-app.use(express.json());
+// Performance middleware
+app.use(compression({
+    level: 6, // Compression level (1-9, 6 is good balance)
+    threshold: 1024, // Only compress files larger than 1KB
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Cache headers for static assets
+app.use('/assets', (req, res, next) => {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year
+    next();
+});
 // Serve static files - path differs based on whether we're in dev or production
 let staticPath = process.env.NODE_ENV === 'production'
     ? path.join(__dirname, '../dist/client')
@@ -71,41 +85,58 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
     const manifestFile = req.path.endsWith('.webmanifest')
         ? 'manifest.webmanifest'
         : 'manifest.json';
-    const manifestPath = path.join(staticPath, manifestFile);
-    logger.info(`Manifest request: ${req.path} -> ${manifestPath}`);
-    logger.info(`Manifest exists: ${fs.existsSync(manifestPath)}`);
-    if (!fs.existsSync(manifestPath)) {
-        // Debug: list directory contents to verify deploy state
-        try {
-            const files = fs.readdirSync(staticPath);
-            logger.warn('Static directory listing:', files);
-            // Try alternative paths
-            const altPath = path.join(process.cwd(), 'QuickServeAPI/dist/client', manifestFile);
-            logger.info(`Trying alternative path: ${altPath}`);
-            if (fs.existsSync(altPath)) {
-                return res.type('application/manifest+json').sendFile(altPath);
-            }
+    // Try multiple paths
+    const paths = [
+        path.join(staticPath, manifestFile),
+        path.join(process.cwd(), 'QuickServeAPI/dist/client', manifestFile),
+        path.join(__dirname, '../dist/client', manifestFile),
+        path.join(__dirname, '../../dist/client', manifestFile),
+    ];
+    logger.info(`Manifest request: ${req.path}`);
+    for (const manifestPath of paths) {
+        logger.info(`Trying manifest path: ${manifestPath} exists=${fs.existsSync(manifestPath)}`);
+        if (fs.existsSync(manifestPath)) {
+            return res.type('application/manifest+json').sendFile(manifestPath);
         }
-        catch (e) {
-            logger.error('Error reading static directory:', e);
-        }
-        return res.status(404).json({ error: 'manifest not found', path: manifestPath });
     }
-    res.type('application/manifest+json').sendFile(manifestPath);
+    // If no manifest found, return a basic one
+    logger.warn('No manifest found, returning basic manifest');
+    const basicManifest = {
+        name: "FinBot v3",
+        short_name: "FinBot",
+        description: "Personal Finance Management App",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#ffffff",
+        theme_color: "#000000",
+        icons: [
+            {
+                src: "/favicon.ico",
+                sizes: "any",
+                type: "image/x-icon"
+            }
+        ]
+    };
+    res.type('application/manifest+json').json(basicManifest);
 });
 app.get('/favicon.ico', (_req, res) => {
-    const favPath = path.join(staticPath, 'favicon.ico');
-    logger.info(`Favicon path: ${favPath} exists=${fs.existsSync(favPath)}`);
-    if (!fs.existsSync(favPath)) {
-        // Try alternative paths
-        const altPath = path.join(process.cwd(), 'QuickServeAPI/dist/client', 'favicon.ico');
-        logger.info(`Trying alternative favicon path: ${altPath}`);
-        if (fs.existsSync(altPath)) {
-            return res.type('image/x-icon').sendFile(altPath);
+    // Try multiple paths
+    const paths = [
+        path.join(staticPath, 'favicon.ico'),
+        path.join(process.cwd(), 'QuickServeAPI/dist/client', 'favicon.ico'),
+        path.join(__dirname, '../dist/client', 'favicon.ico'),
+        path.join(__dirname, '../../dist/client', 'favicon.ico'),
+    ];
+    logger.info(`Favicon request`);
+    for (const favPath of paths) {
+        logger.info(`Trying favicon path: ${favPath} exists=${fs.existsSync(favPath)}`);
+        if (fs.existsSync(favPath)) {
+            return res.type('image/x-icon').sendFile(favPath);
         }
-        return res.status(404).json({ error: 'favicon not found', path: favPath });
     }
-    res.type('image/x-icon').sendFile(favPath);
+    // If no favicon found, return a 204 No Content
+    logger.warn('No favicon found, returning 204');
+    res.status(204).end();
 });
 // Logging middleware
 app.use((req, res, next) => {
@@ -170,7 +201,9 @@ app.use((err, req, res, next) => {
         }),
     });
 });
-const httpServer = app.listen(PORT, () => {
+const httpServer = app.listen(PORT, async () => {
+    // Initialize Redis cache
+    await initRedis();
     logger.info(`🚀 FinBot V3 Server running on http://localhost:${PORT}`);
     logger.info(`📊 Health check: http://localhost:${PORT}/api/health`);
     logger.info(`🧪 Test endpoint: http://localhost:${PORT}/api/test`);
@@ -179,6 +212,7 @@ const httpServer = app.listen(PORT, () => {
     logger.info(`💳 Transactions endpoint: http://localhost:${PORT}/api/transactions`);
     logger.info(`🚨 Alerts endpoint: http://localhost:${PORT}/api/alerts`);
     logger.info(`🔌 WebSocket server running on ws://localhost:${WS_PORT}`);
+    logger.info(`⚡ Redis cache initialized`);
 });
 // WebSocket Server
 const wss = new WebSocketServer({ port: WS_PORT });

@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { db } from '../../server/db';
-import { budgetLines } from '../../shared/schema-sqlite';
+import { budgetLines } from '../../server/db/schema';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
-describe.skip('BudgetLine CRUD Operations', () => {
+describe('BudgetLine CRUD Operations', () => {
   const testUserId = 'test-user-budget-lines';
   const testBudgetLine = {
     id: randomUUID(),

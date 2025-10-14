@@ -1,40 +1,45 @@
 /**
  * Test Database Setup
- * In-memory SQLite database for testing
+ * PostgreSQL database for testing
  */
 
-import Database from 'better-sqlite3';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import * as schema from '../../shared/schema-sqlite';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from '../../server/db/schema.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-// Create in-memory database for tests
-const sqlite = new Database(':memory:');
+// Create PostgreSQL connection for tests
+const connectionString = process.env.TEST_DATABASE_URL || 'postgresql://finbot_user:finbot_dev_pass@localhost:5432/finbot_dev';
+const sql = postgres(connectionString, {
+  max: 1, // Single connection for tests
+  idle_timeout: 20,
+  connect_timeout: 10
+});
 
 // Initialize schema
 const initSQL = `
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  username TEXT UNIQUE NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  username VARCHAR(100) UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
-  role TEXT DEFAULT 'user',
-  is_active INTEGER DEFAULT 1,
-  email_verified INTEGER DEFAULT 0,
-  last_login TEXT,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+  role VARCHAR(50) DEFAULT 'user',
+  is_active BOOLEAN DEFAULT true,
+  email_verified BOOLEAN DEFAULT false,
+  last_login TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- User Profiles table
 CREATE TABLE IF NOT EXISTS user_profiles (
-  user_id TEXT PRIMARY KEY,
-  role TEXT DEFAULT 'USER',
+  user_id UUID PRIMARY KEY,
+  role VARCHAR(50) DEFAULT 'USER',
   permissions TEXT,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -253,19 +258,19 @@ CREATE TABLE IF NOT EXISTS reconciliation_logs (
 );
 `;
 
-// Execute schema
-sqlite.exec(initSQL);
+// Skip schema creation - use existing tables
+// await sql.unsafe(initSQL);
 
 // Create Drizzle instance
-export const testDb = drizzle(sqlite, { schema });
+export const testDb = drizzle(sql, { schema });
 
-// Export raw sqlite instance for raw queries
-export const testSql = sqlite;
+// Export raw postgres instance for raw queries
+export const testSql = sql;
 
 /**
  * Reset database - clear all tables
  */
-export function resetDatabase() {
+export async function resetDatabase() {
   const tables = [
     'revoked_tokens',
     'refresh_tokens',
@@ -286,7 +291,7 @@ export function resetDatabase() {
 
   for (const table of tables) {
     try {
-      sqlite.prepare(`DELETE FROM ${table}`).run();
+      await sql`DELETE FROM ${sql(table)}`;
     } catch (error) {
       // Table might not exist, ignore
     }
@@ -296,43 +301,32 @@ export function resetDatabase() {
 /**
  * Seed test data
  */
-export function seedTestData() {
+export async function seedTestData() {
   const now = new Date().toISOString();
 
-  // Add a test user
-  sqlite
-    .prepare(
-      `
-    INSERT INTO users (id, email, username, password_hash, role, is_active, email_verified, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `
-    )
-    .run(
-      'test-user-id',
-      'test@example.com',
-      'testuser',
-      'hashed-password',
-      'user',
-      1,
-      1,
-      now,
-      now
-    );
+  // Check if test user already exists
+  const existingUser = await sql`
+    SELECT id FROM users WHERE email = 'test@example.com'
+  `;
 
-  // Add test user profile
-  sqlite
-    .prepare(
-      `
-    INSERT INTO user_profiles (user_id, role, permissions, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?)
-  `
-    )
-    .run('test-user-id', 'USER', JSON.stringify(['READ', 'WRITE']), now, now);
+  if (existingUser.length === 0) {
+    // Add a test user
+    await sql`
+      INSERT INTO users (id, email, username, password_hash, role, is_active, email_verified, created_at, updated_at)
+      VALUES (gen_random_uuid(), 'test@example.com', 'testuser', 'hashed-password', 'user', true, true, ${now}, ${now})
+    `;
+
+    // Add test user profile
+    await sql`
+      INSERT INTO user_profiles (user_id, role, permissions, created_at, updated_at)
+      VALUES ((SELECT id FROM users WHERE email = 'test@example.com'), 'USER', ${JSON.stringify(['READ', 'WRITE'])}, ${now}, ${now})
+    `;
+  }
 }
 
 /**
  * Close database connection
  */
-export function closeDatabase() {
-  sqlite.close();
+export async function closeDatabase() {
+  await sql.end();
 }

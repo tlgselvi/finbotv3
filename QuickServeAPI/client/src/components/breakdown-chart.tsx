@@ -1,15 +1,24 @@
+import * as React from 'react';
+import { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
 import { TrendingUp, Building2, User } from 'lucide-react';
+
+// Lazy load Recharts components
+const RechartsChart = React.lazy(() => import('recharts').then(module => ({
+  default: React.forwardRef((props: any, ref) => (
+    <module.ResponsiveContainer {...props} ref={ref}>
+      <module.BarChart data={props.data} margin={props.margin}>
+        <module.CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+        <module.XAxis dataKey="category" tick={{ fontSize: 12 }} tickLine={{ stroke: '#6b7280' }} />
+        <module.YAxis tick={{ fontSize: 12 }} tickLine={{ stroke: '#6b7280' }} tickFormatter={(value: number) => `₺${(value / 1000).toFixed(0)}K`} />
+        <module.Tooltip content={props.tooltip} />
+        <module.Legend content={props.legend} />
+        <module.Bar dataKey="Şirket" fill={props.colors['Şirket']} name="Şirket" radius={[4, 4, 0, 0]} />
+        <module.Bar dataKey="Kişisel" fill={props.colors['Kişisel']} name="Kişisel" radius={[4, 4, 0, 0]} />
+      </module.BarChart>
+    </module.ResponsiveContainer>
+  ))
+})));
 
 interface ChartDataset {
   label: string;
@@ -129,43 +138,28 @@ export default function BreakdownChart({
       </CardHeader>
       <CardContent>
         <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
+          <Suspense 
+            fallback={
+              <div className="h-full flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            }
+          >
+            <RechartsChart
+              width="100%"
+              height="100%"
               data={transformedData}
+              colors={colors}
+              tooltip={<CustomTooltip />}
+              legend={<CustomLegend />}
               margin={{
                 top: 20,
                 right: 30,
                 left: 20,
                 bottom: 5,
               }}
-            >
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis
-                dataKey="category"
-                tick={{ fontSize: 12 }}
-                tickLine={{ stroke: '#6b7280' }}
-              />
-              <YAxis
-                tick={{ fontSize: 12 }}
-                tickLine={{ stroke: '#6b7280' }}
-                tickFormatter={value => `₺${(value / 1000).toFixed(0)}K`}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend content={<CustomLegend />} />
-              <Bar
-                dataKey="Şirket"
-                fill={colors['Şirket']}
-                name="Şirket"
-                radius={[4, 4, 0, 0]}
-              />
-              <Bar
-                dataKey="Kişisel"
-                fill={colors['Kişisel']}
-                name="Kişisel"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+            />
+          </Suspense>
         </div>
 
         {/* Grafik Açıklaması */}
