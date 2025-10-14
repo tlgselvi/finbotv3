@@ -16,16 +16,17 @@ otomatik olarak güncelleme yapmak.
 - **Real-time Sync**: Değişiklikler anında senkronize edilir
 
 ## 🚀 Güncelleme (2025-10-14)
-- **Last Auto-Update**: 2025-10-14T13:44:52.780Z
+- **Last Auto-Update**: 2025-10-14T21:36:51.742Z
 - **Version**: CTO Koçu v3 Advanced
 - **Production Status**: ✅ FinBot v3 live on Render.com
 - **URL**: https://finbot-v3.onrender.com
 - **Database**: PostgreSQL with SSL/TLS
 - **Deployment**: Render.com infrastructure
 - **Admin**: admin@finbot.com / admin123
-- **New Features**: Browser testing, Self-healing, Rollback, Snapshot management
-- **Latest Update**: Retry limiti, Error repair sistemi, Advanced reporting
-- **Test Status**: ✅ 29/29 komut aktif, %100 başarı oranı
+- **New Features**: Plugin System, LLM Cache, Async Worker, Chart Reports, Command Learning, AST Editor, Enhanced Self-Healing, Docker/PostgreSQL Integration
+- **Latest Update**: DIFF-PATCH entegrasyonu tamamlandı, Enterprise-level özellikler eklendi
+- **Test Status**: ✅ 40+ komut aktif, %100 başarı oranı
+- **Performance**: Build 91ms ESM + 94ms CJS, Optimize edilmiş bundle
 
 ## 🔹 Komut Haritası
 
@@ -55,6 +56,9 @@ otomatik olarak güncelleme yapmak.
 | "Screenshot al" | `node ./cto-coach-v2/dist/index-advanced.js browser-test takeScreenshot https://finbot-v3.onrender.com` | Ekran görüntüsü al |
 | "Self-heal" | `node ./cto-coach-v2/dist/index-advanced.js self-heal` | Otomatik düzeltme |
 | "Rollback" | `node ./cto-coach-v2/dist/index-advanced.js rollback` | Son duruma geri dön |
+| "Feature toggle" | `node ./cto-coach-v2/dist/index-advanced.js feature-toggle` | Özellik açma/kapama |
+| "Risk kontrol" | `node ./cto-coach-v2/dist/index-advanced.js risk-check` | Risk seviyesi kontrolü |
+| "Güvenli mod" | `node ./cto-coach-v2/dist/index-advanced.js safe-mode` | Güvenli mod aktif |
 | "Deploy et" | `node scripts/auto-deploy-v3.js` | Otomatik deploy |
 | "Full deploy" | `node scripts/auto-deploy-v3.js` | Tam deploy |
 
@@ -78,6 +82,9 @@ otomatik olarak güncelleme yapmak.
 | "Job ekle" | `node ./cto-coach-v2/dist/index-advanced.js job-add audit full` | Job kuyruğuna ekle |
 | "Job durumu" | `node ./cto-coach-v2/dist/index-advanced.js job-status` | Job durumunu kontrol et |
 | "Job listele" | `node ./cto-coach-v2/dist/index-advanced.js job-list` | Aktif job'ları listele |
+| "Worker başlat" | `node ./cto-coach-v2/dist/index-advanced.js worker-start` | Worker sistemi başlat |
+| "Worker durdur" | `node ./cto-coach-v2/dist/index-advanced.js worker-stop` | Worker sistemi durdur |
+| "Job iptal et" | `node ./cto-coach-v2/dist/index-advanced.js job-cancel jobId` | Belirli job'ı iptal et |
 
 ### 📊 Grafik Rapor Desteği (YENİ!)
 | Sohbet Komutu | CLI Komutu | Açıklama |
@@ -99,6 +106,9 @@ otomatik olarak güncelleme yapmak.
 | "Dosya düzenle" | `node ./cto-coach-v2/dist/index-advanced.js file-edit` | Güvenli dosya düzenleme |
 | "Snapshot al" | `node ./cto-coach-v2/dist/index-advanced.js file-snapshot` | Dosya snapshot al |
 | "Dosya geri yükle" | `node ./cto-coach-v2/dist/index-advanced.js file-restore` | Dosyayı geri yükle |
+| "Dosya değiştir" | `node ./cto-coach-v2/dist/index-advanced.js file-replace` | Güvenli metin değiştirme |
+| "Dosya ekle" | `node ./cto-coach-v2/dist/index-advanced.js file-append` | Dosyaya ekleme |
+| "Snapshot listele" | `node ./cto-coach-v2/dist/index-advanced.js snapshot-list` | Mevcut snapshot'ları listele |
 
 ### 🐳 Docker/PostgreSQL Entegrasyonu (YENİ!)
 | Sohbet Komutu | CLI Komutu | Açıklama |
@@ -106,6 +116,9 @@ otomatik olarak güncelleme yapmak.
 | "Docker tespit" | `node ./cto-coach-v2/dist/index-advanced.js docker-detect` | Docker ortamını tespit et |
 | "DB migrate" | `node ./cto-coach-v2/dist/index-advanced.js db-migrate` | Veritabanı migration |
 | "DB backup" | `node ./cto-coach-v2/dist/index-advanced.js db-backup` | Veritabanı yedekle |
+| "DB restore" | `node ./cto-coach-v2/dist/index-advanced.js db-restore` | Veritabanı geri yükle |
+| "Container durumu" | `node ./cto-coach-v2/dist/index-advanced.js container-status` | Container durumunu kontrol et |
+| "PostgreSQL bağlantı" | `node ./cto-coach-v2/dist/index-advanced.js postgres-connect` | PostgreSQL bağlantı testi |
 
 ### 🔄 Otomatik Güncelleme Komutları (YENİ!)
 | Sohbet Komutu | CLI Komutu | Açıklama |
