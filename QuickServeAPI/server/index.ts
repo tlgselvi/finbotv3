@@ -66,7 +66,7 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
     try {
       const files = fs.readdirSync(staticPath);
       logger.warn('Static directory listing:', files);
-    } catch {}
+    } catch { }
     return res.status(404).json({ error: 'manifest not found', path: manifestPath });
   }
   res.type('application/manifest+json').sendFile(manifestPath);
@@ -106,7 +106,7 @@ app.get('*', (req, res) => {
     }
 
     logger.info(`Serving SPA for path: ${req.path}`);
-    
+
     // In development, frontend is served by Vite on port 5173
     if (process.env.NODE_ENV === 'development') {
       return res
@@ -118,20 +118,20 @@ app.get('*', (req, res) => {
     logger.info(`Looking for index.html at: ${indexPath}`);
     logger.info(`__dirname: ${__dirname}`);
     logger.info(`File exists: ${fs.existsSync(indexPath)}`);
-    
+
     if (!fs.existsSync(indexPath)) {
       logger.error(`Index file not found at: ${indexPath}`);
-      return res.status(404).json({ 
-        error: 'Frontend not built', 
+      return res.status(404).json({
+        error: 'Frontend not built',
         path: indexPath,
-        dirname: __dirname 
+        dirname: __dirname
       });
     }
-    
+
     res.sendFile(indexPath);
   } catch (error) {
     logger.error('Error serving SPA:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error',
       path: req.path
@@ -188,7 +188,7 @@ app.use((error: any, req: any, res: any, next: any) => {
 
   // Don't leak error details in production
   const isDevelopment = process.env.NODE_ENV === 'development';
-  
+
   res.status(500).json({
     error: 'Internal server error',
     message: isDevelopment ? error.message : 'Something went wrong',

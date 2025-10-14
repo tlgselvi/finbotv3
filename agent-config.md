@@ -28,6 +28,9 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 | "Performans optimize" | `node ./cto-coach-v2/dist/index.js optimize -p FinBot` |
 | "Release oluştur" | `node ./cto-coach-v2/dist/index.js release -p FinBot` |
 | "Release hazırla" | `node ./cto-coach-v2/dist/index.js release -p FinBot` |
+| "Deploy et" | `node scripts/auto-deploy-v3.js` |
+| "Otomatik deploy" | `node scripts/auto-deploy-v3.js` |
+| "Full deploy" | `node scripts/auto-deploy-v3.js` |
 
 ## 🔹 Kurallar
 1. Yanıtlar kısa ve teknik olmalı.

@@ -15,14 +15,14 @@ const bruteForceStore = new Map<
 // Cleanup expired entries every 5 minutes to prevent memory leaks
 setInterval(() => {
   const now = Date.now();
-  
+
   // Cleanup rate limit store
   for (const [key, value] of rateLimitStore.entries()) {
     if (now > value.resetTime) {
       rateLimitStore.delete(key);
     }
   }
-  
+
   // Cleanup brute force store (keep for 1 hour)
   for (const [key, value] of bruteForceStore.entries()) {
     if (now - value.lastAttempt > 60 * 60 * 1000) {
