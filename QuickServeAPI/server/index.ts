@@ -114,7 +114,7 @@ app.get('*', (req, res) => {
     }
 
     const indexPath = process.env.NODE_ENV === 'production' 
-      ? path.join(__dirname, '../dist/client', 'index.html')
+      ? path.join(process.cwd(), 'dist/client', 'index.html')
       : path.join(process.cwd(), 'dist/client', 'index.html');
     logger.info(`Looking for index.html at: ${indexPath}`);
     logger.info(`__dirname: ${__dirname}`);
