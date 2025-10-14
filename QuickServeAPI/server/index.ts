@@ -46,7 +46,7 @@ if (!fs.existsSync(staticPath)) {
     path.join(__dirname, '../../dist/client'),
     path.join(process.cwd(), 'dist/client'),
   ];
-  
+
   for (const altPath of altPaths) {
     if (fs.existsSync(altPath)) {
       staticPath = altPath;
@@ -86,43 +86,67 @@ app.get(['/manifest.json', '/manifest.webmanifest'], (req, res) => {
   const manifestFile = req.path.endsWith('.webmanifest')
     ? 'manifest.webmanifest'
     : 'manifest.json';
-  const manifestPath = path.join(staticPath, manifestFile);
-  logger.info(`Manifest request: ${req.path} -> ${manifestPath}`);
-  logger.info(`Manifest exists: ${fs.existsSync(manifestPath)}`);
   
-  if (!fs.existsSync(manifestPath)) {
-    // Debug: list directory contents to verify deploy state
-    try {
-      const files = fs.readdirSync(staticPath);
-      logger.warn('Static directory listing:', files);
-      // Try alternative paths
-      const altPath = path.join(process.cwd(), 'QuickServeAPI/dist/client', manifestFile);
-      logger.info(`Trying alternative path: ${altPath}`);
-      if (fs.existsSync(altPath)) {
-        return res.type('application/manifest+json').sendFile(altPath);
-      }
-    } catch (e) {
-      logger.error('Error reading static directory:', e);
+  // Try multiple paths
+  const paths = [
+    path.join(staticPath, manifestFile),
+    path.join(process.cwd(), 'QuickServeAPI/dist/client', manifestFile),
+    path.join(__dirname, '../dist/client', manifestFile),
+    path.join(__dirname, '../../dist/client', manifestFile),
+  ];
+  
+  logger.info(`Manifest request: ${req.path}`);
+  
+  for (const manifestPath of paths) {
+    logger.info(`Trying manifest path: ${manifestPath} exists=${fs.existsSync(manifestPath)}`);
+    if (fs.existsSync(manifestPath)) {
+      return res.type('application/manifest+json').sendFile(manifestPath);
     }
-    return res.status(404).json({ error: 'manifest not found', path: manifestPath });
   }
-  res.type('application/manifest+json').sendFile(manifestPath);
+  
+  // If no manifest found, return a basic one
+  logger.warn('No manifest found, returning basic manifest');
+  const basicManifest = {
+    name: "FinBot v3",
+    short_name: "FinBot",
+    description: "Personal Finance Management App",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: "#000000",
+    icons: [
+      {
+        src: "/favicon.ico",
+        sizes: "any",
+        type: "image/x-icon"
+      }
+    ]
+  };
+  
+  res.type('application/manifest+json').json(basicManifest);
 });
 
 app.get('/favicon.ico', (_req, res) => {
-  const favPath = path.join(staticPath, 'favicon.ico');
-  logger.info(`Favicon path: ${favPath} exists=${fs.existsSync(favPath)}`);
+  // Try multiple paths
+  const paths = [
+    path.join(staticPath, 'favicon.ico'),
+    path.join(process.cwd(), 'QuickServeAPI/dist/client', 'favicon.ico'),
+    path.join(__dirname, '../dist/client', 'favicon.ico'),
+    path.join(__dirname, '../../dist/client', 'favicon.ico'),
+  ];
   
-  if (!fs.existsSync(favPath)) {
-    // Try alternative paths
-    const altPath = path.join(process.cwd(), 'QuickServeAPI/dist/client', 'favicon.ico');
-    logger.info(`Trying alternative favicon path: ${altPath}`);
-    if (fs.existsSync(altPath)) {
-      return res.type('image/x-icon').sendFile(altPath);
+  logger.info(`Favicon request`);
+  
+  for (const favPath of paths) {
+    logger.info(`Trying favicon path: ${favPath} exists=${fs.existsSync(favPath)}`);
+    if (fs.existsSync(favPath)) {
+      return res.type('image/x-icon').sendFile(favPath);
     }
-    return res.status(404).json({ error: 'favicon not found', path: favPath });
   }
-  res.type('image/x-icon').sendFile(favPath);
+  
+  // If no favicon found, return a 204 No Content
+  logger.warn('No favicon found, returning 204');
+  res.status(204).end();
 });
 
 // Logging middleware

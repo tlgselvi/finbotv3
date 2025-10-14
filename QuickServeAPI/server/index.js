@@ -44,6 +44,16 @@ if (!fs.existsSync(staticPath)) {
 }
 logger.info(`Serving static files from: ${staticPath}`);
 logger.info(`Static path exists: ${fs.existsSync(staticPath)}`);
+// Debug: List all files in static directory
+if (fs.existsSync(staticPath)) {
+    try {
+        const files = fs.readdirSync(staticPath);
+        logger.info(`Static directory contents: ${files.join(', ')}`);
+    }
+    catch (e) {
+        logger.error('Error reading static directory:', e);
+    }
+}
 app.use(express.static(staticPath, {
     index: false, // Don't serve index.html for directory requests
     dotfiles: 'ignore', // Ignore dotfiles
