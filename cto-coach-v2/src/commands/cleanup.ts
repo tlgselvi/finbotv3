@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { report } from '../utils/output';
 
 export async function cleanupProject(options: any) {
     console.log(chalk.blue('🧹 CTO Koçu v3 - Temizlik Sistemi'));
@@ -261,8 +262,27 @@ export async function cleanupProject(options: any) {
         console.log(chalk.gray('- "Log temizle" → Log dosyalarını temizle'));
         console.log(chalk.gray('- "Gereksiz dosyaları sil" → Tüm temizlik'));
 
+        // Reporting
+        report({
+            command: 'cleanup',
+            status: 'success',
+            report: 'Cleanup completed',
+            score: 9,
+            project: projectName,
+            mode: options.mode || 'all'
+        });
+
     } catch (error) {
         console.error(chalk.red('❌ Temizlik hatası:'), error);
+
+        // Error reporting
+        report({
+            command: 'cleanup',
+            status: 'error',
+            message: error instanceof Error ? error.message : 'Unknown error',
+            project: projectName
+        });
+
         process.exit(1);
     }
 }

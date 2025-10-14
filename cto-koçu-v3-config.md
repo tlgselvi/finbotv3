@@ -47,7 +47,22 @@ Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çev
 ✅ Sprint planı oluşturuldu: plans/sprint-plan.md
 ```
 
-**Tolga:** Audit yap  
+**Tolga:** Audit yap
+
+## === Reporting Template Integration ===
+render:
+  mode: "markdown"
+  parser: "json"
+  template:
+    success: |
+      ✅ **{{command | upper}} RAPORU**
+      📁 Dosya: `{{report}}`
+      📊 Skor: {{score}}/10
+      🕒 Tarih: {{timestamp}}
+    error: |
+      ❌ **HATA: {{message}}**
+      🔍 Komut: {{command}}
+      🕒 {{timestamp}}  
 **Agent:**
 ```
 > node ./cto-coach-v2/dist/index.js audit -p FinBot

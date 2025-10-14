@@ -2,10 +2,11 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { report } from '../utils/output';
 
 export async function prepareSprint(options: { project: string; sprint?: string; plan?: string }) {
   const spinner = ora('Sprint planı hazırlanıyor...').start();
-  
+
   try {
     // Sprint şablonlarını tanımla
     const sprintTemplates = {
@@ -195,10 +196,10 @@ FinBot + CTO Koçu v2 entegrasyon özeti:
       // Sprint 2 özel planını kaydet
       const plansDir = join(process.cwd(), '..', 'plans');
       mkdirSync(plansDir, { recursive: true });
-      
+
       const planPath = join(plansDir, 'sprint2-monitoring-scaling.md');
       writeFileSync(planPath, sprint2Plan, { encoding: 'utf8' });
-      
+
       spinner.succeed(chalk.green(`Sprint 2 özel planı hazırlandı: ${options.project}`));
       console.log(chalk.blue('🎯 Sprint 2: Monitoring ve Scaling planı oluşturuldu!'));
       console.log(chalk.gray(`📁 Dosya konumu: ${planPath}`));
@@ -245,15 +246,33 @@ ${sprintNumber === '2' ? `- **Monitoring:** Prometheus + Grafana kurulumu
     // FinBot kök klasöründe plans klasörü oluştur ve sprint planını kaydet
     const plansDir = join(process.cwd(), '..', 'plans');
     mkdirSync(plansDir, { recursive: true });
-    
+
     const planPath = join(plansDir, 'sprint-plan.md');
     writeFileSync(planPath, sprintPlan, { encoding: 'utf8' });
-    
+
     spinner.succeed(chalk.green(`Sprint planı hazırlandı: ${options.project}`));
     console.log(chalk.blue('🎯 Sprint planı başarıyla oluşturuldu!'));
     console.log(chalk.gray(`📁 Dosya konumu: ${planPath}`));
+
+    // Reporting
+    report({
+      command: 'hazirla',
+      status: 'success',
+      report: planPath,
+      score: 10,
+      project: options.project,
+      sprint: options.sprint || '1'
+    });
   } catch (error) {
     spinner.fail(chalk.red('Sprint planı hazırlanamadı'));
     console.error(error);
+
+    // Error reporting
+    report({
+      command: 'hazirla',
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      project: options.project
+    });
   }
 }

@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import { report } from '../utils/output';
 
 export async function auditProject(options: { project: string }) {
   const spinner = ora('Güvenlik audit\'i çalıştırılıyor...').start();
@@ -78,8 +79,25 @@ ${securityChecks.map((check, index) => `
     console.log(chalk.blue('🔒 Güvenlik kontrol listesi hazırlandı!'));
     console.log(chalk.gray(`📁 Rapor konumu: ${auditPath}`));
     console.log(chalk.yellow('⚠️  Risk skoru: 6/10 (Orta Risk)'));
+    
+    // Reporting
+    report({
+      command: 'audit',
+      status: 'success',
+      report: auditPath,
+      score: 6,
+      project: options.project
+    });
   } catch (error) {
     spinner.fail(chalk.red('Güvenlik audit başarısız'));
     console.error(error);
+    
+    // Error reporting
+    report({
+      command: 'audit',
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      project: options.project
+    });
   }
 }
