@@ -52,9 +52,18 @@ app.use((req, res, next) => {
 // Register all routes from routes.ts (includes login endpoint)
 await registerRoutes(app);
 
-// Serve React app (SPA fallback) - must be after API routes
+// Serve React app (SPA fallback) - must be after API routes and static
 app.get('*', (req, res) => {
   try {
+    // Only handle browser navigations to HTML pages
+    const acceptHeader = req.get('Accept') || '';
+    const hasFileExtension = path.extname(req.path) !== '';
+    const isApiRequest = req.path.startsWith('/api');
+
+    if (isApiRequest || hasFileExtension || !acceptHeader.includes('text/html')) {
+      return res.status(404).end();
+    }
+
     logger.info(`Serving SPA for path: ${req.path}`);
     
     // In development, frontend is served by Vite on port 5173
