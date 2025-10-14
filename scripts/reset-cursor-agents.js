@@ -13,36 +13,36 @@ console.log('🔄 Cursor Agent Reset Başlatılıyor...\n');
 // 1. Tüm Cursor cache'lerini temizle
 console.log('🧹 Cursor cache temizleniyor...');
 const cachePaths = [
-  '.cursor',
-  '.vscode',
-  'node_modules/.cache',
-  '.git/cache'
+    '.cursor',
+    '.vscode',
+    'node_modules/.cache',
+    '.git/cache'
 ];
 
 cachePaths.forEach(cachePath => {
-  if (fs.existsSync(cachePath)) {
-    try {
-      if (cachePath === '.cursor') {
-        // .cursor klasörünü tamamen sil
-        fs.rmSync(cachePath, { recursive: true, force: true });
-        console.log(`✅ ${cachePath} tamamen silindi`);
-      } else {
-        // Diğer cache'leri temizle
-        const files = fs.readdirSync(cachePath);
-        files.forEach(file => {
-          if (file.includes('cache') || file.includes('temp')) {
-            const fullPath = path.join(cachePath, file);
-            if (fs.statSync(fullPath).isDirectory()) {
-              fs.rmSync(fullPath, { recursive: true, force: true });
-              console.log(`✅ ${fullPath} temizlendi`);
+    if (fs.existsSync(cachePath)) {
+        try {
+            if (cachePath === '.cursor') {
+                // .cursor klasörünü tamamen sil
+                fs.rmSync(cachePath, { recursive: true, force: true });
+                console.log(`✅ ${cachePath} tamamen silindi`);
+            } else {
+                // Diğer cache'leri temizle
+                const files = fs.readdirSync(cachePath);
+                files.forEach(file => {
+                    if (file.includes('cache') || file.includes('temp')) {
+                        const fullPath = path.join(cachePath, file);
+                        if (fs.statSync(fullPath).isDirectory()) {
+                            fs.rmSync(fullPath, { recursive: true, force: true });
+                            console.log(`✅ ${fullPath} temizlendi`);
+                        }
+                    }
+                });
             }
-          }
-        });
-      }
-    } catch (error) {
-      console.log(`⚠️ ${cachePath} temizlenemedi: ${error.message}`);
+        } catch (error) {
+            console.log(`⚠️ ${cachePath} temizlenemedi: ${error.message}`);
+        }
     }
-  }
 });
 
 // 2. .cursor klasörünü yeniden oluştur
@@ -120,19 +120,19 @@ console.log('✅ .cursorrules güncellendi');
 // 4. Cursor workspace ayarlarını sıfırla
 console.log('\n⚙️ Cursor workspace ayarları sıfırlanıyor...');
 const workspaceSettings = {
-  "typescript.preferences.includePackageJsonAutoImports": "auto",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "cursor.general.enableAgent": true,
-  "cursor.general.agentName": "CTO Koçu v3",
-  "cursor.general.agentVersion": "3.0",
-  "cursor.general.agentDescription": "FinBot v3 için otomatik geliştirme asistanı"
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "cursor.general.enableAgent": true,
+    "cursor.general.agentName": "CTO Koçu v3",
+    "cursor.general.agentVersion": "3.0",
+    "cursor.general.agentDescription": "FinBot v3 için otomatik geliştirme asistanı"
 };
 
 if (!fs.existsSync('.vscode')) {
-  fs.mkdirSync('.vscode', { recursive: true });
+    fs.mkdirSync('.vscode', { recursive: true });
 }
 
 fs.writeFileSync('.vscode/settings.json', JSON.stringify(workspaceSettings, null, 2));
@@ -141,22 +141,22 @@ console.log('✅ Cursor workspace ayarları sıfırlandı');
 // 5. Agent manifest oluştur
 console.log('\n📋 Agent manifest oluşturuluyor...');
 const agentManifest = {
-  "version": "1.0",
-  "agents": [
-    {
-      "id": "cto-koçu-v3",
-      "name": "CTO Koçu v3",
-      "version": "3.0",
-      "description": "FinBot v3 için otomatik geliştirme asistanı",
-      "status": "active",
-      "priority": "high",
-      "config_file": ".cursorrules",
-      "last_updated": new Date().toISOString(),
-      "developer": "Tolga Selvi"
-    }
-  ],
-  "active_agent": "cto-koçu-v3",
-  "last_updated": new Date().toISOString()
+    "version": "1.0",
+    "agents": [
+        {
+            "id": "cto-koçu-v3",
+            "name": "CTO Koçu v3",
+            "version": "3.0",
+            "description": "FinBot v3 için otomatik geliştirme asistanı",
+            "status": "active",
+            "priority": "high",
+            "config_file": ".cursorrules",
+            "last_updated": new Date().toISOString(),
+            "developer": "Tolga Selvi"
+        }
+    ],
+    "active_agent": "cto-koçu-v3",
+    "last_updated": new Date().toISOString()
 };
 
 fs.writeFileSync('.cursor/agents.json', JSON.stringify(agentManifest, null, 2));
