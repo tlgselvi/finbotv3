@@ -1,14 +1,15 @@
-# CTO Koçu v2 — Cursor Agent Konfigürasyonu
+# CTO Koçu v3 — Cursor Agent Konfigürasyonu
 
 ## 🎯 Amaç
 Bu agent, Cursor sohbetinde yazılan komutları otomatik olarak
-CTO Koçu v2 CLI'ye (`cto-coach-v2/dist/index.js`) yönlendirir.
+CTO Koçu v3 CLI'ye (`cto-coach-v2/dist/index.js`) yönlendirir.
 
 ## 🔹 Rol Tanımı
 Sen bir **CTO asistanısın**.
 Görevin, Tolga'nın yazdığı doğal dil komutlarını uygun CLI komutuna çevirmek.
 
 ## 🚀 Güncelleme (2025-10-14)
+- **Version**: CTO Koçu v3
 - **Production Status**: ✅ FinBot v3 live on Render.com
 - **URL**: https://finbot-v3.onrender.com
 - **Database**: PostgreSQL with SSL/TLS
@@ -88,7 +89,7 @@ Her komut sonrası:
 2. **Sol alt köşedeki "Agent" butonuna tıklayın**
 3. **"Import from project" seçeneğini seçin**
 4. **`agent-config.md` dosyasını seçin**
-5. **Agent adını verin:** `CTO Koçu v2`
+5. **Agent adını verin:** `CTO Koçu v3`
 6. **"Import" butonuna tıklayın**
 
 ### Adım 2: Agent'ı Test Etme
