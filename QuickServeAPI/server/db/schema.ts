@@ -115,6 +115,7 @@ export const transactions = pgTable('transactions', {
   recurringFrequency: varchar('recurring_frequency', { length: 20 }),
   tags: text('tags'), // JSON string
   investmentId: uuid('investment_id'), // References investments table
+  virmanPairId: varchar('virman_pair_id', { length: 255 }),
   isActive: boolean('is_active').default(true),
   deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -141,6 +142,8 @@ export const investments = pgTable('investments', {
   riskLevel: varchar('risk_level', { length: 20 }).notNull().default('medium'), // 'low', 'medium', 'high'
   purchaseDate: timestamp('purchase_date'),
   lastUpdated: timestamp('last_updated').defaultNow(),
+  accountId: uuid('account_id').references(() => accounts.id),
+  metadata: jsonb('metadata'),
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
