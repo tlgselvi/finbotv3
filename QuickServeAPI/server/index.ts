@@ -54,15 +54,39 @@ await registerRoutes(app);
 
 // Serve React app (SPA fallback) - must be after API routes
 app.get('*', (req, res) => {
-  // In development, frontend is served by Vite on port 5173
-  if (process.env.NODE_ENV === 'development') {
-    return res
-      .status(404)
-      .json({ error: 'Use frontend dev server on port 5173' });
-  }
+  try {
+    logger.info(`Serving SPA for path: ${req.path}`);
+    
+    // In development, frontend is served by Vite on port 5173
+    if (process.env.NODE_ENV === 'development') {
+      return res
+        .status(404)
+        .json({ error: 'Use frontend dev server on port 5173' });
+    }
 
-  const indexPath = path.join(__dirname, 'public', 'index.html');
-  res.sendFile(indexPath);
+    const indexPath = path.join(__dirname, 'public', 'index.html');
+    logger.info(`Looking for index.html at: ${indexPath}`);
+    logger.info(`__dirname: ${__dirname}`);
+    logger.info(`File exists: ${require('fs').existsSync(indexPath)}`);
+    
+    if (!require('fs').existsSync(indexPath)) {
+      logger.error(`Index file not found at: ${indexPath}`);
+      return res.status(404).json({ 
+        error: 'Frontend not built', 
+        path: indexPath,
+        dirname: __dirname 
+      });
+    }
+    
+    res.sendFile(indexPath);
+  } catch (error) {
+    logger.error('Error serving SPA:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      path: req.path
+    });
+  }
 });
 
 // Error handling
