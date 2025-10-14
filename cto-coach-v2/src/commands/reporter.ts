@@ -17,47 +17,47 @@ const tpl: Template = {
 export function renderReport(parsed: any): string {
     // Düzeltme durumu kontrolü
     if (parsed._repaired) {
-        return `🔧 **DÜZELTME DENENDİ**\n` + 
-               `📝 Açıklama: ${parsed._repairDescription || 'Otomatik düzeltme uygulandı'}\n` +
-               renderNormal(parsed);
+        return `🔧 **DÜZELTME DENENDİ**\n` +
+            `📝 Açıklama: ${parsed._repairDescription || 'Otomatik düzeltme uygulandı'}\n` +
+            renderNormal(parsed);
     }
-    
+
     // Browser test durumu
     if (parsed.command === "browser-test") {
         return `🔍 **BROWSER TEST**\n` +
-               `🌐 URL: ${parsed.url || 'N/A'}\n` +
-               `📄 Başlık: ${parsed.title || 'N/A'}\n` +
-               `📊 Durum: ${parsed.status === 'success' ? '✅ Başarılı' : '❌ Başarısız'}\n` +
-               (parsed.errors ? `⚠️ Hatalar: ${parsed.errors.join(', ')}\n` : '') +
-               (parsed.performance ? `⚡ Yükleme Süresi: ${parsed.performance.loadTime}ms\n` : '') +
-               `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
+            `🌐 URL: ${parsed.url || 'N/A'}\n` +
+            `📄 Başlık: ${parsed.title || 'N/A'}\n` +
+            `📊 Durum: ${parsed.status === 'success' ? '✅ Başarılı' : '❌ Başarısız'}\n` +
+            (parsed.errors ? `⚠️ Hatalar: ${parsed.errors.join(', ')}\n` : '') +
+            (parsed.performance ? `⚡ Yükleme Süresi: ${parsed.performance.loadTime}ms\n` : '') +
+            `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
     }
-    
+
     // Self-heal durumu
     if (parsed.command === "self-heal") {
         return `🛠️ **SELF-HEAL RAPORU**\n` +
-               `🔧 Otomatik düzeltme: ${parsed.autoFixed || 0} sorun\n` +
-               `📊 Skor: ${parsed.score || 0}/10\n` +
-               `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
+            `🔧 Otomatik düzeltme: ${parsed.autoFixed || 0} sorun\n` +
+            `📊 Skor: ${parsed.score || 0}/10\n` +
+            `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
     }
-    
+
     // Rollback durumu
     if (parsed.command === "rollback") {
         return `⏪ **ROLLBACK RAPORU**\n` +
-               `📸 Snapshot: ${parsed.snapshotId || 'N/A'}\n` +
-               `📊 Durum: ${parsed.status === 'success' ? '✅ Başarılı' : '❌ Başarısız'}\n` +
-               `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
+            `📸 Snapshot: ${parsed.snapshotId || 'N/A'}\n` +
+            `📊 Durum: ${parsed.status === 'success' ? '✅ Başarılı' : '❌ Başarısız'}\n` +
+            `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
     }
-    
+
     // Script çalıştırma durumu
     if (parsed.command.includes("guncelle") || parsed.command.includes("update")) {
         return `🔄 **OTOMATIK GÜNCELLEME**\n` +
-               `📝 Komut: ${parsed.command}\n` +
-               `📊 Durum: ${parsed.status === 'success' ? '✅ Başarılı' : '❌ Başarısız'}\n` +
-               (parsed.output ? `📄 Çıktı: ${parsed.output.substring(0, 200)}...\n` : '') +
-               `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
+            `📝 Komut: ${parsed.command}\n` +
+            `📊 Durum: ${parsed.status === 'success' ? '✅ Başarılı' : '❌ Başarısız'}\n` +
+            (parsed.output ? `📄 Çıktı: ${parsed.output.substring(0, 200)}...\n` : '') +
+            `🕒 Tarih: ${parsed.timestamp || new Date().toISOString()}`;
     }
-    
+
     return renderNormal(parsed);
 }
 
