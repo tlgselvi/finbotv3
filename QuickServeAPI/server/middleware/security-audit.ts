@@ -150,6 +150,42 @@ class SecurityAuditor {
 
     return stats;
   }
+
+  public unblockIP(ip: string): boolean {
+    const record = this.suspiciousIPs.get(ip);
+    if (!record) {
+      return false; // IP not found
+    }
+
+    record.blocked = false;
+    record.lastSeen = new Date();
+    
+    // Log the unblock event
+    this.auditLog.push({
+      id: `unblock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date().toISOString(),
+      type: 'ip_unblocked',
+      severity: 'info',
+      message: `IP ${ip} manually unblocked`,
+      details: {
+        ip,
+        unblockedAt: new Date().toISOString(),
+        reason: 'manual_admin_action',
+      },
+    });
+
+    return true;
+  }
+
+  public getBlockedIPs(): Array<{ip: string, blockedAt: Date, reason: string}> {
+    return Array.from(this.suspiciousIPs.entries())
+      .filter(([_, record]) => record.blocked)
+      .map(([ip, record]) => ({
+        ip,
+        blockedAt: record.lastSeen,
+        reason: record.reason,
+      }));
+  }
 }
 
 // Security audit middleware
@@ -369,10 +405,13 @@ export const getSecurityStats = (req: Request, res: Response) => {
   });
 };
 
+export const securityAuditor = SecurityAuditor.getInstance();
+
 export default {
   securityAudit,
   rateLimitWithAudit,
   getSecurityAuditLog,
   getSecurityStats,
   SecurityAuditor,
+  securityAuditor,
 };

@@ -694,4 +694,65 @@ router.get(
   }
 );
 
+// =====================
+// IP MANAGEMENT
+// =====================
+
+// Unblock IP address
+router.post(
+  '/unblock-ip',
+  securityMiddleware.securityContext,
+  securityMiddleware.requirePermission(PermissionV2.ADMIN),
+  async (req: any, res) => {
+    try {
+      const { ip } = req.body;
+      
+      if (!ip) {
+        return res.status(400).json({ error: 'IP address is required' });
+      }
+
+      // Import security auditor
+      const { securityAuditor } = await import('../middleware/security-audit');
+      
+      // Unblock the IP
+      securityAuditor.unblockIP(ip);
+      
+      logger.info(`IP ${ip} unblocked by admin ${req.user.email}`);
+      
+      res.json({
+        success: true,
+        message: `IP ${ip} has been unblocked`,
+        unblockedAt: new Date(),
+      });
+    } catch (error) {
+      logger.error('Error unblocking IP:', error);
+      res.status(500).json({ error: 'Failed to unblock IP' });
+    }
+  }
+);
+
+// Get blocked IPs
+router.get(
+  '/blocked-ips',
+  securityMiddleware.securityContext,
+  securityMiddleware.requirePermission(PermissionV2.ADMIN),
+  async (req: any, res) => {
+    try {
+      // Import security auditor
+      const { securityAuditor } = await import('../middleware/security-audit');
+      
+      const blockedIPs = securityAuditor.getBlockedIPs();
+      
+      res.json({
+        success: true,
+        blockedIPs,
+        count: blockedIPs.length,
+      });
+    } catch (error) {
+      logger.error('Error getting blocked IPs:', error);
+      res.status(500).json({ error: 'Failed to get blocked IPs' });
+    }
+  }
+);
+
 export default router;
