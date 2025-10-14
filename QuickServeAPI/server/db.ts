@@ -51,7 +51,7 @@ const dbInterface = {
 
   getTransactions: async (userId?: string) => {
     let query = db.select().from(schema.transactions);
-    
+
     if (userId) {
       query = query.where(eq(schema.transactions.userId, userId));
     }

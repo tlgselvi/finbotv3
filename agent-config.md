@@ -138,7 +138,7 @@ Optimize et
 
 ## 📁 Oluşturulan Dosyalar
 
-Agent çalıştığında şu dosyalar oluşturulur:
+CTO Koçu v3 çalıştığında şu dosyalar oluşturulur:
 
 - `plans/sprint-plan.md` - Sprint planları
 - `plans/security-audit.md` - Güvenlik audit raporu
