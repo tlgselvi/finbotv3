@@ -1,6 +1,6 @@
 # CTO Koçu v3 - Otomatik Deploy Raporu
 
-**Tarih:** 14.10.2025 15:33:08  
+**Tarih:** 14.10.2025 15:34:52  
 **Durum:** ⚠️ KISMEN BAŞARILI  
 
 ## 📋 Yapılan İşlemler
