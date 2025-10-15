@@ -4,10 +4,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default {
-  schema: './server/db/schema.ts',
+  schema: './shared/schema-sqlite.ts',
   out: './migrations',
-  dialect: 'postgresql',
+  dialect: 'sqlite',
   dbCredentials: {
-    url: process.env.DATABASE_URL || 'postgresql://finbot_user:finbot_dev_pass@localhost:5432/finbot_dev',
+    url: process.env.DATABASE_URL || 'file:./dev.db',
   },
 } satisfies Config;

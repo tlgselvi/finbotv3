@@ -27,18 +27,7 @@ export interface LogContext {
 // Logger configuration
 const loggerConfig = {
   level: process.env.LOG_LEVEL || 'info',
-  transport:
-    process.env.NODE_ENV === 'development'
-      ? {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'SYS:standard',
-            ignore: 'pid,hostname',
-            messageFormat: '{msg}',
-          },
-        }
-      : undefined,
+  transport: undefined, // Disable transport to avoid pino-pretty issues
   formatters: {
     level: (label: string) => {
       return { level: label.toUpperCase() };

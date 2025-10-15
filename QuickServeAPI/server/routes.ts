@@ -38,6 +38,8 @@ import {
   TeamRole,
 } from '../shared/schema';
 import { db, dbInterface } from './db';
+import { users } from '../shared/schema-sqlite';
+import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { randomBytes, randomUUID } from 'crypto';
 import type { AuthenticatedRequest } from './middleware/auth';
@@ -1227,9 +1229,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = { email, password };
       logger.debug('✓ Validation passed');
 
-      // Find user by email - use db interface
+      // Find user by email - use Drizzle query
       logger.debug('Searching for user:', validatedData.email);
-      const user = await dbInterface.getUserByEmail(validatedData.email) as any;
+      const userResult = await db.select().from(users).where(eq(users.email, validatedData.email)).limit(1);
+      const user = userResult[0] as any;
 
       if (!user) {
         logger.warn('Login failed: user not found', {

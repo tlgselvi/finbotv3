@@ -292,7 +292,7 @@ async function runSmartTest() {
   console.log('   ⌨️ Kapatmak için: Ctrl+C\n');
 
   // Sonsuz bekle
-  await new Promise(() => {});
+  await new Promise(() => { });
 }
 
 runSmartTest().catch(console.error);
